@@ -27,6 +27,7 @@ namespace RPGApi.Repositories
         {
             return await _context.Players
                 .Include(p => p.Characters)
+                .ThenInclude(c => c.Weapons)
                 .ToListAsync();
         }
 
@@ -34,6 +35,7 @@ namespace RPGApi.Repositories
         {
             return await _context.Players
                 .Include(p => p.Characters)
+                .ThenInclude(c => c.Weapons)
                 .SingleOrDefaultAsync(p => p.Id == id);
         }
 

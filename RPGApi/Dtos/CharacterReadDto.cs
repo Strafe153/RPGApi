@@ -1,14 +1,17 @@
 ﻿using RPGApi.Data;
+using RPGApi.Models;
 
 namespace RPGApi.Dtos
 {
-    public class CharacterReadDto
+    public record CharacterReadDto
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public CharacterRace Race { get; set; }
-        public int Health { get; set; }
+        public Guid Id { get; init; }
+        public string Name { get; init; }
+        public CharacterRace Race { get; init; }
+        public int Health { get; init; }
 
-        public Guid PlayerId { get; set; }
+        public ICollection<Weapon> Weapons { get; init; }
+
+        public Guid PlayerId { get; init; }
     }
 }

@@ -10,6 +10,8 @@ namespace RPGApi.Models
         public CharacterRace Race { get; set; }
         public int Health { get; set; } = 100;
 
+        public ICollection<Weapon> Weapons { get; set; }
+
         [JsonIgnore]
         public Player Player { get; set; }
         public Guid PlayerId { get; set; }
