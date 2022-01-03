@@ -61,7 +61,7 @@ namespace RPGApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdatePlayerAsync(Guid id, PlayerCreateUpdateDto updateDto)
         {
-            Player player = await _repository.GetByIdAsync(id);
+            Player? player = await _repository.GetByIdAsync(id);
 
             if (player is null)
             {
@@ -78,7 +78,7 @@ namespace RPGApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeletePlayerAsync(Guid id)
         {
-            Player player = await _repository.GetByIdAsync(id);
+            Player? player = await _repository.GetByIdAsync(id);
 
             if (player is null)
             {
