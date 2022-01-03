@@ -7,6 +7,6 @@ namespace RPGApi.Dtos
         public Guid Id { get; init; }
         public string Name { get; init; }
 
-        public ICollection<Character> Characters { get; set; }
+        public ICollection<Character> Characters { get; init; }
     }
 }
