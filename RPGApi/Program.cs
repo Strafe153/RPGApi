@@ -10,6 +10,7 @@ builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("defaultConnection")));
 
 builder.Services.AddScoped<IControllerRepository<Player>, PlayerRepository>();
+builder.Services.AddScoped<IControllerRepository<Character>, CharacterRepository>();
 
 builder.Services.AddControllers(options =>
 {

@@ -25,12 +25,16 @@ namespace RPGApi.Repositories
 
         public async Task<IEnumerable<Player>> GetAllAsync()
         {
-            return await _context.Players.ToListAsync();
+            return await _context.Players
+                .Include(p => p.Characters)
+                .ToListAsync();
         }
 
-        public async Task<Player> GetByIdAsync(Guid id)
+        public async Task<Player?> GetByIdAsync(Guid id)
         {
-            return await _context.Players.SingleOrDefaultAsync(p => p.Id == id);
+            return await _context.Players
+                .Include(p => p.Characters)
+                .SingleOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task SaveChangesAsync()
