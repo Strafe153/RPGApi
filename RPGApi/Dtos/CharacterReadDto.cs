@@ -11,6 +11,7 @@ namespace RPGApi.Dtos
         public int Health { get; init; }
 
         public ICollection<Weapon> Weapons { get; init; }
+        public ICollection<Spell> Spells { get; init; }
 
         public Guid PlayerId { get; init; }
     }

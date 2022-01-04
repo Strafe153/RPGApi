@@ -11,6 +11,7 @@ namespace RPGApi.Models
         public int Health { get; set; } = 100;
 
         public ICollection<Weapon> Weapons { get; set; }
+        public ICollection<Spell> Spells { get; set; }
 
         [JsonIgnore]
         public Player Player { get; set; }
