@@ -12,6 +12,7 @@ builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(
 builder.Services.AddScoped<IControllerRepository<Player>, PlayerRepository>();
 builder.Services.AddScoped<IControllerRepository<Character>, CharacterRepository>();
 builder.Services.AddScoped<IControllerRepository<Weapon>, WeaponRepository>();
+builder.Services.AddScoped<IControllerRepository<Spell>, SpellRepository>();
 
 builder.Services.AddControllers(options =>
 {

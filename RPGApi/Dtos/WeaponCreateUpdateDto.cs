@@ -10,6 +10,7 @@ namespace RPGApi.Dtos
         public string Name { get; init; }
 
         public WeaponType Type { get; init; } = WeaponType.Sword;
+        public int Damage { get; init; } = 30;
 
         [Required]
         public Guid CharacterId { get; init; }

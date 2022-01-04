@@ -3,11 +3,11 @@ using RPGApi.Data;
 
 namespace RPGApi.Models
 {
-    public class Weapon
+    public class Spell
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public WeaponType Type { get; set; }
+        public SpellType Type { get; set; }
         public int Damage { get; set; }
 
         [JsonIgnore]
