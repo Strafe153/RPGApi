@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RPGApi.Data;
-using RPGApi.Models;
 
 namespace RPGApi.Repositories
 {
@@ -25,12 +24,16 @@ namespace RPGApi.Repositories
 
         public async Task<IEnumerable<Weapon>> GetAllAsync()
         {
-            return await _context.Weapons.ToListAsync();
+            return await _context.Weapons
+                .Include(w => w.Characters)
+                .ToListAsync();
         }
 
         public async Task<Weapon?> GetByIdAsync(Guid id)
         {
-            return await _context.Weapons.SingleOrDefaultAsync(w => w.Id == id);
+            return await _context.Weapons
+                .Include(w => w.Characters)
+                .SingleOrDefaultAsync(w => w.Id == id);
         }
 
         public async Task SaveChangesAsync()

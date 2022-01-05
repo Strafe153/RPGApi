@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using RPGApi.Dtos;
-using RPGApi.Models;
 
 namespace RPGApi.Profiles
 {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RPGApi.Data;
-using RPGApi.Models;
 
 namespace RPGApi.Repositories
 {

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RPGApi.Data;
-using RPGApi.Models;
 
 namespace RPGApi.Repositories
 {
@@ -27,9 +26,6 @@ namespace RPGApi.Repositories
         {
             return await _context.Players
                 .Include(p => p.Characters)
-                .ThenInclude(c => c.Weapons)
-                .Include(p => p.Characters)
-                .ThenInclude(c => c.Spells)
                 .ToListAsync();
         }
 
@@ -37,9 +33,6 @@ namespace RPGApi.Repositories
         {
             return await _context.Players
                 .Include(p => p.Characters)
-                .ThenInclude(c => c.Weapons)
-                .Include(p => p.Characters)
-                .ThenInclude(c => c.Spells)
                 .SingleOrDefaultAsync(p => p.Id == id);
         }
 

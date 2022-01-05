@@ -1,6 +1,6 @@
+global using RPGApi.Models;
 using Microsoft.EntityFrameworkCore;
 using RPGApi.Data;
-using RPGApi.Models;
 using RPGApi.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);

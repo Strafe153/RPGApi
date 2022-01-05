@@ -7,12 +7,9 @@ namespace RPGApi.Dtos
     {
         [Required]
         [StringLength(20, MinimumLength = 1)]
-        public string Name { get; set; }
+        public string Name { get; init; }
 
-        public SpellType Type { get; set; } = SpellType.Fire;
-        public int Damage { get; set; } = 15;
-
-        [Required]
-        public Guid CharacterId { get; set; }
+        public SpellType Type { get; init; } = SpellType.Fire;
+        public int Damage { get; init; } = 15;
     }
 }
