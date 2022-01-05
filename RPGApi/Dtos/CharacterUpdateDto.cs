@@ -3,13 +3,11 @@ using RPGApi.Data;
 
 namespace RPGApi.Dtos
 {
-    public record WeaponCreateUpdateDto
+    public record CharacterUpdateDto
     {
-        [Required]
         [StringLength(20, MinimumLength = 1)]
         public string Name { get; init; }
 
-        public WeaponType Type { get; init; } = WeaponType.Sword;
-        public int Damage { get; init; } = 30;
+        public CharacterRace Race { get; init; } = CharacterRace.Human;
     }
 }

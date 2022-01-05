@@ -1,6 +1,4 @@
-﻿using RPGApi.Models;
-
-namespace RPGApi.Dtos
+﻿namespace RPGApi.Dtos
 {
     public record PlayerReadDto
     {

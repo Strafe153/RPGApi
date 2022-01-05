@@ -3,7 +3,7 @@ using RPGApi.Data;
 
 namespace RPGApi.Dtos
 {
-    public record CharacterCreateUpdateDto
+    public record CharacterCreateDto
     {
         [Required]
         [StringLength(20, MinimumLength = 1)]

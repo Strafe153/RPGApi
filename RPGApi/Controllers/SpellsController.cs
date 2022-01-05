@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RPGApi.Dtos;
-using RPGApi.Models;
 using RPGApi.Repositories;
 using AutoMapper;
 

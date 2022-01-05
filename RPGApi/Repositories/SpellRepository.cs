@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RPGApi.Data;
-using RPGApi.Models;
 
 namespace RPGApi.Repositories
 {
@@ -25,12 +24,16 @@ namespace RPGApi.Repositories
 
         public async Task<IEnumerable<Spell>> GetAllAsync()
         {
-            return await _context.Spells.ToListAsync();
+            return await _context.Spells
+                .Include(s => s.Characters)
+                .ToListAsync();
         }
 
         public async Task<Spell?> GetByIdAsync(Guid id)
         {
-            return await _context.Spells.SingleOrDefaultAsync(s => s.Id == id);
+            return await _context.Spells
+                .Include(s => s.Characters)
+                .SingleOrDefaultAsync(s => s.Id == id);
         }
 
         public async Task SaveChangesAsync()

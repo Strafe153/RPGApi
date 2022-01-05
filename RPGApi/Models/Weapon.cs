@@ -11,7 +11,6 @@ namespace RPGApi.Models
         public int Damage { get; set; }
 
         [JsonIgnore]
-        public Character Character { get; set; }
-        public Guid CharacterId { get; set; }
+        public ICollection<Character> Characters { get; set; }
     }
 }

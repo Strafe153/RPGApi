@@ -9,6 +9,6 @@ namespace RPGApi.Dtos
         public WeaponType Type { get; init; }
         public int Damage { get; init; }
 
-        public Guid CharacterId { get; init; }
+        public ICollection<Character> Characters { get; init; }
     }
 }

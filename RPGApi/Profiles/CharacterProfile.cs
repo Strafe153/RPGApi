@@ -1,5 +1,4 @@
 ﻿using RPGApi.Dtos;
-using RPGApi.Models;
 using AutoMapper;
 
 namespace RPGApi.Profiles
@@ -9,7 +8,8 @@ namespace RPGApi.Profiles
         public CharacterProfile()
         {
             CreateMap<Character, CharacterReadDto>();
-            CreateMap<CharacterCreateUpdateDto, Character>();
+            CreateMap<CharacterCreateDto, Character>();
+            CreateMap<CharacterUpdateDto, Character>();
         }
     }
 }
