@@ -7,7 +7,7 @@ namespace RPGApi.Models
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public CharacterRace Race { get; set; }
+        public CharacterRace Race { get; set; } = CharacterRace.Human;
         public int Health { get; set; } = 100;
 
         [JsonIgnore]
