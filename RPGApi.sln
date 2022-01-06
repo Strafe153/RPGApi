@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPGApi", "RPGApi\RPGApi.csproj", "{2ED9D83B-D992-4233-960F-59328B9E1079}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RPGApi", "RPGApi\RPGApi.csproj", "{2ED9D83B-D992-4233-960F-59328B9E1079}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPGApi.Tests", "RPGApi.Tests\RPGApi.Tests.csproj", "{831F4551-D19D-4F66-BD2A-10F8D871B8AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{2ED9D83B-D992-4233-960F-59328B9E1079}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2ED9D83B-D992-4233-960F-59328B9E1079}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2ED9D83B-D992-4233-960F-59328B9E1079}.Release|Any CPU.Build.0 = Release|Any CPU
+		{831F4551-D19D-4F66-BD2A-10F8D871B8AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{831F4551-D19D-4F66-BD2A-10F8D871B8AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{831F4551-D19D-4F66-BD2A-10F8D871B8AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{831F4551-D19D-4F66-BD2A-10F8D871B8AD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
