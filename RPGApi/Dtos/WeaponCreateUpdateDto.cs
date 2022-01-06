@@ -9,7 +9,7 @@ namespace RPGApi.Dtos
         [StringLength(20, MinimumLength = 1)]
         public string Name { get; init; }
 
-        public WeaponType Type { get; init; } = WeaponType.Sword;
-        public int Damage { get; init; } = 30;
+        public WeaponType Type { get; init; }
+        public int Damage { get; init; }
     }
 }

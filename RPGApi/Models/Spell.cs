@@ -7,8 +7,8 @@ namespace RPGApi.Models
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public SpellType Type { get; set; }
-        public int Damage { get; set; }
+        public SpellType Type { get; set; } = SpellType.Fire;
+        public int Damage { get; set; } = 15;
 
         [JsonIgnore]
         public ICollection<Character> Characters { get; set; }
