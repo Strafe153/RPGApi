@@ -39,7 +39,7 @@ namespace RPGApi.Controllers
 
             var readDto = _mapper.Map<SpellReadDto>(spell);
 
-            return readDto;
+            return Ok(readDto);
         }
 
         [HttpPost]
