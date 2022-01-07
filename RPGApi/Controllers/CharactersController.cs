@@ -95,17 +95,17 @@ namespace RPGApi.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id}/add/weapon")]
-        public async Task<ActionResult> AddWeaponAsync(Guid id, CharacterAddRemoveItem weaponDto)
+        [HttpPut("add/weapon")]
+        public async Task<ActionResult> AddWeaponAsync(CharacterAddRemoveItem addDto)
         {
-            Character? character = await _characterRepository.GetByIdAsync(id);
+            Character? character = await _characterRepository.GetByIdAsync(addDto.CharacterId);
 
             if (character is null)
             {
                 return NotFound();
             }
 
-            Weapon? weapon = await _weaponRepository.GetByIdAsync(weaponDto.Id);
+            Weapon? weapon = await _weaponRepository.GetByIdAsync(addDto.ItemId);
 
             if (weapon is null)
             {
@@ -119,17 +119,17 @@ namespace RPGApi.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id}/remove/weapon")]
-        public async Task<ActionResult> RemoveWeaponAsync(Guid id, CharacterAddRemoveItem weaponDto)
+        [HttpPut("remove/weapon")]
+        public async Task<ActionResult> RemoveWeaponAsync(CharacterAddRemoveItem weaponDto)
         {
-            Character? character = await _characterRepository.GetByIdAsync(id);
+            Character? character = await _characterRepository.GetByIdAsync(weaponDto.CharacterId);
 
             if (character is null)
             {
                 return NotFound();
             }
 
-            Weapon? weapon = await _weaponRepository.GetByIdAsync(weaponDto.Id);
+            Weapon? weapon = await _weaponRepository.GetByIdAsync(weaponDto.ItemId);
 
             if (weapon is null)
             {
@@ -143,17 +143,17 @@ namespace RPGApi.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id}/add/spell")]
-        public async Task<ActionResult> AddSpellAsync(Guid id, CharacterAddRemoveItem spellDto)
+        [HttpPut("add/spell")]
+        public async Task<ActionResult> AddSpellAsync(CharacterAddRemoveItem spellDto)
         {
-            Character? character = await _characterRepository.GetByIdAsync(id);
+            Character? character = await _characterRepository.GetByIdAsync(spellDto.CharacterId);
 
             if (character is null)
             {
                 return NotFound();
             }
 
-            Spell? spell = await _spellRepository.GetByIdAsync(spellDto.Id);
+            Spell? spell = await _spellRepository.GetByIdAsync(spellDto.ItemId);
 
             if (spell is null)
             {
@@ -167,17 +167,17 @@ namespace RPGApi.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id}/remove/spell")]
-        public async Task<ActionResult> RemoveSpellAsync(Guid id, CharacterAddRemoveItem spellDto)
+        [HttpPut("remove/spell")]
+        public async Task<ActionResult> RemoveSpellAsync(CharacterAddRemoveItem spellDto)
         {
-            Character? character = await _characterRepository.GetByIdAsync(id);
+            Character? character = await _characterRepository.GetByIdAsync(spellDto.CharacterId);
 
             if (character is null)
             {
                 return NotFound();
             }
 
-            Spell? spell = await _spellRepository.GetByIdAsync(spellDto.Id);
+            Spell? spell = await _spellRepository.GetByIdAsync(spellDto.ItemId);
 
             if (spell is null)
             {
