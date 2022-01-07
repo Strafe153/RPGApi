@@ -138,7 +138,7 @@ namespace RPGApi.Tests
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
 
             // Act
-            var result = await _controller.AddWeaponAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.AddWeaponAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -152,7 +152,7 @@ namespace RPGApi.Tests
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon)null);
 
             // Act
-            var result = await _controller.AddWeaponAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.AddWeaponAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<BadRequestResult>(result);
@@ -165,7 +165,7 @@ namespace RPGApi.Tests
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character)null);
 
             // Act
-            var result = await _controller.AddWeaponAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.AddWeaponAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -183,7 +183,7 @@ namespace RPGApi.Tests
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
 
             // Act
-            var result = await _controller.RemoveWeaponAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.RemoveWeaponAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -197,7 +197,7 @@ namespace RPGApi.Tests
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon)null);
 
             // Act
-            var result = await _controller.RemoveWeaponAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.RemoveWeaponAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<BadRequestResult>(result);
@@ -210,7 +210,7 @@ namespace RPGApi.Tests
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character)null);
 
             // Act
-            var result = await _controller.RemoveWeaponAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.RemoveWeaponAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -228,7 +228,7 @@ namespace RPGApi.Tests
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
 
             // Act
-            var result = await _controller.AddSpellAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.AddSpellAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -242,7 +242,7 @@ namespace RPGApi.Tests
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell)null);
 
             // Act
-            var result = await _controller.AddSpellAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.AddSpellAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<BadRequestResult>(result);
@@ -255,7 +255,7 @@ namespace RPGApi.Tests
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character)null);
 
             // Act
-            var result = await _controller.AddSpellAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.AddSpellAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -273,7 +273,7 @@ namespace RPGApi.Tests
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
 
             // Act
-            var result = await _controller.RemoveSpellAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.RemoveSpellAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -287,7 +287,7 @@ namespace RPGApi.Tests
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell)null);
 
             // Act
-            var result = await _controller.RemoveSpellAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.RemoveSpellAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<BadRequestResult>(result);
@@ -300,7 +300,7 @@ namespace RPGApi.Tests
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character)null);
 
             // Act
-            var result = await _controller.RemoveSpellAsync(Guid.Empty, new CharacterAddRemoveItem());
+            var result = await _controller.RemoveSpellAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);

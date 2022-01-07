@@ -2,6 +2,7 @@
 {
     public record CharacterAddRemoveItem
     {
-        public Guid Id { get; init; }
+        public Guid CharacterId { get; init; }
+        public Guid ItemId { get; init; }
     }
 }
