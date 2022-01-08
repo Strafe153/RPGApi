@@ -9,6 +9,7 @@ namespace RPGApi.Profiles
         {
             CreateMap<Player, PlayerReadDto>();
             CreateMap<PlayerCreateUpdateDto, Player>();
+            CreateMap<Player, PlayerCreateUpdateDto>();
         }
     }
 }

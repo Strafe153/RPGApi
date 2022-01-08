@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.JsonPatch;
 using RPGApi.Dtos;
 using RPGApi.Repositories;
 using AutoMapper;
@@ -63,6 +64,32 @@ namespace RPGApi.Controllers
             if (player is null)
             {
                 return NotFound();
+            }
+
+            _mapper.Map(updateDto, player);
+            _repository.Update(player);
+            await _repository.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PartialUpdateplayerAsync(Guid id,
+            [FromBody]JsonPatchDocument<PlayerCreateUpdateDto> patchDoc)
+        {
+            Player? player = await _repository.GetByIdAsync(id);
+
+            if (player is null)
+            {
+                return NotFound();
+            }
+
+            var updateDto = _mapper.Map<PlayerCreateUpdateDto>(player);
+            patchDoc.ApplyTo(updateDto, ModelState);
+
+            if (!TryValidateModel(updateDto))
+            {
+                return ValidationProblem(ModelState);
             }
 
             _mapper.Map(updateDto, player);
