@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using RPGApi.Dtos;
+﻿using RPGApi.Dtos;
+using AutoMapper;
 
 namespace RPGApi.Profiles
 {
