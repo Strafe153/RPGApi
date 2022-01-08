@@ -10,6 +10,7 @@ namespace RPGApi.Profiles
             CreateMap<Character, CharacterReadDto>();
             CreateMap<CharacterCreateDto, Character>();
             CreateMap<CharacterUpdateDto, Character>();
+            CreateMap<Character, CharacterUpdateDto>();
         }
     }
 }

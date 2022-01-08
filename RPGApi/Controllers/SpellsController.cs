@@ -75,7 +75,7 @@ namespace RPGApi.Controllers
 
         [HttpPatch("{id}")]
         public async Task<ActionResult> PartialUpdateSpellAsync(Guid id, 
-            JsonPatchDocument<SpellCreateUpdateDto> patchDoc)
+            [FromBody]JsonPatchDocument<SpellCreateUpdateDto> patchDoc)
         {
             Spell? spell = await _repository.GetByIdAsync(id);
 
