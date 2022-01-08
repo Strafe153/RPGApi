@@ -9,6 +9,7 @@ namespace RPGApi.Profiles
         {
             CreateMap<Spell, SpellReadDto>();
             CreateMap<SpellCreateUpdateDto, Spell>();
+            CreateMap<Spell, SpellCreateUpdateDto>();
         }
     }
 }

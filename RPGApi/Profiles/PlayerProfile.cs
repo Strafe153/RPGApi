@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using RPGApi.Dtos;
+﻿using RPGApi.Dtos;
+using AutoMapper;
 
 namespace RPGApi.Profiles
 {
@@ -9,6 +9,7 @@ namespace RPGApi.Profiles
         {
             CreateMap<Player, PlayerReadDto>();
             CreateMap<PlayerCreateUpdateDto, Player>();
+            CreateMap<Player, PlayerCreateUpdateDto>();
         }
     }
 }

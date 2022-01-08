@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.JsonPatch;
 using RPGApi.Dtos;
 using RPGApi.Repositories;
 using AutoMapper;
@@ -63,6 +64,32 @@ namespace RPGApi.Controllers
             if (spell is null)
             {
                 return NotFound();
+            }
+
+            _mapper.Map(updateDto, spell);
+            _repository.Update(spell);
+            await _repository.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PartialUpdateSpellAsync(Guid id, 
+            JsonPatchDocument<SpellCreateUpdateDto> patchDoc)
+        {
+            Spell? spell = await _repository.GetByIdAsync(id);
+
+            if (spell is null)
+            {
+                return NotFound();
+            }
+
+            var updateDto = _mapper.Map<SpellCreateUpdateDto>(spell);
+            patchDoc.ApplyTo(updateDto, ModelState);
+
+            if (!TryValidateModel(updateDto))
+            {
+                return ValidationProblem(ModelState);
             }
 
             _mapper.Map(updateDto, spell);

@@ -9,6 +9,7 @@ namespace RPGApi.Profiles
         {
             CreateMap<Weapon, WeaponReadDto>();
             CreateMap<WeaponCreateUpdateDto, Weapon>();
+            CreateMap<Weapon, WeaponCreateUpdateDto>();
         }
     }
 }

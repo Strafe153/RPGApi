@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿using Newtonsoft.Json;
 using RPGApi.Data;
 
 namespace RPGApi.Models
@@ -7,8 +7,8 @@ namespace RPGApi.Models
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public SpellType Type { get; set; } = SpellType.Fire;
-        public int Damage { get; set; } = 15;
+        public SpellType Type { get; set; }
+        public int Damage { get; set; }
 
         [JsonIgnore]
         public ICollection<Character> Characters { get; set; }
