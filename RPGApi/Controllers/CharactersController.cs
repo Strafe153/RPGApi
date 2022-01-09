@@ -13,16 +13,19 @@ namespace RPGApi.Controllers
         private readonly IControllerRepository<Character> _characterRepository;
         private readonly IControllerRepository<Weapon> _weaponRepository;
         private readonly IControllerRepository<Spell> _spellRepository;
+        private readonly IControllerRepository<Mount> _mountRepository;
         private readonly IMapper _mapper;
 
         public CharactersController(IControllerRepository<Character> characterRepository,
             IControllerRepository<Weapon> weaponRepository,
-            IControllerRepository<Spell> spellRepository, 
+            IControllerRepository<Spell> spellRepository,
+            IControllerRepository<Mount> mountRepository,
             IMapper mapper)
         {
             _characterRepository = characterRepository;
             _weaponRepository = weaponRepository;
             _spellRepository = spellRepository;
+            _mountRepository = mountRepository;
             _mapper = mapper;
         }
 
@@ -212,6 +215,54 @@ namespace RPGApi.Controllers
             }
 
             character.Spells.Remove(spell);
+            _characterRepository.Update(character);
+            await _characterRepository.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("add/mount")]
+        public async Task<ActionResult> AddMountAsync(CharacterAddRemoveItem mountDto)
+        {
+            Character? character = await _characterRepository.GetByIdAsync(mountDto.CharacterId);
+
+            if (character is null)
+            {
+                return NotFound();
+            }
+
+            Mount? mount = await _mountRepository.GetByIdAsync(mountDto.ItemId);
+
+            if (mount is null)
+            {
+                return BadRequest();
+            }
+
+            character.Mounts.Add(mount);
+            _characterRepository.Update(character);
+            await _characterRepository.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("remove/mount")]
+        public async Task<ActionResult> RemoveMountAsync(CharacterAddRemoveItem mountDto)
+        {
+            Character? character = await _characterRepository.GetByIdAsync(mountDto.CharacterId);
+
+            if (character is null)
+            {
+                return NotFound();
+            }
+
+            Mount? mount = await _mountRepository.GetByIdAsync(mountDto.ItemId);
+
+            if (mount is null)
+            {
+                return BadRequest();
+            }
+
+            character.Mounts.Remove(mount);
             _characterRepository.Update(character);
             await _characterRepository.SaveChangesAsync();
 

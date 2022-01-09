@@ -12,5 +12,6 @@ namespace RPGApi.Data
         public DbSet<Character> Characters { get; set; }
         public DbSet<Weapon> Weapons { get; set; }
         public DbSet<Spell> Spells { get; set; }
+        public DbSet<Mount> Mounts { get; set; }
     }
 }
