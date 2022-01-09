@@ -20,7 +20,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Mount>>> GetMountsAsync()
+        public async Task<ActionResult<IEnumerable<MountReadDto>>> GetMountsAsync()
         {
             IEnumerable<Mount> mounts = await _repository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<MountReadDto>>(mounts);
@@ -29,7 +29,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Mount>> GetMountAsync(Guid id)
+        public async Task<ActionResult<MountReadDto>> GetMountAsync(Guid id)
         {
             Mount? mount = await _repository.GetByIdAsync(id);
 
@@ -44,7 +44,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateMountAsync(MountCreateUpdateDto createDto)
+        public async Task<ActionResult<MountReadDto>> CreateMountAsync(MountCreateUpdateDto createDto)
         {
             Mount mount = _mapper.Map<Mount>(createDto);
 
