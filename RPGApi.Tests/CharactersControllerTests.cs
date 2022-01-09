@@ -5,9 +5,10 @@
         private static readonly Mock<IControllerRepository<Character>> _charRepo = new();
         private static readonly Mock<IControllerRepository<Weapon>> _weaponRepo = new();
         private static readonly Mock<IControllerRepository<Spell>> _spellRepo = new();
+        private static readonly Mock<IControllerRepository<Mount>> _mountRepo = new();
         private static readonly Mock<IMapper> _mapper = new();
         private static readonly CharactersController _controller = new(_charRepo.Object,
-            _weaponRepo.Object, _spellRepo.Object, _mapper.Object);
+            _weaponRepo.Object, _spellRepo.Object, _mountRepo.Object, _mapper.Object);
 
         [Fact]
         public async Task GetCharactersAsync_ExistingItems_ReturnsActionResultOfReadDtos()
@@ -324,6 +325,96 @@
 
             // Act
             var result = await _controller.RemoveSpellAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task AddMountAsync_ExistingCharacterExistingMount_ReturnsNoContentResult()
+        {
+            // Arrange
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
+                new Character()
+                {
+                    Mounts = new List<Mount>()
+                });
+            _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Mount());
+
+            // Act
+            var result = await _controller.AddMountAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task AddMountAsync_ExistingCharacterNonexistingMount_ReturnsBadRequestResult()
+        {
+            // Arrange
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Mount?)null);
+
+            // Act
+            var result = await _controller.AddMountAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<BadRequestResult>(result);
+        }
+
+        [Fact]
+        public async Task AddMountAsync_NonexistingCharacter_ReturnsBadRequestResult()
+        {
+            // Arrange
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
+
+            // Act
+            var result = await _controller.AddMountAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task RemoveMountAsync_ExistingCharacterExistingMount_ReturnsNoContentResult()
+        {
+            // Arrange
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
+                new Character()
+                {
+                    Mounts = new List<Mount>()
+                });
+            _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Mount());
+
+            // Act
+            var result = await _controller.RemoveMountAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task RemoveMountAsync_ExistingCharacterNonexistingMount_ReturnsBadRequestResult()
+        {
+            // Arrange
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Mount?)null);
+
+            // Act
+            var result = await _controller.RemoveMountAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<BadRequestResult>(result);
+        }
+
+        [Fact]
+        public async Task RemoveMountAsync_NonexistingCharacter_ReturnsNotFoundResult()
+        {
+            // Arrange
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
+
+            // Act
+            var result = await _controller.RemoveMountAsync(new CharacterAddRemoveItem());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
