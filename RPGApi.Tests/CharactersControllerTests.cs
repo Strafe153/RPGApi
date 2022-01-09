@@ -1,13 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using RPGApi.Dtos;
-using RPGApi.Models;
-using RPGApi.Controllers;
-using RPGApi.Repositories;
-using Moq;
-using Xunit;
-using AutoMapper;
-
-namespace RPGApi.Tests
+﻿namespace RPGApi.Tests
 {
     public class CharactersControllerTests
     {
@@ -50,7 +41,7 @@ namespace RPGApi.Tests
         public async Task GetCharacterAsync_NonexistingCharacter_ReturnsNotFoundResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character)null);
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
 
             // Act
             var result = await _controller.GetCharacterAsync(Guid.Empty);
@@ -91,10 +82,42 @@ namespace RPGApi.Tests
         public async Task UpdateCharacterAsync_NonexistingCharacter_ReturnsNotFoundResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character)null);
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
 
             // Act
             var result = await _controller.UpdateCharacterAsync(Guid.Empty, new CharacterUpdateDto());
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task PartialUpdateCharacterAsync_ExistingCharacter_ReturnsNoContentResult()
+        {
+            // Arrange
+            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _mapper.Setup(m => m.Map<CharacterUpdateDto>(It.IsAny<Character>()))
+                .Returns(new CharacterUpdateDto());
+
+            Utility.MockObjectModelValidator(_controller);
+
+            // Act
+            var result = await _controller.PartialUpdateCharacterAsync(Guid.Empty,
+                new JsonPatchDocument<CharacterUpdateDto>());
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task PartialUpdateCharacterAsync_NonexistingCharacter_ReturnsNotFoundResult()
+        {
+            // Arrange
+            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
+
+            // Act
+            var result = await _controller.PartialUpdateCharacterAsync(Guid.Empty,
+                new JsonPatchDocument<CharacterUpdateDto>());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -117,7 +140,7 @@ namespace RPGApi.Tests
         public async Task DeleteCharacterAsync_NonexistingCharacter_ReturnsNotFoundResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character)null);
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
 
             // Act
             var result = await _controller.DeleteCharacterAsync(Guid.Empty);
@@ -149,7 +172,7 @@ namespace RPGApi.Tests
         {
             // Arrange
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
-            _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon)null);
+            _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
             var result = await _controller.AddWeaponAsync(new CharacterAddRemoveItem());
@@ -162,7 +185,7 @@ namespace RPGApi.Tests
         public async Task AddWeaponAsync_NonexistingCharacter_ReturnsNotFoundResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character)null);
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
 
             // Act
             var result = await _controller.AddWeaponAsync(new CharacterAddRemoveItem());
@@ -194,7 +217,7 @@ namespace RPGApi.Tests
         {
             // Arrange
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
-            _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon)null);
+            _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
             var result = await _controller.RemoveWeaponAsync(new CharacterAddRemoveItem());
@@ -207,7 +230,7 @@ namespace RPGApi.Tests
         public async Task RemoveWeaponAsync_NonexistingCharacter_ReturnsNotFoundResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character)null);
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
 
             // Act
             var result = await _controller.RemoveWeaponAsync(new CharacterAddRemoveItem());
@@ -239,7 +262,7 @@ namespace RPGApi.Tests
         {
             // Arrange
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
-            _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell)null);
+            _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
             var result = await _controller.AddSpellAsync(new CharacterAddRemoveItem());
@@ -252,7 +275,7 @@ namespace RPGApi.Tests
         public async Task AddSpellAsync_NonexistingCharacter_ReturnsBadRequestResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character)null);
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
 
             // Act
             var result = await _controller.AddSpellAsync(new CharacterAddRemoveItem());
@@ -284,7 +307,7 @@ namespace RPGApi.Tests
         {
             // Arrange
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
-            _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell)null);
+            _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
             var result = await _controller.RemoveSpellAsync(new CharacterAddRemoveItem());
@@ -297,7 +320,7 @@ namespace RPGApi.Tests
         public async Task RemoveSpellAsync_NonexistingCharacter_ReturnsNotFoundResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character)null);
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
 
             // Act
             var result = await _controller.RemoveSpellAsync(new CharacterAddRemoveItem());

@@ -74,7 +74,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<ActionResult> PartialUpdateplayerAsync(Guid id,
+        public async Task<ActionResult> PartialUpdatePlayerAsync(Guid id,
             [FromBody]JsonPatchDocument<PlayerCreateUpdateDto> patchDoc)
         {
             Player? player = await _repository.GetByIdAsync(id);
