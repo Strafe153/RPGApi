@@ -1,13 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using RPGApi.Dtos;
-using RPGApi.Models;
-using RPGApi.Controllers;
-using RPGApi.Repositories;
-using Moq;
-using Xunit;
-using AutoMapper;
-
-namespace RPGApi.Tests
+﻿namespace RPGApi.Tests
 {
     public class PlayersControllerTests
     {
@@ -47,7 +38,7 @@ namespace RPGApi.Tests
         public async Task GetPlayerAsync_NonexistingPlayer_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player)null);
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player?)null);
 
             // Act
             var result = await _controller.GetPlayerAsync(Guid.Empty);
@@ -88,10 +79,42 @@ namespace RPGApi.Tests
         public async Task UpdatePlayerAsync_NonexistingPlayer_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player)null);
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player?)null);
 
             // Act
             var result = await _controller.UpdatePlayerAsync(Guid.Empty, new PlayerCreateUpdateDto());
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task PartialUpdatePlayerAsync_ExistingPlayer_ReturnsNoContentResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Player());
+            _mapper.Setup(m => m.Map<PlayerCreateUpdateDto>(It.IsAny<Player>()))
+                .Returns(new PlayerCreateUpdateDto());
+
+            Utility.MockObjectModelValidator(_controller);
+
+            // Act
+            var result = await _controller.PartialUpdatePlayerAsync(Guid.Empty, 
+                new JsonPatchDocument<PlayerCreateUpdateDto>());
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task PartialUpdatePlayerAsync_NonexistingPlayer_ReturnsNotFoundResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player?)null);
+
+            // Act
+            var result = await _controller.PartialUpdatePlayerAsync(Guid.Empty,
+                new JsonPatchDocument<PlayerCreateUpdateDto>());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -114,7 +137,7 @@ namespace RPGApi.Tests
         public async Task DeletePlayerAsync_NonexistingPlayer_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player)null);
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player?)null);
 
             // Act
             var result = await _controller.DeletePlayerAsync(Guid.Empty);

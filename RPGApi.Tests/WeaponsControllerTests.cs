@@ -1,13 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using RPGApi.Dtos;
-using RPGApi.Models;
-using RPGApi.Controllers;
-using RPGApi.Repositories;
-using Moq;
-using Xunit;
-using AutoMapper;
-
-namespace RPGApi.Tests
+﻿namespace RPGApi.Tests
 {
     public class WeaponsControllerTests
     {
@@ -47,7 +38,7 @@ namespace RPGApi.Tests
         public async Task GetWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon)null);
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
             var result = await _controller.GetWeaponAsync(Guid.Empty);
@@ -88,10 +79,42 @@ namespace RPGApi.Tests
         public async Task UpdateWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon)null);
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
             var result = await _controller.UpdateWeaponAsync(Guid.Empty, new WeaponCreateUpdateDto());
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task PartialUpdateWeaponAsync_ExistingWeapon_ReturnsNoContentResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
+            _mapper.Setup(m => m.Map<WeaponCreateUpdateDto>(It.IsAny<Weapon>()))
+                .Returns(new WeaponCreateUpdateDto());
+
+            Utility.MockObjectModelValidator(_controller);
+
+            // Act
+            var result = await _controller.PartialUpdateWeaponAsync(Guid.Empty,
+                new JsonPatchDocument<WeaponCreateUpdateDto>());
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task PartialUpdateWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
+
+            // Act
+            var result = await _controller.PartialUpdateWeaponAsync(Guid.Empty,
+                new JsonPatchDocument<WeaponCreateUpdateDto>());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -114,7 +137,7 @@ namespace RPGApi.Tests
         public async Task DeleteWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon)null);
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
             var result = await _controller.DeleteWeaponAsync(Guid.Empty);

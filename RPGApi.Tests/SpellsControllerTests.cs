@@ -1,13 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using RPGApi.Dtos;
-using RPGApi.Models;
-using RPGApi.Controllers;
-using RPGApi.Repositories;
-using Moq;
-using Xunit;
-using AutoMapper;
-
-namespace RPGApi.Tests
+﻿namespace RPGApi.Tests
 {
     public class SpellsControllerTests
     {
@@ -47,7 +38,7 @@ namespace RPGApi.Tests
         public async Task GetSpellAsync_NonexistingSpell_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell)null);
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
             var result = await _controller.GetSpellAsync(Guid.Empty);
@@ -88,10 +79,42 @@ namespace RPGApi.Tests
         public async Task UpdateSpellAsync_NonexistingSpell_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell)null);
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
             var result = await _controller.UpdateSpellAsync(Guid.Empty, new SpellCreateUpdateDto());
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task PartialUpdateSpellAsync_ExistingSpell_ReturnsNoContentResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
+            _mapper.Setup(m => m.Map<SpellCreateUpdateDto>(It.IsAny<Spell>()))
+                .Returns(new SpellCreateUpdateDto());
+
+            Utility.MockObjectModelValidator(_controller);
+
+            // Act
+            var result = await _controller.PartialUpdateSpellAsync(Guid.Empty,
+                new JsonPatchDocument<SpellCreateUpdateDto>());
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task PartialUpdateSpellAsync_NonexistingSpell_ReturnsNotFoundResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
+
+            // Act
+            var result = await _controller.PartialUpdateSpellAsync(Guid.Empty,
+                new JsonPatchDocument<SpellCreateUpdateDto>());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -114,7 +137,7 @@ namespace RPGApi.Tests
         public async Task DeleteSpellAsync_NonexistingSpell_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell)null);
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
             var result = await _controller.DeleteSpellAsync(Guid.Empty);
