@@ -14,6 +14,8 @@ namespace RPGApi.Models
         public ICollection<Weapon> Weapons { get; set; }
         [JsonIgnore]
         public ICollection<Spell> Spells { get; set; }
+        [JsonIgnore]
+        public ICollection<Mount> Mounts { get; set; }
 
         [JsonIgnore]
         public Player Player { get; set; }
