@@ -7,7 +7,7 @@
         private static readonly WeaponsController _controller = new(_repo.Object, _mapper.Object);
 
         [Fact]
-        public async Task GetWeaponsAsync_ExistingItems_ReturnsActionResultOfReadDtos()
+        public async Task GetAllWeaponsAsync_Items_ReturnsActionResultOfReadDtos()
         {
             // Arrange
             _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Weapon>());
@@ -17,6 +17,20 @@
 
             // Assert
             Assert.IsType<ActionResult<IEnumerable<WeaponReadDto>>>(result);
+            Assert.IsType<OkObjectResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task GetPaginatedWeaponsAsync_Items_ReturnsActionResultOfPageDto()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Weapon>());
+
+            // Act
+            var result = await _controller.GetPaginatedWeaponsAsync(It.IsAny<int>());
+
+            // Assert
+            Assert.IsType<ActionResult<PageDto<WeaponReadDto>>>(result);
             Assert.IsType<OkObjectResult>(result.Result);
         }
 

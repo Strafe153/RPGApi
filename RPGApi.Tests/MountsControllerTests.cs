@@ -7,7 +7,7 @@
         private static readonly MountsController _controller = new(_repo.Object, _mapper.Object);
 
         [Fact]
-        public async Task GetMountsAsync_ExistingItems_ReturnsActionResultOfReadDtos()
+        public async Task GetAllMountsAsync_Items_ReturnsActionResultOfReadDtos()
         {
             // Arrange
             _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Mount>());
@@ -17,6 +17,20 @@
 
             // Assert
             Assert.IsType<ActionResult<IEnumerable<MountReadDto>>>(result);
+            Assert.IsType<OkObjectResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task GetPaginatedMountsAsync_Items_ReturnsActionResultOfPageDto()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Mount>());
+
+            // Act
+            var result = await _controller.GetPaginatedMountsAsync(It.IsAny<int>());
+
+            // Assert
+            Assert.IsType<ActionResult<PageDto<MountReadDto>>>(result);
             Assert.IsType<OkObjectResult>(result.Result);
         }
 

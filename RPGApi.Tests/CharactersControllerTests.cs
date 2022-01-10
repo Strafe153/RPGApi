@@ -11,7 +11,7 @@
             _weaponRepo.Object, _spellRepo.Object, _mountRepo.Object, _mapper.Object);
 
         [Fact]
-        public async Task GetCharactersAsync_ExistingItems_ReturnsActionResultOfReadDtos()
+        public async Task GetAllCharactersAsync_Items_ReturnsActionResultOfReadDtos()
         {
             // Arrange
             _charRepo.Setup(cr => cr.GetAllAsync()).ReturnsAsync(new List<Character>());
@@ -21,6 +21,20 @@
 
             // Assert
             Assert.IsType<ActionResult<IEnumerable<CharacterReadDto>>>(result);
+            Assert.IsType<OkObjectResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task GetPaginatedCharactersAsync_Items_ReturnsActionResultOfPageDto()
+        {
+            // Arrange
+            _charRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Character>());
+
+            // Act
+            var result = await _controller.GetPaginatedCharactersAsync(It.IsAny<int>());
+
+            // Assert
+            Assert.IsType<ActionResult<PageDto<CharacterReadDto>>>(result);
             Assert.IsType<OkObjectResult>(result.Result);
         }
 
