@@ -12,6 +12,7 @@ namespace RPGApi.Controllers
     {
         private readonly IControllerRepository<Mount> _repository;
         private readonly IMapper _mapper;
+        private const int PageSize = 3;
 
         public MountsController(IControllerRepository<Mount> repository, IMapper mapper)
         {
@@ -20,12 +21,29 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<MountReadDto>>> GetMountsAsync()
+        public async Task<ActionResult<IEnumerable<MountReadDto>>> GetAllMountsAsync()
         {
             IEnumerable<Mount> mounts = await _repository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<MountReadDto>>(mounts);
 
             return Ok(readDtos);
+        }
+
+        [HttpGet("page/{page}")]
+        public async Task<ActionResult<PageDto<MountReadDto>>> GetPaginatedMountsAsync(int page)
+        {
+            IEnumerable<Mount> weapons = await _repository.GetAllAsync();
+            var readDtos = _mapper.Map<IEnumerable<MountReadDto>>(weapons);
+
+            var pageItems = readDtos.Skip((page - 1) * PageSize).Take(PageSize);
+            PageDto<MountReadDto> pageDto = new()
+            {
+                Items = pageItems,
+                PagesCount = (int)Math.Ceiling((double)readDtos.Count() / PageSize),
+                CurrentPage = page
+            };
+
+            return Ok(pageDto);
         }
 
         [HttpGet("{id}")]

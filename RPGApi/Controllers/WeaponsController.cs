@@ -30,7 +30,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("page/{page}")]
-        public async Task<ActionResult<PageDto<WeaponReadDto>>> GetPaginatedWeaponsAsync(int page = 1)
+        public async Task<ActionResult<PageDto<WeaponReadDto>>> GetPaginatedWeaponsAsync(int page)
         {
             IEnumerable<Weapon> weapons = await _repository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<WeaponReadDto>>(weapons);
