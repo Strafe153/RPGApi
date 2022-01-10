@@ -13,7 +13,7 @@
             _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Mount>());
 
             // Act
-            var result = await _controller.GetMountsAsync();
+            var result = await _controller.GetAllMountsAsync();
 
             // Assert
             Assert.IsType<ActionResult<IEnumerable<MountReadDto>>>(result);

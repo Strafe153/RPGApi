@@ -15,7 +15,7 @@ namespace RPGApi.Controllers
         private readonly IControllerRepository<Spell> _spellRepository;
         private readonly IControllerRepository<Mount> _mountRepository;
         private readonly IMapper _mapper;
-        private const int pageSize = 3;
+        private const int PageSize = 3;
 
         public CharactersController(IControllerRepository<Character> characterRepository,
             IControllerRepository<Weapon> weaponRepository,
@@ -40,16 +40,16 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("page/{page}")]
-        public async Task<ActionResult<PageDto<CharacterReadDto>>> GetPaginatedCharactersAsync(int page = 1)
+        public async Task<ActionResult<PageDto<CharacterReadDto>>> GetPaginatedCharactersAsync(int page)
         {
             IEnumerable<Character> characters = await _characterRepository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<CharacterReadDto>>(characters);
 
-            var pageItems = readDtos.Skip((page - 1) * pageSize).Take(pageSize);
+            var pageItems = readDtos.Skip((page - 1) * PageSize).Take(PageSize);
             PageDto<CharacterReadDto> pageDto = new()
             {
                 Items = pageItems,
-                PagesCount = (int)Math.Ceiling((double)pageItems.Count() / pageSize),
+                PagesCount = (int)Math.Ceiling((double)readDtos.Count() / PageSize),
                 CurrentPage = page
             };
 

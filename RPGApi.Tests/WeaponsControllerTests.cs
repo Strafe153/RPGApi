@@ -13,7 +13,7 @@
             _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Weapon>());
 
             // Act
-            var result = await _controller.GetWeaponsAsync();
+            var result = await _controller.GetAllWeaponsAsync();
 
             // Assert
             Assert.IsType<ActionResult<IEnumerable<WeaponReadDto>>>(result);

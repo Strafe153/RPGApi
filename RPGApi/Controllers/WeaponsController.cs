@@ -12,6 +12,7 @@ namespace RPGApi.Controllers
     {
         private readonly IControllerRepository<Weapon> _repository;
         private readonly IMapper _mapper;
+        private const int PageSize = 3;
 
         public WeaponsController(IControllerRepository<Weapon> repository, IMapper mapper)
         {
@@ -20,12 +21,29 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<WeaponReadDto>>> GetWeaponsAsync()
+        public async Task<ActionResult<IEnumerable<WeaponReadDto>>> GetAllWeaponsAsync()
         {
             IEnumerable<Weapon> weapons = await _repository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<WeaponReadDto>>(weapons);
 
             return Ok(readDtos);
+        }
+
+        [HttpGet("page/{page}")]
+        public async Task<ActionResult<PageDto<WeaponReadDto>>> GetPaginatedWeaponsAsync(int page)
+        {
+            IEnumerable<Weapon> weapons = await _repository.GetAllAsync();
+            var readDtos = _mapper.Map<IEnumerable<WeaponReadDto>>(weapons);
+
+            var pageItems = readDtos.Skip((page - 1) * PageSize).Take(PageSize);
+            PageDto<WeaponReadDto> pageDto = new()
+            {
+                Items = pageItems,
+                PagesCount = (int)Math.Ceiling((double)readDtos.Count() / PageSize),
+                CurrentPage = page
+            };
+
+            return Ok(pageDto);
         }
 
         [HttpGet("{id}")]
