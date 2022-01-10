@@ -20,12 +20,31 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PlayerReadDto>>> GetPlayersAsync()
+        public async Task<ActionResult<IEnumerable<PlayerReadDto>>> GetAllPlayersAsync()
         {
             IEnumerable<Player> players = await _repository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<PlayerReadDto>>(players);
 
             return Ok(readDtos);
+        }
+
+        [HttpGet("page/{page}")]
+        public async Task<ActionResult<PlayersPageDto>> GetPaginatedPlayersAsync(int page = 1)
+        {
+            IEnumerable<Player> players = await _repository.GetAllAsync();
+            var readDtos = _mapper.Map<IEnumerable<PlayerReadDto>>(players);
+
+            const int pageSize = 3;
+            var pagePlayers = readDtos.Skip((page - 1) * pageSize).Take(pageSize);
+
+            PlayersPageDto pageDto = new()
+            {
+                PlayerDtos = pagePlayers,
+                PagesCount = (int)Math.Ceiling((double)readDtos.Count() / pageSize),
+                CurrentPage = page
+            };
+
+            return Ok(pageDto);
         }
 
         [HttpGet("{id}")]
