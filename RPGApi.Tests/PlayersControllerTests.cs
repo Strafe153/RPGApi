@@ -13,7 +13,7 @@
             _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Player>());
 
             // Act
-            var result = await _controller.GetPlayersAsync();
+            var result = await _controller.GetAllPlayersAsync();
 
             // Assert
             Assert.IsType<ActionResult<IEnumerable<PlayerReadDto>>>(result);
