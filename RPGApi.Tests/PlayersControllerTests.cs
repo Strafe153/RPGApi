@@ -7,7 +7,7 @@
         private static readonly PlayersController _controller = new(_repo.Object, _mapper.Object);
 
         [Fact]
-        public async Task GetPlayersAsync_ExistingItems_ReturnsActionResultOfReadDtos()
+        public async Task GetAllPlayersAsync_Items_ReturnsActionResultOfReadDtos()
         {
             // Arrange
             _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Player>());
@@ -17,6 +17,20 @@
 
             // Assert
             Assert.IsType<ActionResult<IEnumerable<PlayerReadDto>>>(result);
+            Assert.IsType<OkObjectResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task GetPaginatedPlayersAsync_Items_ReturnsActionResultOfPageDto()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Player>());
+
+            // Act
+            var result = await _controller.GetPaginatedPlayersAsync(It.IsAny<int>());
+
+            // Assert
+            Assert.IsType<ActionResult<PageDto<PlayerReadDto>>>(result);
             Assert.IsType<OkObjectResult>(result.Result);
         }
 

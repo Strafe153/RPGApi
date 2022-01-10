@@ -7,7 +7,7 @@
         private static readonly SpellsController _controller = new(_repo.Object, _mapper.Object);
 
         [Fact]
-        public async Task GetSpellsAsync_ExistingItems_ReturnsActionResultOfReadDtos()
+        public async Task GetAllSpellsAsync_Items_ReturnsActionResultOfReadDtos()
         {
             // Arrange
             _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Spell>());
@@ -17,6 +17,20 @@
 
             // Assert
             Assert.IsType<ActionResult<IEnumerable<SpellReadDto>>>(result);
+            Assert.IsType<OkObjectResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task GetPaginatedSpellsAsync_Items_ReturnsActionResultOfPageDto()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Spell>());
+
+            // Act
+            var result = await _controller.GetPaginatedSpellsAsync(It.IsAny<int>());
+
+            // Assert
+            Assert.IsType<ActionResult<PageDto<SpellReadDto>>>(result);
             Assert.IsType<OkObjectResult>(result.Result);
         }
 
