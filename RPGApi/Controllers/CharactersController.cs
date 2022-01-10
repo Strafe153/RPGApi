@@ -15,6 +15,7 @@ namespace RPGApi.Controllers
         private readonly IControllerRepository<Spell> _spellRepository;
         private readonly IControllerRepository<Mount> _mountRepository;
         private readonly IMapper _mapper;
+        private const int pageSize = 3;
 
         public CharactersController(IControllerRepository<Character> characterRepository,
             IControllerRepository<Weapon> weaponRepository,
@@ -30,12 +31,29 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CharacterReadDto>>> GetCharactersAsync()
+        public async Task<ActionResult<IEnumerable<CharacterReadDto>>> GetAllCharactersAsync()
         {
             IEnumerable<Character> characters = await _characterRepository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<CharacterReadDto>>(characters);
 
             return Ok(readDtos);
+        }
+
+        [HttpGet("page/{page}")]
+        public async Task<ActionResult<PageDto<CharacterReadDto>>> GetPaginatedCharactersAsync(int page = 1)
+        {
+            IEnumerable<Character> characters = await _characterRepository.GetAllAsync();
+            var readDtos = _mapper.Map<IEnumerable<CharacterReadDto>>(characters);
+
+            var pageItems = readDtos.Skip((page - 1) * pageSize).Take(pageSize);
+            PageDto<CharacterReadDto> pageDto = new()
+            {
+                Items = pageItems,
+                PagesCount = (int)Math.Ceiling((double)pageItems.Count() / pageSize),
+                CurrentPage = page
+            };
+
+            return Ok(pageDto);
         }
 
         [HttpGet("{id}")]

@@ -12,6 +12,7 @@ namespace RPGApi.Controllers
     {
         private readonly IControllerRepository<Player> _repository;
         private readonly IMapper _mapper;
+        private const int pageSize = 3;
 
         public PlayersController(IControllerRepository<Player> repository, IMapper mapper)
         {
@@ -29,17 +30,16 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("page/{page}")]
-        public async Task<ActionResult<PlayersPageDto>> GetPaginatedPlayersAsync(int page = 1)
+        public async Task<ActionResult<PageDto<PlayerReadDto>>> GetPaginatedPlayersAsync(int page = 1)
         {
             IEnumerable<Player> players = await _repository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<PlayerReadDto>>(players);
 
-            const int pageSize = 3;
             var pagePlayers = readDtos.Skip((page - 1) * pageSize).Take(pageSize);
 
-            PlayersPageDto pageDto = new()
+            PageDto<PlayerReadDto> pageDto = new()
             {
-                PlayerDtos = pagePlayers,
+                Items = pagePlayers,
                 PagesCount = (int)Math.Ceiling((double)readDtos.Count() / pageSize),
                 CurrentPage = page
             };

@@ -17,7 +17,7 @@
             _charRepo.Setup(cr => cr.GetAllAsync()).ReturnsAsync(new List<Character>());
 
             // Act
-            var result = await _controller.GetCharactersAsync();
+            var result = await _controller.GetAllCharactersAsync();
 
             // Assert
             Assert.IsType<ActionResult<IEnumerable<CharacterReadDto>>>(result);
