@@ -13,7 +13,7 @@
             _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Spell>());
 
             // Act
-            var result = await _controller.GetSpellsAsync();
+            var result = await _controller.GetAllSpellsAsync();
 
             // Assert
             Assert.IsType<ActionResult<IEnumerable<SpellReadDto>>>(result);

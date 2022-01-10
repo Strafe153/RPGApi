@@ -12,6 +12,7 @@ namespace RPGApi.Controllers
     {
         private readonly IControllerRepository<Spell> _repository;
         private readonly IMapper _mapper;
+        private const int PageSize = 3;
 
         public SpellsController(IControllerRepository<Spell> repository, IMapper mapper)
         {
@@ -20,12 +21,29 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<SpellReadDto>>> GetSpellsAsync()
+        public async Task<ActionResult<IEnumerable<SpellReadDto>>> GetAllSpellsAsync()
         {
             IEnumerable<Spell> spells = await _repository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<SpellReadDto>>(spells);
 
             return Ok(readDtos);
+        }
+
+        [HttpGet("page/{page}")]
+        public async Task<ActionResult<PageDto<SpellReadDto>>> GetPaginatedSpellsAsync(int page = 1)
+        {
+            IEnumerable<Spell> weapons = await _repository.GetAllAsync();
+            var readDtos = _mapper.Map<IEnumerable<SpellReadDto>>(weapons);
+
+            var pageItems = readDtos.Skip((page - 1) * PageSize).Take(PageSize);
+            PageDto<SpellReadDto> pageDto = new()
+            {
+                Items = pageItems,
+                PagesCount = (int)Math.Ceiling((double)readDtos.Count() / PageSize),
+                CurrentPage = page
+            };
+
+            return Ok(pageDto);
         }
 
         [HttpGet("{id}")]
