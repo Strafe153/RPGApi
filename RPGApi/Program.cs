@@ -1,5 +1,8 @@
 global using RPGApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 using RPGApi.Data;
 using RPGApi.Repositories;
 using Newtonsoft.Json;
@@ -9,13 +12,26 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(
-    builder.Configuration.GetConnectionString("defaultConnection")));
+    builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IControllerRepository<Player>, PlayerRepository>();
+builder.Services.AddScoped<IPlayerControllerRepository, PlayerRepository>();
 builder.Services.AddScoped<IControllerRepository<Character>, CharacterRepository>();
 builder.Services.AddScoped<IControllerRepository<Weapon>, WeaponRepository>();
 builder.Services.AddScoped<IControllerRepository<Spell>, SpellRepository>();
 builder.Services.AddScoped<IControllerRepository<Mount>, MountRepository>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+    options.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+            builder.Configuration.GetSection("AppSettings:Token").Value)),
+        ValidateIssuer = false,
+        ValidateAudience = false
+        };
+    });
 
 builder.Services.AddControllers(options =>
 {
@@ -42,6 +58,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

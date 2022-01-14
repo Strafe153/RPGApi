@@ -2,7 +2,7 @@
 {
     public class PlayersControllerTests
     {
-        private static readonly Mock<IControllerRepository<Player>> _repo = new();
+        private static readonly Mock<IPlayerControllerRepository> _repo = new();
         private static readonly Mock<IMapper> _mapper = new();
         private static readonly PlayersController _controller = new(_repo.Object, _mapper.Object);
 
@@ -69,7 +69,7 @@
                 .Returns(new PlayerReadDto());
 
             // Act
-            var result = await _controller.CreatePlayerAsync(new PlayerCreateUpdateDto());
+            var result = await _controller.RegisterPlayerAsync(new PlayerAuthorizeDto());
 
             // Assert
             Assert.IsType<ActionResult<PlayerReadDto>>(result);
@@ -83,7 +83,7 @@
             _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Player());
 
             // Act
-            var result = await _controller.UpdatePlayerAsync(Guid.Empty, new PlayerCreateUpdateDto());
+            var result = await _controller.UpdatePlayerAsync(Guid.Empty, new PlayerUpdateDto());
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -96,7 +96,7 @@
             _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player?)null);
 
             // Act
-            var result = await _controller.UpdatePlayerAsync(Guid.Empty, new PlayerCreateUpdateDto());
+            var result = await _controller.UpdatePlayerAsync(Guid.Empty, new PlayerUpdateDto());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -107,14 +107,14 @@
         {
             // Arrange
             _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Player());
-            _mapper.Setup(m => m.Map<PlayerCreateUpdateDto>(It.IsAny<Player>()))
-                .Returns(new PlayerCreateUpdateDto());
+            _mapper.Setup(m => m.Map<PlayerUpdateDto>(It.IsAny<Player>()))
+                .Returns(new PlayerUpdateDto());
 
             Utility.MockObjectModelValidator(_controller);
 
             // Act
             var result = await _controller.PartialUpdatePlayerAsync(Guid.Empty, 
-                new JsonPatchDocument<PlayerCreateUpdateDto>());
+                new JsonPatchDocument<PlayerUpdateDto>());
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -128,7 +128,7 @@
 
             // Act
             var result = await _controller.PartialUpdatePlayerAsync(Guid.Empty,
-                new JsonPatchDocument<PlayerCreateUpdateDto>());
+                new JsonPatchDocument<PlayerUpdateDto>());
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
