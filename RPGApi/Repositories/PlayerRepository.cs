@@ -74,7 +74,7 @@ namespace RPGApi.Repositories
                 .SingleOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task<Player?> GetPlayerByNameAsync(string name)
+        public async Task<Player?> GetByNameAsync(string name)
         {
             return await _context.Players.SingleOrDefaultAsync(p => p.Name == name);
         }

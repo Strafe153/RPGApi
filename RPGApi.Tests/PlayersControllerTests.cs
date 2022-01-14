@@ -62,9 +62,10 @@
         }
 
         [Fact]
-        public async Task CreatePlayerAsync_ValidData_ReturnsActionResultOfReadDto()
+        public async Task RegisterPlayerAsync_NonexistingPlayer_ReturnsActionResultOfReadDto()
         {
             // Arrange
+            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync((Player?)null);
             _mapper.Setup(m => m.Map<PlayerReadDto>(It.IsAny<Player>()))
                 .Returns(new PlayerReadDto());
 
@@ -74,6 +75,85 @@
             // Assert
             Assert.IsType<ActionResult<PlayerReadDto>>(result);
             Assert.IsType<CreatedAtActionResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task RegisterPlayerAsync_ExistentPlayer_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(new Player());
+
+            // Act
+            var result = await _controller.RegisterPlayerAsync(new PlayerAuthorizeDto());
+
+            // Assert
+            Assert.IsType<ActionResult<PlayerReadDto>>(result);
+            Assert.IsType<BadRequestObjectResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task LoginPlayerAsync_ExistingPlayer_ReturnsActionResultOfReadDto()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(new Player());
+
+            // Act
+            var result = await _controller.LoginPlayerAsync(new PlayerAuthorizeDto());
+
+            // Assert
+            Assert.IsType<ActionResult<PlayerWithTokenReadDto>>(result);
+        }
+
+        [Fact]
+        public async Task LoginPlayerAsync_NonexistingPlayer_ReturnsNotFoundResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync((Player?)null);
+
+            // Act
+            var result = await _controller.LoginPlayerAsync(new PlayerAuthorizeDto());
+
+            // Assert
+            Assert.IsType<ActionResult<PlayerWithTokenReadDto>>(result);
+            Assert.IsType<NotFoundResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task LoginPlayerAsync_DifferentNames_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(
+                new Player()
+                { 
+                    Name = "player_name"
+                });
+
+            // Act
+            var result = await _controller.LoginPlayerAsync(
+                new PlayerAuthorizeDto()
+                {
+                    Name = "dto_name"
+                });
+
+            // Assert
+            Assert.IsType<ActionResult<PlayerWithTokenReadDto>>(result);
+            Assert.IsType<BadRequestObjectResult>(result.Result);
+        }
+
+        [Fact]
+        public async Task LoginPlayerAsync_NotVerifiedPasswordHash_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(new Player());
+            _repo.Setup(r => r.VerifyPasswordHash(It.IsAny<string>(), It.IsAny<byte[]>(),
+                It.IsAny<byte[]>())).Returns(false);
+
+            // Act
+            var result = await _controller.LoginPlayerAsync(new PlayerAuthorizeDto());
+
+            // Assert
+            Assert.IsType<ActionResult<PlayerWithTokenReadDto>>(result);
+            Assert.IsType<BadRequestObjectResult>(result.Result);
         }
 
         [Fact]

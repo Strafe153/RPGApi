@@ -68,7 +68,7 @@ namespace RPGApi.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<PlayerReadDto>> RegisterPlayerAsync(PlayerAuthorizeDto registerDto)
         {
-            if (await _repository.GetPlayerByNameAsync(registerDto.Name) != null)
+            if (await _repository.GetByNameAsync(registerDto.Name) != null)
             {
                 return BadRequest("User with the given name already exists");
             }
@@ -94,7 +94,7 @@ namespace RPGApi.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<PlayerWithTokenReadDto>> LoginPlayerAsync(PlayerAuthorizeDto loginDto)
         {
-            Player? player = await _repository.GetPlayerByNameAsync(loginDto.Name);
+            Player? player = await _repository.GetByNameAsync(loginDto.Name);
 
             if (player is null)
             {
