@@ -2,10 +2,12 @@
 
 namespace RPGApi.Dtos
 {
-    public record PlayerCreateUpdateDto
+    public record PlayerAuthorizeDto
     {
         [Required]
-        [StringLength(20, MinimumLength = 1)]
         public string Name { get; init; }
+
+        [Required]
+        public string Password { get; init; }
     }
 }

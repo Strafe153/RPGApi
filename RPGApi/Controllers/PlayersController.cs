@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 using RPGApi.Dtos;
 using RPGApi.Repositories;
 using AutoMapper;
@@ -8,13 +9,14 @@ namespace RPGApi.Controllers
 {
     [ApiController]
     [Route("api/players")]
+    [Authorize]
     public class PlayersController : ControllerBase
     {
-        private readonly IControllerRepository<Player> _repository;
+        private readonly IPlayerControllerRepository _repository;
         private readonly IMapper _mapper;
         private const int PageSize = 3;
 
-        public PlayersController(IControllerRepository<Player> repository, IMapper mapper)
+        public PlayersController(IPlayerControllerRepository repository, IMapper mapper)
         {
             _repository = repository;
             _mapper = mapper;
@@ -62,21 +64,64 @@ namespace RPGApi.Controllers
             return Ok(readDto);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<PlayerReadDto>> CreatePlayerAsync(PlayerCreateUpdateDto createDto)
+        [HttpPost("register")]
+        [AllowAnonymous]
+        public async Task<ActionResult<PlayerReadDto>> RegisterPlayerAsync(PlayerAuthorizeDto registerDto)
         {
-            Player player = _mapper.Map<Player>(createDto);
+            if (await _repository.GetPlayerByNameAsync(registerDto.Name) != null)
+            {
+                return BadRequest("User with the given name already exists");
+            }
+
+            Player player = new();
+
+            _repository.CreatePasswordHash(registerDto.Password, 
+                out byte[] passwordHash, out byte[] passwordSalt);
+
+            player.Name = registerDto.Name;
+            player.PasswordHash = passwordHash;
+            player.PasswordSalt = passwordSalt;
 
             _repository.Add(player);
             await _repository.SaveChangesAsync();
 
             var readDto = _mapper.Map<PlayerReadDto>(player);
 
-            return CreatedAtAction(nameof(GetPlayerAsync), new { id = readDto.Id }, readDto);
+            return CreatedAtAction(nameof(GetPlayerAsync), new { Id = readDto.Id }, readDto);
+        }
+
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<ActionResult<PlayerWithTokenReadDto>> LoginPlayerAsync(PlayerAuthorizeDto loginDto)
+        {
+            Player? player = await _repository.GetPlayerByNameAsync(loginDto.Name);
+
+            if (player is null)
+            {
+                return NotFound();
+            }
+
+            if (player.Name != loginDto.Name)
+            {
+                return BadRequest("User does not exist");
+            }
+
+            if (!_repository.VerifyPasswordHash(loginDto.Password, 
+                player.PasswordHash, player.PasswordSalt))
+            {
+                return BadRequest("Incorrect password");
+            }
+
+            string token = _repository.CreateToken(player);
+
+            var returnDto = _mapper.Map<PlayerWithTokenReadDto>(player);
+            returnDto = returnDto with { Token = token };
+
+            return Ok(returnDto);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdatePlayerAsync(Guid id, PlayerCreateUpdateDto updateDto)
+        public async Task<ActionResult> UpdatePlayerAsync(Guid id, PlayerUpdateDto updateDto)
         {
             Player? player = await _repository.GetByIdAsync(id);
 
@@ -94,7 +139,7 @@ namespace RPGApi.Controllers
 
         [HttpPatch("{id}")]
         public async Task<ActionResult> PartialUpdatePlayerAsync(Guid id,
-            [FromBody]JsonPatchDocument<PlayerCreateUpdateDto> patchDoc)
+            [FromBody]JsonPatchDocument<PlayerUpdateDto> patchDoc)
         {
             Player? player = await _repository.GetByIdAsync(id);
 
@@ -103,7 +148,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            var updateDto = _mapper.Map<PlayerCreateUpdateDto>(player);
+            var updateDto = _mapper.Map<PlayerUpdateDto>(player);
             patchDoc.ApplyTo(updateDto, ModelState);
 
             if (!TryValidateModel(updateDto))
