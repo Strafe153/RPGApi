@@ -1,4 +1,4 @@
-﻿namespace RPGApi.Dtos
+﻿namespace RPGApi.Dtos.Characters
 {
     public record CharacterAddRemoveItem
     {

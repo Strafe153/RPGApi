@@ -1,6 +1,6 @@
 ﻿using RPGApi.Data;
 
-namespace RPGApi.Dtos
+namespace RPGApi.Dtos.Weapons
 {
     public record WeaponReadDto
     {

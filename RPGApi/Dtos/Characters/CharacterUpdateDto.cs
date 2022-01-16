@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using RPGApi.Data;
 
-namespace RPGApi.Dtos
+namespace RPGApi.Dtos.Characters
 {
     public record CharacterUpdateDto
     {

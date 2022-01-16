@@ -1,15 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using RPGApi.Data;
 
-namespace RPGApi.Dtos
+namespace RPGApi.Dtos.Spells
 {
-    public record WeaponCreateUpdateDto
+    public record SpellCreateUpdateDto
     {
         [Required]
         [StringLength(20, MinimumLength = 1)]
         public string Name { get; init; }
 
-        public WeaponType Type { get; init; } = WeaponType.Sword;
-        public int? Damage { get; init; } = 30;
+        public SpellType Type { get; init; } = SpellType.Fire;
+        public int Damage { get; init; } = 15;
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authorization;
 using RPGApi.Dtos;
+using RPGApi.Dtos.Weapons;
 using RPGApi.Repositories;
 using AutoMapper;
 

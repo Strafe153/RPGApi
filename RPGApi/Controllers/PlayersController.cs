@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authorization;
 using RPGApi.Data;
 using RPGApi.Dtos;
+using RPGApi.Dtos.Players;
 using RPGApi.Repositories;
 using AutoMapper;
 
