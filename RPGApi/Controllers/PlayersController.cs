@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authorization;
+using RPGApi.Data;
 using RPGApi.Dtos;
 using RPGApi.Repositories;
 using AutoMapper;
@@ -9,7 +10,6 @@ namespace RPGApi.Controllers
 {
     [ApiController]
     [Route("api/players")]
-    [Authorize]
     public class PlayersController : ControllerBase
     {
         private readonly IPlayerControllerRepository _repository;
@@ -23,6 +23,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<PlayerReadDto>>> GetAllPlayersAsync()
         {
             IEnumerable<Player> players = await _repository.GetAllAsync();
@@ -32,6 +33,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("page/{page}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PageDto<PlayerReadDto>>> GetPaginatedPlayersAsync(int page)
         {
             IEnumerable<Player> players = await _repository.GetAllAsync();
@@ -50,6 +52,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<PlayerReadDto>> GetPlayerAsync(Guid id)
         {
             Player? player = await _repository.GetByIdAsync(id);
@@ -65,7 +68,6 @@ namespace RPGApi.Controllers
         }
 
         [HttpPost("register")]
-        [AllowAnonymous]
         public async Task<ActionResult<PlayerReadDto>> RegisterPlayerAsync(PlayerAuthorizeDto registerDto)
         {
             if (await _repository.GetByNameAsync(registerDto.Name) != null)
@@ -79,6 +81,7 @@ namespace RPGApi.Controllers
                 out byte[] passwordHash, out byte[] passwordSalt);
 
             player.Name = registerDto.Name;
+            player.Role = PlayerRole.Player;
             player.PasswordHash = passwordHash;
             player.PasswordSalt = passwordSalt;
 
@@ -91,7 +94,6 @@ namespace RPGApi.Controllers
         }
 
         [HttpPost("login")]
-        [AllowAnonymous]
         public async Task<ActionResult<PlayerWithTokenReadDto>> LoginPlayerAsync(PlayerAuthorizeDto loginDto)
         {
             Player? player = await _repository.GetByNameAsync(loginDto.Name);

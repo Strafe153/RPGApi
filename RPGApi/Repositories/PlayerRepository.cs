@@ -37,7 +37,8 @@ namespace RPGApi.Repositories
         {
             List<Claim> claims = new()
             {
-                new Claim(ClaimTypes.Name, player.Name)
+                new Claim(ClaimTypes.Name, player.Name),
+                new Claim(ClaimTypes.Role, player.Role.ToString())
             };
 
             SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(
