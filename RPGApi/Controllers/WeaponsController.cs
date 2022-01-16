@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Authorization;
 using RPGApi.Dtos;
 using RPGApi.Repositories;
 using AutoMapper;
@@ -8,6 +9,7 @@ namespace RPGApi.Controllers
 {
     [ApiController]
     [Route("/api/weapons")]
+    [Authorize(Roles = "Admin")]
     public class WeaponsController : ControllerBase
     {
         private readonly IControllerRepository<Weapon> _repository;
