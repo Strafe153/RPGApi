@@ -1,6 +1,6 @@
 ﻿using RPGApi.Data;
 
-namespace RPGApi.Dtos
+namespace RPGApi.Dtos.Players
 {
     public record PlayerWithTokenReadDto
     {

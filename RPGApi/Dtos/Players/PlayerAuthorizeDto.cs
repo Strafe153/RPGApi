@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace RPGApi.Dtos
+namespace RPGApi.Dtos.Players
 {
     public record PlayerAuthorizeDto
     {

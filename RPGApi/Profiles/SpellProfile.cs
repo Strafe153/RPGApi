@@ -1,4 +1,4 @@
-﻿using RPGApi.Dtos;
+﻿using RPGApi.Dtos.Spells;
 using AutoMapper;
 
 namespace RPGApi.Profiles

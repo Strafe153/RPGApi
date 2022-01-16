@@ -1,4 +1,4 @@
-﻿using RPGApi.Dtos;
+﻿using RPGApi.Dtos.Weapons;
 using AutoMapper;
 
 namespace RPGApi.Profiles

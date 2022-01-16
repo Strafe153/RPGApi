@@ -1,13 +1,12 @@
 ﻿using RPGApi.Data;
 
-namespace RPGApi.Dtos
+namespace RPGApi.Dtos.Players
 {
-    public record SpellReadDto
+    public record PlayerReadDto
     {
         public Guid Id { get; init; }
         public string Name { get; init; }
-        public SpellType Type { get; init; }
-        public int Damage { get; init; }
+        public PlayerRole Role { get; init; }
 
         public ICollection<Character> Characters { get; init; }
     }

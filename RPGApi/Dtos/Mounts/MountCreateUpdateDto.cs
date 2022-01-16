@@ -1,6 +1,6 @@
 ﻿using RPGApi.Data;
 
-namespace RPGApi.Dtos
+namespace RPGApi.Dtos.Mounts
 {
     public record MountCreateUpdateDto
     {

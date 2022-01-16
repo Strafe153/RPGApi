@@ -1,5 +1,4 @@
-﻿using RPGApi.Dtos;
-using RPGApi.Models;
+﻿using RPGApi.Dtos.Mounts;
 using AutoMapper;
 
 namespace RPGApi.Profiles
