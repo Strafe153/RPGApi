@@ -11,6 +11,7 @@ namespace RPGApi.Controllers
 {
     [ApiController]
     [Route("api/players")]
+    [Authorize]
     public class PlayersController : ControllerBase
     {
         private readonly IPlayerControllerRepository _repository;
@@ -24,7 +25,6 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<PlayerReadDto>>> GetAllPlayersAsync()
         {
             IEnumerable<Player> players = await _repository.GetAllAsync();
@@ -34,7 +34,6 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("page/{page}")]
-        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PageDto<PlayerReadDto>>> GetPaginatedPlayersAsync(int page)
         {
             IEnumerable<Player> players = await _repository.GetAllAsync();
@@ -53,7 +52,6 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<ActionResult<PlayerReadDto>> GetPlayerAsync(Guid id)
         {
             Player? player = await _repository.GetByIdAsync(id);
@@ -69,6 +67,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<ActionResult<PlayerReadDto>> RegisterPlayerAsync(PlayerAuthorizeDto registerDto)
         {
             if (await _repository.GetByNameAsync(registerDto.Name) != null)
@@ -95,6 +94,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<ActionResult<PlayerWithTokenReadDto>> LoginPlayerAsync(PlayerAuthorizeDto loginDto)
         {
             Player? player = await _repository.GetByNameAsync(loginDto.Name);
@@ -133,6 +133,12 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
+            if (player?.Name != User?.Identity?.Name && User?.Claims.Where(
+                c => c.Value == PlayerRole.Admin.ToString()).Count() == 0)
+            {
+                return BadRequest("You are neither admin nor the specified player");
+            }
+
             _mapper.Map(updateDto, player);
             _repository.Update(player);
             await _repository.SaveChangesAsync();
@@ -149,6 +155,12 @@ namespace RPGApi.Controllers
             if (player is null)
             {
                 return NotFound();
+            }
+
+            if (player?.Name != User?.Identity?.Name && User?.Claims.Where(
+                c => c.Value == PlayerRole.Admin.ToString()).Count() == 0)
+            {
+                return BadRequest("You are neither admin nor the specified player");
             }
 
             var updateDto = _mapper.Map<PlayerUpdateDto>(player);
@@ -174,6 +186,12 @@ namespace RPGApi.Controllers
             if (player is null)
             {
                 return NotFound();
+            }
+
+            if (player?.Name != User?.Identity?.Name && User?.Claims.Where(
+                c => c.Value == PlayerRole.Admin.ToString()).Count() == 0)
+            {
+                return BadRequest("You are neither admin nor the specified player");
             }
 
             _repository.Delete(player);
