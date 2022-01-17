@@ -10,7 +10,6 @@ namespace RPGApi.Controllers
 {
     [ApiController]
     [Route("api/spells")]
-    [Authorize(Roles = "Admin")]
     public class SpellsController : ControllerBase
     {
         private readonly IControllerRepository<Spell> _repository;
@@ -24,6 +23,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<SpellReadDto>>> GetAllSpellsAsync()
         {
             IEnumerable<Spell> spells = await _repository.GetAllAsync();
@@ -33,6 +33,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("page/{page}")]
+        [Authorize]
         public async Task<ActionResult<PageDto<SpellReadDto>>> GetPaginatedSpellsAsync(int page)
         {
             IEnumerable<Spell> weapons = await _repository.GetAllAsync();
@@ -50,6 +51,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<SpellReadDto>> GetSpellAsync(Guid id)
         {
             Spell? spell = await _repository.GetByIdAsync(id);
@@ -65,6 +67,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<SpellReadDto>> CreateSpellAsync(SpellCreateUpdateDto createDto)
         {
             Spell spell = _mapper.Map<Spell>(createDto);
@@ -78,6 +81,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateSpellAsync(Guid id, SpellCreateUpdateDto updateDto)
         {
             Spell? spell = await _repository.GetByIdAsync(id);
@@ -95,6 +99,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> PartialUpdateSpellAsync(Guid id, 
             [FromBody]JsonPatchDocument<SpellCreateUpdateDto> patchDoc)
         {
@@ -121,6 +126,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteSpellAsync(Guid id)
         {
             Spell? spell = await _repository.GetByIdAsync(id);
