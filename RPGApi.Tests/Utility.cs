@@ -1,6 +1,11 @@
 ﻿global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.JsonPatch;
 global using RPGApi.Dtos;
+global using RPGApi.Dtos.Spells;
+global using RPGApi.Dtos.Mounts;
+global using RPGApi.Dtos.Players;
+global using RPGApi.Dtos.Weapons;
+global using RPGApi.Dtos.Characters;
 global using RPGApi.Models;
 global using RPGApi.Controllers;
 global using RPGApi.Repositories;
