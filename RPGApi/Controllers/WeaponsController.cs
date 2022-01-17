@@ -10,7 +10,6 @@ namespace RPGApi.Controllers
 {
     [ApiController]
     [Route("/api/weapons")]
-    [Authorize(Roles = "Admin")]
     public class WeaponsController : ControllerBase
     {
         private readonly IControllerRepository<Weapon> _repository;
@@ -24,6 +23,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<WeaponReadDto>>> GetAllWeaponsAsync()
         {
             IEnumerable<Weapon> weapons = await _repository.GetAllAsync();
@@ -33,6 +33,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("page/{page}")]
+        [Authorize]
         public async Task<ActionResult<PageDto<WeaponReadDto>>> GetPaginatedWeaponsAsync(int page)
         {
             IEnumerable<Weapon> weapons = await _repository.GetAllAsync();
@@ -50,6 +51,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<WeaponReadDto>> GetWeaponAsync(Guid id)
         {
             Weapon? weapon = await _repository.GetByIdAsync(id);
@@ -65,6 +67,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<WeaponReadDto>> CreateWeaponAsync(WeaponCreateUpdateDto createDto)
         {
             Weapon weapon = _mapper.Map<Weapon>(createDto);
@@ -78,6 +81,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateWeaponAsync(Guid id, WeaponCreateUpdateDto updateDto)
         {
             Weapon? weapon = await _repository.GetByIdAsync(id);
@@ -95,6 +99,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> PartialUpdateWeaponAsync(Guid id, 
             [FromBody]JsonPatchDocument<WeaponCreateUpdateDto> patchDoc)
         {
@@ -121,6 +126,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteWeaponAsync(Guid id)
         {
             Weapon? weapon = await _repository.GetByIdAsync(id);

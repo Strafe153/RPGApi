@@ -10,7 +10,6 @@ namespace RPGApi.Controllers
 {
     [ApiController]
     [Route("api/mounts")]
-    [Authorize(Roles = "Admin")]
     public class MountsController : ControllerBase
     {
         private readonly IControllerRepository<Mount> _repository;
@@ -24,6 +23,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<MountReadDto>>> GetAllMountsAsync()
         {
             IEnumerable<Mount> mounts = await _repository.GetAllAsync();
@@ -33,6 +33,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("page/{page}")]
+        [Authorize]
         public async Task<ActionResult<PageDto<MountReadDto>>> GetPaginatedMountsAsync(int page)
         {
             IEnumerable<Mount> weapons = await _repository.GetAllAsync();
@@ -50,6 +51,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<MountReadDto>> GetMountAsync(Guid id)
         {
             Mount? mount = await _repository.GetByIdAsync(id);
@@ -65,6 +67,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<MountReadDto>> CreateMountAsync(MountCreateUpdateDto createDto)
         {
             Mount mount = _mapper.Map<Mount>(createDto);
@@ -78,6 +81,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateMountAsync(Guid id, MountCreateUpdateDto updateDto)
         {
             Mount? mount = await _repository.GetByIdAsync(id);
@@ -95,6 +99,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> PartialUpdateMountAsync(Guid id,
             [FromBody]JsonPatchDocument<MountCreateUpdateDto> patchDoc)
         {
@@ -121,6 +126,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteMountAsync(Guid id)
         {
             Mount? mount = await _repository.GetByIdAsync(id);
