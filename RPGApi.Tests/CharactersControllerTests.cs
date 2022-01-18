@@ -69,6 +69,8 @@
         public async Task CreateCharacterAsync_ValidData_ReturnsActionResultOfReadDto()
         {
             // Arrange
+            _mapper.Setup(m => m.Map<Character>(It.IsAny<CharacterCreateDto>()))
+                .Returns(new Character() { Player = new Player() });
             _mapper.Setup(m => m.Map<CharacterReadDto>(It.IsAny<Character>()))
                 .Returns(new CharacterReadDto());
 

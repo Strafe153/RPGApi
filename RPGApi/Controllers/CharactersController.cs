@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authorization;
+using RPGApi.Data;
 using RPGApi.Dtos;
 using RPGApi.Dtos.Characters;
 using RPGApi.Repositories;
@@ -10,7 +11,6 @@ namespace RPGApi.Controllers
 {
     [ApiController]
     [Route("api/characters")]
-    [Authorize]
     public class CharactersController : ControllerBase
     {
         private readonly IControllerRepository<Character> _characterRepository;
@@ -34,6 +34,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<CharacterReadDto>>> GetAllCharactersAsync()
         {
             IEnumerable<Character> characters = await _characterRepository.GetAllAsync();
@@ -43,6 +44,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("page/{page}")]
+        [Authorize]
         public async Task<ActionResult<PageDto<CharacterReadDto>>> GetPaginatedCharactersAsync(int page)
         {
             IEnumerable<Character> characters = await _characterRepository.GetAllAsync();
@@ -60,6 +62,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<CharacterReadDto>> GetCharacterAsync(Guid id)
         {
             Character? character = await _characterRepository.GetByIdAsync(id);
@@ -79,6 +82,12 @@ namespace RPGApi.Controllers
         {
             Character character = _mapper.Map<Character>(createDto);
 
+            if (!CheckPlayerAccessRights(character))
+            {
+                return BadRequest("You are neither admin nor the player " +
+                    "with the specified character");
+            }
+
             _characterRepository.Add(character);
             await _characterRepository.SaveChangesAsync();
 
@@ -97,6 +106,12 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
+            if (!CheckPlayerAccessRights(character))
+            {
+                return BadRequest("You are neither admin nor the player " +
+                    "with the specified character");
+            }
+
             _mapper.Map(updateDto, character);
             _characterRepository.Update(character);
             await _characterRepository.SaveChangesAsync();
@@ -106,13 +121,19 @@ namespace RPGApi.Controllers
 
         [HttpPatch("{id}")]
         public async Task<ActionResult> PartialUpdateCharacterAsync(Guid id,
-            [FromBody] JsonPatchDocument<CharacterUpdateDto> patchDoc)
+            [FromBody]JsonPatchDocument<CharacterUpdateDto> patchDoc)
         {
             Character? character = await _characterRepository.GetByIdAsync(id);
 
             if (character is null)
             {
                 return NotFound();
+            }
+
+            if (!CheckPlayerAccessRights(character))
+            {
+                return BadRequest("You are neither admin nor the player " +
+                    "with the specified character");
             }
 
             var updateDto = _mapper.Map<CharacterUpdateDto>(character);
@@ -140,6 +161,12 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
+            if (!CheckPlayerAccessRights(character))
+            {
+                return BadRequest("You are neither admin nor the player " +
+                    "with the specified character");
+            }
+
             _characterRepository.Delete(character);
             await _characterRepository.SaveChangesAsync();
 
@@ -154,6 +181,12 @@ namespace RPGApi.Controllers
             if (character is null)
             {
                 return NotFound();
+            }
+
+            if (!CheckPlayerAccessRights(character))
+            {
+                return BadRequest("You are neither admin nor the player " +
+                    "with the specified character");
             }
 
             Weapon? weapon = await _weaponRepository.GetByIdAsync(addDto.ItemId);
@@ -180,6 +213,12 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
+            if (!CheckPlayerAccessRights(character))
+            {
+                return BadRequest("You are neither admin nor the player " +
+                    "with the specified character");
+            }
+
             Weapon? weapon = await _weaponRepository.GetByIdAsync(weaponDto.ItemId);
 
             if (weapon is null)
@@ -202,6 +241,12 @@ namespace RPGApi.Controllers
             if (character is null)
             {
                 return NotFound();
+            }
+
+            if (!CheckPlayerAccessRights(character))
+            {
+                return BadRequest("You are neither admin nor the player " +
+                    "with the specified character");
             }
 
             Spell? spell = await _spellRepository.GetByIdAsync(spellDto.ItemId);
@@ -228,6 +273,12 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
+            if (!CheckPlayerAccessRights(character))
+            {
+                return BadRequest("You are neither admin nor the player " +
+                    "with the specified character");
+            }
+
             Spell? spell = await _spellRepository.GetByIdAsync(spellDto.ItemId);
 
             if (spell is null)
@@ -250,6 +301,12 @@ namespace RPGApi.Controllers
             if (character is null)
             {
                 return NotFound();
+            }
+
+            if (!CheckPlayerAccessRights(character))
+            {
+                return BadRequest("You are neither admin nor the player " +
+                    "with the specified character");
             }
 
             Mount? mount = await _mountRepository.GetByIdAsync(mountDto.ItemId);
@@ -276,6 +333,12 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
+            if (!CheckPlayerAccessRights(character))
+            {
+                return BadRequest("You are neither admin nor the player " +
+                    "with the specified character");
+            }
+
             Mount? mount = await _mountRepository.GetByIdAsync(mountDto.ItemId);
 
             if (mount is null)
@@ -288,6 +351,17 @@ namespace RPGApi.Controllers
             await _characterRepository.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private bool CheckPlayerAccessRights(Character character)
+        {
+            if (character.Player?.Name != User?.Identity?.Name && User?.Claims.Where(
+                c => c.Value == PlayerRole.Admin.ToString()).Count() == 0)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
