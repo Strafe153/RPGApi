@@ -133,8 +133,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (player?.Name != User?.Identity?.Name && User?.Claims.Where(
-                c => c.Value == PlayerRole.Admin.ToString()).Count() == 0)
+            if (!CheckPlayerAccessRights(player))
             {
                 return BadRequest("You are neither admin nor the specified player");
             }
@@ -157,8 +156,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (player?.Name != User?.Identity?.Name && User?.Claims.Where(
-                c => c.Value == PlayerRole.Admin.ToString()).Count() == 0)
+            if (!CheckPlayerAccessRights(player))
             {
                 return BadRequest("You are neither admin nor the specified player");
             }
@@ -188,8 +186,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (player?.Name != User?.Identity?.Name && User?.Claims.Where(
-                c => c.Value == PlayerRole.Admin.ToString()).Count() == 0)
+            if (!CheckPlayerAccessRights(player))
             {
                 return BadRequest("You are neither admin nor the specified player");
             }
@@ -198,6 +195,17 @@ namespace RPGApi.Controllers
             await _repository.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private bool CheckPlayerAccessRights(Player player)
+        {
+            if (player?.Name != User?.Identity?.Name && User?.Claims.Where(
+                c => c.Value == PlayerRole.Admin.ToString()).Count() == 0)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
