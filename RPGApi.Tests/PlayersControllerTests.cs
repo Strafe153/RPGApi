@@ -6,6 +6,8 @@
         private static readonly Mock<IMapper> _mapper = new();
         private static readonly PlayersController _controller = new(_repo.Object, _mapper.Object);
 
+        private static Player _player = new();
+
         [Fact]
         public async Task GetAllPlayersAsync_Items_ReturnsActionResultOfReadDtos()
         {
@@ -38,7 +40,7 @@
         public async Task GetPlayerAsync_ExistingPlayer_ReturnsActionResultOfReadDto()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Player());
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_player);
 
             // Act
             var result = await _controller.GetPlayerAsync(Guid.Empty);
@@ -81,7 +83,7 @@
         public async Task RegisterPlayerAsync_ExistentPlayer_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(new Player());
+            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(_player);
 
             // Act
             var result = await _controller.RegisterPlayerAsync(new PlayerAuthorizeDto());
@@ -95,7 +97,7 @@
         public async Task LoginPlayerAsync_ExistingPlayer_ReturnsActionResultOfReadDto()
         {
             // Arrange
-            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(new Player());
+            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(_player);
 
             // Act
             var result = await _controller.LoginPlayerAsync(new PlayerAuthorizeDto());
@@ -122,8 +124,8 @@
         public async Task LoginPlayerAsync_DifferentNames_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(
-                new Player() { Name = "player_name" });
+            _player.Name = "player_name";
+            _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(_player);
 
             // Act
             var result = await _controller.LoginPlayerAsync(
@@ -154,8 +156,8 @@
         public async Task UpdatePlayerAsync_ExistingPlayer_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Player() { Name = "identity_name"});
+            _player.Name = "identity_name";
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_player); ;
 
             // Act
             var result = await _controller.UpdatePlayerAsync(Guid.Empty, new PlayerUpdateDto());
@@ -181,8 +183,8 @@
         public async Task UpdatePlayerAsync_NoAccessRights_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Player() { Name = "player_name" });
+            _player.Name = "player_name";
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_player);
 
             Utility.MockUserIdentityName(_controller);
 
@@ -197,8 +199,8 @@
         public async Task PartialUpdatePlayerAsync_ExistingPlayer_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Player() { Name = "identity_name"});
+            _player.Name = "identity_name";
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_player);
             _mapper.Setup(m => m.Map<PlayerUpdateDto>(It.IsAny<Player>()))
                 .Returns(new PlayerUpdateDto());
 
@@ -230,8 +232,8 @@
         public async Task PartialUpdatePlayerAsync_NoAccessRights_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Player() { Name = "player_name" });
+            _player.Name = "player_name";
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_player);
             _mapper.Setup(m => m.Map<PlayerUpdateDto>(It.IsAny<Player>()))
                 .Returns(new PlayerUpdateDto());
 
@@ -250,8 +252,8 @@
         public async Task DeletePlayerAsync_ExistingPlayer_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Player() { Name = "identity_name"});
+            _player.Name = "identity_name";
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_player);
 
             // Act
             var result = await _controller.DeletePlayerAsync(Guid.Empty);
@@ -277,8 +279,8 @@
         public async Task DeletePlayerAsync_NoAccessRights_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Player() { Name = "player_name" });
+            _player.Name = "player_name";
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_player);
 
             Utility.MockUserIdentityName(_controller);
 
