@@ -14,24 +14,24 @@ namespace RPGApi.Repositories
 
         public void Add(Mount entity)
         {
-            _context.Mounts.Add(entity);
+            _context.Mounts!.Add(entity);
         }
 
         public void Delete(Mount entity)
         {
-            _context.Mounts.Remove(entity);
+            _context.Mounts!.Remove(entity);
         }
 
         public async Task<IEnumerable<Mount>> GetAllAsync()
         {
-            return await _context.Mounts
+            return await _context.Mounts!
                 .Include(m => m.Characters)
                 .ToListAsync();
         }
 
         public async Task<Mount?> GetByIdAsync(Guid id)
         {
-            return await _context.Mounts
+            return await _context.Mounts!
                 .Include(m => m.Characters)
                 .SingleOrDefaultAsync(m => m.Id == id);
         }
@@ -43,7 +43,7 @@ namespace RPGApi.Repositories
 
         public void Update(Mount entity)
         {
-            _context.Mounts.Update(entity);
+            _context.Mounts!.Update(entity);
         }
     }
 }
