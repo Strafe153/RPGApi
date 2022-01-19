@@ -7,7 +7,7 @@ namespace RPGApi.Dtos.Spells
     {
         [Required]
         [StringLength(20, MinimumLength = 1)]
-        public string Name { get; init; }
+        public string? Name { get; init; }
 
         public SpellType Type { get; init; } = SpellType.Fire;
         public int Damage { get; init; } = 15;

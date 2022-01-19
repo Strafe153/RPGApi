@@ -5,7 +5,7 @@ namespace RPGApi.Dtos.Characters
     public record CharacterReadDto
     {
         public Guid Id { get; init; }
-        public string Name { get; init; }
+        public string? Name { get; init; }
         public CharacterRace Race { get; init; }
         public int Health { get; init; }
 

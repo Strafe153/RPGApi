@@ -4,11 +4,11 @@ namespace RPGApi.Data
 {
     public class DataContext : DbContext
     {
-        public DbSet<Player> Players { get; set; }
-        public DbSet<Character> Characters { get; set; }
-        public DbSet<Weapon> Weapons { get; set; }
-        public DbSet<Spell> Spells { get; set; }
-        public DbSet<Mount> Mounts { get; set; }
+        public DbSet<Player>? Players { get; set; }
+        public DbSet<Character>? Characters { get; set; }
+        public DbSet<Weapon>? Weapons { get; set; }
+        public DbSet<Spell>? Spells { get; set; }
+        public DbSet<Mount>? Mounts { get; set; }
 
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
