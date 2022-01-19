@@ -10,6 +10,14 @@
         private static readonly CharactersController _controller = new(_charRepo.Object,
             _weaponRepo.Object, _spellRepo.Object, _mountRepo.Object, _mapper.Object);
 
+        private static Character _character = new()
+        {
+            Player = new(),
+            Weapons = new List<Weapon>(),
+            Spells = new List<Spell>(),
+            Mounts = new List<Mount>()
+        };
+
         [Fact]
         public async Task GetAllCharactersAsync_Items_ReturnsActionResultOfReadDtos()
         {
@@ -69,8 +77,8 @@
         public async Task CreateCharacterAsync_ValidData_ReturnsActionResultOfReadDto()
         {
             // Arrange
-            _mapper.Setup(m => m.Map<Character>(It.IsAny<CharacterCreateDto>()))
-                .Returns(new Character() { Player = new Player() });
+            _character.Player.Name = "identity_name";
+            _mapper.Setup(m => m.Map<Character>(It.IsAny<CharacterCreateDto>())).Returns(_character);
             _mapper.Setup(m => m.Map<CharacterReadDto>(It.IsAny<Character>()))
                 .Returns(new CharacterReadDto());
 
@@ -83,10 +91,27 @@
         }
 
         [Fact]
+        public async Task CreateCharacterAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _mapper.Setup(m => m.Map<Character>(It.IsAny<CharacterCreateDto>())).Returns(_character);
+
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.CreateCharacterAsync(new CharacterCreateDto());
+
+            // Assert
+            Assert.IsType<ActionResult<CharacterReadDto>>(result);
+            Assert.IsType<BadRequestObjectResult>(result.Result);
+        }
+
+        [Fact]
         public async Task UpdateCharacterAsync_ExistingCharacter_ReturnsNoContentResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
 
             // Act
             var result = await _controller.UpdateCharacterAsync(Guid.Empty, new CharacterUpdateDto());
@@ -109,10 +134,26 @@
         }
 
         [Fact]
+        public async Task UpdateCharacterAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.UpdateCharacterAsync(Guid.Empty, new CharacterUpdateDto());
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
         public async Task PartialUpdateCharacterAsync_ExistingCharacter_ReturnsNoContentResult()
         {
             // Arrange
-            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mapper.Setup(m => m.Map<CharacterUpdateDto>(It.IsAny<Character>()))
                 .Returns(new CharacterUpdateDto());
 
@@ -141,10 +182,30 @@
         }
 
         [Fact]
+        public async Task PartialUpdateCharacterAsync_NoAccessRights_ReturnsBadReuqestObjectResult()
+        {
+            // Arrange
+            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _mapper.Setup(m => m.Map<CharacterUpdateDto>(It.IsAny<Character>()))
+                .Returns(new CharacterUpdateDto());
+
+            Utility.MockObjectModelValidator(_controller);
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.PartialUpdateCharacterAsync(Guid.Empty,
+                new JsonPatchDocument<CharacterUpdateDto>());
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
         public async Task DeleteCharacterAsync_ExistingCharacter_ReturnsNoContentResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
 
             // Act
             var result = await _controller.DeleteCharacterAsync(Guid.Empty);
@@ -167,14 +228,26 @@
         }
 
         [Fact]
+        public async Task DeleteCharacterAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.DeleteCharacterAsync(Guid.Empty);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
         public async Task AddWeaponAsync_ExistingCharacterExistingWeapon_ReturnsNoContentResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Character()
-                { 
-                    Weapons = new List<Weapon>()
-                });
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
 
             // Act
@@ -188,7 +261,8 @@
         public async Task AddWeaponAsync_ExistingCharacterNonexistingWeapon_ReturnsBadRequestResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
@@ -212,14 +286,28 @@
         }
 
         [Fact]
+        public async Task AddWeaponAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _character.Player.Name = "player_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+            _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
+
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.AddWeaponAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
         public async Task RemoveWeaponAsync_ExistingCharacterExistingWeapon_ReturnsNoContentResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Character()
-                {
-                    Weapons = new List<Weapon>()
-                });
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
 
             // Act
@@ -233,7 +321,8 @@
         public async Task RemoveWeaponAsync_ExistingCharacterNonexistingWeapon_ReturnsBadRequestResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
@@ -257,14 +346,28 @@
         }
 
         [Fact]
+        public async Task RemoveWeaponAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _character.Player.Name = "player_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+            _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
+
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.RemoveWeaponAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
         public async Task AddSpellAsync_ExistingCharacterExistingSpell_ReturnsNoContentResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Character()
-                {
-                    Spells = new List<Spell>()
-                });
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
 
             // Act
@@ -278,7 +381,8 @@
         public async Task AddSpellAsync_ExistingCharacterNonexistingSpell_ReturnsBadRequestResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
@@ -302,14 +406,28 @@
         }
 
         [Fact]
+        public async Task AddSpellAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _character.Player.Name = "player_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+            _spellRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
+
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.AddSpellAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
         public async Task RemoveSpellAsync_ExistingCharacterExistingSpell_ReturnsNoContentResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Character()
-                {
-                    Spells = new List<Spell>()
-                });
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
 
             // Act
@@ -323,7 +441,8 @@
         public async Task RemoveSpellAsync_ExistingCharacterNonexistingSpell_ReturnsBadRequestResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
@@ -347,14 +466,28 @@
         }
 
         [Fact]
+        public async Task RemoveSpellAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _character.Player.Name = "player_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+            _spellRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
+
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.RemoveSpellAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
         public async Task AddMountAsync_ExistingCharacterExistingMount_ReturnsNoContentResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Character()
-                {
-                    Mounts = new List<Mount>()
-                });
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Mount());
 
             // Act
@@ -368,7 +501,8 @@
         public async Task AddMountAsync_ExistingCharacterNonexistingMount_ReturnsBadRequestResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Mount?)null);
 
             // Act
@@ -392,14 +526,28 @@
         }
 
         [Fact]
+        public async Task AddMountAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _character.Player.Name = "player_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+            _mountRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Mount());
+
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.AddMountAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
         public async Task RemoveMountAsync_ExistingCharacterExistingMount_ReturnsNoContentResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
-                new Character()
-                {
-                    Mounts = new List<Mount>()
-                });
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Mount());
 
             // Act
@@ -413,7 +561,8 @@
         public async Task RemoveMountAsync_ExistingCharacterNonexistingMount_ReturnsBadRequestResult()
         {
             // Arrange
-            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            _character.Player.Name = "identity_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Mount?)null);
 
             // Act
@@ -434,6 +583,23 @@
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task RemoveMountAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _character.Player.Name = "player_name";
+            _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+            _mountRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Mount());
+
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.RemoveMountAsync(new CharacterAddRemoveItem());
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
         }
     }
 }
