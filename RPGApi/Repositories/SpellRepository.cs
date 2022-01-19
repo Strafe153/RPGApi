@@ -14,24 +14,24 @@ namespace RPGApi.Repositories
 
         public void Add(Spell entity)
         {
-            _context.Spells.Add(entity);
+            _context.Spells!.Add(entity);
         }
 
         public void Delete(Spell entity)
         {
-            _context.Spells.Remove(entity);
+            _context.Spells!.Remove(entity);
         }
 
         public async Task<IEnumerable<Spell>> GetAllAsync()
         {
-            return await _context.Spells
+            return await _context.Spells!
                 .Include(s => s.Characters)
                 .ToListAsync();
         }
 
         public async Task<Spell?> GetByIdAsync(Guid id)
         {
-            return await _context.Spells
+            return await _context.Spells!
                 .Include(s => s.Characters)
                 .SingleOrDefaultAsync(s => s.Id == id);
         }
@@ -43,7 +43,7 @@ namespace RPGApi.Repositories
 
         public void Update(Spell entity)
         {
-            _context.Spells.Update(entity);
+            _context.Spells!.Update(entity);
         }
     }
 }

@@ -14,17 +14,17 @@ namespace RPGApi.Repositories
 
         public void Add(Character entity)
         {
-            _context.Characters.Add(entity);
+            _context.Characters!.Add(entity);
         }
 
         public void Delete(Character entity)
         {
-            _context.Characters.Remove(entity);
+            _context.Characters!.Remove(entity);
         }
 
         public async Task<IEnumerable<Character>> GetAllAsync()
         {
-            return await _context.Characters
+            return await _context.Characters!
                 .Include(c => c.Weapons)
                 .Include(c => c.Spells)
                 .Include(c => c.Mounts)
@@ -33,7 +33,7 @@ namespace RPGApi.Repositories
 
         public async Task<Character?> GetByIdAsync(Guid id)
         {
-            return await _context.Characters
+            return await _context.Characters!
                 .Include(c => c.Weapons)
                 .Include(c => c.Spells)
                 .Include(c => c.Mounts)
@@ -47,7 +47,7 @@ namespace RPGApi.Repositories
 
         public void Update(Character entity)
         {
-            _context.Characters.Update(entity);
+            _context.Characters!.Update(entity);
         }
     }
 }

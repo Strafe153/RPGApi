@@ -21,7 +21,7 @@ namespace RPGApi.Repositories
 
         public void Add(Player entity)
         {
-            _context.Players.Add(entity);
+            _context.Players!.Add(entity);
         }
 
         public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
@@ -37,7 +37,7 @@ namespace RPGApi.Repositories
         {
             List<Claim> claims = new()
             {
-                new Claim(ClaimTypes.Name, player.Name),
+                new Claim(ClaimTypes.Name, player.Name!),
                 new Claim(ClaimTypes.Role, player.Role.ToString())
             };
 
@@ -58,26 +58,26 @@ namespace RPGApi.Repositories
 
         public void Delete(Player entity)
         {
-            _context.Players.Remove(entity);
+            _context.Players!.Remove(entity);
         }
 
         public async Task<IEnumerable<Player>> GetAllAsync()
         {
-            return await _context.Players
+            return await _context.Players!
                 .Include(p => p.Characters)
                 .ToListAsync();
         }
 
         public async Task<Player?> GetByIdAsync(Guid id)
         {
-            return await _context.Players
+            return await _context.Players!
                 .Include(p => p.Characters)
                 .SingleOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<Player?> GetByNameAsync(string name)
         {
-            return await _context.Players.SingleOrDefaultAsync(p => p.Name == name);
+            return await _context.Players!.SingleOrDefaultAsync(p => p.Name == name);
         }
 
         public async Task SaveChangesAsync()
@@ -87,7 +87,7 @@ namespace RPGApi.Repositories
 
         public void Update(Player entity)
         {
-            _context.Players.Update(entity);
+            _context.Players!.Update(entity);
         }
 
         public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
