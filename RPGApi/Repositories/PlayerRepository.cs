@@ -48,7 +48,7 @@ namespace RPGApi.Repositories
 
             JwtSecurityToken token = new(
                 claims: claims,
-                expires: DateTime.Now.AddHours(6),
+                expires: DateTime.Now.AddHours(1),
                 signingCredentials: credentials);
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);

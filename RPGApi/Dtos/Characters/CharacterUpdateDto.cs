@@ -6,7 +6,7 @@ namespace RPGApi.Dtos.Characters
     public record CharacterUpdateDto
     {
         [StringLength(20, MinimumLength = 1)]
-        public string Name { get; init; }
+        public string? Name { get; init; }
 
         public CharacterRace Race { get; init; } = CharacterRace.Human;
     }
