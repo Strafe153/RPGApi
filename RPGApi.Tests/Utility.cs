@@ -12,7 +12,9 @@ global using RPGApi.Repositories;
 global using Moq;
 global using Xunit;
 global using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using System.Security.Claims;
 
 namespace RPGApi.Tests
 {
@@ -25,6 +27,14 @@ namespace RPGApi.Tests
                 It.IsAny<ValidationStateDictionary>(), It.IsAny<string>(), It.IsAny<Object>()));
 
             controller.ObjectValidator = objectValidator.Object;
+        }
+
+        internal static void MockUserIdentityName(ControllerBase controller)
+        {
+            var user = new ClaimsPrincipal(new ClaimsIdentity(
+                new Claim[] { new Claim(ClaimTypes.Name, "identity_name") }, "mock"));
+
+            controller.ControllerContext.HttpContext = new DefaultHttpContext() { User = user };
         }
     }
 }
