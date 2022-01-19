@@ -21,7 +21,7 @@ namespace RPGApi.Repositories
 
         public void Add(Player entity)
         {
-            _context?.Players?.Add(entity);
+            _context.Players!.Add(entity);
         }
 
         public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
@@ -58,7 +58,7 @@ namespace RPGApi.Repositories
 
         public void Delete(Player entity)
         {
-            _context?.Players?.Remove(entity);
+            _context.Players!.Remove(entity);
         }
 
         public async Task<IEnumerable<Player>> GetAllAsync()
@@ -87,7 +87,7 @@ namespace RPGApi.Repositories
 
         public void Update(Player entity)
         {
-            _context?.Players?.Update(entity);
+            _context.Players!.Update(entity);
         }
 
         public bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
