@@ -123,17 +123,11 @@
         {
             // Arrange
             _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(
-                new Player()
-                { 
-                    Name = "player_name"
-                });
+                new Player() { Name = "player_name" });
 
             // Act
             var result = await _controller.LoginPlayerAsync(
-                new PlayerAuthorizeDto()
-                {
-                    Name = "dto_name"
-                });
+                new PlayerAuthorizeDto() { Name = "dto_name" });
 
             // Assert
             Assert.IsType<ActionResult<PlayerWithTokenReadDto>>(result);
@@ -160,7 +154,8 @@
         public async Task UpdatePlayerAsync_ExistingPlayer_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Player());
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
+                new Player() { Name = "identity_name"});
 
             // Act
             var result = await _controller.UpdatePlayerAsync(Guid.Empty, new PlayerUpdateDto());
@@ -183,10 +178,27 @@
         }
 
         [Fact]
+        public async Task UpdatePlayerAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
+                new Player() { Name = "player_name" });
+
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.UpdatePlayerAsync(Guid.Empty, new PlayerUpdateDto());
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
         public async Task PartialUpdatePlayerAsync_ExistingPlayer_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Player());
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
+                new Player() { Name = "identity_name"});
             _mapper.Setup(m => m.Map<PlayerUpdateDto>(It.IsAny<Player>()))
                 .Returns(new PlayerUpdateDto());
 
@@ -215,10 +227,31 @@
         }
 
         [Fact]
+        public async Task PartialUpdatePlayerAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
+                new Player() { Name = "player_name" });
+            _mapper.Setup(m => m.Map<PlayerUpdateDto>(It.IsAny<Player>()))
+                .Returns(new PlayerUpdateDto());
+
+            Utility.MockObjectModelValidator(_controller);
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.PartialUpdatePlayerAsync(Guid.Empty,
+                new JsonPatchDocument<PlayerUpdateDto>());
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
+        }
+
+        [Fact]
         public async Task DeletePlayerAsync_ExistingPlayer_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Player());
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
+                new Player() { Name = "identity_name"});
 
             // Act
             var result = await _controller.DeletePlayerAsync(Guid.Empty);
@@ -238,6 +271,22 @@
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task DeletePlayerAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(
+                new Player() { Name = "player_name" });
+
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.DeletePlayerAsync(Guid.Empty);
+
+            // Assert
+            Assert.IsType<BadRequestObjectResult>(result);
         }
     }
 }
