@@ -70,14 +70,14 @@ namespace RPGApi.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<PlayerReadDto>> RegisterPlayerAsync(PlayerAuthorizeDto registerDto)
         {
-            if (await _repository.GetByNameAsync(registerDto.Name) != null)
+            if (await _repository.GetByNameAsync(registerDto.Name!) != null)
             {
                 return BadRequest("User with the given name already exists");
             }
 
             Player player = new();
 
-            _repository.CreatePasswordHash(registerDto.Password, 
+            _repository.CreatePasswordHash(registerDto.Password!, 
                 out byte[] passwordHash, out byte[] passwordSalt);
 
             player.Name = registerDto.Name;
@@ -97,7 +97,7 @@ namespace RPGApi.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<PlayerWithTokenReadDto>> LoginPlayerAsync(PlayerAuthorizeDto loginDto)
         {
-            Player? player = await _repository.GetByNameAsync(loginDto.Name);
+            Player? player = await _repository.GetByNameAsync(loginDto.Name!);
 
             if (player is null)
             {
@@ -108,9 +108,9 @@ namespace RPGApi.Controllers
             {
                 return BadRequest("User does not exist");
             }
-
-            if (!_repository.VerifyPasswordHash(loginDto.Password, 
-                player.PasswordHash, player.PasswordSalt))
+            
+            if (!_repository.VerifyPasswordHash(loginDto.Password!, 
+                player.PasswordHash!, player.PasswordSalt!))
             {
                 return BadRequest("Incorrect password");
             }
