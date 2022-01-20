@@ -196,7 +196,7 @@ namespace RPGApi.Controllers
                 return BadRequest();
             }
 
-            character.Weapons.Add(weapon);
+            character.Weapons!.Add(weapon);
             _characterRepository.Update(character);
             await _characterRepository.SaveChangesAsync();
 
@@ -226,7 +226,7 @@ namespace RPGApi.Controllers
                 return BadRequest();
             }
 
-            character.Weapons.Remove(weapon);
+            character.Weapons!.Remove(weapon);
             _characterRepository.Update(character);
             await _characterRepository.SaveChangesAsync();
 
@@ -256,7 +256,7 @@ namespace RPGApi.Controllers
                 return BadRequest();
             }
 
-            character.Spells.Add(spell);
+            character.Spells!.Add(spell);
             _characterRepository.Update(character);
             await _characterRepository.SaveChangesAsync();
 
@@ -286,7 +286,7 @@ namespace RPGApi.Controllers
                 return BadRequest();
             }
 
-            character.Spells.Remove(spell);
+            character.Spells!.Remove(spell);
             _characterRepository.Update(character);
             await _characterRepository.SaveChangesAsync();
 
@@ -316,7 +316,7 @@ namespace RPGApi.Controllers
                 return BadRequest();
             }
 
-            character.Mounts.Add(mount);
+            character.Mounts!.Add(mount);
             _characterRepository.Update(character);
             await _characterRepository.SaveChangesAsync();
 
@@ -346,7 +346,7 @@ namespace RPGApi.Controllers
                 return BadRequest();
             }
 
-            character.Mounts.Remove(mount);
+            character.Mounts!.Remove(mount);
             _characterRepository.Update(character);
             await _characterRepository.SaveChangesAsync();
 
