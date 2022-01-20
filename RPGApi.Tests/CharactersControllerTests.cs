@@ -10,7 +10,7 @@
         private static readonly CharactersController _controller = new(_charRepo.Object,
             _weaponRepo.Object, _spellRepo.Object, _mountRepo.Object, _mapper.Object);
 
-        private static Character _character = new()
+        private static readonly Character _character = new()
         {
             Player = new(),
             Weapons = new List<Weapon>(),
@@ -77,7 +77,7 @@
         public async Task CreateCharacterAsync_ValidData_ReturnsActionResultOfReadDto()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _mapper.Setup(m => m.Map<Character>(It.IsAny<CharacterCreateDto>())).Returns(_character);
             _mapper.Setup(m => m.Map<CharacterReadDto>(It.IsAny<Character>()))
                 .Returns(new CharacterReadDto());
@@ -110,7 +110,7 @@
         public async Task UpdateCharacterAsync_ExistingCharacter_ReturnsNoContentResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
 
             // Act
@@ -152,7 +152,7 @@
         public async Task PartialUpdateCharacterAsync_ExistingCharacter_ReturnsNoContentResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mapper.Setup(m => m.Map<CharacterUpdateDto>(It.IsAny<Character>()))
                 .Returns(new CharacterUpdateDto());
@@ -204,7 +204,7 @@
         public async Task DeleteCharacterAsync_ExistingCharacter_ReturnsNoContentResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
 
             // Act
@@ -246,7 +246,7 @@
         public async Task AddWeaponAsync_ExistingCharacterExistingWeapon_ReturnsNoContentResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
 
@@ -261,7 +261,7 @@
         public async Task AddWeaponAsync_ExistingCharacterNonexistingWeapon_ReturnsBadRequestResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
@@ -289,7 +289,7 @@
         public async Task AddWeaponAsync_NoAccessRights_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            _character.Player.Name = "player_name";
+            _character.Player!.Name = "player_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
 
@@ -306,7 +306,7 @@
         public async Task RemoveWeaponAsync_ExistingCharacterExistingWeapon_ReturnsNoContentResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
 
@@ -321,7 +321,7 @@
         public async Task RemoveWeaponAsync_ExistingCharacterNonexistingWeapon_ReturnsBadRequestResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
@@ -349,7 +349,7 @@
         public async Task RemoveWeaponAsync_NoAccessRights_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            _character.Player.Name = "player_name";
+            _character.Player!.Name = "player_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
 
@@ -366,7 +366,7 @@
         public async Task AddSpellAsync_ExistingCharacterExistingSpell_ReturnsNoContentResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
 
@@ -381,7 +381,7 @@
         public async Task AddSpellAsync_ExistingCharacterNonexistingSpell_ReturnsBadRequestResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
@@ -409,7 +409,7 @@
         public async Task AddSpellAsync_NoAccessRights_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            _character.Player.Name = "player_name";
+            _character.Player!.Name = "player_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _spellRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
 
@@ -426,7 +426,7 @@
         public async Task RemoveSpellAsync_ExistingCharacterExistingSpell_ReturnsNoContentResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
 
@@ -441,7 +441,7 @@
         public async Task RemoveSpellAsync_ExistingCharacterNonexistingSpell_ReturnsBadRequestResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
@@ -469,7 +469,7 @@
         public async Task RemoveSpellAsync_NoAccessRights_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            _character.Player.Name = "player_name";
+            _character.Player!.Name = "player_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _spellRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
 
@@ -486,7 +486,7 @@
         public async Task AddMountAsync_ExistingCharacterExistingMount_ReturnsNoContentResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Mount());
 
@@ -501,7 +501,7 @@
         public async Task AddMountAsync_ExistingCharacterNonexistingMount_ReturnsBadRequestResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Mount?)null);
 
@@ -529,7 +529,7 @@
         public async Task AddMountAsync_NoAccessRights_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            _character.Player.Name = "player_name";
+            _character.Player!.Name = "player_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mountRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Mount());
 
@@ -546,7 +546,7 @@
         public async Task RemoveMountAsync_ExistingCharacterExistingMount_ReturnsNoContentResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Mount());
 
@@ -561,7 +561,7 @@
         public async Task RemoveMountAsync_ExistingCharacterNonexistingMount_ReturnsBadRequestResult()
         {
             // Arrange
-            _character.Player.Name = "identity_name";
+            _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Mount?)null);
 
@@ -589,7 +589,7 @@
         public async Task RemoveMountAsync_NoAccessRights_ReturnsBadRequestObjectResult()
         {
             // Arrange
-            _character.Player.Name = "player_name";
+            _character.Player!.Name = "player_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
             _mountRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Mount());
 
