@@ -6,7 +6,7 @@
         private static readonly Mock<IMapper> _mapper = new();
         private static readonly PlayersController _controller = new(_repo.Object, _mapper.Object);
 
-        private static Player _player = new();
+        private static readonly Player _player = new();
 
         [Fact]
         public async Task GetAllPlayersAsync_Items_ReturnsActionResultOfReadDtos()
