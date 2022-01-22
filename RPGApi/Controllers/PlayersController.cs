@@ -202,7 +202,7 @@ namespace RPGApi.Controllers
 
         [HttpPost("changeRole")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> ChangeRole(PlayerChangeRoleDto changeDto)
+        public async Task<ActionResult> ChangeRoleAsync(PlayerChangeRoleDto changeDto)
         {
             Player? player = await _repository.GetByIdAsync(changeDto.Id);
 
