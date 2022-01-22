@@ -41,8 +41,12 @@ namespace RPGApi.Repositories
                 new Claim(ClaimTypes.Role, player.Role.ToString())
             };
 
-            SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(
-                _configuration.GetSection("AppSettings:Token").Value));
+            SymmetricSecurityKey key;
+
+            using (StreamReader sr = new($@"{Directory.GetCurrentDirectory()}\Properties\Token.txt"))
+            {
+                key = new(Encoding.UTF8.GetBytes(sr.ReadLine()!));
+            }
 
             SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha512Signature);
 
