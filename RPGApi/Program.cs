@@ -23,17 +23,14 @@ builder.Services.AddScoped<IControllerRepository<Mount>, MountRepository>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        using (StreamReader sr = new($@"{Directory.GetCurrentDirectory()}\Properties\Token.txt"))
+        options.TokenValidationParameters = new TokenValidationParameters()
         {
-            options.TokenValidationParameters = new TokenValidationParameters()
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(sr.ReadLine()!)),
-                ValidateIssuer = false,
-                ValidateAudience = false
-            };
-        }
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                builder.Configuration.GetSection("AppSettings:Token").Value)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
     });
 
 builder.Services.AddControllers(options =>
