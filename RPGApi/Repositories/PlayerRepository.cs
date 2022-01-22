@@ -10,13 +10,16 @@ namespace RPGApi.Repositories
 {
     public class PlayerRepository : IPlayerControllerRepository
     {
-        private readonly IConfiguration _configuration;
         private readonly DataContext _context;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger _logger;
 
-        public PlayerRepository(IConfiguration configuration, DataContext context)
+        public PlayerRepository(DataContext context, IConfiguration configuration,
+            ILogger<PlayerRepository> logger)
         {
-            _configuration = configuration;
             _context = context;
+            _configuration = configuration;
+            _logger = logger;
         }
 
         public void Add(Player entity)
@@ -78,6 +81,11 @@ namespace RPGApi.Repositories
         public async Task<Player?> GetByNameAsync(string name)
         {
             return await _context.Players!.SingleOrDefaultAsync(p => p.Name == name);
+        }
+
+        public void LogInformation(string message)
+        {
+            _logger.LogInformation(message);
         }
 
         public async Task SaveChangesAsync()

@@ -28,6 +28,7 @@ namespace RPGApi.Controllers
         {
             IEnumerable<Weapon> weapons = await _repository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<WeaponReadDto>>(weapons);
+            _repository.LogInformation("Get all weapons");
 
             return Ok(readDtos);
         }
@@ -47,6 +48,8 @@ namespace RPGApi.Controllers
                 CurrentPage = page
             };
 
+            _repository.LogInformation($"Get weapons on page {page}");
+
             return Ok(pageDto);
         }
 
@@ -58,9 +61,11 @@ namespace RPGApi.Controllers
 
             if (weapon is null)
             {
+                _repository.LogInformation("Weapon not found");
                 return NotFound();
             }
 
+            _repository.LogInformation($"Get weapon {weapon.Name}");
             var readDto = _mapper.Map<WeaponReadDto>(weapon);
 
             return Ok(readDto);
@@ -73,6 +78,7 @@ namespace RPGApi.Controllers
             Weapon weapon = _mapper.Map<Weapon>(createDto);
 
             _repository.Add(weapon);
+            _repository.LogInformation($"Created weapon {weapon.Name}");
             await _repository.SaveChangesAsync();
 
             var readDto = _mapper.Map<WeaponReadDto>(weapon);
@@ -88,11 +94,13 @@ namespace RPGApi.Controllers
 
             if (weapon is null)
             {
+                _repository.LogInformation("Weapon not found");
                 return NotFound();
             }
 
             _mapper.Map(updateDto, weapon);
             _repository.Update(weapon);
+            _repository.LogInformation($"Updated weapon {weapon.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();
@@ -107,6 +115,7 @@ namespace RPGApi.Controllers
 
             if (weapon is null)
             {
+                _repository.LogInformation("Weapon not found");
                 return NotFound();
             }
 
@@ -115,11 +124,13 @@ namespace RPGApi.Controllers
 
             if (!TryValidateModel(updateDto))
             {
+                _repository.LogInformation("Weapon validation failed");
                 return ValidationProblem(ModelState);
             }
 
             _mapper.Map(updateDto, weapon);
             _repository.Update(weapon);
+            _repository.LogInformation($"Updated weapon {weapon.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();
@@ -133,10 +144,12 @@ namespace RPGApi.Controllers
 
             if (weapon is null)
             {
+                _repository.LogInformation("Weapon not found");
                 return NotFound();
             }
 
             _repository.Delete(weapon);
+            _repository.LogInformation($"Deleted weapon {weapon.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();

@@ -6,10 +6,12 @@ namespace RPGApi.Repositories
     public class MountRepository : IControllerRepository<Mount>
     {
         private readonly DataContext _context;
+        private readonly ILogger _logger;
 
-        public MountRepository(DataContext context)
+        public MountRepository(DataContext context, ILogger<MountRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public void Add(Mount entity)
@@ -34,6 +36,11 @@ namespace RPGApi.Repositories
             return await _context.Mounts!
                 .Include(m => m.Characters)
                 .SingleOrDefaultAsync(m => m.Id == id);
+        }
+
+        public void LogInformation(string message)
+        {
+            _logger.LogInformation(message);
         }
 
         public async Task SaveChangesAsync()

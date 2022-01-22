@@ -28,6 +28,7 @@ namespace RPGApi.Controllers
         {
             IEnumerable<Spell> spells = await _repository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<SpellReadDto>>(spells);
+            _repository.LogInformation("Get all spells");
 
             return Ok(readDtos);
         }
@@ -47,6 +48,8 @@ namespace RPGApi.Controllers
                 CurrentPage = page
             };
 
+            _repository.LogInformation($"Get spells on page {page}");
+
             return Ok(pageDto);
         }
 
@@ -58,9 +61,11 @@ namespace RPGApi.Controllers
 
             if (spell is null)
             {
+                _repository.LogInformation("Spell not found");
                 return NotFound();
             }
 
+            _repository.LogInformation($"Get spell {spell.Name}");
             var readDto = _mapper.Map<SpellReadDto>(spell);
 
             return Ok(readDto);
@@ -73,6 +78,7 @@ namespace RPGApi.Controllers
             Spell spell = _mapper.Map<Spell>(createDto);
 
             _repository.Add(spell);
+            _repository.LogInformation($"Created spell {spell.Name}");
             await _repository.SaveChangesAsync();
 
             var readDto = _mapper.Map<SpellReadDto>(spell);
@@ -88,11 +94,13 @@ namespace RPGApi.Controllers
 
             if (spell is null)
             {
+                _repository.LogInformation("Spell not found");
                 return NotFound();
             }
 
             _mapper.Map(updateDto, spell);
             _repository.Update(spell);
+            _repository.LogInformation($"Updated spell {spell.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();
@@ -107,6 +115,7 @@ namespace RPGApi.Controllers
 
             if (spell is null)
             {
+                _repository.LogInformation("Spell not found");
                 return NotFound();
             }
 
@@ -115,11 +124,13 @@ namespace RPGApi.Controllers
 
             if (!TryValidateModel(updateDto))
             {
+                _repository.LogInformation("Spell validation failed");
                 return ValidationProblem(ModelState);
             }
 
             _mapper.Map(updateDto, spell);
             _repository.Update(spell);
+            _repository.LogInformation($"Updated spell {spell.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();
@@ -133,10 +144,12 @@ namespace RPGApi.Controllers
 
             if (spell is null)
             {
+                _repository.LogInformation("Spell not found");
                 return NotFound();
             }
 
             _repository.Delete(spell);
+            _repository.LogInformation($"Deleted spell {spell.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();
