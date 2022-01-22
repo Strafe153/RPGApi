@@ -11,7 +11,6 @@ namespace RPGApi.Controllers
 {
     [ApiController]
     [Route("api/players")]
-    [Authorize]
     public class PlayersController : ControllerBase
     {
         private readonly IPlayerControllerRepository _repository;
@@ -25,6 +24,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<PlayerReadDto>>> GetAllPlayersAsync()
         {
             IEnumerable<Player> players = await _repository.GetAllAsync();
@@ -34,6 +34,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("page/{page}")]
+        [Authorize]
         public async Task<ActionResult<PageDto<PlayerReadDto>>> GetPaginatedPlayersAsync(int page)
         {
             IEnumerable<Player> players = await _repository.GetAllAsync();
@@ -52,6 +53,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<PlayerReadDto>> GetPlayerAsync(Guid id)
         {
             Player? player = await _repository.GetByIdAsync(id);
@@ -67,7 +69,6 @@ namespace RPGApi.Controllers
         }
 
         [HttpPost("register")]
-        [AllowAnonymous]
         public async Task<ActionResult<PlayerReadDto>> RegisterPlayerAsync(PlayerAuthorizeDto registerDto)
         {
             if (await _repository.GetByNameAsync(registerDto.Name!) != null)
@@ -94,7 +95,6 @@ namespace RPGApi.Controllers
         }
 
         [HttpPost("login")]
-        [AllowAnonymous]
         public async Task<ActionResult<PlayerWithTokenReadDto>> LoginPlayerAsync(PlayerAuthorizeDto loginDto)
         {
             Player? player = await _repository.GetByNameAsync(loginDto.Name!);
@@ -124,6 +124,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<ActionResult> UpdatePlayerAsync(Guid id, PlayerUpdateDto updateDto)
         {
             Player? player = await _repository.GetByIdAsync(id);
@@ -135,7 +136,7 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(player))
             {
-                return BadRequest("You are neither admin nor the specified player");
+                return Forbid();
             }
 
             _mapper.Map(updateDto, player);
@@ -146,6 +147,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize]
         public async Task<ActionResult> PartialUpdatePlayerAsync(Guid id,
             [FromBody]JsonPatchDocument<PlayerUpdateDto> patchDoc)
         {
@@ -158,7 +160,7 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(player))
             {
-                return BadRequest("You are neither admin nor the specified player");
+                return Forbid();
             }
 
             var updateDto = _mapper.Map<PlayerUpdateDto>(player);
@@ -177,6 +179,7 @@ namespace RPGApi.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<ActionResult> DeletePlayerAsync(Guid id)
         {
             Player? player = await _repository.GetByIdAsync(id);
@@ -188,10 +191,28 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(player))
             {
-                return BadRequest("You are neither admin nor the specified player");
+                return Forbid();
             }
 
             _repository.Delete(player);
+            await _repository.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPost("changeRole")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> ChangeRole(PlayerChangeRoleDto changeDto)
+        {
+            Player? player = await _repository.GetByIdAsync(changeDto.Id);
+
+            if (player is null)
+            {
+                return NotFound();
+            }
+
+            player.Role = changeDto.Role;
+            _repository.Update(player);
             await _repository.SaveChangesAsync();
 
             return NoContent();
