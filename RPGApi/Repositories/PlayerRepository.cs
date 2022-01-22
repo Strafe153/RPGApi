@@ -10,16 +10,16 @@ namespace RPGApi.Repositories
 {
     public class PlayerRepository : IPlayerControllerRepository
     {
+        private readonly DataContext _context;
         private readonly IConfiguration _configuration;
         private readonly ILogger _logger;
-        private readonly DataContext _context;
 
-        public PlayerRepository(IConfiguration configuration, ILogger<PlayerRepository> logger,
-            DataContext context)
+        public PlayerRepository(DataContext context, IConfiguration configuration,
+            ILogger<PlayerRepository> logger)
         {
+            _context = context;
             _configuration = configuration;
             _logger = logger;
-            _context = context;
         }
 
         public void Add(Player entity)

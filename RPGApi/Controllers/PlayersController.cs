@@ -63,6 +63,7 @@ namespace RPGApi.Controllers
 
             if (player is null)
             {
+                _repository.LogInformation($"Player not found");
                 return NotFound();
             }
 

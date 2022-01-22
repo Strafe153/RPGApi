@@ -68,6 +68,7 @@ namespace RPGApi.Controllers
 
             if (character is null)
             {
+                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
