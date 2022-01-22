@@ -65,6 +65,8 @@
         public async Task CreateSpellAsync_ValidData_ReturnsActionResultOfReadDto()
         {
             // Arrange
+            _mapper.Setup(m => m.Map<Spell>(It.IsAny<SpellCreateUpdateDto>()))
+                .Returns(new Spell() { Name = "test_name" });
             _mapper.Setup(m => m.Map<SpellReadDto>(It.IsAny<Spell>()))
                 .Returns(new SpellReadDto());
 

@@ -91,9 +91,10 @@
         }
 
         [Fact]
-        public async Task CreateCharacterAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task CreateCharacterAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
+            _character.Player!.Name = "player_name";
             _mapper.Setup(m => m.Map<Character>(It.IsAny<CharacterCreateDto>())).Returns(_character);
 
             Utility.MockUserIdentityName(_controller);
@@ -103,7 +104,7 @@
 
             // Assert
             Assert.IsType<ActionResult<CharacterReadDto>>(result);
-            Assert.IsType<BadRequestObjectResult>(result.Result);
+            Assert.IsType<ForbidResult>(result.Result);
         }
 
         [Fact]
@@ -134,7 +135,7 @@
         }
 
         [Fact]
-        public async Task UpdateCharacterAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task UpdateCharacterAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
@@ -145,7 +146,7 @@
             var result = await _controller.UpdateCharacterAsync(Guid.Empty, new CharacterUpdateDto());
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
         }
 
         [Fact]
@@ -182,7 +183,7 @@
         }
 
         [Fact]
-        public async Task PartialUpdateCharacterAsync_NoAccessRights_ReturnsBadReuqestObjectResult()
+        public async Task PartialUpdateCharacterAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
             _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
@@ -197,7 +198,7 @@
                 new JsonPatchDocument<CharacterUpdateDto>());
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
         }
 
         [Fact]
@@ -228,7 +229,7 @@
         }
 
         [Fact]
-        public async Task DeleteCharacterAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task DeleteCharacterAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
@@ -239,7 +240,7 @@
             var result = await _controller.DeleteCharacterAsync(Guid.Empty);
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
         }
 
         [Fact]
@@ -286,7 +287,7 @@
         }
 
         [Fact]
-        public async Task AddWeaponAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task AddWeaponAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
             _character.Player!.Name = "player_name";
@@ -299,7 +300,7 @@
             var result = await _controller.AddWeaponAsync(new CharacterAddRemoveItem());
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
         }
 
         [Fact]
@@ -346,7 +347,7 @@
         }
 
         [Fact]
-        public async Task RemoveWeaponAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task RemoveWeaponAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
             _character.Player!.Name = "player_name";
@@ -359,7 +360,7 @@
             var result = await _controller.RemoveWeaponAsync(new CharacterAddRemoveItem());
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
         }
 
         [Fact]
@@ -406,7 +407,7 @@
         }
 
         [Fact]
-        public async Task AddSpellAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task AddSpellAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
             _character.Player!.Name = "player_name";
@@ -419,7 +420,7 @@
             var result = await _controller.AddSpellAsync(new CharacterAddRemoveItem());
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
         }
 
         [Fact]
@@ -466,7 +467,7 @@
         }
 
         [Fact]
-        public async Task RemoveSpellAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task RemoveSpellAsync_NoAccessRights_ReturnsForbidtResult()
         {
             // Arrange
             _character.Player!.Name = "player_name";
@@ -479,7 +480,7 @@
             var result = await _controller.RemoveSpellAsync(new CharacterAddRemoveItem());
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
         }
 
         [Fact]
@@ -526,7 +527,7 @@
         }
 
         [Fact]
-        public async Task AddMountAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task AddMountAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
             _character.Player!.Name = "player_name";
@@ -539,7 +540,7 @@
             var result = await _controller.AddMountAsync(new CharacterAddRemoveItem());
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
         }
 
         [Fact]
@@ -586,7 +587,7 @@
         }
 
         [Fact]
-        public async Task RemoveMountAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task RemoveMountAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
             _character.Player!.Name = "player_name";
@@ -599,7 +600,7 @@
             var result = await _controller.RemoveMountAsync(new CharacterAddRemoveItem());
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
         }
     }
 }

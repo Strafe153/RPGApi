@@ -65,6 +65,8 @@
         public async Task CreateMountAsync_ValidData_ReturnsActionResultOfReadDto()
         {
             // Arrange
+            _mapper.Setup(m => m.Map<Mount>(It.IsAny<MountCreateUpdateDto>()))
+                .Returns(new Mount() { Name = "test_name" });
             _mapper.Setup(m => m.Map<MountReadDto>(It.IsAny<Mount>()))
                 .Returns(new MountReadDto());
 

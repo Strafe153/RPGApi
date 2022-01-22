@@ -65,6 +65,8 @@
         public async Task CreateWeaponAsync_ValidData_ReturnsActionResultOfReadDto()
         {
             // Arrange
+            _mapper.Setup(m => m.Map<Weapon>(It.IsAny<WeaponCreateUpdateDto>()))
+                .Returns(new Weapon() { Name = "test_name" });
             _mapper.Setup(m => m.Map<WeaponReadDto>(It.IsAny<Weapon>()))
                 .Returns(new WeaponReadDto());
 
