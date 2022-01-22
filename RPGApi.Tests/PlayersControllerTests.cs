@@ -80,7 +80,7 @@
         }
 
         [Fact]
-        public async Task RegisterPlayerAsync_ExistentPlayer_ReturnsBadRequestObjectResult()
+        public async Task RegisterPlayerAsync_ExistingPlayer_ReturnsBadRequestObjectResult()
         {
             // Arrange
             _repo.Setup(r => r.GetByNameAsync(It.IsAny<string>())).ReturnsAsync(_player);
@@ -180,7 +180,7 @@
         }
 
         [Fact]
-        public async Task UpdatePlayerAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task UpdatePlayerAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
             _player.Name = "player_name";
@@ -192,7 +192,7 @@
             var result = await _controller.UpdatePlayerAsync(Guid.Empty, new PlayerUpdateDto());
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
         }
 
         [Fact]
@@ -229,7 +229,7 @@
         }
 
         [Fact]
-        public async Task PartialUpdatePlayerAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task PartialUpdatePlayerAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
             _player.Name = "player_name";
@@ -245,7 +245,7 @@
                 new JsonPatchDocument<PlayerUpdateDto>());
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
         }
 
         [Fact]
@@ -276,7 +276,7 @@
         }
 
         [Fact]
-        public async Task DeletePlayerAsync_NoAccessRights_ReturnsBadRequestObjectResult()
+        public async Task DeletePlayerAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
             _player.Name = "player_name";
@@ -288,7 +288,34 @@
             var result = await _controller.DeletePlayerAsync(Guid.Empty);
 
             // Assert
-            Assert.IsType<BadRequestObjectResult>(result);
+            Assert.IsType<ForbidResult>(result);
+        }
+
+        [Fact]
+        public async Task ChangeRoleAsync_ExistingPlayer_ReturnsNoContentResult()
+        {
+            // Arrange
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_player);
+
+            // Act
+            var result = await _controller.ChangeRoleAsync(new PlayerChangeRoleDto());
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task ChangeRoleAsync_NonexistingPlayer_ReturnsNotFoundResult()
+        {
+            // Arrange
+            _player.Name = "player_name";
+            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player?)null);
+
+            // Act
+            var result = await _controller.ChangeRoleAsync(new PlayerChangeRoleDto());
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
         }
     }
 }
