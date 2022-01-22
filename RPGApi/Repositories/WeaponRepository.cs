@@ -36,6 +36,11 @@ namespace RPGApi.Repositories
                 .SingleOrDefaultAsync(w => w.Id == id);
         }
 
+        public void LogInformation(string message)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

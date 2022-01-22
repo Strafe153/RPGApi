@@ -11,43 +11,41 @@ namespace RPGApi.Controllers
 {
     [ApiController]
     [Route("api/characters")]
+    [Authorize]
     public class CharactersController : ControllerBase
     {
-        private readonly IControllerRepository<Character> _characterRepository;
-        private readonly IControllerRepository<Weapon> _weaponRepository;
-        private readonly IControllerRepository<Spell> _spellRepository;
-        private readonly IControllerRepository<Mount> _mountRepository;
+        private readonly IControllerRepository<Character> _charRepo;
+        private readonly IControllerRepository<Weapon> _weaponRepo;
+        private readonly IControllerRepository<Spell> _spellRepo;
+        private readonly IControllerRepository<Mount> _mountRepo;
         private readonly IMapper _mapper;
         private const int PageSize = 3;
 
-        public CharactersController(IControllerRepository<Character> characterRepository,
-            IControllerRepository<Weapon> weaponRepository,
-            IControllerRepository<Spell> spellRepository,
-            IControllerRepository<Mount> mountRepository,
-            IMapper mapper)
+        public CharactersController(IControllerRepository<Character> charRepo,
+            IControllerRepository<Weapon> weaponRepo, IControllerRepository<Spell> spellRepo,
+            IControllerRepository<Mount> mountRepo, IMapper mapper)
         {
-            _characterRepository = characterRepository;
-            _weaponRepository = weaponRepository;
-            _spellRepository = spellRepository;
-            _mountRepository = mountRepository;
+            _charRepo = charRepo;
+            _weaponRepo = weaponRepo;
+            _spellRepo = spellRepo;
+            _mountRepo = mountRepo;
             _mapper = mapper;
         }
 
         [HttpGet]
-        [Authorize]
         public async Task<ActionResult<IEnumerable<CharacterReadDto>>> GetAllCharactersAsync()
         {
-            IEnumerable<Character> characters = await _characterRepository.GetAllAsync();
+            IEnumerable<Character> characters = await _charRepo.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<CharacterReadDto>>(characters);
+            _charRepo.LogInformation("Get all characters");
 
             return Ok(readDtos);
         }
 
         [HttpGet("page/{page}")]
-        [Authorize]
         public async Task<ActionResult<PageDto<CharacterReadDto>>> GetPaginatedCharactersAsync(int page)
         {
-            IEnumerable<Character> characters = await _characterRepository.GetAllAsync();
+            IEnumerable<Character> characters = await _charRepo.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<CharacterReadDto>>(characters);
 
             var pageItems = readDtos.Skip((page - 1) * PageSize).Take(PageSize);
@@ -58,20 +56,22 @@ namespace RPGApi.Controllers
                 CurrentPage = page
             };
 
+            _charRepo.LogInformation($"Get characters on page {page}");
+
             return Ok(pageDto);
         }
 
         [HttpGet("{id}")]
-        [Authorize]
         public async Task<ActionResult<CharacterReadDto>> GetCharacterAsync(Guid id)
         {
-            Character? character = await _characterRepository.GetByIdAsync(id);
+            Character? character = await _charRepo.GetByIdAsync(id);
 
             if (character is null)
             {
                 return NotFound();
             }
 
+            _charRepo.LogInformation($"Get character {character.Name}");
             var readDto = _mapper.Map<CharacterReadDto>(character);
 
             return Ok(readDto);
@@ -84,12 +84,14 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
+                _charRepo.LogInformation("Character creation failed due to lack of rights");
                 return BadRequest("You are neither admin nor the player " +
                     "with the specified character");
             }
 
-            _characterRepository.Add(character);
-            await _characterRepository.SaveChangesAsync();
+            _charRepo.Add(character);
+            _charRepo.LogInformation($"Created character {character.Name}");
+            await _charRepo.SaveChangesAsync();
 
             var readDto = _mapper.Map<CharacterReadDto>(character);
 
@@ -99,22 +101,25 @@ namespace RPGApi.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateCharacterAsync(Guid id, CharacterUpdateDto updateDto)
         {
-            Character? character = await _characterRepository.GetByIdAsync(id);
+            Character? character = await _charRepo.GetByIdAsync(id);
 
             if (character is null)
             {
+                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
+                _charRepo.LogInformation("Character update failed due to lack of rights");
                 return BadRequest("You are neither admin nor the player " +
                     "with the specified character");
             }
 
             _mapper.Map(updateDto, character);
-            _characterRepository.Update(character);
-            await _characterRepository.SaveChangesAsync();
+            _charRepo.LogInformation($"Updated character {character.Name}");
+            _charRepo.Update(character);
+            await _charRepo.SaveChangesAsync();
 
             return NoContent();
         }
@@ -123,15 +128,17 @@ namespace RPGApi.Controllers
         public async Task<ActionResult> PartialUpdateCharacterAsync(Guid id,
             [FromBody]JsonPatchDocument<CharacterUpdateDto> patchDoc)
         {
-            Character? character = await _characterRepository.GetByIdAsync(id);
+            Character? character = await _charRepo.GetByIdAsync(id);
 
             if (character is null)
             {
+                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
+                _charRepo.LogInformation("Character update failed due to lack of rights");
                 return BadRequest("You are neither admin nor the player " +
                     "with the specified character");
             }
@@ -141,12 +148,13 @@ namespace RPGApi.Controllers
 
             if (!TryValidateModel(updateDto))
             {
+                _charRepo.LogInformation("Validation failed");
                 return ValidationProblem(ModelState);
             }
 
             _mapper.Map(updateDto, character);
-            _characterRepository.Update(character);
-            await _characterRepository.SaveChangesAsync();
+            _charRepo.Update(character);
+            await _charRepo.SaveChangesAsync();
 
             return NoContent();
         }
@@ -154,21 +162,24 @@ namespace RPGApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteCharacterAsync(Guid id)
         {
-            Character? character = await _characterRepository.GetByIdAsync(id);
+            Character? character = await _charRepo.GetByIdAsync(id);
 
             if (character is null)
             {
+                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
+                _charRepo.LogInformation("Character deletion failed due to lack of rights");
                 return BadRequest("You are neither admin nor the player " +
                     "with the specified character");
             }
 
-            _characterRepository.Delete(character);
-            await _characterRepository.SaveChangesAsync();
+            _charRepo.Delete(character);
+            _charRepo.LogInformation($"Deleted character {character.Name}");
+            await _charRepo.SaveChangesAsync();
 
             return NoContent();
         }
@@ -176,29 +187,33 @@ namespace RPGApi.Controllers
         [HttpPut("add/weapon")]
         public async Task<ActionResult> AddWeaponAsync(CharacterAddRemoveItem addDto)
         {
-            Character? character = await _characterRepository.GetByIdAsync(addDto.CharacterId);
+            Character? character = await _charRepo.GetByIdAsync(addDto.CharacterId);
 
             if (character is null)
             {
+                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
+                _charRepo.LogInformation("Weapon adding failed due to lack of rights");
                 return BadRequest("You are neither admin nor the player " +
                     "with the specified character");
             }
 
-            Weapon? weapon = await _weaponRepository.GetByIdAsync(addDto.ItemId);
+            Weapon? weapon = await _weaponRepo.GetByIdAsync(addDto.ItemId);
 
             if (weapon is null)
             {
+                _charRepo.LogInformation("Weapon not found");
                 return BadRequest();
             }
 
             character.Weapons!.Add(weapon);
-            _characterRepository.Update(character);
-            await _characterRepository.SaveChangesAsync();
+            _charRepo.Update(character);
+            _charRepo.LogInformation($"Added weapon {weapon.Name} to character {character.Name}");
+            await _charRepo.SaveChangesAsync();
 
             return NoContent();
         }
@@ -206,29 +221,33 @@ namespace RPGApi.Controllers
         [HttpPut("remove/weapon")]
         public async Task<ActionResult> RemoveWeaponAsync(CharacterAddRemoveItem weaponDto)
         {
-            Character? character = await _characterRepository.GetByIdAsync(weaponDto.CharacterId);
+            Character? character = await _charRepo.GetByIdAsync(weaponDto.CharacterId);
 
             if (character is null)
             {
+                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
+                _charRepo.LogInformation("Weapon removal failed due to lack of rights");
                 return BadRequest("You are neither admin nor the player " +
                     "with the specified character");
             }
 
-            Weapon? weapon = await _weaponRepository.GetByIdAsync(weaponDto.ItemId);
+            Weapon? weapon = await _weaponRepo.GetByIdAsync(weaponDto.ItemId);
 
             if (weapon is null)
             {
+                _charRepo.LogInformation("Weapon not found");
                 return BadRequest();
             }
 
             character.Weapons!.Remove(weapon);
-            _characterRepository.Update(character);
-            await _characterRepository.SaveChangesAsync();
+            _charRepo.Update(character);
+            _charRepo.LogInformation($"Removed weapon {weapon.Name} from character {character.Name}");
+            await _charRepo.SaveChangesAsync();
 
             return NoContent();
         }
@@ -236,29 +255,33 @@ namespace RPGApi.Controllers
         [HttpPut("add/spell")]
         public async Task<ActionResult> AddSpellAsync(CharacterAddRemoveItem spellDto)
         {
-            Character? character = await _characterRepository.GetByIdAsync(spellDto.CharacterId);
+            Character? character = await _charRepo.GetByIdAsync(spellDto.CharacterId);
 
             if (character is null)
             {
+                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
+                _charRepo.LogInformation("Spell adding failed due to lack of rights");
                 return BadRequest("You are neither admin nor the player " +
                     "with the specified character");
             }
 
-            Spell? spell = await _spellRepository.GetByIdAsync(spellDto.ItemId);
+            Spell? spell = await _spellRepo.GetByIdAsync(spellDto.ItemId);
 
             if (spell is null)
             {
+                _charRepo.LogInformation("Spell not found");
                 return BadRequest();
             }
 
             character.Spells!.Add(spell);
-            _characterRepository.Update(character);
-            await _characterRepository.SaveChangesAsync();
+            _charRepo.Update(character);
+            _charRepo.LogInformation($"Added spell {spell.Name} to character {character.Name}");
+            await _charRepo.SaveChangesAsync();
 
             return NoContent();
         }
@@ -266,29 +289,33 @@ namespace RPGApi.Controllers
         [HttpPut("remove/spell")]
         public async Task<ActionResult> RemoveSpellAsync(CharacterAddRemoveItem spellDto)
         {
-            Character? character = await _characterRepository.GetByIdAsync(spellDto.CharacterId);
+            Character? character = await _charRepo.GetByIdAsync(spellDto.CharacterId);
 
             if (character is null)
             {
+                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
+                _charRepo.LogInformation("Spell removal failed due to lack of rights");
                 return BadRequest("You are neither admin nor the player " +
                     "with the specified character");
             }
 
-            Spell? spell = await _spellRepository.GetByIdAsync(spellDto.ItemId);
+            Spell? spell = await _spellRepo.GetByIdAsync(spellDto.ItemId);
 
             if (spell is null)
             {
+                _charRepo.LogInformation("Spell not found");
                 return BadRequest();
             }
 
             character.Spells!.Remove(spell);
-            _characterRepository.Update(character);
-            await _characterRepository.SaveChangesAsync();
+            _charRepo.Update(character);
+            _charRepo.LogInformation($"Removed spell {spell.Name} from character {character.Name}");
+            await _charRepo.SaveChangesAsync();
 
             return NoContent();
         }
@@ -296,29 +323,33 @@ namespace RPGApi.Controllers
         [HttpPut("add/mount")]
         public async Task<ActionResult> AddMountAsync(CharacterAddRemoveItem mountDto)
         {
-            Character? character = await _characterRepository.GetByIdAsync(mountDto.CharacterId);
+            Character? character = await _charRepo.GetByIdAsync(mountDto.CharacterId);
 
             if (character is null)
             {
+                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
+                _charRepo.LogInformation("Mount adding failed due to lack of rights");
                 return BadRequest("You are neither admin nor the player " +
                     "with the specified character");
             }
 
-            Mount? mount = await _mountRepository.GetByIdAsync(mountDto.ItemId);
+            Mount? mount = await _mountRepo.GetByIdAsync(mountDto.ItemId);
 
             if (mount is null)
             {
+                _charRepo.LogInformation("Mount not found");
                 return BadRequest();
             }
 
             character.Mounts!.Add(mount);
-            _characterRepository.Update(character);
-            await _characterRepository.SaveChangesAsync();
+            _charRepo.Update(character);
+            _charRepo.LogInformation($"Added mount {mount.Name} to character {character.Name}");
+            await _charRepo.SaveChangesAsync();
 
             return NoContent();
         }
@@ -326,29 +357,33 @@ namespace RPGApi.Controllers
         [HttpPut("remove/mount")]
         public async Task<ActionResult> RemoveMountAsync(CharacterAddRemoveItem mountDto)
         {
-            Character? character = await _characterRepository.GetByIdAsync(mountDto.CharacterId);
+            Character? character = await _charRepo.GetByIdAsync(mountDto.CharacterId);
 
             if (character is null)
             {
+                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
+                _charRepo.LogInformation("Mount removal failed due to lack of rights");
                 return BadRequest("You are neither admin nor the player " +
                     "with the specified character");
             }
 
-            Mount? mount = await _mountRepository.GetByIdAsync(mountDto.ItemId);
+            Mount? mount = await _mountRepo.GetByIdAsync(mountDto.ItemId);
 
             if (mount is null)
             {
+                _charRepo.LogInformation("Mount not found");
                 return BadRequest();
             }
 
             character.Mounts!.Remove(mount);
-            _characterRepository.Update(character);
-            await _characterRepository.SaveChangesAsync();
+            _charRepo.Update(character);
+            _charRepo.LogInformation($"Removed mount {mount.Name} from character {character.Name}");
+            await _charRepo.SaveChangesAsync();
 
             return NoContent();
         }

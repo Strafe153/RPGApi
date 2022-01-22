@@ -80,6 +80,11 @@ namespace RPGApi.Repositories
             return await _context.Players!.SingleOrDefaultAsync(p => p.Name == name);
         }
 
+        public void LogInformation(string message)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
