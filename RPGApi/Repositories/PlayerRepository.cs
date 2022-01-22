@@ -11,11 +11,14 @@ namespace RPGApi.Repositories
     public class PlayerRepository : IPlayerControllerRepository
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger _logger;
         private readonly DataContext _context;
 
-        public PlayerRepository(IConfiguration configuration, DataContext context)
+        public PlayerRepository(IConfiguration configuration, ILogger<PlayerRepository> logger,
+            DataContext context)
         {
             _configuration = configuration;
+            _logger = logger;
             _context = context;
         }
 
@@ -82,7 +85,7 @@ namespace RPGApi.Repositories
 
         public void LogInformation(string message)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation(message);
         }
 
         public async Task SaveChangesAsync()

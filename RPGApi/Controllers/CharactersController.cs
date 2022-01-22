@@ -84,9 +84,8 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Character creation failed due to lack of rights");
-                return BadRequest("You are neither admin nor the player " +
-                    "with the specified character");
+                _charRepo.LogInformation("Character creation failed");
+                return Forbid();
             }
 
             _charRepo.Add(character);
@@ -111,9 +110,8 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Character update failed due to lack of rights");
-                return BadRequest("You are neither admin nor the player " +
-                    "with the specified character");
+                _charRepo.LogInformation("Character update failed");
+                return Forbid();
             }
 
             _mapper.Map(updateDto, character);
@@ -138,9 +136,8 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Character update failed due to lack of rights");
-                return BadRequest("You are neither admin nor the player " +
-                    "with the specified character");
+                _charRepo.LogInformation("Character update");
+                return Forbid();
             }
 
             var updateDto = _mapper.Map<CharacterUpdateDto>(character);
@@ -172,9 +169,8 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Character deletion failed due to lack of rights");
-                return BadRequest("You are neither admin nor the player " +
-                    "with the specified character");
+                _charRepo.LogInformation("Character deletion failed");
+                return Forbid();
             }
 
             _charRepo.Delete(character);
@@ -197,9 +193,8 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Weapon adding failed due to lack of rights");
-                return BadRequest("You are neither admin nor the player " +
-                    "with the specified character");
+                _charRepo.LogInformation("Weapon adding failed");
+                return Forbid();
             }
 
             Weapon? weapon = await _weaponRepo.GetByIdAsync(addDto.ItemId);
@@ -231,9 +226,8 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Weapon removal failed due to lack of rights");
-                return BadRequest("You are neither admin nor the player " +
-                    "with the specified character");
+                _charRepo.LogInformation("Weapon removal failed");
+                return Forbid();
             }
 
             Weapon? weapon = await _weaponRepo.GetByIdAsync(weaponDto.ItemId);
@@ -265,9 +259,8 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Spell adding failed due to lack of rights");
-                return BadRequest("You are neither admin nor the player " +
-                    "with the specified character");
+                _charRepo.LogInformation("Spell adding failed");
+                return Forbid();
             }
 
             Spell? spell = await _spellRepo.GetByIdAsync(spellDto.ItemId);
@@ -299,9 +292,8 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Spell removal failed due to lack of rights");
-                return BadRequest("You are neither admin nor the player " +
-                    "with the specified character");
+                _charRepo.LogInformation("Spell removal failed");
+                return Forbid();
             }
 
             Spell? spell = await _spellRepo.GetByIdAsync(spellDto.ItemId);
@@ -333,9 +325,8 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Mount adding failed due to lack of rights");
-                return BadRequest("You are neither admin nor the player " +
-                    "with the specified character");
+                _charRepo.LogInformation("Mount adding failed");
+                return Forbid();
             }
 
             Mount? mount = await _mountRepo.GetByIdAsync(mountDto.ItemId);
@@ -367,9 +358,8 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Mount removal failed due to lack of rights");
-                return BadRequest("You are neither admin nor the player " +
-                    "with the specified character");
+                _charRepo.LogInformation("Mount removal failed");
+                return Forbid();
             }
 
             Mount? mount = await _mountRepo.GetByIdAsync(mountDto.ItemId);
