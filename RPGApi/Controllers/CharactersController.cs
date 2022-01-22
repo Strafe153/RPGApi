@@ -137,7 +137,7 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Character update");
+                _charRepo.LogInformation("Character update failed");
                 return Forbid();
             }
 
@@ -146,7 +146,7 @@ namespace RPGApi.Controllers
 
             if (!TryValidateModel(updateDto))
             {
-                _charRepo.LogInformation("Validation failed");
+                _charRepo.LogInformation("Character validation failed");
                 return ValidationProblem(ModelState);
             }
 

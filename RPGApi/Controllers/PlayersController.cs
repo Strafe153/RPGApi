@@ -184,7 +184,7 @@ namespace RPGApi.Controllers
 
             if (!TryValidateModel(updateDto))
             {
-                _repository.LogInformation("Validation failed");
+                _repository.LogInformation("Player validation failed");
                 return ValidationProblem(ModelState);
             }
 

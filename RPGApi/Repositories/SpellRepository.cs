@@ -6,10 +6,12 @@ namespace RPGApi.Repositories
     public class SpellRepository : IControllerRepository<Spell>
     {
         private readonly DataContext _context;
+        private readonly ILogger _logger;
 
-        public SpellRepository(DataContext context)
+        public SpellRepository(DataContext context, ILogger<SpellRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public void Add(Spell entity)
@@ -38,7 +40,7 @@ namespace RPGApi.Repositories
 
         public void LogInformation(string message)
         {
-            throw new NotImplementedException();
+            _logger.LogInformation(message);
         }
 
         public async Task SaveChangesAsync()
