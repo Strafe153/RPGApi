@@ -181,13 +181,27 @@ namespace RPGApi.Controllers
                 return NotFound("Damage receiver not found");
             }
 
-            receiver.Health = receiver.Health < weapon.Damage ? 0 
-                : receiver.Health - weapon.Damage;
-
+            CalculateHealth(receiver, weapon);
             _charRepo.Update(receiver);
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private void CalculateHealth(Character character, Weapon weapon)
+        {
+            if (character.Health - weapon.Damage > 100)
+            {
+                character.Health = 100;
+            }
+            else if (character.Health < weapon.Damage)
+            {
+                character.Health = 0;
+            }
+            else
+            {
+                character.Health -= weapon.Damage;
+            }
         }
 
         private bool CheckPlayerAccessRights(Character character)

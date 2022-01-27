@@ -2,15 +2,17 @@
 {
     public class SpellsControllerTests
     {
-        private static readonly Mock<IControllerRepository<Spell>> _repo = new();
+        private static readonly Mock<IControllerRepository<Spell>> _spellRepo = new();
+        private static readonly Mock<IControllerRepository<Character>> _charRepo = new();
         private static readonly Mock<IMapper> _mapper = new();
-        private static readonly SpellsController _controller = new(_repo.Object, _mapper.Object);
+        private static readonly SpellsController _controller = new(
+            _spellRepo.Object, _charRepo.Object, _mapper.Object);
 
         [Fact]
         public async Task GetAllSpellsAsync_Items_ReturnsActionResultOfReadDtos()
         {
             // Arrange
-            _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Spell>());
+            _spellRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Spell>());
 
             // Act
             var result = await _controller.GetAllSpellsAsync();
@@ -24,7 +26,7 @@
         public async Task GetPaginatedSpellsAsync_Items_ReturnsActionResultOfPageDto()
         {
             // Arrange
-            _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Spell>());
+            _spellRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Spell>());
 
             // Act
             var result = await _controller.GetPaginatedSpellsAsync(It.IsAny<int>());
@@ -38,7 +40,7 @@
         public async Task GetSpellAsync_ExistingSpell_ReturnsActionResultOfReadDto()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
+            _spellRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
 
             // Act
             var result = await _controller.GetSpellAsync(Guid.Empty);
@@ -52,7 +54,7 @@
         public async Task GetSpellAsync_NonexistingSpell_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
+            _spellRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
             var result = await _controller.GetSpellAsync(Guid.Empty);
@@ -82,7 +84,7 @@
         public async Task UpdateSpellAsync_ExistingSpell_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
+            _spellRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
 
             // Act
             var result = await _controller.UpdateSpellAsync(Guid.Empty, new SpellCreateUpdateDto());
@@ -95,7 +97,7 @@
         public async Task UpdateSpellAsync_NonexistingSpell_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
+            _spellRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
             var result = await _controller.UpdateSpellAsync(Guid.Empty, new SpellCreateUpdateDto());
@@ -108,7 +110,7 @@
         public async Task PartialUpdateSpellAsync_ExistingSpell_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
+            _spellRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
             _mapper.Setup(m => m.Map<SpellCreateUpdateDto>(It.IsAny<Spell>()))
                 .Returns(new SpellCreateUpdateDto());
 
@@ -126,7 +128,7 @@
         public async Task PartialUpdateSpellAsync_NonexistingSpell_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
+            _spellRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
             var result = await _controller.PartialUpdateSpellAsync(Guid.Empty,
@@ -140,7 +142,7 @@
         public async Task DeleteSpellAsync_ExistingSpell_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
+            _spellRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Spell());
 
             // Act
             var result = await _controller.DeleteSpellAsync(Guid.Empty);
@@ -153,7 +155,7 @@
         public async Task DeleteSpellAsync_NonexistingSpell_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
+            _spellRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
             var result = await _controller.DeleteSpellAsync(Guid.Empty);
