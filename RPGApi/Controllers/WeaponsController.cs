@@ -164,7 +164,7 @@ namespace RPGApi.Controllers
 
             if (dealer.Health == 0)
             {
-                return Forbid($"Character {dealer.Name} is dead");
+                return BadRequest($"Character {dealer.Name} is dead");
             }
 
             Weapon? weapon = dealer.Weapons?.SingleOrDefault(w => w.Id == hitDto.ItemId);
