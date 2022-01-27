@@ -2,15 +2,17 @@
 {
     public class WeaponsControllerTests
     {
-        private static readonly Mock<IControllerRepository<Weapon>> _repo = new();
+        private static readonly Mock<IControllerRepository<Weapon>> _weaponRepo = new();
+        private static readonly Mock<IControllerRepository<Character>> _charRepo = new();
         private static readonly Mock<IMapper> _mapper = new();
-        private static readonly WeaponsController _controller = new(_repo.Object, _mapper.Object);
+        private static readonly WeaponsController _controller = new(
+            _weaponRepo.Object, _charRepo.Object, _mapper.Object);
 
         [Fact]
         public async Task GetAllWeaponsAsync_Items_ReturnsActionResultOfReadDtos()
         {
             // Arrange
-            _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Weapon>());
+            _weaponRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Weapon>());
 
             // Act
             var result = await _controller.GetAllWeaponsAsync();
@@ -24,7 +26,7 @@
         public async Task GetPaginatedWeaponsAsync_Items_ReturnsActionResultOfPageDto()
         {
             // Arrange
-            _repo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Weapon>());
+            _weaponRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Weapon>());
 
             // Act
             var result = await _controller.GetPaginatedWeaponsAsync(It.IsAny<int>());
@@ -38,7 +40,7 @@
         public async Task GetWeaponAsync_ExistingWeapon_ReturnsActionResultOfReadDto()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
+            _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
 
             // Act
             var result = await _controller.GetWeaponAsync(Guid.Empty);
@@ -52,7 +54,7 @@
         public async Task GetWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
+            _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
             var result = await _controller.GetWeaponAsync(Guid.Empty);
@@ -82,7 +84,7 @@
         public async Task UpdateWeaponAsync_ExistingWeapon_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
+            _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
 
             // Act
             var result = await _controller.UpdateWeaponAsync(Guid.Empty, new WeaponCreateUpdateDto());
@@ -95,7 +97,7 @@
         public async Task UpdateWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
+            _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
             var result = await _controller.UpdateWeaponAsync(Guid.Empty, new WeaponCreateUpdateDto());
@@ -108,7 +110,7 @@
         public async Task PartialUpdateWeaponAsync_ExistingWeapon_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
+            _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
             _mapper.Setup(m => m.Map<WeaponCreateUpdateDto>(It.IsAny<Weapon>()))
                 .Returns(new WeaponCreateUpdateDto());
 
@@ -126,7 +128,7 @@
         public async Task PartialUpdateWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
+            _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
             var result = await _controller.PartialUpdateWeaponAsync(Guid.Empty,
@@ -140,7 +142,7 @@
         public async Task DeleteWeaponAsync_ExistingWeapon_ReturnsNoContentResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
+            _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Weapon());
 
             // Act
             var result = await _controller.DeleteWeaponAsync(Guid.Empty);
@@ -153,7 +155,7 @@
         public async Task DeleteWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
         {
             // Arrange
-            _repo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
+            _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
             var result = await _controller.DeleteWeaponAsync(Guid.Empty);

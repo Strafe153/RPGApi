@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authorization;
+using RPGApi.Data;
 using RPGApi.Dtos;
 using RPGApi.Dtos.Weapons;
 using RPGApi.Repositories;
@@ -12,13 +13,16 @@ namespace RPGApi.Controllers
     [Route("/api/weapons")]
     public class WeaponsController : ControllerBase
     {
-        private readonly IControllerRepository<Weapon> _repository;
+        private readonly IControllerRepository<Weapon> _weaponRepo;
+        private readonly IControllerRepository<Character> _charRepo;
         private readonly IMapper _mapper;
         private const int PageSize = 3;
 
-        public WeaponsController(IControllerRepository<Weapon> repository, IMapper mapper)
+        public WeaponsController(IControllerRepository<Weapon> weaponRepo, 
+            IControllerRepository<Character> charRepo, IMapper mapper)
         {
-            _repository = repository;
+            _weaponRepo = weaponRepo;
+            _charRepo = charRepo;
             _mapper = mapper;
         }
 
@@ -26,9 +30,8 @@ namespace RPGApi.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<WeaponReadDto>>> GetAllWeaponsAsync()
         {
-            IEnumerable<Weapon> weapons = await _repository.GetAllAsync();
+            IEnumerable<Weapon> weapons = await _weaponRepo.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<WeaponReadDto>>(weapons);
-            _repository.LogInformation("Get all weapons");
 
             return Ok(readDtos);
         }
@@ -37,7 +40,7 @@ namespace RPGApi.Controllers
         [Authorize]
         public async Task<ActionResult<PageDto<WeaponReadDto>>> GetPaginatedWeaponsAsync(int page)
         {
-            IEnumerable<Weapon> weapons = await _repository.GetAllAsync();
+            IEnumerable<Weapon> weapons = await _weaponRepo.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<WeaponReadDto>>(weapons);
 
             var pageItems = readDtos.Skip((page - 1) * PageSize).Take(PageSize);
@@ -48,8 +51,6 @@ namespace RPGApi.Controllers
                 CurrentPage = page
             };
 
-            _repository.LogInformation($"Get weapons on page {page}");
-
             return Ok(pageDto);
         }
 
@@ -57,15 +58,13 @@ namespace RPGApi.Controllers
         [Authorize]
         public async Task<ActionResult<WeaponReadDto>> GetWeaponAsync(Guid id)
         {
-            Weapon? weapon = await _repository.GetByIdAsync(id);
+            Weapon? weapon = await _weaponRepo.GetByIdAsync(id);
 
             if (weapon is null)
             {
-                _repository.LogInformation("Weapon not found");
                 return NotFound();
             }
 
-            _repository.LogInformation($"Get weapon {weapon.Name}");
             var readDto = _mapper.Map<WeaponReadDto>(weapon);
 
             return Ok(readDto);
@@ -77,9 +76,8 @@ namespace RPGApi.Controllers
         {
             Weapon weapon = _mapper.Map<Weapon>(createDto);
 
-            _repository.Add(weapon);
-            _repository.LogInformation($"Created weapon {weapon.Name}");
-            await _repository.SaveChangesAsync();
+            _weaponRepo.Add(weapon);
+            await _weaponRepo.SaveChangesAsync();
 
             var readDto = _mapper.Map<WeaponReadDto>(weapon);
 
@@ -90,18 +88,16 @@ namespace RPGApi.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateWeaponAsync(Guid id, WeaponCreateUpdateDto updateDto)
         {
-            Weapon? weapon = await _repository.GetByIdAsync(id);
+            Weapon? weapon = await _weaponRepo.GetByIdAsync(id);
 
             if (weapon is null)
             {
-                _repository.LogInformation("Weapon not found");
                 return NotFound();
             }
 
             _mapper.Map(updateDto, weapon);
-            _repository.Update(weapon);
-            _repository.LogInformation($"Updated weapon {weapon.Name}");
-            await _repository.SaveChangesAsync();
+            _weaponRepo.Update(weapon);
+            await _weaponRepo.SaveChangesAsync();
 
             return NoContent();
         }
@@ -111,11 +107,10 @@ namespace RPGApi.Controllers
         public async Task<ActionResult> PartialUpdateWeaponAsync(Guid id, 
             [FromBody]JsonPatchDocument<WeaponCreateUpdateDto> patchDoc)
         {
-            Weapon? weapon = await _repository.GetByIdAsync(id);
+            Weapon? weapon = await _weaponRepo.GetByIdAsync(id);
 
             if (weapon is null)
             {
-                _repository.LogInformation("Weapon not found");
                 return NotFound();
             }
 
@@ -124,14 +119,12 @@ namespace RPGApi.Controllers
 
             if (!TryValidateModel(updateDto))
             {
-                _repository.LogInformation("Weapon validation failed");
                 return ValidationProblem(ModelState);
             }
 
             _mapper.Map(updateDto, weapon);
-            _repository.Update(weapon);
-            _repository.LogInformation($"Updated weapon {weapon.Name}");
-            await _repository.SaveChangesAsync();
+            _weaponRepo.Update(weapon);
+            await _weaponRepo.SaveChangesAsync();
 
             return NoContent();
         }
@@ -140,19 +133,67 @@ namespace RPGApi.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteWeaponAsync(Guid id)
         {
-            Weapon? weapon = await _repository.GetByIdAsync(id);
+            Weapon? weapon = await _weaponRepo.GetByIdAsync(id);
 
             if (weapon is null)
             {
-                _repository.LogInformation("Weapon not found");
                 return NotFound();
             }
 
-            _repository.Delete(weapon);
-            _repository.LogInformation($"Deleted weapon {weapon.Name}");
-            await _repository.SaveChangesAsync();
+            _weaponRepo.Delete(weapon);
+            await _weaponRepo.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPut("hit")]
+        [Authorize]
+        public async Task<ActionResult> Hit(HitDto hitDto)
+        {
+            Character? dealer = await _charRepo.GetByIdAsync(hitDto.DealerId);
+
+            if (dealer is null)
+            {
+                return NotFound();
+            }
+
+            if (!CheckPlayerAccessRights(dealer))
+            {
+                return Forbid();
+            }
+
+            Weapon? weapon = dealer.Weapons?.SingleOrDefault(w => w.Id == hitDto.ItemId);
+
+            if (weapon is null)
+            {
+                return NotFound();
+            }
+
+            Character? receiver = await _charRepo.GetByIdAsync(hitDto.ReceiverId);
+
+            if (receiver is null)
+            {
+                return NotFound();
+            }
+
+            receiver.Health = receiver.Health < weapon.Damage ? 0 
+                : receiver.Health - weapon.Damage;
+
+            _charRepo.Update(receiver);
+            await _charRepo.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool CheckPlayerAccessRights(Character character)
+        {
+            if (character.Player?.Name != User?.Identity?.Name && User?.Claims.Where(
+                c => c.Value == PlayerRole.Admin.ToString()).Count() == 0)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

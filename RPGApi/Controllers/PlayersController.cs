@@ -29,7 +29,6 @@ namespace RPGApi.Controllers
         {
             IEnumerable<Player> players = await _repository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<PlayerReadDto>>(players);
-            _repository.LogInformation("Get all players");
 
             return Ok(readDtos);
         }
@@ -50,8 +49,6 @@ namespace RPGApi.Controllers
                 CurrentPage = page
             };
 
-            _repository.LogInformation($"Get players on page {page}");
-
             return Ok(pageDto);
         }
 
@@ -63,11 +60,9 @@ namespace RPGApi.Controllers
 
             if (player is null)
             {
-                _repository.LogInformation($"Player not found");
                 return NotFound();
             }
 
-            _repository.LogInformation($"Get player {player.Name}");
             var readDto = _mapper.Map<PlayerReadDto>(player);
 
             return Ok(readDto);
@@ -78,7 +73,6 @@ namespace RPGApi.Controllers
         {
             if (await _repository.GetByNameAsync(registerDto.Name!) != null)
             {
-                _repository.LogInformation("Player registration failed");
                 return BadRequest("Player with the given name already exists");
             }
 
@@ -93,7 +87,6 @@ namespace RPGApi.Controllers
             player.PasswordSalt = passwordSalt;
 
             _repository.Add(player);
-            _repository.LogInformation($"Registered player {player.Name}");
             await _repository.SaveChangesAsync();
 
             var readDto = _mapper.Map<PlayerReadDto>(player);
@@ -108,20 +101,17 @@ namespace RPGApi.Controllers
 
             if (player is null)
             {
-                _repository.LogInformation("Player not found");
                 return NotFound();
             }
 
             if (player.Name != loginDto.Name)
             {
-                _repository.LogInformation("Player does not exist");
                 return BadRequest("Player does not exist");
             }
             
             if (!_repository.VerifyPasswordHash(loginDto.Password!, 
                 player.PasswordHash!, player.PasswordSalt!))
             {
-                _repository.LogInformation("Incorrect password");
                 return BadRequest("Incorrect password");
             }
 
@@ -129,7 +119,6 @@ namespace RPGApi.Controllers
 
             var returnDto = _mapper.Map<PlayerWithTokenReadDto>(player);
             returnDto = returnDto with { Token = token };
-            _repository.LogInformation($"Player {player.Name} logged in");
 
             return Ok(returnDto);
         }
@@ -142,19 +131,16 @@ namespace RPGApi.Controllers
 
             if (player is null)
             {
-                _repository.LogInformation("Player not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(player))
             {
-                _repository.LogInformation("Player update failed");
                 return Forbid();
             }
 
             _mapper.Map(updateDto, player);
             _repository.Update(player);
-            _repository.LogInformation($"Updated player {player.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();
@@ -169,13 +155,11 @@ namespace RPGApi.Controllers
 
             if (player is null)
             {
-                _repository.LogInformation("Player not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(player))
             {
-                _repository.LogInformation("Player update failed");
                 return Forbid();
             }
 
@@ -184,13 +168,11 @@ namespace RPGApi.Controllers
 
             if (!TryValidateModel(updateDto))
             {
-                _repository.LogInformation("Player validation failed");
                 return ValidationProblem(ModelState);
             }
 
             _mapper.Map(updateDto, player);
             _repository.Update(player);
-            _repository.LogInformation($"Updated player {player.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();
@@ -204,18 +186,15 @@ namespace RPGApi.Controllers
 
             if (player is null)
             {
-                _repository.LogInformation("Player not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(player))
             {
-                _repository.LogInformation("Player deletion failed");
                 return Forbid();
             }
 
             _repository.Delete(player);
-            _repository.LogInformation($"Deleted player {player.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();
@@ -229,13 +208,11 @@ namespace RPGApi.Controllers
 
             if (player is null)
             {
-                _repository.LogInformation("Player not found");
                 return NotFound();
             }
 
             player.Role = changeDto.Role;
             _repository.Update(player);
-            _repository.LogInformation($"Changed role for player {player.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();

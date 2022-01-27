@@ -28,7 +28,6 @@ namespace RPGApi.Controllers
         {
             IEnumerable<Mount> mounts = await _repository.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<MountReadDto>>(mounts);
-            _repository.LogInformation("Get all mounts");
 
             return Ok(readDtos);
         }
@@ -48,8 +47,6 @@ namespace RPGApi.Controllers
                 CurrentPage = page
             };
 
-            _repository.LogInformation($"Get mounts on page {page}");
-
             return Ok(pageDto);
         }
 
@@ -61,11 +58,9 @@ namespace RPGApi.Controllers
 
             if (mount is null)
             {
-                _repository.LogInformation("Mount not found");
                 return NotFound();
             }
 
-            _repository.LogInformation($"Get mount {mount.Name}");
             var readDto = _mapper.Map<MountReadDto>(mount);
 
             return Ok(readDto);
@@ -78,7 +73,6 @@ namespace RPGApi.Controllers
             Mount mount = _mapper.Map<Mount>(createDto);
 
             _repository.Add(mount);
-            _repository.LogInformation($"Created mount {mount.Name}");
             await _repository.SaveChangesAsync();
 
             var readDto = _mapper.Map<MountReadDto>(mount);
@@ -94,13 +88,11 @@ namespace RPGApi.Controllers
 
             if (mount is null)
             {
-                _repository.LogInformation("Mount not found");
                 return NotFound();
             }
 
             _mapper.Map(updateDto, mount);
             _repository.Update(mount);
-            _repository.LogInformation($"Updated mount {mount.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();
@@ -115,7 +107,6 @@ namespace RPGApi.Controllers
 
             if (mount is null)
             {
-                _repository.LogInformation("Mount not found");
                 return NotFound();
             }
 
@@ -124,13 +115,11 @@ namespace RPGApi.Controllers
 
             if (!TryValidateModel(updateDto))
             {
-                _repository.LogInformation($"Mount validation failed");
                 return ValidationProblem(ModelState);
             }
 
             _mapper.Map(updateDto, mount);
             _repository.Update(mount);
-            _repository.LogInformation($"Updated mount {mount.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();
@@ -144,12 +133,10 @@ namespace RPGApi.Controllers
 
             if (mount is null)
             {
-                _repository.LogInformation("Mount not found");
                 return NotFound();
             }
 
             _repository.Delete(mount);
-            _repository.LogInformation($"Deleted mount {mount.Name}");
             await _repository.SaveChangesAsync();
 
             return NoContent();
