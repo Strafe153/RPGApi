@@ -148,7 +148,7 @@ namespace RPGApi.Controllers
 
         [HttpPut("hit")]
         [Authorize]
-        public async Task<ActionResult> Hit(HitDto hitDto)
+        public async Task<ActionResult> HitAsync(HitDto hitDto)
         {
             Character? dealer = await _charRepo.GetByIdAsync(hitDto.DealerId);
 

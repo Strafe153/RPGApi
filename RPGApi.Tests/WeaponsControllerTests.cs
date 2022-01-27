@@ -8,8 +8,19 @@
         private static readonly WeaponsController _controller = new(
             _weaponRepo.Object, _charRepo.Object, _mapper.Object);
 
+        private static readonly Character _character = new()
+        {
+            Weapons = new List<Weapon>()
+            {
+                new Weapon()
+                {
+                    Id = Guid.Empty
+                }
+            }
+        };
+
         [Fact]
-        public async Task GetAllWeaponsAsync_Items_ReturnsActionResultOfReadDtos()
+        public async Task GetAllSpellsAsync_Items_ReturnsActionResultOfReadDtos()
         {
             // Arrange
             _weaponRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Weapon>());
@@ -51,7 +62,7 @@
         }
 
         [Fact]
-        public async Task GetWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
+        public async Task GetWeaponAsync_NonexistingWeapon_ReturnsNotFoundObjectResult()
         {
             // Arrange
             _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
@@ -60,7 +71,7 @@
             var result = await _controller.GetWeaponAsync(Guid.Empty);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result.Result);
+            Assert.IsType<NotFoundObjectResult>(result.Result);
         }
 
         [Fact]
@@ -94,7 +105,7 @@
         }
 
         [Fact]
-        public async Task UpdateWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
+        public async Task UpdateWeaponAsync_NonexistingWeapon_ReturnsNotFoundObjectResult()
         {
             // Arrange
             _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
@@ -103,7 +114,7 @@
             var result = await _controller.UpdateWeaponAsync(Guid.Empty, new WeaponCreateUpdateDto());
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
         }
 
         [Fact]
@@ -125,7 +136,7 @@
         }
 
         [Fact]
-        public async Task PartialUpdateWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
+        public async Task PartialUpdateWeaponAsync_NonexistingWeapon_ReturnsNotFoundObjectResult()
         {
             // Arrange
             _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
@@ -135,7 +146,7 @@
                 new JsonPatchDocument<WeaponCreateUpdateDto>());
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
         }
 
         [Fact]
@@ -152,7 +163,7 @@
         }
 
         [Fact]
-        public async Task DeleteWeaponAsync_NonexistingWeapon_ReturnsNotFoundResult()
+        public async Task DeleteWeaponAsync_NonexistingWeapon_ReturnsNotFoundObjectResult()
         {
             // Arrange
             _weaponRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
@@ -161,7 +172,60 @@
             var result = await _controller.DeleteWeaponAsync(Guid.Empty);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.IsType<NotFoundObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task HitAsync_ValidData_ReturnsNoContentResult()
+        {
+            // Arrange
+            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+
+            // Act
+            var result = await _controller.HitAsync(new HitDto() { ReceiverId = Guid.Empty });
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task HitAsync_NonexistingCharacter_ReturnsNotFoundObjectResult()
+        {
+            // Arrange
+            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
+
+            // Act
+            var result = await _controller.HitAsync(new HitDto());
+
+            // Assert
+            Assert.IsType<NotFoundObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task HitAsync_NonexistingWeapon_ReturnsNotFoundObjectResult()
+        {
+            // Arrange
+            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+
+            // Act
+            var result = await _controller.HitAsync(new HitDto());
+
+            // Assert
+            Assert.IsType<NotFoundObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task HitAsync_NoAccessRights_ReturnsForbidResult()
+        {
+            // Arrange
+            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.HitAsync(new HitDto());
+
+            // Assert
+            Assert.IsType<ForbidResult>(result);
         }
     }
 }
