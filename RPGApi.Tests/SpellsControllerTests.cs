@@ -8,6 +8,17 @@
         private static readonly SpellsController _controller = new(
             _spellRepo.Object, _charRepo.Object, _mapper.Object);
 
+        private static readonly Character _character = new()
+        {
+            Spells = new List<Spell>()
+            {
+                new Spell()
+                {
+                    Id = Guid.Empty
+                }
+            }
+        };
+
         [Fact]
         public async Task GetAllSpellsAsync_Items_ReturnsActionResultOfReadDtos()
         {
@@ -162,6 +173,46 @@
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
+        }
+
+        [Fact]
+        public async Task HitAsync_ValidData_ReturnsNoContentResult()
+        {
+            // Arrange
+            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+
+            // Act
+            var result = await _controller.HitAsync(new HitDto() { ReceiverId = Guid.Empty });
+
+            // Assert
+            Assert.IsType<NoContentResult>(result);
+        }
+
+        [Fact]
+        public async Task HitAsync_NonexistingCharacter_ReturnsNotFoundObjectResult()
+        {
+            // Arrange
+            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Character?)null);
+
+            // Act
+            var result = await _controller.HitAsync(new HitDto());
+
+            // Assert
+            Assert.IsType<NotFoundObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task HitAsync_NoAccessRights_ReturnsForbidResult()
+        {
+            // Arrange
+            _charRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+            Utility.MockUserIdentityName(_controller);
+
+            // Act
+            var result = await _controller.HitAsync(new HitDto());
+
+            // Assert
+            Assert.IsType<ForbidResult>(result);
         }
     }
 }

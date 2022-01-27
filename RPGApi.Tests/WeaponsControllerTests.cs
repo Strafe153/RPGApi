@@ -8,7 +8,7 @@
         private static readonly WeaponsController _controller = new(
             _weaponRepo.Object, _charRepo.Object, _mapper.Object);
 
-        private static Character _character = new()
+        private static readonly Character _character = new()
         {
             Weapons = new List<Weapon>()
             {
@@ -19,7 +19,8 @@
             }
         };
 
-        public async Task GetAllWeaponsAsync_Items_ReturnsActionResultOfReadDtos()
+        [Fact]
+        public async Task GetAllSpellsAsync_Items_ReturnsActionResultOfReadDtos()
         {
             // Arrange
             _weaponRepo.Setup(r => r.GetAllAsync()).ReturnsAsync(new List<Weapon>());
