@@ -62,7 +62,7 @@ namespace RPGApi.Controllers
 
             if (weapon is null)
             {
-                return NotFound();
+                return NotFound("Weapon not found");
             }
 
             var readDto = _mapper.Map<WeaponReadDto>(weapon);
@@ -92,7 +92,7 @@ namespace RPGApi.Controllers
 
             if (weapon is null)
             {
-                return NotFound();
+                return NotFound("Weapon not found");
             }
 
             _mapper.Map(updateDto, weapon);
@@ -111,7 +111,7 @@ namespace RPGApi.Controllers
 
             if (weapon is null)
             {
-                return NotFound();
+                return NotFound("Weapon not found");
             }
 
             var updateDto = _mapper.Map<WeaponCreateUpdateDto>(weapon);
@@ -137,7 +137,7 @@ namespace RPGApi.Controllers
 
             if (weapon is null)
             {
-                return NotFound();
+                return NotFound("Weapon not found");
             }
 
             _weaponRepo.Delete(weapon);
@@ -154,26 +154,31 @@ namespace RPGApi.Controllers
 
             if (dealer is null)
             {
-                return NotFound();
+                return NotFound("Damage dealer not found");
             }
 
             if (!CheckPlayerAccessRights(dealer))
             {
-                return Forbid();
+                return Forbid("Not enough rights");
+            }
+
+            if (dealer.Health == 0)
+            {
+                return Forbid($"Character {dealer.Name} is dead");
             }
 
             Weapon? weapon = dealer.Weapons?.SingleOrDefault(w => w.Id == hitDto.ItemId);
 
             if (weapon is null)
             {
-                return NotFound();
+                return NotFound("Weapon not found");
             }
 
             Character? receiver = await _charRepo.GetByIdAsync(hitDto.ReceiverId);
 
             if (receiver is null)
             {
-                return NotFound();
+                return NotFound("Damage receiver not found");
             }
 
             receiver.Health = receiver.Health < weapon.Damage ? 0 
