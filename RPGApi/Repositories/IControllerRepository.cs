@@ -8,6 +8,5 @@
         void Add(T entity);
         void Update(T entity);
         void Delete(T entity);
-        void LogInformation(string message);
     }
 }

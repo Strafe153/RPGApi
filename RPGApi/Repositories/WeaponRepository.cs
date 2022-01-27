@@ -6,12 +6,10 @@ namespace RPGApi.Repositories
     public class WeaponRepository : IControllerRepository<Weapon>
     {
         private readonly DataContext _context;
-        private readonly ILogger _logger;
 
-        public WeaponRepository(DataContext context, ILogger<WeaponRepository> logger)
+        public WeaponRepository(DataContext context)
         {
             _context = context;
-            _logger = logger;
         }
 
         public void Add(Weapon entity)
@@ -36,11 +34,6 @@ namespace RPGApi.Repositories
             return await _context.Weapons!
                 .Include(w => w.Characters)
                 .SingleOrDefaultAsync(w => w.Id == id);
-        }
-
-        public void LogInformation(string message)
-        {
-            _logger.LogInformation(message);
         }
 
         public async Task SaveChangesAsync()

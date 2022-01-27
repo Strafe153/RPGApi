@@ -6,12 +6,10 @@ namespace RPGApi.Repositories
     public class CharacterRepository : IControllerRepository<Character>
     {
         private readonly DataContext _context;
-        private readonly ILogger _logger;
 
-        public CharacterRepository(DataContext context, ILogger<CharacterRepository> logger)
+        public CharacterRepository(DataContext context)
         {
             _context = context;
-            _logger = logger;
         }
 
         public void Add(Character entity)
@@ -40,11 +38,6 @@ namespace RPGApi.Repositories
                 .Include(c => c.Spells)
                 .Include(c => c.Mounts)
                 .SingleOrDefaultAsync(c => c.Id == id);
-        }
-
-        public void LogInformation(string message)
-        {
-            _logger.LogInformation(message);
         }
 
         public async Task SaveChangesAsync()

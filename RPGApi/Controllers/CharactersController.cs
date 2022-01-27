@@ -37,7 +37,6 @@ namespace RPGApi.Controllers
         {
             IEnumerable<Character> characters = await _charRepo.GetAllAsync();
             var readDtos = _mapper.Map<IEnumerable<CharacterReadDto>>(characters);
-            _charRepo.LogInformation("Get all characters");
 
             return Ok(readDtos);
         }
@@ -56,8 +55,6 @@ namespace RPGApi.Controllers
                 CurrentPage = page
             };
 
-            _charRepo.LogInformation($"Get characters on page {page}");
-
             return Ok(pageDto);
         }
 
@@ -68,11 +65,9 @@ namespace RPGApi.Controllers
 
             if (character is null)
             {
-                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
-            _charRepo.LogInformation($"Get character {character.Name}");
             var readDto = _mapper.Map<CharacterReadDto>(character);
 
             return Ok(readDto);
@@ -85,12 +80,10 @@ namespace RPGApi.Controllers
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Character creation failed");
                 return Forbid();
             }
 
             _charRepo.Add(character);
-            _charRepo.LogInformation($"Created character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             var readDto = _mapper.Map<CharacterReadDto>(character);
@@ -105,18 +98,15 @@ namespace RPGApi.Controllers
 
             if (character is null)
             {
-                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Character update failed");
                 return Forbid();
             }
 
             _mapper.Map(updateDto, character);
-            _charRepo.LogInformation($"Updated character {character.Name}");
             _charRepo.Update(character);
             await _charRepo.SaveChangesAsync();
 
@@ -131,13 +121,11 @@ namespace RPGApi.Controllers
 
             if (character is null)
             {
-                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Character update failed");
                 return Forbid();
             }
 
@@ -146,7 +134,6 @@ namespace RPGApi.Controllers
 
             if (!TryValidateModel(updateDto))
             {
-                _charRepo.LogInformation("Character validation failed");
                 return ValidationProblem(ModelState);
             }
 
@@ -164,18 +151,15 @@ namespace RPGApi.Controllers
 
             if (character is null)
             {
-                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Character deletion failed");
                 return Forbid();
             }
 
             _charRepo.Delete(character);
-            _charRepo.LogInformation($"Deleted character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -188,13 +172,11 @@ namespace RPGApi.Controllers
 
             if (character is null)
             {
-                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Weapon adding failed");
                 return Forbid();
             }
 
@@ -202,13 +184,11 @@ namespace RPGApi.Controllers
 
             if (weapon is null)
             {
-                _charRepo.LogInformation("Weapon not found");
                 return BadRequest();
             }
 
             character.Weapons!.Add(weapon);
             _charRepo.Update(character);
-            _charRepo.LogInformation($"Added weapon {weapon.Name} to character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -221,13 +201,11 @@ namespace RPGApi.Controllers
 
             if (character is null)
             {
-                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Weapon removal failed");
                 return Forbid();
             }
 
@@ -235,13 +213,11 @@ namespace RPGApi.Controllers
 
             if (weapon is null)
             {
-                _charRepo.LogInformation("Weapon not found");
                 return BadRequest();
             }
 
             character.Weapons!.Remove(weapon);
             _charRepo.Update(character);
-            _charRepo.LogInformation($"Removed weapon {weapon.Name} from character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -254,13 +230,11 @@ namespace RPGApi.Controllers
 
             if (character is null)
             {
-                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Spell adding failed");
                 return Forbid();
             }
 
@@ -268,13 +242,11 @@ namespace RPGApi.Controllers
 
             if (spell is null)
             {
-                _charRepo.LogInformation("Spell not found");
                 return BadRequest();
             }
 
             character.Spells!.Add(spell);
             _charRepo.Update(character);
-            _charRepo.LogInformation($"Added spell {spell.Name} to character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -287,13 +259,11 @@ namespace RPGApi.Controllers
 
             if (character is null)
             {
-                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Spell removal failed");
                 return Forbid();
             }
 
@@ -301,13 +271,11 @@ namespace RPGApi.Controllers
 
             if (spell is null)
             {
-                _charRepo.LogInformation("Spell not found");
                 return BadRequest();
             }
 
             character.Spells!.Remove(spell);
             _charRepo.Update(character);
-            _charRepo.LogInformation($"Removed spell {spell.Name} from character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -320,13 +288,11 @@ namespace RPGApi.Controllers
 
             if (character is null)
             {
-                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Mount adding failed");
                 return Forbid();
             }
 
@@ -334,13 +300,11 @@ namespace RPGApi.Controllers
 
             if (mount is null)
             {
-                _charRepo.LogInformation("Mount not found");
                 return BadRequest();
             }
 
             character.Mounts!.Add(mount);
             _charRepo.Update(character);
-            _charRepo.LogInformation($"Added mount {mount.Name} to character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -353,13 +317,11 @@ namespace RPGApi.Controllers
 
             if (character is null)
             {
-                _charRepo.LogInformation("Character not found");
                 return NotFound();
             }
 
             if (!CheckPlayerAccessRights(character))
             {
-                _charRepo.LogInformation("Mount removal failed");
                 return Forbid();
             }
 
@@ -367,13 +329,11 @@ namespace RPGApi.Controllers
 
             if (mount is null)
             {
-                _charRepo.LogInformation("Mount not found");
                 return BadRequest();
             }
 
             character.Mounts!.Remove(mount);
             _charRepo.Update(character);
-            _charRepo.LogInformation($"Removed mount {mount.Name} from character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
