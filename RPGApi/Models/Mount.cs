@@ -8,7 +8,6 @@ namespace RPGApi.Models
         public Guid Id { get; set; }
         public string? Name { get; set; }
         public MountType Type { get; set; }
-        public int Health { get; set; } = 100;
         public int Speed { get; set; }
 
         [JsonIgnore]
