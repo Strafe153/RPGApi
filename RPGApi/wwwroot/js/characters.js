@@ -49,28 +49,6 @@ function addCharacterToTable(tbodyId, ...charProps) {
 
     newCharTr.classList.add(`${charProps[0]}-tr`);
 
-    //for (let i = 0; i < charParams.length; i++) {
-    //    const itemProperty = charParams[i];
-    //    let hr;
-
-    //    td = newCharTr.insertCell(i);
-
-    //    if (typeof(itemProperty) === "object") {
-    //        for (let i = 0; i < itemProperty.length; i++) {
-    //            hr = document.createElement("hr");
-    //            let span = document.createElement("span");
-    //            span.innerHTML = itemProperty[i].id;
-    //            td.appendChild(span);
-    //            td.appendChild(hr);
-    //        }
-
-    //        if (hr != null) {
-    //            td.removeChild(hr);
-    //        }
-    //    } else {
-    //        td.appendChild(document.createTextNode(itemProperty));
-    //    }
-    //}
     for (let i = 0; i < charProps.length; i++) {
         const itemProperty = charProps[i];
         let hr;
@@ -176,7 +154,7 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
         .then(response => response.json())
         .then(data => charId = data["id"]);
 
-    addCharacterToTable("characters-tbody", charId, charName, charRace, 100, charPlayerId);
+    addCharacterToTable("characters-tbody", charId, charName, charRace, 100, charPlayerId, [], [], []);
 });
 
 // PUT request to edit a character
