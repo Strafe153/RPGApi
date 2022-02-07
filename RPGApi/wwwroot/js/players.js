@@ -38,20 +38,39 @@ function displayPlayers(players, tbodyId) {
     const tbody = document.querySelector(`#${tbodyId}`);
     tbody.innerHTML = "";
 
-    players.forEach(player => {
-        let tr = tbody.insertRow();
-        tr.classList.add(`${player.id}-tr`);
-        let td;
+    players.forEach(p => addPlayerToTable(tbodyId, p.id, p.name, p.role, p.characters));
+}
 
-        td = tr.insertCell(0);
-        td.appendChild(document.createTextNode(player.id));
+function addPlayerToTable(tbodyId, ...playerProps) {
+    const tbody = document.querySelector(`#${tbodyId}`);
+    let newCharTr = tbody.insertRow();
+    let td;
 
-        td = tr.insertCell(1);
-        td.appendChild(document.createTextNode(player.name));
+    newCharTr.classList.add(`${playerProps[0]}-tr`);
 
-        td = tr.insertCell(2);
-        td.appendChild(document.createTextNode(player.role));
-    });
+    for (let i = 0; i < playerProps.length; i++) {
+        const itemProperty = playerProps[i];
+        let hr;
+
+        td = newCharTr.insertCell(i);
+
+        if (typeof (itemProperty) === "object") {
+            for (let propChild of itemProperty) {
+                const span = document.createElement("span");
+                span.innerHTML = propChild.id;
+
+                hr = document.createElement("hr");
+                td.appendChild(span);
+                td.appendChild(hr);
+            }
+
+            if (hr != null) {
+                td.removeChild(hr);
+            }
+        } else {
+            td.appendChild(document.createTextNode(itemProperty));
+        }
+    }
 }
 
 window.addEventListener("load", async e => {
