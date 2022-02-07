@@ -38,19 +38,61 @@ function displayCharacters(characters, tbodyId) {
     const tbody = document.querySelector(`#${tbodyId}`);
     tbody.innerHTML = "";
 
-    characters.forEach(c => addCharacterToTable(tbodyId, c.id, c.name, c.race, c.health, c.playerId));
+    characters.forEach(c => addCharacterToTable(tbodyId, c.id, c.name,
+        c.race, c.health, c.playerId, c.weapons, c.spells, c.mounts));
 }
 
-function addCharacterToTable(tbodyId, ...charParams) {
+function addCharacterToTable(tbodyId, ...charProps) {
     const tbody = document.querySelector(`#${tbodyId}`);
-    let tr = tbody.insertRow();
+    let newCharTr = tbody.insertRow();
     let td;
 
-    tr.classList.add(`${charParams[0]}-tr`);
+    newCharTr.classList.add(`${charProps[0]}-tr`);
 
-    for (let i = 0; i < charParams.length; i++) {
-        td = tr.insertCell(i);
-        td.appendChild(document.createTextNode(charParams[i]));
+    //for (let i = 0; i < charParams.length; i++) {
+    //    const itemProperty = charParams[i];
+    //    let hr;
+
+    //    td = newCharTr.insertCell(i);
+
+    //    if (typeof(itemProperty) === "object") {
+    //        for (let i = 0; i < itemProperty.length; i++) {
+    //            hr = document.createElement("hr");
+    //            let span = document.createElement("span");
+    //            span.innerHTML = itemProperty[i].id;
+    //            td.appendChild(span);
+    //            td.appendChild(hr);
+    //        }
+
+    //        if (hr != null) {
+    //            td.removeChild(hr);
+    //        }
+    //    } else {
+    //        td.appendChild(document.createTextNode(itemProperty));
+    //    }
+    //}
+    for (let i = 0; i < charProps.length; i++) {
+        const itemProperty = charProps[i];
+        let hr;
+
+        td = newCharTr.insertCell(i);
+
+        if (typeof (itemProperty) === "object") {
+            for (let propChild of itemProperty) {
+                const span = document.createElement("span");
+                span.innerHTML = propChild.id;
+
+                hr = document.createElement("hr");
+                td.appendChild(span);
+                td.appendChild(hr);
+            }
+
+            if (hr != null) {
+                td.removeChild(hr);
+            }
+        } else {
+            td.appendChild(document.createTextNode(itemProperty));
+        }
     }
 }
 
@@ -177,11 +219,14 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
     document.getElementsByClassName(`${charId}-tr`)[0].remove();
 });
 
+// PUT request to add an item to a character
 document.querySelector("#add-remove-item-btn").addEventListener("click", async e => {
     const actionType = document.querySelector("#action-type").value;
     const itemType = document.querySelector("#item-type").value;
     const charId = document.getElementById("add-remove-item-charId").value;
     const itemId = document.getElementById("add-remove-item-itemId").value;
+    const charTr = document.getElementsByClassName(`${charId}-tr`)[0];
+    let itemTd;
 
     await fetch(`../api/characters/${actionType}/${itemType}`, {
         method: "PUT",
@@ -195,6 +240,31 @@ document.querySelector("#add-remove-item-btn").addEventListener("click", async e
             itemId: itemId
         })
     });
+
+    if (itemType == "weapon") {
+        itemTd = charTr.children[charTr.children.length - 3];
+    } else if (itemType == "spell") {
+        itemTd = charTr.children[charTr.children.length - 2];
+    } else {
+        itemTd = charTr.children[charTr.children.length - 1];
+    }
+
+    if (actionType == "add") {
+        const span = document.createElement("span");
+        span.innerHTML = itemId;
+
+        if (itemTd.children.length > 0) {
+            itemTd.appendChild(document.createElement("hr"));
+        }
+
+        itemTd.appendChild(span);
+    } else {
+        itemTd.removeChild(itemTd.lastChild);
+
+        if (itemTd.children.length > 0) {
+            itemTd.removeChild(itemTd.lastChild);
+        }
+    }
 });
 
 document.querySelector("#all-chars-btn").addEventListener("click", async e => {
