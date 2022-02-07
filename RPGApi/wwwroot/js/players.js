@@ -100,7 +100,7 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
     await getPlayers();
 });
 
-// GET request to find a user
+// GET request to find a player
 document.querySelector("#find-player-btn").addEventListener("click", async e => {
     await fetch(`../api/players/${document.getElementById("find-player-id").value}`, {
         method: "GET",
@@ -118,7 +118,7 @@ document.querySelector("#find-player-btn").addEventListener("click", async e => 
         });
 });
 
-// PUT request to update a user
+// PUT request to update a player
 document.querySelector("#edit-btn").addEventListener("click", async e => {
     const playerId = document.querySelector("#edit-id").value;
     const newName = document.querySelector("#edit-name").value;
@@ -138,7 +138,7 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
     document.getElementsByClassName(`${playerId}-tr`)[0].children[1].innerHTML = newName;
 });
 
-// DELETE request to delete a user
+// DELETE request to delete a player
 document.querySelector("#del-btn").addEventListener("click", async e => {
     const playerId = document.querySelector("#del-id").value;
 
@@ -154,7 +154,7 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
     document.getElementsByClassName(`${playerId}-tr`)[0].remove();
 });
 
-// POST request to change a user's role
+// POST request to change a player's role
 document.querySelector("#change-role-btn").addEventListener("click", async e => {
     const playerId = document.getElementById("change-role-id").value;
     const newRole = document.getElementById("change-role-value").value;
