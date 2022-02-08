@@ -4,7 +4,7 @@ const currentPageElem = document.getElementById("curr-page");
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
 
-async function getCharacters() {
+async function getWeapons() {
     const currentPage = sessionStorage.getItem("currentPage");
     const prevButton = document.querySelector("#prev-btn");
     const nextButton = document.querySelector("#next-btn");
@@ -21,7 +21,7 @@ async function getCharacters() {
         nextButton.style.display = "none";
     }
 
-    await fetch(`../api/characters/page/${currentPage}`, {
+    await fetch(`../api/weapons/page/${currentPage}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -30,27 +30,27 @@ async function getCharacters() {
         .then(response => response.json())
         .then(data => {
             currentPageElem.value = sessionStorage.getItem("currentPage");
-            displayCharacters(data.items, "characters-tbody");
+            displayWeapons(data.items, "weapons-tbody");
         });
 }
 
-function displayCharacters(characters, tbodyId) {
+function displayWeapons(weapons, tbodyId) {
     const tbody = document.querySelector(`#${tbodyId}`);
     tbody.innerHTML = "";
 
-    characters.forEach(c => addCharacterToTable(tbodyId, c.id, c.name,
-        c.race, c.health, c.playerId, c.weapons, c.spells, c.mounts));
+    weapons.forEach(w => addCharacterToTable(tbodyId, w.id, w.name,
+        w.type, w.damage, w.characters));
 }
 
-function addCharacterToTable(tbodyId, ...charProps) {
+function addCharacterToTable(tbodyId, ...weaponProps) {
     const tbody = document.querySelector(`#${tbodyId}`);
     let newCharTr = tbody.insertRow();
     let td;
 
-    newCharTr.classList.add(`${charProps[0]}-tr`);
+    newCharTr.classList.add(`${weaponProps[0]}-tr`);
 
-    for (let i = 0; i < charProps.length; i++) {
-        const itemProperty = charProps[i];
+    for (let i = 0; i < weaponProps.length; i++) {
+        const itemProperty = weaponProps[i];
         let hr;
 
         td = newCharTr.insertCell(i);
@@ -79,7 +79,7 @@ window.addEventListener("load", async e => {
 
     document.getElementById("curr-page").value = currentPage;
 
-    await fetch(`../api/characters/page/${currentPage}`, {
+    await fetch(`../api/weapons/page/${currentPage}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -89,7 +89,7 @@ window.addEventListener("load", async e => {
         .then(data => {
             sessionStorage.setItem("pagesCount", data.pagesCount);
             sessionStorage.setItem("currentPage", data.currentPage);
-            displayCharacters(data.items, "characters-tbody");
+            displayWeapons(data.items, "weapons-tbody");
         });
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
@@ -97,25 +97,25 @@ window.addEventListener("load", async e => {
     }
 });
 
-// load characters from the previous page
+// load weapons from the previous page
 document.querySelector("#next-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) + 1);
 
-    await getCharacters();
+    await getWeapons();
 });
 
-// load characters from the next page
+// load weapons from the next page
 document.querySelector("#prev-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) - 1);
 
-    await getCharacters();
+    await getWeapons();
 });
 
-// GET request to find a character
-document.querySelector("#find-char-btn").addEventListener("click", async e => {
-    await fetch(`../api/characters/${document.getElementById("find-char-id").value}`, {
+// GET request to find a weapon
+document.querySelector("#find-weapon-btn").addEventListener("click", async e => {
+    await fetch(`../api/weapons/${document.getElementById("find-weapon-id").value}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -123,22 +123,22 @@ document.querySelector("#find-char-btn").addEventListener("click", async e => {
     })
         .then(response => response.json())
         .then(data => {
-            displayCharacters([data], "characters-tbody");
-            document.querySelector("#all-chars-btn").style.display = "inline";
+            displayWeapons([data], "weapons-tbody");
+            document.querySelector("#all-weapons-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
         });
 });
 
-// POST request to create a character
+// POST request to create a weapon
 document.querySelector("#create-btn").addEventListener("click", async e => {
-    const charName = document.querySelector("#create-name").value;
-    const charRace = document.querySelector("#create-race").value;
-    const charPlayerId = document.querySelector("#create-player-id").value;
-    let charId;
+    const weaponName = document.querySelector("#create-name").value;
+    const weaponType = document.querySelector("#create-type").value;
+    const weaponDamage = document.querySelector("#create-damage").value;
+    let weaponId;
 
-    await fetch("../api/characters", {
+    await fetch("../api/weapons", {
         method: "POST",
         headers: {
             "Accept": "application/json",
@@ -146,25 +146,26 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
             "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-            name: charName,
-            race: charRace,
-            playerId: charPlayerId
+            name: weaponName,
+            type: weaponType,
+            damage: weaponDamage
         })
     })
         .then(response => response.json())
-        .then(data => charId = data["id"]);
+        .then(data => weaponId = data["id"]);
 
-    addCharacterToTable("characters-tbody", charId, charName, charRace, 100, charPlayerId, [], [], []);
+    addCharacterToTable("weapons-tbody", weaponId, weaponName, weaponType, weaponDamage, []);
 });
 
-// PUT request to edit a character
+// PUT request to edit a weapon
 document.querySelector("#edit-btn").addEventListener("click", async e => {
-    const charId = document.getElementById("edit-id").value;
-    const charTr = document.getElementsByClassName(`${charId}-tr`)[0];
+    const weaponId = document.getElementById("edit-id").value;
+    const weaponTr = document.getElementsByClassName(`${weaponId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
-    const newRace = document.getElementById("edit-race").value;
+    const newType = document.getElementById("edit-type").value;
+    const newDamage = document.getElementById("edit-damage").value;
 
-    await fetch(`../api/characters/${charId}`, {
+    await fetch(`../api/weapons/${weaponId}`, {
         method: "PUT",
         headers: {
             "Accept": "application/json",
@@ -173,19 +174,21 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
         },
         body: JSON.stringify({
             name: newName,
-            race: newRace
+            type: newType,
+            damage: newDamage
         })
     });
 
-    charTr.children[1].innerHTML = newName;
-    charTr.children[2].innerHTML = newRace;
+    weaponTr.children[1].innerHTML = newName;
+    weaponTr.children[2].innerHTML = newType;
+    weaponTr.children[3].innerHTML = newDamage;
 });
 
-// DELETE request to delete a character
+// DELETE request to delete a weapon
 document.querySelector("#del-btn").addEventListener("click", async e => {
-    const charId = document.querySelector("#del-id").value;
+    const weaponId = document.querySelector("#del-id").value;
 
-    await fetch(`../api/characters/${charId}`, {
+    await fetch(`../api/weapons/${weaponId}`, {
         method: "DELETE",
         headers: {
             "Accept": "application/json",
@@ -194,19 +197,16 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
         }
     });
 
-    document.getElementsByClassName(`${charId}-tr`)[0].remove();
+    document.getElementsByClassName(`${weaponId}-tr`)[0].remove();
 });
 
-// PUT request to add an item to a character
-document.querySelector("#add-remove-item-btn").addEventListener("click", async e => {
-    const actionType = document.querySelector("#action-type").value;
-    const itemType = document.querySelector("#item-type").value;
-    const charId = document.getElementById("add-remove-item-charId").value;
-    const itemId = document.getElementById("add-remove-item-itemId").value;
-    const charTr = document.getElementsByClassName(`${charId}-tr`)[0];
-    let itemTd;
+// PUT request to hit a character
+document.querySelector("#hit-btn").addEventListener("click", async e => {
+    const dealer = document.querySelector("#hit-dealer-id").value;
+    const receiver = document.querySelector("#hit-receiver-id").value;
+    const item = document.querySelector("#hit-item-id").value;
 
-    await fetch(`../api/characters/${actionType}/${itemType}`, {
+    await fetch("../api/weapons/hit", {
         method: "PUT",
         headers: {
             "Accept": "application/json",
@@ -214,39 +214,15 @@ document.querySelector("#add-remove-item-btn").addEventListener("click", async e
             "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-            characterId: charId,
-            itemId: itemId
+            dealerId: dealer,
+            receiverId: receiver,
+            itemId: item
         })
     });
-
-    if (itemType == "weapon") {
-        itemTd = charTr.children[charTr.children.length - 3];
-    } else if (itemType == "spell") {
-        itemTd = charTr.children[charTr.children.length - 2];
-    } else {
-        itemTd = charTr.children[charTr.children.length - 1];
-    }
-
-    if (actionType == "add") {
-        const span = document.createElement("span");
-        span.innerHTML = itemId;
-
-        if (itemTd.children.length > 0) {
-            itemTd.appendChild(document.createElement("hr"));
-        }
-
-        itemTd.appendChild(span);
-    } else {
-        itemTd.removeChild(itemTd.lastChild);
-
-        if (itemTd.children.length > 0) {
-            itemTd.removeChild(itemTd.lastChild);
-        }
-    }
 });
 
-document.querySelector("#all-chars-btn").addEventListener("click", async e => {
-    await getCharacters();
-    document.querySelector("#all-chars-btn").style.display = "none";
+document.querySelector("#all-weapons-btn").addEventListener("click", async e => {
+    await getWeapons();
+    document.querySelector("#all-weapons-btn").style.display = "none";
     document.querySelector("#curr-page").style.display = "inline";
 });
