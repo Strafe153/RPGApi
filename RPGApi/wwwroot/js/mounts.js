@@ -4,7 +4,7 @@ const currentPageElem = document.getElementById("curr-page");
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
 
-async function getWeapons() {
+async function getMounts() {
     const currentPage = sessionStorage.getItem("currentPage");
     const prevButton = document.querySelector("#prev-btn");
     const nextButton = document.querySelector("#next-btn");
@@ -21,7 +21,7 @@ async function getWeapons() {
         nextButton.style.display = "none";
     }
 
-    await fetch(`../api/weapons/page/${currentPage}`, {
+    await fetch(`../api/mounts/page/${currentPage}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -30,30 +30,30 @@ async function getWeapons() {
         .then(response => response.json())
         .then(data => {
             currentPageElem.value = sessionStorage.getItem("currentPage");
-            displayWeapons(data.items, "weapons-tbody");
+            displayMounts(data.items, "mounts-tbody");
         });
 }
 
-function displayWeapons(weapons, tbodyId) {
+function displayMounts(mounts, tbodyId) {
     const tbody = document.querySelector(`#${tbodyId}`);
     tbody.innerHTML = "";
 
-    weapons.forEach(w => addCharacterToTable(tbodyId, w.id,
-        w.name, w.type, w.damage, w.characters));
+    mounts.forEach(m => addMountToTable(tbodyId, m.id,
+        m.name, m.type, m.speed, m.characters));
 }
 
-function addCharacterToTable(tbodyId, ...weaponProps) {
+function addMountToTable(tbodyId, ...mountProps) {
     const tbody = document.querySelector(`#${tbodyId}`);
-    let newWeaponTr = tbody.insertRow();
+    let newMountTr = tbody.insertRow();
     let td;
 
-    newWeaponTr.classList.add(`${weaponProps[0]}-tr`);
+    newMountTr.classList.add(`${mountProps[0]}-tr`);
 
-    for (let i = 0; i < weaponProps.length; i++) {
-        const itemProperty = weaponProps[i];
+    for (let i = 0; i < mountProps.length; i++) {
+        const itemProperty = mountProps[i];
         let hr;
 
-        td = newWeaponTr.insertCell(i);
+        td = newMountTr.insertCell(i);
 
         if (typeof (itemProperty) === "object") {
             for (let propChild of itemProperty) {
@@ -79,7 +79,7 @@ window.addEventListener("load", async e => {
 
     document.getElementById("curr-page").value = currentPage;
 
-    await fetch(`../api/weapons/page/${currentPage}`, {
+    await fetch(`../api/mounts/page/${currentPage}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -89,7 +89,7 @@ window.addEventListener("load", async e => {
         .then(data => {
             sessionStorage.setItem("pagesCount", data.pagesCount);
             sessionStorage.setItem("currentPage", data.currentPage);
-            displayWeapons(data.items, "weapons-tbody");
+            displayMounts(data.items, "mounts-tbody");
         });
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
@@ -97,25 +97,25 @@ window.addEventListener("load", async e => {
     }
 });
 
-// load weapons from the previous page
+// load mounts from the previous page
 document.querySelector("#next-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) + 1);
 
-    await getWeapons();
+    await getMounts();
 });
 
-// load weapons from the next page
+// load mounts from the next page
 document.querySelector("#prev-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) - 1);
 
-    await getWeapons();
+    await getMounts();
 });
 
-// GET request to find a weapon
-document.querySelector("#find-weapon-btn").addEventListener("click", async e => {
-    await fetch(`../api/weapons/${document.getElementById("find-weapon-id").value}`, {
+// GET request to find a mount
+document.querySelector("#find-mount-btn").addEventListener("click", async e => {
+    await fetch(`../api/mounts/${document.getElementById("find-mount-id").value}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -123,22 +123,22 @@ document.querySelector("#find-weapon-btn").addEventListener("click", async e => 
     })
         .then(response => response.json())
         .then(data => {
-            displayWeapons([data], "weapons-tbody");
-            document.querySelector("#all-weapons-btn").style.display = "inline";
+            displayMounts([data], "mounts-tbody");
+            document.querySelector("#all-mounts-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
         });
 });
 
-// POST request to create a weapon
+// POST request to create a mount
 document.querySelector("#create-btn").addEventListener("click", async e => {
-    const weaponName = document.querySelector("#create-name").value;
-    const weaponType = document.querySelector("#create-type").value;
-    const weaponDamage = document.querySelector("#create-damage").value;
-    let weaponId;
+    const mountName = document.querySelector("#create-name").value;
+    const mountType = document.querySelector("#create-type").value;
+    const mountSpeed = document.querySelector("#create-speed").value;
+    let mountId;
 
-    await fetch("../api/weapons", {
+    await fetch("../api/mounts", {
         method: "POST",
         headers: {
             "Accept": "application/json",
@@ -146,26 +146,26 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
             "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-            name: weaponName,
-            type: weaponType,
-            damage: weaponDamage
+            name: mountName,
+            type: mountType,
+            speed: mountSpeed
         })
     })
         .then(response => response.json())
-        .then(data => weaponId = data["id"]);
+        .then(data => mountId = data["id"]);
 
-    addCharacterToTable("weapons-tbody", weaponId, weaponName, weaponType, weaponDamage, []);
+    addMountToTable("mounts-tbody", mountId, mountName, mountType, mountSpeed, []);
 });
 
-// PUT request to edit a weapon
+// PUT request to edit a mount
 document.querySelector("#edit-btn").addEventListener("click", async e => {
-    const weaponId = document.getElementById("edit-id").value;
-    const weaponTr = document.getElementsByClassName(`${weaponId}-tr`)[0];
+    const mountId = document.getElementById("edit-id").value;
+    const mountTr = document.getElementsByClassName(`${mountId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
     const newType = document.getElementById("edit-type").value;
-    const newDamage = document.getElementById("edit-damage").value;
+    const newSpeed = document.getElementById("edit-speed").value;
 
-    await fetch(`../api/weapons/${weaponId}`, {
+    await fetch(`../api/mounts/${mountId}`, {
         method: "PUT",
         headers: {
             "Accept": "application/json",
@@ -175,20 +175,20 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
         body: JSON.stringify({
             name: newName,
             type: newType,
-            damage: newDamage
+            speed: newSpeed
         })
     });
 
-    weaponTr.children[1].innerHTML = newName;
-    weaponTr.children[2].innerHTML = newType;
-    weaponTr.children[3].innerHTML = newDamage;
+    mountTr.children[1].innerHTML = newName;
+    mountTr.children[2].innerHTML = newType;
+    mountTr.children[3].innerHTML = newSpeed;
 });
 
-// DELETE request to delete a weapon
+// DELETE request to delete a spell
 document.querySelector("#del-btn").addEventListener("click", async e => {
-    const weaponId = document.querySelector("#del-id").value;
+    const mountId = document.querySelector("#del-id").value;
 
-    await fetch(`../api/weapons/${weaponId}`, {
+    await fetch(`../api/mounts/${mountId}`, {
         method: "DELETE",
         headers: {
             "Accept": "application/json",
@@ -197,32 +197,11 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
         }
     });
 
-    document.getElementsByClassName(`${weaponId}-tr`)[0].remove();
+    document.getElementsByClassName(`${mountId}-tr`)[0].remove();
 });
 
-// PUT request to hit a character
-document.querySelector("#hit-btn").addEventListener("click", async e => {
-    const dealer = document.querySelector("#hit-dealer-id").value;
-    const receiver = document.querySelector("#hit-receiver-id").value;
-    const item = document.querySelector("#hit-item-id").value;
-
-    await fetch("../api/weapons/hit", {
-        method: "PUT",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            dealerId: dealer,
-            receiverId: receiver,
-            itemId: item
-        })
-    });
-});
-
-document.querySelector("#all-weapons-btn").addEventListener("click", async e => {
-    await getWeapons();
-    document.querySelector("#all-weapons-btn").style.display = "none";
+document.querySelector("#all-mounts-btn").addEventListener("click", async e => {
+    await getMounts();
+    document.querySelector("#all-mounts-btn").style.display = "none";
     document.querySelector("#curr-page").style.display = "inline";
 });

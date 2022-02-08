@@ -44,16 +44,16 @@ function displaySpells(spells, tbodyId) {
 
 function addSpellToTable(tbodyId, ...spellProps) {
     const tbody = document.querySelector(`#${tbodyId}`);
-    let newCharTr = tbody.insertRow();
+    let newSpellTr = tbody.insertRow();
     let td;
 
-    newCharTr.classList.add(`${spellProps[0]}-tr`);
+    newSpellTr.classList.add(`${spellProps[0]}-tr`);
 
     for (let i = 0; i < spellProps.length; i++) {
         const itemProperty = spellProps[i];
         let hr;
 
-        td = newCharTr.insertCell(i);
+        td = newSpellTr.insertCell(i);
 
         if (typeof (itemProperty) === "object") {
             for (let propChild of itemProperty) {
@@ -113,7 +113,7 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
     await getSpells();
 });
 
-// GET request to find a weapon
+// GET request to find a spell
 document.querySelector("#find-spell-btn").addEventListener("click", async e => {
     await fetch(`../api/spells/${document.getElementById("find-spell-id").value}`, {
         method: "GET",
@@ -131,7 +131,7 @@ document.querySelector("#find-spell-btn").addEventListener("click", async e => {
         });
 });
 
-// POST request to create a weapon
+// POST request to create a spell
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const spellName = document.querySelector("#create-name").value;
     const spellType = document.querySelector("#create-type").value;
@@ -200,7 +200,7 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
     document.getElementsByClassName(`${spellId}-tr`)[0].remove();
 });
 
-// PUT request to hit a spell
+// PUT request to hit a character
 document.querySelector("#hit-btn").addEventListener("click", async e => {
     const dealer = document.querySelector("#hit-dealer-id").value;
     const receiver = document.querySelector("#hit-receiver-id").value;
