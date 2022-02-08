@@ -4,7 +4,7 @@ const currentPageElem = document.getElementById("curr-page");
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
 
-async function getWeapons() {
+async function getSpells() {
     const currentPage = sessionStorage.getItem("currentPage");
     const prevButton = document.querySelector("#prev-btn");
     const nextButton = document.querySelector("#next-btn");
@@ -21,7 +21,7 @@ async function getWeapons() {
         nextButton.style.display = "none";
     }
 
-    await fetch(`../api/weapons/page/${currentPage}`, {
+    await fetch(`../api/spells/page/${currentPage}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -30,27 +30,27 @@ async function getWeapons() {
         .then(response => response.json())
         .then(data => {
             currentPageElem.value = sessionStorage.getItem("currentPage");
-            displayWeapons(data.items, "weapons-tbody");
+            displaySpells(data.items, "spells-tbody");
         });
 }
 
-function displayWeapons(weapons, tbodyId) {
+function displaySpells(spells, tbodyId) {
     const tbody = document.querySelector(`#${tbodyId}`);
     tbody.innerHTML = "";
 
-    weapons.forEach(w => addCharacterToTable(tbodyId, w.id,
-        w.name, w.type, w.damage, w.characters));
+    spells.forEach(s => addSpellToTable(tbodyId, s.id,
+        s.name, s.type, s.damage, s.characters));
 }
 
-function addCharacterToTable(tbodyId, ...weaponProps) {
+function addSpellToTable(tbodyId, ...spellProps) {
     const tbody = document.querySelector(`#${tbodyId}`);
     let newCharTr = tbody.insertRow();
     let td;
 
-    newCharTr.classList.add(`${weaponProps[0]}-tr`);
+    newCharTr.classList.add(`${spellProps[0]}-tr`);
 
-    for (let i = 0; i < weaponProps.length; i++) {
-        const itemProperty = weaponProps[i];
+    for (let i = 0; i < spellProps.length; i++) {
+        const itemProperty = spellProps[i];
         let hr;
 
         td = newCharTr.insertCell(i);
@@ -79,7 +79,7 @@ window.addEventListener("load", async e => {
 
     document.getElementById("curr-page").value = currentPage;
 
-    await fetch(`../api/weapons/page/${currentPage}`, {
+    await fetch(`../api/spells/page/${currentPage}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -89,7 +89,7 @@ window.addEventListener("load", async e => {
         .then(data => {
             sessionStorage.setItem("pagesCount", data.pagesCount);
             sessionStorage.setItem("currentPage", data.currentPage);
-            displayWeapons(data.items, "weapons-tbody");
+            displaySpells(data.items, "spells-tbody");
         });
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
@@ -97,25 +97,25 @@ window.addEventListener("load", async e => {
     }
 });
 
-// load weapons from the previous page
+// load spells from the previous page
 document.querySelector("#next-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) + 1);
 
-    await getWeapons();
+    await getSpells();
 });
 
-// load weapons from the next page
+// load spells from the next page
 document.querySelector("#prev-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) - 1);
 
-    await getWeapons();
+    await getSpells();
 });
 
 // GET request to find a weapon
-document.querySelector("#find-weapon-btn").addEventListener("click", async e => {
-    await fetch(`../api/weapons/${document.getElementById("find-weapon-id").value}`, {
+document.querySelector("#find-spell-btn").addEventListener("click", async e => {
+    await fetch(`../api/spells/${document.getElementById("find-spell-id").value}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -123,8 +123,8 @@ document.querySelector("#find-weapon-btn").addEventListener("click", async e => 
     })
         .then(response => response.json())
         .then(data => {
-            displayWeapons([data], "weapons-tbody");
-            document.querySelector("#all-weapons-btn").style.display = "inline";
+            displaySpells([data], "spells-tbody");
+            document.querySelector("#all-spells-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
@@ -133,12 +133,12 @@ document.querySelector("#find-weapon-btn").addEventListener("click", async e => 
 
 // POST request to create a weapon
 document.querySelector("#create-btn").addEventListener("click", async e => {
-    const weaponName = document.querySelector("#create-name").value;
-    const weaponType = document.querySelector("#create-type").value;
-    const weaponDamage = document.querySelector("#create-damage").value;
-    let weaponId;
+    const spellName = document.querySelector("#create-name").value;
+    const spellType = document.querySelector("#create-type").value;
+    const spellDamage = document.querySelector("#create-damage").value;
+    let spellId;
 
-    await fetch("../api/weapons", {
+    await fetch("../api/spells", {
         method: "POST",
         headers: {
             "Accept": "application/json",
@@ -146,26 +146,26 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
             "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
-            name: weaponName,
-            type: weaponType,
-            damage: weaponDamage
+            name: spellName,
+            type: spellType,
+            damage: spellDamage
         })
     })
         .then(response => response.json())
-        .then(data => weaponId = data["id"]);
+        .then(data => spellId = data["id"]);
 
-    addCharacterToTable("weapons-tbody", weaponId, weaponName, weaponType, weaponDamage, []);
+    addSpellToTable("spells-tbody", spellId, spellName, spellType, spellDamage, []);
 });
 
-// PUT request to edit a weapon
+// PUT request to edit a spell
 document.querySelector("#edit-btn").addEventListener("click", async e => {
-    const weaponId = document.getElementById("edit-id").value;
-    const weaponTr = document.getElementsByClassName(`${weaponId}-tr`)[0];
+    const spellId = document.getElementById("edit-id").value;
+    const spellTr = document.getElementsByClassName(`${spellId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
     const newType = document.getElementById("edit-type").value;
     const newDamage = document.getElementById("edit-damage").value;
 
-    await fetch(`../api/weapons/${weaponId}`, {
+    await fetch(`../api/spells/${spellId}`, {
         method: "PUT",
         headers: {
             "Accept": "application/json",
@@ -179,16 +179,16 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
         })
     });
 
-    weaponTr.children[1].innerHTML = newName;
-    weaponTr.children[2].innerHTML = newType;
-    weaponTr.children[3].innerHTML = newDamage;
+    spellTr.children[1].innerHTML = newName;
+    spellTr.children[2].innerHTML = newType;
+    spellTr.children[3].innerHTML = newDamage;
 });
 
-// DELETE request to delete a weapon
+// DELETE request to delete a spell
 document.querySelector("#del-btn").addEventListener("click", async e => {
-    const weaponId = document.querySelector("#del-id").value;
+    const spellId = document.querySelector("#del-id").value;
 
-    await fetch(`../api/weapons/${weaponId}`, {
+    await fetch(`../api/spells/${spellId}`, {
         method: "DELETE",
         headers: {
             "Accept": "application/json",
@@ -197,16 +197,16 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
         }
     });
 
-    document.getElementsByClassName(`${weaponId}-tr`)[0].remove();
+    document.getElementsByClassName(`${spellId}-tr`)[0].remove();
 });
 
-// PUT request to hit a character
+// PUT request to hit a spell
 document.querySelector("#hit-btn").addEventListener("click", async e => {
     const dealer = document.querySelector("#hit-dealer-id").value;
     const receiver = document.querySelector("#hit-receiver-id").value;
     const item = document.querySelector("#hit-item-id").value;
 
-    await fetch("../api/weapons/hit", {
+    await fetch("../api/spells/hit", {
         method: "PUT",
         headers: {
             "Accept": "application/json",
@@ -221,8 +221,8 @@ document.querySelector("#hit-btn").addEventListener("click", async e => {
     });
 });
 
-document.querySelector("#all-weapons-btn").addEventListener("click", async e => {
-    await getWeapons();
-    document.querySelector("#all-weapons-btn").style.display = "none";
+document.querySelector("#all-spells-btn").addEventListener("click", async e => {
+    await getSpells();
+    document.querySelector("#all-spells-btn").style.display = "none";
     document.querySelector("#curr-page").style.display = "inline";
 });
