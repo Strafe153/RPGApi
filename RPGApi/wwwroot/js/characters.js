@@ -1,78 +1,9 @@
-﻿const token = sessionStorage.getItem("token");
-const currentPageElem = document.getElementById("curr-page");
+﻿import * as utility from "./site.js";
+
+const token = sessionStorage.getItem("token");
 
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
-
-async function getCharacters() {
-    const currentPage = sessionStorage.getItem("currentPage");
-    const prevButton = document.querySelector("#prev-btn");
-    const nextButton = document.querySelector("#next-btn");
-
-    if (currentPage > 1) {
-        prevButton.style.display = "inline";
-    } else {
-        prevButton.style.display = "none";
-    }
-
-    if (currentPage < sessionStorage.getItem("pagesCount")) {
-        nextButton.style.display = "inline";
-    } else {
-        nextButton.style.display = "none";
-    }
-
-    await fetch(`../api/characters/page/${currentPage}`, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            currentPageElem.value = sessionStorage.getItem("currentPage");
-            displayCharacters(data.items, "characters-tbody");
-        });
-}
-
-function displayCharacters(characters, tbodyId) {
-    const tbody = document.querySelector(`#${tbodyId}`);
-    tbody.innerHTML = "";
-
-    characters.forEach(c => addCharacterToTable(tbodyId, c.id, c.name,
-        c.race, c.health, c.playerId, c.weapons, c.spells, c.mounts));
-}
-
-function addCharacterToTable(tbodyId, ...charProps) {
-    const tbody = document.querySelector(`#${tbodyId}`);
-    let newCharTr = tbody.insertRow();
-    let td;
-
-    newCharTr.classList.add(`${charProps[0]}-tr`);
-
-    for (let i = 0; i < charProps.length; i++) {
-        const itemProperty = charProps[i];
-        let hr;
-
-        td = newCharTr.insertCell(i);
-
-        if (typeof (itemProperty) === "object") {
-            for (let propChild of itemProperty) {
-                const span = document.createElement("span");
-                span.innerHTML = propChild.id;
-
-                hr = document.createElement("hr");
-                td.appendChild(span);
-                td.appendChild(hr);
-            }
-
-            if (hr != null) {
-                td.removeChild(hr);
-            }
-        } else {
-            td.appendChild(document.createTextNode(itemProperty));
-        }
-    }
-}
 
 window.addEventListener("load", async e => {
     const currentPage = sessionStorage.getItem("currentPage");
@@ -89,7 +20,7 @@ window.addEventListener("load", async e => {
         .then(data => {
             sessionStorage.setItem("pagesCount", data.pagesCount);
             sessionStorage.setItem("currentPage", data.currentPage);
-            displayCharacters(data.items, "characters-tbody");
+            utility.displayItems(data.items, "characters-tbody");
         });
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
@@ -102,7 +33,7 @@ document.querySelector("#next-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) + 1);
 
-    await getCharacters();
+    await utility.getItems("characters");
 });
 
 // load characters from the next page
@@ -110,7 +41,7 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) - 1);
 
-    await getCharacters();
+    await utility.getItems("characters");
 });
 
 // GET request to find a character
@@ -123,8 +54,8 @@ document.querySelector("#find-char-btn").addEventListener("click", async e => {
     })
         .then(response => response.json())
         .then(data => {
-            displayCharacters([data], "characters-tbody");
-            document.querySelector("#all-chars-btn").style.display = "inline";
+            utility.displayItems([data], "characters-tbody");
+            document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
@@ -154,7 +85,7 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
         .then(response => response.json())
         .then(data => charId = data["id"]);
 
-    addCharacterToTable("characters-tbody", charId, charName, charRace, 100, charPlayerId, [], [], []);
+    utility.addItemToTable("characters-tbody", charId, charName, charRace, 100, charPlayerId, [], [], []);
 });
 
 // PUT request to edit a character
@@ -245,8 +176,8 @@ document.querySelector("#add-remove-item-btn").addEventListener("click", async e
     }
 });
 
-document.querySelector("#all-chars-btn").addEventListener("click", async e => {
-    await getCharacters();
-    document.querySelector("#all-chars-btn").style.display = "none";
+document.querySelector("#all-items-btn").addEventListener("click", async e => {
+    await utility.getItems("characters");
+    document.querySelector("#all-items-btn").style.display = "none";
     document.querySelector("#curr-page").style.display = "inline";
 });

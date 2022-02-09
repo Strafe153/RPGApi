@@ -1,77 +1,9 @@
-﻿const token = sessionStorage.getItem("token");
-const currentPageElem = document.getElementById("curr-page");
+﻿import * as utility from "./site.js";
+
+const token = sessionStorage.getItem("token");
 
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
-
-async function getPlayers() {
-    const currentPage = sessionStorage.getItem("currentPage");
-    const prevButton = document.querySelector("#prev-btn");
-    const nextButton = document.querySelector("#next-btn");
-
-    if (currentPage > 1) {
-        prevButton.style.display = "inline";
-    } else {
-        prevButton.style.display = "none";
-    }
-
-    if (currentPage < sessionStorage.getItem("pagesCount")) {
-        nextButton.style.display = "inline";
-    } else {
-        nextButton.style.display = "none";
-    }
-
-    await fetch(`../api/players/page/${currentPage}`, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            currentPageElem.value = sessionStorage.getItem("currentPage");
-            displayPlayers(data.items, "players-tbody");
-        });
-}
-
-function displayPlayers(players, tbodyId) {
-    const tbody = document.querySelector(`#${tbodyId}`);
-    tbody.innerHTML = "";
-
-    players.forEach(p => addPlayerToTable(tbodyId, p.id, p.name, p.role, p.characters));
-}
-
-function addPlayerToTable(tbodyId, ...playerProps) {
-    const tbody = document.querySelector(`#${tbodyId}`);
-    let newCharTr = tbody.insertRow();
-    let td;
-
-    newCharTr.classList.add(`${playerProps[0]}-tr`);
-
-    for (let i = 0; i < playerProps.length; i++) {
-        const itemProperty = playerProps[i];
-        let hr;
-
-        td = newCharTr.insertCell(i);
-
-        if (typeof (itemProperty) === "object") {
-            for (let propChild of itemProperty) {
-                const span = document.createElement("span");
-                span.innerHTML = propChild.id;
-
-                hr = document.createElement("hr");
-                td.appendChild(span);
-                td.appendChild(hr);
-            }
-
-            if (hr != null) {
-                td.removeChild(hr);
-            }
-        } else {
-            td.appendChild(document.createTextNode(itemProperty));
-        }
-    }
-}
 
 window.addEventListener("load", async e => {
     const userRole = sessionStorage.getItem("userRole");
@@ -89,7 +21,7 @@ window.addEventListener("load", async e => {
         .then(data => {
             sessionStorage.setItem("pagesCount", data.pagesCount);
             sessionStorage.setItem("currentPage", data.currentPage);
-            displayPlayers(data.items, "players-tbody");
+            utility.displayItems(data.items, "players-tbody");
         });
 
     if (userRole == "0") {
@@ -108,7 +40,7 @@ document.querySelector("#next-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) + 1);
 
-    await getPlayers();
+    await utility.getItems("players");
 });
 
 // load players from the next page
@@ -116,7 +48,7 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) - 1);
 
-    await getPlayers();
+    await utility.getItems("players");
 });
 
 // GET request to find a player
@@ -129,8 +61,8 @@ document.querySelector("#find-player-btn").addEventListener("click", async e => 
     })
         .then(response => response.json())
         .then(data => {
-            displayPlayers([data], "players-tbody");
-            document.querySelector("#all-players-btn").style.display = "inline";
+            utility.displayItems([data], "players-tbody");
+            document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
@@ -194,8 +126,8 @@ document.querySelector("#change-role-btn").addEventListener("click", async e => 
     document.getElementsByClassName(`${playerId}-tr`)[0].children[2].innerHTML = newRole;
 });
 
-document.querySelector("#all-players-btn").addEventListener("click", async e => {
-    await getPlayers();
-    document.querySelector("#all-players-btn").style.display = "none";
+document.querySelector("#all-items-btn").addEventListener("click", async e => {
+    await utility.getItems("players");
+    document.querySelector("#all-items-btn").style.display = "none";
     document.querySelector("#curr-page").style.display = "inline";
 });

@@ -1,5 +1,4 @@
-﻿#register-div, #login-btn, #change-role-div, #prev-btn, #next-btn,
-#all-players-btn, #all-chars-btn, #all-weapons-btn, #all-spells-btn, 
-#all-mounts-btn {
+﻿#register-div, #login-btn, #change-role-div, 
+#prev-btn, #next-btn, #all-items-btn {
     display: none;
 }

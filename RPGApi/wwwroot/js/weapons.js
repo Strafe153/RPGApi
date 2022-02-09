@@ -1,78 +1,9 @@
-﻿const token = sessionStorage.getItem("token");
-const currentPageElem = document.getElementById("curr-page");
+﻿import * as utility from "./site.js";
+
+const token = sessionStorage.getItem("token");
 
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
-
-async function getWeapons() {
-    const currentPage = sessionStorage.getItem("currentPage");
-    const prevButton = document.querySelector("#prev-btn");
-    const nextButton = document.querySelector("#next-btn");
-
-    if (currentPage > 1) {
-        prevButton.style.display = "inline";
-    } else {
-        prevButton.style.display = "none";
-    }
-
-    if (currentPage < sessionStorage.getItem("pagesCount")) {
-        nextButton.style.display = "inline";
-    } else {
-        nextButton.style.display = "none";
-    }
-
-    await fetch(`../api/weapons/page/${currentPage}`, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            currentPageElem.value = sessionStorage.getItem("currentPage");
-            displayWeapons(data.items, "weapons-tbody");
-        });
-}
-
-function displayWeapons(weapons, tbodyId) {
-    const tbody = document.querySelector(`#${tbodyId}`);
-    tbody.innerHTML = "";
-
-    weapons.forEach(w => addCharacterToTable(tbodyId, w.id,
-        w.name, w.type, w.damage, w.characters));
-}
-
-function addCharacterToTable(tbodyId, ...weaponProps) {
-    const tbody = document.querySelector(`#${tbodyId}`);
-    let newWeaponTr = tbody.insertRow();
-    let td;
-
-    newWeaponTr.classList.add(`${weaponProps[0]}-tr`);
-
-    for (let i = 0; i < weaponProps.length; i++) {
-        const itemProperty = weaponProps[i];
-        let hr;
-
-        td = newWeaponTr.insertCell(i);
-
-        if (typeof (itemProperty) === "object") {
-            for (let propChild of itemProperty) {
-                const span = document.createElement("span");
-                span.innerHTML = propChild.id;
-
-                hr = document.createElement("hr");
-                td.appendChild(span);
-                td.appendChild(hr);
-            }
-
-            if (hr != null) {
-                td.removeChild(hr);
-            }
-        } else {
-            td.appendChild(document.createTextNode(itemProperty));
-        }
-    }
-}
 
 window.addEventListener("load", async e => {
     const currentPage = sessionStorage.getItem("currentPage");
@@ -89,7 +20,7 @@ window.addEventListener("load", async e => {
         .then(data => {
             sessionStorage.setItem("pagesCount", data.pagesCount);
             sessionStorage.setItem("currentPage", data.currentPage);
-            displayWeapons(data.items, "weapons-tbody");
+            utility.displayItems(data.items, "weapons-tbody");
         });
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
@@ -102,7 +33,7 @@ document.querySelector("#next-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) + 1);
 
-    await getWeapons();
+    await utility.getItems("weapons");
 });
 
 // load weapons from the next page
@@ -110,7 +41,7 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) - 1);
 
-    await getWeapons();
+    await utility.getItems("weapons");
 });
 
 // GET request to find a weapon
@@ -123,8 +54,8 @@ document.querySelector("#find-weapon-btn").addEventListener("click", async e => 
     })
         .then(response => response.json())
         .then(data => {
-            displayWeapons([data], "weapons-tbody");
-            document.querySelector("#all-weapons-btn").style.display = "inline";
+            utility.displayItems([data], "weapons-tbody");
+            document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
@@ -154,7 +85,7 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
         .then(response => response.json())
         .then(data => weaponId = data["id"]);
 
-    addCharacterToTable("weapons-tbody", weaponId, weaponName, weaponType, weaponDamage, []);
+    utility.addItemToTable("weapons-tbody", weaponId, weaponName, weaponType, weaponDamage, []);
 });
 
 // PUT request to edit a weapon
@@ -221,8 +152,8 @@ document.querySelector("#hit-btn").addEventListener("click", async e => {
     });
 });
 
-document.querySelector("#all-weapons-btn").addEventListener("click", async e => {
-    await getWeapons();
-    document.querySelector("#all-weapons-btn").style.display = "none";
+document.querySelector("#all-items-btn").addEventListener("click", async e => {
+    await utility.getItems("weapons");
+    document.querySelector("#all-items-btn").style.display = "none";
     document.querySelector("#curr-page").style.display = "inline";
 });

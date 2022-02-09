@@ -1,78 +1,9 @@
-﻿const token = sessionStorage.getItem("token");
-const currentPageElem = document.getElementById("curr-page");
+﻿import * as utility from "./site.js";
+
+const token = sessionStorage.getItem("token");
 
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
-
-async function getSpells() {
-    const currentPage = sessionStorage.getItem("currentPage");
-    const prevButton = document.querySelector("#prev-btn");
-    const nextButton = document.querySelector("#next-btn");
-
-    if (currentPage > 1) {
-        prevButton.style.display = "inline";
-    } else {
-        prevButton.style.display = "none";
-    }
-
-    if (currentPage < sessionStorage.getItem("pagesCount")) {
-        nextButton.style.display = "inline";
-    } else {
-        nextButton.style.display = "none";
-    }
-
-    await fetch(`../api/spells/page/${currentPage}`, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            currentPageElem.value = sessionStorage.getItem("currentPage");
-            displaySpells(data.items, "spells-tbody");
-        });
-}
-
-function displaySpells(spells, tbodyId) {
-    const tbody = document.querySelector(`#${tbodyId}`);
-    tbody.innerHTML = "";
-
-    spells.forEach(s => addSpellToTable(tbodyId, s.id,
-        s.name, s.type, s.damage, s.characters));
-}
-
-function addSpellToTable(tbodyId, ...spellProps) {
-    const tbody = document.querySelector(`#${tbodyId}`);
-    let newSpellTr = tbody.insertRow();
-    let td;
-
-    newSpellTr.classList.add(`${spellProps[0]}-tr`);
-
-    for (let i = 0; i < spellProps.length; i++) {
-        const itemProperty = spellProps[i];
-        let hr;
-
-        td = newSpellTr.insertCell(i);
-
-        if (typeof (itemProperty) === "object") {
-            for (let propChild of itemProperty) {
-                const span = document.createElement("span");
-                span.innerHTML = propChild.id;
-
-                hr = document.createElement("hr");
-                td.appendChild(span);
-                td.appendChild(hr);
-            }
-
-            if (hr != null) {
-                td.removeChild(hr);
-            }
-        } else {
-            td.appendChild(document.createTextNode(itemProperty));
-        }
-    }
-}
 
 window.addEventListener("load", async e => {
     const currentPage = sessionStorage.getItem("currentPage");
@@ -89,7 +20,7 @@ window.addEventListener("load", async e => {
         .then(data => {
             sessionStorage.setItem("pagesCount", data.pagesCount);
             sessionStorage.setItem("currentPage", data.currentPage);
-            displaySpells(data.items, "spells-tbody");
+            utility.displayItems(data.items, "spells-tbody");
         });
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
@@ -102,7 +33,7 @@ document.querySelector("#next-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) + 1);
 
-    await getSpells();
+    await utility.getItems("spells");
 });
 
 // load spells from the next page
@@ -110,7 +41,7 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) - 1);
 
-    await getSpells();
+    await utility.getItems("spells");
 });
 
 // GET request to find a spell
@@ -123,8 +54,8 @@ document.querySelector("#find-spell-btn").addEventListener("click", async e => {
     })
         .then(response => response.json())
         .then(data => {
-            displaySpells([data], "spells-tbody");
-            document.querySelector("#all-spells-btn").style.display = "inline";
+            utility.displayItems([data], "spells-tbody");
+            document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
@@ -154,7 +85,7 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
         .then(response => response.json())
         .then(data => spellId = data["id"]);
 
-    addSpellToTable("spells-tbody", spellId, spellName, spellType, spellDamage, []);
+    utility.addItemToTable("spells-tbody", spellId, spellName, spellType, spellDamage, []);
 });
 
 // PUT request to edit a spell
@@ -221,8 +152,8 @@ document.querySelector("#hit-btn").addEventListener("click", async e => {
     });
 });
 
-document.querySelector("#all-spells-btn").addEventListener("click", async e => {
-    await getSpells();
-    document.querySelector("#all-spells-btn").style.display = "none";
+document.querySelector("#all-items-btn").addEventListener("click", async e => {
+    await utility.getItems("spells");
+    document.querySelector("#all-items-btn").style.display = "none";
     document.querySelector("#curr-page").style.display = "inline";
 });

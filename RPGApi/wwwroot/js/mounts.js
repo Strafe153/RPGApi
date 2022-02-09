@@ -1,78 +1,9 @@
-﻿const token = sessionStorage.getItem("token");
-const currentPageElem = document.getElementById("curr-page");
+﻿import * as utility from "./site.js"
+
+const token = sessionStorage.getItem("token");
 
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
-
-async function getMounts() {
-    const currentPage = sessionStorage.getItem("currentPage");
-    const prevButton = document.querySelector("#prev-btn");
-    const nextButton = document.querySelector("#next-btn");
-
-    if (currentPage > 1) {
-        prevButton.style.display = "inline";
-    } else {
-        prevButton.style.display = "none";
-    }
-
-    if (currentPage < sessionStorage.getItem("pagesCount")) {
-        nextButton.style.display = "inline";
-    } else {
-        nextButton.style.display = "none";
-    }
-
-    await fetch(`../api/mounts/page/${currentPage}`, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            currentPageElem.value = sessionStorage.getItem("currentPage");
-            displayMounts(data.items, "mounts-tbody");
-        });
-}
-
-function displayMounts(mounts, tbodyId) {
-    const tbody = document.querySelector(`#${tbodyId}`);
-    tbody.innerHTML = "";
-
-    mounts.forEach(m => addMountToTable(tbodyId, m.id,
-        m.name, m.type, m.speed, m.characters));
-}
-
-function addMountToTable(tbodyId, ...mountProps) {
-    const tbody = document.querySelector(`#${tbodyId}`);
-    let newMountTr = tbody.insertRow();
-    let td;
-
-    newMountTr.classList.add(`${mountProps[0]}-tr`);
-
-    for (let i = 0; i < mountProps.length; i++) {
-        const itemProperty = mountProps[i];
-        let hr;
-
-        td = newMountTr.insertCell(i);
-
-        if (typeof (itemProperty) === "object") {
-            for (let propChild of itemProperty) {
-                const span = document.createElement("span");
-                span.innerHTML = propChild.id;
-
-                hr = document.createElement("hr");
-                td.appendChild(span);
-                td.appendChild(hr);
-            }
-
-            if (hr != null) {
-                td.removeChild(hr);
-            }
-        } else {
-            td.appendChild(document.createTextNode(itemProperty));
-        }
-    }
-}
 
 window.addEventListener("load", async e => {
     const currentPage = sessionStorage.getItem("currentPage");
@@ -89,7 +20,7 @@ window.addEventListener("load", async e => {
         .then(data => {
             sessionStorage.setItem("pagesCount", data.pagesCount);
             sessionStorage.setItem("currentPage", data.currentPage);
-            displayMounts(data.items, "mounts-tbody");
+            utility.displayItems(data.items, "mounts-tbody");
         });
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
@@ -102,7 +33,7 @@ document.querySelector("#next-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) + 1);
 
-    await getMounts();
+    await utility.getItems("mounts");
 });
 
 // load mounts from the next page
@@ -110,7 +41,7 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
     const page = sessionStorage.getItem("currentPage");
     sessionStorage.setItem("currentPage", parseInt(page) - 1);
 
-    await getMounts();
+    await utility.getItems("mounts");
 });
 
 // GET request to find a mount
@@ -123,8 +54,8 @@ document.querySelector("#find-mount-btn").addEventListener("click", async e => {
     })
         .then(response => response.json())
         .then(data => {
-            displayMounts([data], "mounts-tbody");
-            document.querySelector("#all-mounts-btn").style.display = "inline";
+            utility.displayItems([data], "mounts-tbody");
+            document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
@@ -154,7 +85,7 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
         .then(response => response.json())
         .then(data => mountId = data["id"]);
 
-    addMountToTable("mounts-tbody", mountId, mountName, mountType, mountSpeed, []);
+    utility.addItemToTable("mounts-tbody", mountId, mountName, mountType, mountSpeed, []);
 });
 
 // PUT request to edit a mount
@@ -200,8 +131,8 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
     document.getElementsByClassName(`${mountId}-tr`)[0].remove();
 });
 
-document.querySelector("#all-mounts-btn").addEventListener("click", async e => {
-    await getMounts();
-    document.querySelector("#all-mounts-btn").style.display = "none";
+document.querySelector("#all-items-btn").addEventListener("click", async e => {
+    await utility.getItems("mounts");
+    document.querySelector("#all-items-btn").style.display = "none";
     document.querySelector("#curr-page").style.display = "inline";
 });
