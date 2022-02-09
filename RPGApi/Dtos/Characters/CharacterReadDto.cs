@@ -9,10 +9,10 @@ namespace RPGApi.Dtos.Characters
         public CharacterRace Race { get; init; }
         public int Health { get; init; }
 
+        public Guid PlayerId { get; init; }
+
         public ICollection<Weapon>? Weapons { get; init; }
         public ICollection<Spell>? Spells { get; init; }
         public ICollection<Mount>? Mounts { get; init; }
-
-        public Guid PlayerId { get; init; }
     }
 }
