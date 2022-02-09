@@ -54,8 +54,8 @@ document.querySelector("#find-char-btn").addEventListener("click", async e => {
     })
         .then(response => response.json())
         .then(data => {
-            displayCharacters([data], "characters-tbody");
-            document.querySelector("#all-chars-btn").style.display = "inline";
+            utility.displayItems([data], "characters-tbody");
+            document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
@@ -176,8 +176,8 @@ document.querySelector("#add-remove-item-btn").addEventListener("click", async e
     }
 });
 
-document.querySelector("#all-chars-btn").addEventListener("click", async e => {
+document.querySelector("#all-items-btn").addEventListener("click", async e => {
     await utility.getItems("characters");
-    document.querySelector("#all-chars-btn").style.display = "none";
+    document.querySelector("#all-items-btn").style.display = "none";
     document.querySelector("#curr-page").style.display = "inline";
 });

@@ -62,7 +62,7 @@ document.querySelector("#find-player-btn").addEventListener("click", async e => 
         .then(response => response.json())
         .then(data => {
             utility.displayItems([data], "players-tbody");
-            document.querySelector("#all-players-btn").style.display = "inline";
+            document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
@@ -126,8 +126,8 @@ document.querySelector("#change-role-btn").addEventListener("click", async e => 
     document.getElementsByClassName(`${playerId}-tr`)[0].children[2].innerHTML = newRole;
 });
 
-document.querySelector("#all-players-btn").addEventListener("click", async e => {
+document.querySelector("#all-items-btn").addEventListener("click", async e => {
     await utility.getItems("players");
-    document.querySelector("#all-players-btn").style.display = "none";
+    document.querySelector("#all-items-btn").style.display = "none";
     document.querySelector("#curr-page").style.display = "inline";
 });

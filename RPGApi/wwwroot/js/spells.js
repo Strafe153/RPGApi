@@ -55,7 +55,7 @@ document.querySelector("#find-spell-btn").addEventListener("click", async e => {
         .then(response => response.json())
         .then(data => {
             utility.displayItems([data], "spells-tbody");
-            document.querySelector("#all-spells-btn").style.display = "inline";
+            document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
@@ -152,8 +152,8 @@ document.querySelector("#hit-btn").addEventListener("click", async e => {
     });
 });
 
-document.querySelector("#all-spells-btn").addEventListener("click", async e => {
+document.querySelector("#all-items-btn").addEventListener("click", async e => {
     await utility.getItems("spells");
-    document.querySelector("#all-spells-btn").style.display = "none";
+    document.querySelector("#all-items-btn").style.display = "none";
     document.querySelector("#curr-page").style.display = "inline";
 });
