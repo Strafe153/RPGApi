@@ -187,7 +187,7 @@ namespace RPGApi.Controllers
 
             Utility.CalculateHealth(receiver, spell.Damage);
             _charRepo.Update(receiver);
-            _charRepo.LogInformation($"Hit character {receiver.Name} with {spell.Name}");
+            _charRepo.LogInformation($"Hit character {receiver.Name} with spell {spell.Name}");
             await _spellRepo.SaveChangesAsync();
 
             return NoContent();
