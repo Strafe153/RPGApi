@@ -84,6 +84,7 @@ namespace RPGApi.Controllers
             }
 
             _charRepo.Add(character);
+            _charRepo.LogInformation($"Created character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             var readDto = _mapper.Map<CharacterReadDto>(character);
@@ -108,6 +109,7 @@ namespace RPGApi.Controllers
 
             _mapper.Map(updateDto, character);
             _charRepo.Update(character);
+            _charRepo.LogInformation($"Updated character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -139,6 +141,7 @@ namespace RPGApi.Controllers
 
             _mapper.Map(updateDto, character);
             _charRepo.Update(character);
+            _charRepo.LogInformation($"Updated character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -160,6 +163,7 @@ namespace RPGApi.Controllers
             }
 
             _charRepo.Delete(character);
+            _charRepo.LogInformation($"Deleted character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -189,6 +193,7 @@ namespace RPGApi.Controllers
 
             character.Weapons!.Add(weapon);
             _charRepo.Update(character);
+            _charRepo.LogInformation($"Added weapon {weapon.Name} to character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -218,6 +223,7 @@ namespace RPGApi.Controllers
 
             character.Weapons!.Remove(weapon);
             _charRepo.Update(character);
+            _charRepo.LogInformation($"Removed weapon {weapon.Name} to character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -247,6 +253,7 @@ namespace RPGApi.Controllers
 
             character.Spells!.Add(spell);
             _charRepo.Update(character);
+            _charRepo.LogInformation($"Added spell {spell.Name} to character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -276,6 +283,7 @@ namespace RPGApi.Controllers
 
             character.Spells!.Remove(spell);
             _charRepo.Update(character);
+            _charRepo.LogInformation($"Removed spell {spell.Name} to character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -305,6 +313,7 @@ namespace RPGApi.Controllers
 
             character.Mounts!.Add(mount);
             _charRepo.Update(character);
+            _charRepo.LogInformation($"Added moun {mount.Name} to character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
@@ -334,6 +343,7 @@ namespace RPGApi.Controllers
 
             character.Mounts!.Remove(mount);
             _charRepo.Update(character);
+            _charRepo.LogInformation($"Removed mount {mount.Name} to character {character.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();

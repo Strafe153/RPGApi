@@ -6,10 +6,12 @@ namespace RPGApi.Repositories
     public class SpellRepository : IControllerRepository<Spell>
     {
         private readonly DataContext _context;
+        private readonly ILogger _logger;
 
-        public SpellRepository(DataContext context)
+        public SpellRepository(DataContext context, ILogger<SpellRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public void Add(Spell entity)
@@ -34,6 +36,11 @@ namespace RPGApi.Repositories
             return await _context.Spells!
                 .Include(s => s.Characters)
                 .SingleOrDefaultAsync(s => s.Id == id);
+        }
+
+        public void LogInformation(string message)
+        {
+            _logger.LogInformation(message);
         }
 
         public async Task SaveChangesAsync()

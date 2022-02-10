@@ -87,6 +87,7 @@ namespace RPGApi.Controllers
             player.PasswordSalt = passwordSalt;
 
             _playerRepo.Add(player);
+            _playerRepo.LogInformation($"Registered player {player.Name}");
             await _playerRepo.SaveChangesAsync();
 
             var readDto = _mapper.Map<PlayerReadDto>(player);
@@ -115,6 +116,8 @@ namespace RPGApi.Controllers
                 return BadRequest("Incorrect password");
             }
 
+            _playerRepo.LogInformation($"Player {player.Name} logged in");
+
             string token = _playerRepo.CreateToken(player);
 
             var returnDto = _mapper.Map<PlayerWithTokenReadDto>(player);
@@ -141,6 +144,7 @@ namespace RPGApi.Controllers
 
             _mapper.Map(updateDto, player);
             _playerRepo.Update(player);
+            _playerRepo.LogInformation($"Updated player {player.Name}");
             await _playerRepo.SaveChangesAsync();
 
             return NoContent();
@@ -173,6 +177,7 @@ namespace RPGApi.Controllers
 
             _mapper.Map(updateDto, player);
             _playerRepo.Update(player);
+            _playerRepo.LogInformation($"Updated player {player.Name}");
             await _playerRepo.SaveChangesAsync();
 
             return NoContent();
@@ -195,6 +200,7 @@ namespace RPGApi.Controllers
             }
 
             _playerRepo.Delete(player);
+            _playerRepo.LogInformation($"Deleted player {player.Name}");
             await _playerRepo.SaveChangesAsync();
 
             return NoContent();
@@ -213,6 +219,7 @@ namespace RPGApi.Controllers
 
             player.Role = changeDto.Role;
             _playerRepo.Update(player);
+            _playerRepo.LogInformation($"Changed role for {player.Name} to {changeDto.Role}");
             await _playerRepo.SaveChangesAsync();
 
             return NoContent();

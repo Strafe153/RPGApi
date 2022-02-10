@@ -77,6 +77,7 @@ namespace RPGApi.Controllers
             Weapon weapon = _mapper.Map<Weapon>(createDto);
 
             _weaponRepo.Add(weapon);
+            _weaponRepo.LogInformation($"Created weapon {weapon.Name}");
             await _weaponRepo.SaveChangesAsync();
 
             var readDto = _mapper.Map<WeaponReadDto>(weapon);
@@ -97,6 +98,7 @@ namespace RPGApi.Controllers
 
             _mapper.Map(updateDto, weapon);
             _weaponRepo.Update(weapon);
+            _weaponRepo.LogInformation($"Updated weapon {weapon.Name}");
             await _weaponRepo.SaveChangesAsync();
 
             return NoContent();
@@ -124,6 +126,7 @@ namespace RPGApi.Controllers
 
             _mapper.Map(updateDto, weapon);
             _weaponRepo.Update(weapon);
+            _weaponRepo.LogInformation($"Updated weapon {weapon.Name}");
             await _weaponRepo.SaveChangesAsync();
 
             return NoContent();
@@ -141,6 +144,7 @@ namespace RPGApi.Controllers
             }
 
             _weaponRepo.Delete(weapon);
+            _weaponRepo.LogInformation($"Deleted weapon {weapon.Name}");
             await _weaponRepo.SaveChangesAsync();
 
             return NoContent();
@@ -183,6 +187,7 @@ namespace RPGApi.Controllers
 
             Utility.CalculateHealth(receiver, weapon.Damage);
             _charRepo.Update(receiver);
+            _charRepo.LogInformation($"Hit player {receiver.Name} with weapon {weapon.Name}");
             await _charRepo.SaveChangesAsync();
 
             return NoContent();
