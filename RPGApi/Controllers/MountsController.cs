@@ -73,6 +73,7 @@ namespace RPGApi.Controllers
             Mount mount = _mapper.Map<Mount>(createDto);
 
             _mountRepo.Add(mount);
+            _mountRepo.LogInformation($"Created mount {mount.Name}");
             await _mountRepo.SaveChangesAsync();
 
             var readDto = _mapper.Map<MountReadDto>(mount);
@@ -93,6 +94,7 @@ namespace RPGApi.Controllers
 
             _mapper.Map(updateDto, mount);
             _mountRepo.Update(mount);
+            _mountRepo.LogInformation($"Updated mount {mount.Name}");
             await _mountRepo.SaveChangesAsync();
 
             return NoContent();
@@ -120,6 +122,7 @@ namespace RPGApi.Controllers
 
             _mapper.Map(updateDto, mount);
             _mountRepo.Update(mount);
+            _mountRepo.LogInformation($"Updated mount {mount.Name}");
             await _mountRepo.SaveChangesAsync();
 
             return NoContent();
@@ -137,6 +140,7 @@ namespace RPGApi.Controllers
             }
 
             _mountRepo.Delete(mount);
+            _mountRepo.LogInformation($"Deleted mount {mount.Name}");
             await _mountRepo.SaveChangesAsync();
 
             return NoContent();
