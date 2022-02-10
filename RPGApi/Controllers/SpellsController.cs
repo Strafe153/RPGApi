@@ -77,6 +77,7 @@ namespace RPGApi.Controllers
             Spell spell = _mapper.Map<Spell>(createDto);
 
             _spellRepo.Add(spell);
+            _spellRepo.LogInformation($"Created spell {spell.Name}");
             await _spellRepo.SaveChangesAsync();
 
             var readDto = _mapper.Map<SpellReadDto>(spell);
@@ -97,6 +98,7 @@ namespace RPGApi.Controllers
 
             _mapper.Map(updateDto, spell);
             _spellRepo.Update(spell);
+            _spellRepo.LogInformation($"Updated spell {spell.Name}");
             await _spellRepo.SaveChangesAsync();
 
             return NoContent();
@@ -124,6 +126,7 @@ namespace RPGApi.Controllers
 
             _mapper.Map(updateDto, spell);
             _spellRepo.Update(spell);
+            _spellRepo.LogInformation($"Updated spell {spell.Name}");
             await _spellRepo.SaveChangesAsync();
 
             return NoContent();
@@ -141,6 +144,7 @@ namespace RPGApi.Controllers
             }
 
             _spellRepo.Delete(spell);
+            _spellRepo.LogInformation($"Deleted spell {spell.Name}");
             await _spellRepo.SaveChangesAsync();
 
             return NoContent();
@@ -183,6 +187,7 @@ namespace RPGApi.Controllers
 
             Utility.CalculateHealth(receiver, spell.Damage);
             _charRepo.Update(receiver);
+            _charRepo.LogInformation($"Hit character {receiver.Name} with {spell.Name}");
             await _spellRepo.SaveChangesAsync();
 
             return NoContent();
