@@ -5,8 +5,9 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.IdentityModel.Tokens.Jwt;
 using RPGApi.Data;
+using RPGApi.Repositories.Interfaces;
 
-namespace RPGApi.Repositories
+namespace RPGApi.Repositories.Implementations
 {
     public class PlayerRepository : IPlayerControllerRepository
     {

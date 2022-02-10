@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RPGApi.Data;
+using RPGApi.Repositories.Interfaces;
 
-namespace RPGApi.Repositories
+namespace RPGApi.Repositories.Implementations
 {
     public class CharacterRepository : IControllerRepository<Character>
     {
