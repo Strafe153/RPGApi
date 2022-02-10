@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using RPGApi.Data;
 using RPGApi.Dtos;
 using RPGApi.Dtos.Weapons;
-using RPGApi.Repositories;
+using RPGApi.Repositories.Interfaces;
 using AutoMapper;
 
 namespace RPGApi.Controllers

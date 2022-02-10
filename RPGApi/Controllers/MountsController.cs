@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authorization;
 using RPGApi.Dtos;
 using RPGApi.Dtos.Mounts;
-using RPGApi.Repositories;
+using RPGApi.Repositories.Interfaces;
 using AutoMapper;
 
 namespace RPGApi.Controllers

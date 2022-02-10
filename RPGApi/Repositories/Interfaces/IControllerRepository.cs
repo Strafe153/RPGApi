@@ -1,4 +1,4 @@
-﻿namespace RPGApi.Repositories
+﻿namespace RPGApi.Repositories.Interfaces
 {
     public interface IControllerRepository<T>
     {

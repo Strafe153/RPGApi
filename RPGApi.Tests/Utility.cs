@@ -8,7 +8,7 @@ global using RPGApi.Dtos.Weapons;
 global using RPGApi.Dtos.Characters;
 global using RPGApi.Models;
 global using RPGApi.Controllers;
-global using RPGApi.Repositories;
+global using RPGApi.Repositories.Interfaces;
 global using Moq;
 global using Xunit;
 global using AutoMapper;

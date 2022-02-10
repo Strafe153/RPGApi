@@ -4,7 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using RPGApi.Data;
-using RPGApi.Repositories;
+using RPGApi.Repositories.Interfaces;
+using RPGApi.Repositories.Implementations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
