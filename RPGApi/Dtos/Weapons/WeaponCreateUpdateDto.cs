@@ -10,6 +10,8 @@ namespace RPGApi.Dtos.Weapons
         public string? Name { get; init; }
 
         public WeaponType Type { get; init; } = WeaponType.Sword;
+
+        [Range(1, 100)]
         public int? Damage { get; init; } = 30;
     }
 }

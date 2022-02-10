@@ -10,6 +10,8 @@ namespace RPGApi.Dtos.Spells
         public string? Name { get; init; }
 
         public SpellType Type { get; init; } = SpellType.Fire;
+
+        [Range(-100, 100)]
         public int Damage { get; init; } = 15;
     }
 }
