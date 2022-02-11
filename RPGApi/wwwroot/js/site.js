@@ -67,10 +67,17 @@ export function addItemToTable(tbodyId, ...itemProps) {
     }
 }
 
-// displays all the items
+// prints all the items to a table
 export function displayItems(items, tbodyId) {
     const tbody = document.querySelector(`#${tbodyId}`);
     tbody.innerHTML = "";
 
     items.forEach(i => addItemToTable(tbodyId, ...Object.values(i)));
+}
+
+// updates an item value in table
+export function updateItemValue(trElem, ...itemProps) {
+    for (let i = 1; i < itemProps.length + 1; i++) {
+        trElem.children[i].innerHTML = itemProps[i - 1];
+    }
 }
