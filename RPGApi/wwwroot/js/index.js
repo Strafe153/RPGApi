@@ -38,7 +38,7 @@ document.querySelector("#submit-login").addEventListener("click", async e => {
             sessionStorage.setItem("userRole", data.role);
         });
 
-    window.location.href = "../html/home.html";
+    window.location.href = "../html/players.html";
 });
 
 document.querySelector("#submit-register").addEventListener("click", async e => {

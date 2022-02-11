@@ -8,6 +8,15 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
+    <header class="border-bottom">
+        <div class="h-100 align-items-center btn-group d-flex">
+            <a href="players.html" class="col btn btn-dark rounded-0">Players</a>
+            <a href="characters.html" class="col btn btn-dark">Characters</a>
+            <a href="weapons.html" class="col btn btn-dark">Weapons</a>
+            <a href="spells.html" class="col btn btn-dark">Spells</a>
+            <a href="mounts.html" class="col btn btn-dark rounded-0">Mounts</a>
+        </div>
+    </header>
     <div>
         <table class="table table-bordered">
             <thead>
@@ -15,7 +24,7 @@
                     <th class="text-center">Id</th>
                     <th class="text-center">Name</th>
                     <th class="text-center">Type</th>
-                    <th class="text-center">Damage</th>
+                    <th class="text-center">Speed</th>
                     <th class="text-center">Characters</th>
                 </tr>
             </thead>
@@ -44,15 +53,15 @@
         <div class="ml-3 p-2 border border-secondary rounded w-1 d-inline-block">
             <div class="form-group">
                 <label for="create-name">Name</label>
-                <input id="create-name" class="form-control" type="text" />
+                <input id="create-name" class="form-control" type="text" placeholder="Length (1...20)" />
             </div>
             <div class="form-group">
                 <label for="create-type">Type</label>
-                <input id="create-type" class="form-control" type="number" />
+                <input id="create-type" class="form-control" type="number" placeholder="0...10" />
             </div>
             <div class="form-group">
                 <label for="create-speed">Speed</label>
-                <input id="create-speed" class="form-control" type="number" />
+                <input id="create-speed" class="form-control" type="number" placeholder="1...50" />
             </div>
 
             <input id="create-btn" class="btn btn-success" type="submit" value="Create" />

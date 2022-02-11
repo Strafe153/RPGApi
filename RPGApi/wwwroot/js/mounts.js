@@ -54,6 +54,11 @@ document.querySelector("#find-mount-btn").addEventListener("click", async e => {
     })
         .then(response => response.json())
         .then(data => {
+            if (data.status == 404) {
+                alert("The mount with the provided id does not exist");
+                return;
+            }
+
             utility.displayItems([data], "mounts-tbody");
             document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
@@ -65,9 +70,16 @@ document.querySelector("#find-mount-btn").addEventListener("click", async e => {
 // POST request to create a mount
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const mountName = document.querySelector("#create-name").value;
-    const mountType = document.querySelector("#create-type").value;
-    const mountSpeed = document.querySelector("#create-speed").value;
-    let mountId;
+    let mountType = document.querySelector("#create-type").value;
+    let mountSpeed = document.querySelector("#create-speed").value;
+
+    if (mountType == "" || mountType > 10 || mountType < 0) {
+        mountType = 0;
+    }
+
+    if (mountSpeed == "") {
+        mountSpeed = 8;
+    }
 
     await fetch("../api/mounts", {
         method: "POST",
@@ -83,9 +95,14 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
         })
     })
         .then(response => response.json())
-        .then(data => mountId = data["id"]);
+        .then(data => {
+            if (data.status == 400) {
+                alert("The data you provided is incorrect");
+                return;
+            }
 
-    utility.addItemToTable("mounts-tbody", mountId, mountName, mountType, mountSpeed, []);
+            utility.addItemToTable("mounts-tbody", data["id"], mountName, mountType, mountSpeed, []);
+        });
 });
 
 // PUT request to edit a mount
