@@ -8,28 +8,31 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
-    <div id="login-div">
-        <label for="login-username">Username:</label>
-        <input id="login-username" type="text" />
-        <br />
-        <label for="login-password">Password:</label>
-        <input id="login-password" type="password" />
-        <br />
-        <input class="btn btn-primary" type="submit" id="submit-login" value="Login" />
+    <div id="login-div" class="d-flex vh-100 justify-content-center align-items-center border border-dark">
+        <div class="form-group">
+            <label for="login-username">Username</label>
+            <input id="login-username" type="text" class="form-control mb-3" />
+
+            <label for="login-password">Password</label>
+            <input id="login-password" type="password" class="form-control mb-3" />
+
+            <input class="btn btn-primary w-100 mb-3" type="submit" id="submit-login" value="Login" />
+            <button class="btn btn-sm btn-link w-100" id="register-btn" onclick="showRegisterForm()">Sign Up</button>
+        </div>
     </div>
 
-    <div id="register-div">
-        <label for="register-username">Username:</label>
-        <input id="register-username" type="text" />
-        <br />
-        <label for="register-password">Password:</label>
-        <input id="register-password" type="password" />
-        <br />
-        <input class="btn btn-primary" type="submit" id="submit-register" value="Sign Up" />
-    </div>
+    <div id="register-div" class="d-none vh-100 justify-content-center align-items-center border border-dark">
+        <div class="form-group">
+            <label for="register-username">Username</label>
+            <input id="register-username" type="text" class="form-control mb-3" />
 
-    <button id="register-btn" onclick="showRegisterForm()" class="btn btn-sm btn-link">Sign Up</button>
-    <button id="login-btn" onclick="showLoginForm()" class="btn btn-sm btn-link">Log In</button>
+            <label for="register-password">Password</label>
+            <input id="register-password" type="password" class="form-control mb-3" />
+
+            <input class="btn btn-primary w-100 mb-3" type="submit" id="submit-register" value="Sign Up" />
+            <button class="btn btn-sm btn-link w-100" id="login-btn" onclick="showLoginForm()">Login</button>
+        </div>
+    </div>
 
     <script src="js/index.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
