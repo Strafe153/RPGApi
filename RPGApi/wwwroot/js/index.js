@@ -17,6 +17,7 @@ function showLoginForm() {
     loginDiv.classList.add("d-flex");
 }
 
+// logins a user and redirects to Players
 document.querySelector("#submit-login").addEventListener("click", async e => {
     const loginUsername = document.querySelector("#login-username").value;
     const loginPassword = document.querySelector("#login-password").value;
@@ -32,16 +33,23 @@ document.querySelector("#submit-login").addEventListener("click", async e => {
             password: loginPassword
         })
     })
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("Incorrect login and/or password");
+            }
+        })
         .then(data => {
             sessionStorage.setItem("token", data.token);
             sessionStorage.setItem("userRole", data.role);
             sessionStorage.setItem("username", loginUsername);
-        });
-
-    window.location.href = "../html/players.html";
+            window.location.href = "../html/players.html";
+        })
+        .catch(error => alert(error.message));
 });
 
+// registers a new user
 document.querySelector("#submit-register").addEventListener("click", async e => {
     const registerUsername = document.querySelector("#register-username").value;
     const registerPassword = document.querySelector("#register-password").value;
@@ -57,6 +65,12 @@ document.querySelector("#submit-register").addEventListener("click", async e => 
             password: registerPassword
         })
     })
-        .then(response => response.json())
-        .then(() => showLoginForm());
+        .then(response => {
+            if (response.ok) {
+                showLoginForm();
+            } else {
+                throw new Error("The username is already taken");
+            }
+        })
+        .catch(error => alert(error.message));
 });

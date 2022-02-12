@@ -60,14 +60,26 @@ document.querySelector("#find-player-btn").addEventListener("click", async e => 
             "Authorization": `Bearer ${token}`
         }
     })
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok) {
+                if (response.url.endsWith("/")) {
+                    throw new Error("Id is not provided");
+                }
+
+                return response.json();
+            } else {
+                throw new Error("The user with the provided id does not exist");
+            }
+        })
         .then(data => {
             utility.displayItems([data], "players-tbody");
+
             document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
-        });
+        })
+        .catch(error => alert(error.message));
 });
 
 // PUT request to update a player
@@ -85,9 +97,15 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
         body: JSON.stringify({
             name: newName
         })
-    });
-
-    document.getElementsByClassName(`${playerId}-tr`)[0].children[1].innerHTML = newName;
+    })
+        .then(response => {
+            if (response.ok) {
+                document.getElementsByClassName(`${playerId}-tr`)[0].children[1].innerHTML = newName;
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 // DELETE request to delete a player
@@ -101,15 +119,25 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         }
-    });
-
-    document.getElementsByClassName(`${playerId}-tr`)[0].remove();
+    })
+        .then(response => {
+            if (response.ok) {
+                document.getElementsByClassName(`${playerId}-tr`)[0].remove();
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 // POST request to change a player's role
 document.querySelector("#change-role-btn").addEventListener("click", async e => {
     const playerId = document.getElementById("change-role-id").value;
-    const newRole = document.getElementById("change-role-value").value;
+    let newRole = document.getElementById("change-role-value").value;
+
+    if (newRole == "" || newRole < 0 || newRole > 1) {
+        newRole = 1;
+    }
 
     await fetch("../api/players/changeRole", {
         method: "POST",
@@ -122,9 +150,15 @@ document.querySelector("#change-role-btn").addEventListener("click", async e => 
             id: playerId,
             role: newRole
         })
-    });
-
-    document.getElementsByClassName(`${playerId}-tr`)[0].children[2].innerHTML = newRole;
+    })
+        .then(response => {
+            if (response.ok) {
+                document.getElementsByClassName(`${playerId}-tr`)[0].children[2].innerHTML = newRole;
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 document.querySelector("#all-items-btn").addEventListener("click", async e => {
