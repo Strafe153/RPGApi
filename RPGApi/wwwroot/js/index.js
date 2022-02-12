@@ -36,6 +36,7 @@ document.querySelector("#submit-login").addEventListener("click", async e => {
         .then(data => {
             sessionStorage.setItem("token", data.token);
             sessionStorage.setItem("userRole", data.role);
+            sessionStorage.setItem("username", loginUsername);
         });
 
     window.location.href = "../html/players.html";

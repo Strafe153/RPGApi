@@ -8,6 +8,7 @@ sessionStorage.setItem("currentPage", 1);
 window.addEventListener("load", async e => {
     const currentPage = sessionStorage.getItem("currentPage");
 
+    document.querySelector("#log-out-btn").innerHTML = `Log Out (${sessionStorage.getItem("username")})`;
     document.getElementById("curr-page").value = currentPage;
 
     await fetch(`../api/spells/page/${currentPage}`, {

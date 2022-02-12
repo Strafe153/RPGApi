@@ -9,6 +9,7 @@ window.addEventListener("load", async e => {
     const userRole = sessionStorage.getItem("userRole");
     const currentPage = sessionStorage.getItem("currentPage");
 
+    document.querySelector("#log-out-btn").innerHTML = `Log Out (${sessionStorage.getItem("username")})`;
     document.getElementById("curr-page").value = currentPage;
 
     await fetch(`../api/players/page/${currentPage}`, {
