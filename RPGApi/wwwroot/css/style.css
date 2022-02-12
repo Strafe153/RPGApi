@@ -1,4 +1,3 @@
-﻿#register-div, #login-btn, #change-role-div, 
-#prev-btn, #next-btn, #all-items-btn {
+﻿#change-role-div, #prev-btn, #next-btn, #all-items-btn {
     display: none;
 }

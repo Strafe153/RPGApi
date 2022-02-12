@@ -4,17 +4,17 @@ const registerBtn = document.querySelector("#register-btn");
 const loginBtn = document.querySelector("#login-btn");
 
 function showRegisterForm() {
-    registerDiv.style.display = "block";
-    registerBtn.style.display = "none";
-    loginDiv.style.display = "none";
-    loginBtn.style.display = "inline";
+    registerDiv.classList.remove("d-none");
+    registerDiv.classList.add("d-flex");
+    loginDiv.classList.remove("d-flex");
+    loginDiv.classList.add("d-none");
 }
 
 function showLoginForm() {
-    registerDiv.style.display = "none";
-    registerBtn.style.display = "inline";
-    loginDiv.style.display = "block";
-    loginBtn.style.display = "none";
+    registerDiv.classList.remove("d-flex");
+    registerDiv.classList.add("d-none");
+    loginDiv.classList.remove("d-none");
+    loginDiv.classList.add("d-flex");
 }
 
 document.querySelector("#submit-login").addEventListener("click", async e => {
