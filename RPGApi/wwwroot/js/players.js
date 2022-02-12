@@ -62,6 +62,10 @@ document.querySelector("#find-player-btn").addEventListener("click", async e => 
     })
         .then(response => {
             if (response.ok) {
+                if (response.url.endsWith("/")) {
+                    throw new Error("Id is not provided");
+                }
+
                 return response.json();
             } else {
                 throw new Error("The user with the provided id does not exist");
@@ -120,7 +124,7 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
             if (response.ok) {
                 document.getElementsByClassName(`${playerId}-tr`)[0].remove();
             } else {
-                throw new Error("Not enough rights");
+                throw new Error("You provided incorrect data");
             }
         })
         .catch(error => alert(error.message));
@@ -131,7 +135,7 @@ document.querySelector("#change-role-btn").addEventListener("click", async e => 
     const playerId = document.getElementById("change-role-id").value;
     let newRole = document.getElementById("change-role-value").value;
 
-    if (newRole < 0 || newRole > 1) {
+    if (newRole == "" || newRole < 0 || newRole > 1) {
         newRole = 1;
     }
 
@@ -146,9 +150,15 @@ document.querySelector("#change-role-btn").addEventListener("click", async e => 
             id: playerId,
             role: newRole
         })
-    });
-
-    document.getElementsByClassName(`${playerId}-tr`)[0].children[2].innerHTML = newRole;
+    })
+        .then(response => {
+            if (response.ok) {
+                document.getElementsByClassName(`${playerId}-tr`)[0].children[2].innerHTML = newRole;
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 document.querySelector("#all-items-btn").addEventListener("click", async e => {

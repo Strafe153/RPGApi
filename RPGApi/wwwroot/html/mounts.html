@@ -51,51 +51,53 @@
             <input id="find-mount-btn" class="btn btn-primary" type="submit" value="Find" />
         </div>
 
-        <div class="ml-3 p-2 border border-secondary rounded w-1 d-inline-block">
-            <div class="form-group">
-                <label for="create-name">Name</label>
-                <input id="create-name" class="form-control" type="text" placeholder="Length (1...20)" />
-            </div>
-            <div class="form-group">
-                <label for="create-type">Type</label>
-                <input id="create-type" class="form-control" type="number" placeholder="0...10" />
-            </div>
-            <div class="form-group">
-                <label for="create-speed">Speed</label>
-                <input id="create-speed" class="form-control" type="number" placeholder="1...50" />
+        <div id="manage-div" class="d-none align-items-start justify-content-center">
+            <div class="ml-3 p-2 border border-secondary rounded w-1 d-inline-block">
+                <div class="form-group">
+                    <label for="create-name">Name</label>
+                    <input id="create-name" class="form-control" type="text" placeholder="Length (1...20)" />
+                </div>
+                <div class="form-group">
+                    <label for="create-type">Type</label>
+                    <input id="create-type" class="form-control" type="number" placeholder="0...10 (default 0)" />
+                </div>
+                <div class="form-group">
+                    <label for="create-speed">Speed</label>
+                    <input id="create-speed" class="form-control" type="number" placeholder="1...50 (default 8)" />
+                </div>
+
+                <input id="create-btn" class="btn btn-success" type="submit" value="Create" />
             </div>
 
-            <input id="create-btn" class="btn btn-success" type="submit" value="Create" />
-        </div>
+            <div class="ml-3 p-2 border border-secondary rounded w-1 d-inline-block">
+                <div class="form-group">
+                    <label for="edit-id">Id</label>
+                    <input id="edit-id" class="form-control" type="text" />
+                </div>
+                <div class="form-group">
+                    <label for="edit-name">Name</label>
+                    <input id="edit-name" class="form-control" type="text" placeholder="Length (1...20)" />
+                </div>
+                <div class="form-group">
+                    <label for="edit-type">Type</label>
+                    <input id="edit-type" class="form-control" type="number" placeholder="0...10 (default 0)" />
+                </div>
+                <div class="form-group">
+                    <label for="edit-speed">Speed</label>
+                    <input id="edit-speed" class="form-control" type="number" placeholder="1...50 (default 8)" />
+                </div>
 
-        <div class="ml-3 p-2 border border-secondary rounded w-1 d-inline-block">
-            <div class="form-group">
-                <label for="edit-id">Id</label>
-                <input id="edit-id" class="form-control" type="text" />
-            </div>
-            <div class="form-group">
-                <label for="edit-name">Name</label>
-                <input id="edit-name" class="form-control" type="text" placeholder="Length (1...20)" />
-            </div>
-            <div class="form-group">
-                <label for="edit-type">Type</label>
-                <input id="edit-type" class="form-control" type="number" placeholder="0...10" />
-            </div>
-            <div class="form-group">
-                <label for="edit-speed">Speed</label>
-                <input id="edit-speed" class="form-control" type="number" placeholder="1...50" />
-            </div>
-
-            <input id="edit-btn" class="btn btn-info" type="submit" value="Edit" />
-        </div>
-
-        <div class="ml-3 p-2 border border-secondary rounded w-1 d-inline-block">
-            <div class="form-group">
-                <label for="del-id">Id</label>
-                <input id="del-id" class="form-control" type="text" />
+                <input id="edit-btn" class="btn btn-info" type="submit" value="Edit" />
             </div>
 
-            <input id="del-btn" class="btn btn-danger" type="submit" value="Delete" />
+            <div class="ml-3 p-2 border border-secondary rounded w-1 d-inline-block">
+                <div class="form-group">
+                    <label for="del-id">Id</label>
+                    <input id="del-id" class="form-control" type="text" />
+                </div>
+
+                <input id="del-btn" class="btn btn-danger" type="submit" value="Delete" />
+            </div>
         </div>
     </div>
 

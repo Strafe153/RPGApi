@@ -6,6 +6,7 @@ const token = sessionStorage.getItem("token");
 sessionStorage.setItem("currentPage", 1);
 
 window.addEventListener("load", async e => {
+    const userRole = sessionStorage.getItem("userRole");
     const currentPage = sessionStorage.getItem("currentPage");
 
     document.querySelector("#log-out-btn").innerHTML = `Log Out (${sessionStorage.getItem("username")})`;
@@ -23,6 +24,12 @@ window.addEventListener("load", async e => {
             sessionStorage.setItem("currentPage", data.currentPage);
             utility.displayItems(data.items, "mounts-tbody");
         });
+
+    if (userRole == "0") {
+        const manageDiv = document.querySelector("#manage-div");
+        manageDiv.classList.remove("d-none");
+        manageDiv.classList.add("d-flex");
+    }
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
         document.querySelector("#next-btn").style.display = "inline";
@@ -53,19 +60,26 @@ document.querySelector("#find-mount-btn").addEventListener("click", async e => {
             "Authorization": `Bearer ${token}`
         }
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status == 404) {
-                alert("The mount with the provided id does not exist");
-                return;
-            }
+        .then(response => {
+            if (response.ok) {
+                if (response.url.endsWith("/")) {
+                    throw new Error("Id is not provided");
+                }
 
+                return response.json();
+            } else {
+                throw new Error("The mount with the provided id does not exist");
+            }
+        })
+        .then(data => {
             utility.displayItems([data], "mounts-tbody");
+
             document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
-        });
+        })
+        .catch(error => alert(error.message));
 });
 
 // POST request to create a mount
@@ -95,15 +109,15 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
             speed: mountSpeed
         })
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status == 400) {
-                alert("The data you provided is incorrect");
-                return;
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("You provided incorrect data");
             }
-
-            utility.addItemToTable("mounts-tbody", data["id"], mountName, mountType, mountSpeed, []);
-        });
+        })
+        .then(data => utility.addItemToTable("mounts-tbody", data["id"], mountName, mountType, mountSpeed, []))
+        .catch(error => alert(error.message));
 });
 
 // PUT request to edit a mount
@@ -111,8 +125,16 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
     const mountId = document.getElementById("edit-id").value;
     const mountTr = document.getElementsByClassName(`${mountId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
-    const newType = document.getElementById("edit-type").value;
-    const newSpeed = document.getElementById("edit-speed").value;
+    let newType = document.getElementById("edit-type").value;
+    let newSpeed = document.getElementById("edit-speed").value;
+
+    if (newType == "" || newType > 10 || newType < 0) {
+        newType = 0;
+    }
+
+    if (newSpeed == "") {
+        newSpeed = 8;
+    }
 
     await fetch(`../api/mounts/${mountId}`, {
         method: "PUT",
@@ -126,11 +148,17 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
             type: newType,
             speed: newSpeed
         })
-    });
-
-    mountTr.children[1].innerHTML = newName;
-    mountTr.children[2].innerHTML = newType;
-    mountTr.children[3].innerHTML = newSpeed;
+    })
+        .then(response => {
+            if (response.ok) {
+                mountTr.children[1].innerHTML = newName;
+                mountTr.children[2].innerHTML = newType;
+                mountTr.children[3].innerHTML = newSpeed;
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 // DELETE request to delete a spell
@@ -144,9 +172,15 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         }
-    });
-
-    document.getElementsByClassName(`${mountId}-tr`)[0].remove();
+    })
+        .then(response => {
+            if (response.ok) {
+                document.getElementsByClassName(`${mountId}-tr`)[0].remove();
+            } else {
+                throw new Error("You provided incorrect id");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 document.querySelector("#all-items-btn").addEventListener("click", async e => {
