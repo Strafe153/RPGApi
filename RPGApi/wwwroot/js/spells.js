@@ -85,12 +85,8 @@ document.querySelector("#find-spell-btn").addEventListener("click", async e => {
 // POST request to create a spell
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const spellName = document.querySelector("#create-name").value;
-    let spellType = document.querySelector("#create-type").value;
+    const spellType = document.querySelector("#create-type").value;
     let spellDamage = document.querySelector("#create-damage").value;
-
-    if (spellType == "" || spellType > 10 || spellType < 0) {
-        spellType = 0;
-    }
 
     if (spellDamage == "") {
         spellDamage = 15;
@@ -125,12 +121,8 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
     const spellId = document.getElementById("edit-id").value;
     const spellTr = document.getElementsByClassName(`${spellId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
-    let newType = document.getElementById("edit-type").value;
+    const newType = document.getElementById("edit-type").value;
     let newDamage = document.getElementById("edit-damage").value;
-
-    if (newType == "" || newType > 10 || newType < 0) {
-        newType = 0;
-    }
 
     if (newDamage == "") {
         newDamage = 15;

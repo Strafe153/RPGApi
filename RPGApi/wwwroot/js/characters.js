@@ -89,11 +89,7 @@ document.querySelector("#find-char-btn").addEventListener("click", async e => {
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const charName = document.querySelector("#create-name").value;
     const charPlayerId = document.querySelector("#create-player-id").value;
-    let charRace = document.querySelector("#create-race").value;
-
-    if (charRace == "" || charRace > 20 || charRace < 0) {
-        charRace = 0;
-    }
+    const charRace = document.querySelector("#create-race").value;
 
     await fetch("../api/characters", {
         method: "POST",
@@ -125,11 +121,7 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
     const charId = document.getElementById("edit-id").value;
     const charTr = document.getElementsByClassName(`${charId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
-    let newRace = document.getElementById("edit-race").value;
-
-    if (newRace == "" || newRace > 20 || newRace < 0) {
-        newRace = 0;
-    }
+    const newRace = document.getElementById("edit-race").value;
 
     await fetch(`../api/characters/${charId}`, {
         method: "PUT",

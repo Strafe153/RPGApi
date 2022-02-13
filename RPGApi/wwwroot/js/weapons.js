@@ -85,12 +85,8 @@ document.querySelector("#find-weapon-btn").addEventListener("click", async e => 
 // POST request to create a weapon
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const weaponName = document.querySelector("#create-name").value;
-    let weaponType = document.querySelector("#create-type").value;
+    const weaponType = document.querySelector("#create-type").value;
     let weaponDamage = document.querySelector("#create-damage").value;
-
-    if (weaponType == "" || weaponType > 14 || weaponType < 0) {
-        weaponType = 0;
-    }
 
     if (weaponDamage == "") {
         weaponDamage = 30;
@@ -125,12 +121,8 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
     const weaponId = document.getElementById("edit-id").value;
     const weaponTr = document.getElementsByClassName(`${weaponId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
-    let newType = document.getElementById("edit-type").value;
+    const newType = document.getElementById("edit-type").value;
     let newDamage = document.getElementById("edit-damage").value;
-
-    if (newType == "" || newType > 14 || newType < 0) {
-        newType = 0;
-    }
 
     if (newDamage == "") {
         newDamage = 30;
