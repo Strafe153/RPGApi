@@ -30,13 +30,13 @@ export async function getItems(itemNames) {
         .then(response => response.json())
         .then(data => {
             currentPageElem.value = sessionStorage.getItem("currentPage");
-            displayItems(data.items, `${itemNames}-tbody`);
+            displayItems(data.items);
         });
 }
 
 // adds an item to a table
-export function addItemToTable(tbodyId, ...itemProps) {
-    const tbody = document.querySelector(`#${tbodyId}`);
+export function addItemToTable(...itemProps) {
+    const tbody = document.getElementsByTagName("tbody")[0];
     let newItemTr = tbody.insertRow();
     let td;
 
@@ -68,11 +68,11 @@ export function addItemToTable(tbodyId, ...itemProps) {
 }
 
 // prints all the items to a table
-export function displayItems(items, tbodyId) {
-    const tbody = document.querySelector(`#${tbodyId}`);
+export function displayItems(items) {
+    const tbody = document.getElementsByTagName("tbody")[0];
     tbody.innerHTML = "";
 
-    items.forEach(i => addItemToTable(tbodyId, ...Object.values(i)));
+    items.forEach(i => addItemToTable(...Object.values(i)));
 }
 
 // updates an item value in table
