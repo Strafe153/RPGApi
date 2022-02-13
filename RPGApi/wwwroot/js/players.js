@@ -22,7 +22,7 @@ window.addEventListener("load", async e => {
         .then(data => {
             sessionStorage.setItem("pagesCount", data.pagesCount);
             sessionStorage.setItem("currentPage", data.currentPage);
-            utility.displayItems(data.items, "players-tbody");
+            utility.displayItems(data.items);
         });
 
     if (userRole == "0") {
@@ -72,7 +72,7 @@ document.querySelector("#find-btn").addEventListener("click", async e => {
             }
         })
         .then(data => {
-            utility.displayItems([data], "players-tbody");
+            utility.displayItems([data]);
 
             document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";

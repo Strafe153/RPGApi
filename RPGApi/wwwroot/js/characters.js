@@ -22,7 +22,7 @@ window.addEventListener("load", async e => {
         .then(data => {
             sessionStorage.setItem("pagesCount", data.pagesCount);
             sessionStorage.setItem("currentPage", data.currentPage);
-            utility.displayItems(data.items, "characters-tbody");
+            utility.displayItems(data.items);
         });
 
     if (userRole == "0") {
@@ -75,7 +75,7 @@ document.querySelector("#find-btn").addEventListener("click", async e => {
             }
         })
         .then(data => {
-            utility.displayItems([data], "characters-tbody");
+            utility.displayItems([data]);
 
             document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
@@ -111,8 +111,8 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
                 throw new Error("You provided incorrect data");
             }
         })
-        .then(data => utility.addItemToTable("characters-tbody", data["id"],
-            charName, charRace, 100, charPlayerId, [], [], []))
+        .then(data => utility.addItemToTable(data["id"], charName,
+            charRace, 100, charPlayerId, [], [], []))
         .catch(error => alert(error.message));
 });
 
