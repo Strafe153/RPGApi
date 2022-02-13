@@ -6,6 +6,7 @@ const token = sessionStorage.getItem("token");
 sessionStorage.setItem("currentPage", 1);
 
 window.addEventListener("load", async e => {
+    const userRole = sessionStorage.getItem("userRole");
     const currentPage = sessionStorage.getItem("currentPage");
 
     document.querySelector("#log-out-btn").innerHTML = `Log Out (${sessionStorage.getItem("username")})`;
@@ -23,6 +24,12 @@ window.addEventListener("load", async e => {
             sessionStorage.setItem("currentPage", data.currentPage);
             utility.displayItems(data.items, "weapons-tbody");
         });
+
+    if (userRole == "0") {
+        const manageDiv = document.querySelector("#manage-div");
+        manageDiv.classList.remove("d-none");
+        manageDiv.classList.add("d-flex");
+    }
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
         document.querySelector("#next-btn").style.display = "inline";
@@ -46,29 +53,44 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
 });
 
 // GET request to find a weapon
-document.querySelector("#find-weapon-btn").addEventListener("click", async e => {
-    await fetch(`../api/weapons/${document.getElementById("find-weapon-id").value}`, {
+document.querySelector("#find-btn").addEventListener("click", async e => {
+    await fetch(`../api/weapons/${document.getElementById("find-id").value}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
         }
     })
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok) {
+                if (response.url.endsWith("/")) {
+                    throw new Error("Id is not provided");
+                }
+
+                return response.json();
+            } else {
+                throw new Error("The weapon with the provided id does not exist");
+            }
+        })
         .then(data => {
             utility.displayItems([data], "weapons-tbody");
+
             document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
-        });
+        })
+        .catch(error => alert(error.message));
 });
 
 // POST request to create a weapon
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const weaponName = document.querySelector("#create-name").value;
     const weaponType = document.querySelector("#create-type").value;
-    const weaponDamage = document.querySelector("#create-damage").value;
-    let weaponId;
+    let weaponDamage = document.querySelector("#create-damage").value;
+
+    if (weaponDamage == "") {
+        weaponDamage = 30;
+    }
 
     await fetch("../api/weapons", {
         method: "POST",
@@ -83,10 +105,15 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
             damage: weaponDamage
         })
     })
-        .then(response => response.json())
-        .then(data => weaponId = data["id"]);
-
-    utility.addItemToTable("weapons-tbody", weaponId, weaponName, weaponType, weaponDamage, []);
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .then(data => utility.addItemToTable("weapons-tbody", data["id"], weaponName, weaponType, weaponDamage, []))
+        .catch(error => alert(error.message));
 });
 
 // PUT request to edit a weapon
@@ -95,7 +122,11 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
     const weaponTr = document.getElementsByClassName(`${weaponId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
     const newType = document.getElementById("edit-type").value;
-    const newDamage = document.getElementById("edit-damage").value;
+    let newDamage = document.getElementById("edit-damage").value;
+
+    if (newDamage == "") {
+        newDamage = 30;
+    }
 
     await fetch(`../api/weapons/${weaponId}`, {
         method: "PUT",
@@ -109,11 +140,17 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
             type: newType,
             damage: newDamage
         })
-    });
-
-    weaponTr.children[1].innerHTML = newName;
-    weaponTr.children[2].innerHTML = newType;
-    weaponTr.children[3].innerHTML = newDamage;
+    })
+        .then(response => {
+            if (response.ok) {
+                weaponTr.children[1].innerHTML = newName;
+                weaponTr.children[2].innerHTML = newType;
+                weaponTr.children[3].innerHTML = newDamage;
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 // DELETE request to delete a weapon
@@ -127,9 +164,15 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         }
-    });
-
-    document.getElementsByClassName(`${weaponId}-tr`)[0].remove();
+    })
+        .then(response => {
+            if (response.ok) {
+                document.getElementsByClassName(`${weaponId}-tr`)[0].remove();
+            } else {
+                throw new Error("You provided incorrect id");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 // PUT request to hit a character
@@ -150,7 +193,13 @@ document.querySelector("#hit-btn").addEventListener("click", async e => {
             receiverId: receiver,
             itemId: item
         })
-    });
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 document.querySelector("#all-items-btn").addEventListener("click", async e => {

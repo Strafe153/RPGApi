@@ -6,6 +6,7 @@ const token = sessionStorage.getItem("token");
 sessionStorage.setItem("currentPage", 1);
 
 window.addEventListener("load", async e => {
+    const userRole = sessionStorage.getItem("userRole");
     const currentPage = sessionStorage.getItem("currentPage");
 
     document.querySelector("#log-out-btn").innerHTML = `Log Out (${sessionStorage.getItem("username")})`;
@@ -23,6 +24,15 @@ window.addEventListener("load", async e => {
             sessionStorage.setItem("currentPage", data.currentPage);
             utility.displayItems(data.items, "characters-tbody");
         });
+
+    if (userRole == "0") {
+        const manageDivs = document.querySelectorAll(".manage-div");
+
+        for (let div of manageDivs) {
+            div.classList.remove("d-none");
+            div.classList.add("d-flex");
+        }
+    }
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
         document.querySelector("#next-btn").style.display = "inline";
@@ -46,29 +56,40 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
 });
 
 // GET request to find a character
-document.querySelector("#find-char-btn").addEventListener("click", async e => {
-    await fetch(`../api/characters/${document.getElementById("find-char-id").value}`, {
+document.querySelector("#find-btn").addEventListener("click", async e => {
+    await fetch(`../api/characters/${document.getElementById("find-id").value}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
         }
     })
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok) {
+                if (response.url.endsWith("/")) {
+                    throw new Error("Id is not provided");
+                }
+
+                return response.json();
+            } else {
+                throw new Error("The character with the provided id does not exist");
+            }
+        })
         .then(data => {
             utility.displayItems([data], "characters-tbody");
+
             document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
-        });
+        })
+        .catch(error => alert(error.message));
 });
 
 // POST request to create a character
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const charName = document.querySelector("#create-name").value;
-    const charRace = document.querySelector("#create-race").value;
     const charPlayerId = document.querySelector("#create-player-id").value;
-    let charId;
+    const charRace = document.querySelector("#create-race").value;
 
     await fetch("../api/characters", {
         method: "POST",
@@ -83,10 +104,16 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
             playerId: charPlayerId
         })
     })
-        .then(response => response.json())
-        .then(data => charId = data["id"]);
-
-    utility.addItemToTable("characters-tbody", charId, charName, charRace, 100, charPlayerId, [], [], []);
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .then(data => utility.addItemToTable("characters-tbody", data["id"],
+            charName, charRace, 100, charPlayerId, [], [], []))
+        .catch(error => alert(error.message));
 });
 
 // PUT request to edit a character
@@ -107,10 +134,16 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
             name: newName,
             race: newRace
         })
-    });
-
-    charTr.children[1].innerHTML = newName;
-    charTr.children[2].innerHTML = newRace;
+    })
+        .then(response => {
+            if (response.ok) {
+                charTr.children[1].innerHTML = newName;
+                charTr.children[2].innerHTML = newRace;
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 // DELETE request to delete a character
@@ -124,9 +157,15 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         }
-    });
-
-    document.getElementsByClassName(`${charId}-tr`)[0].remove();
+    })
+        .then(response => {
+            if (response.ok) {
+                document.getElementsByClassName(`${charId}-tr`)[0].remove();
+            } else {
+                throw new Error("You provided incorrect id");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 // PUT request to add an item to a character
@@ -149,32 +188,38 @@ document.querySelector("#add-remove-item-btn").addEventListener("click", async e
             characterId: charId,
             itemId: itemId
         })
-    });
+    })
+        .then(response => {
+            if (response.ok) {
+                if (itemType == "weapon") {
+                    itemTd = charTr.children[charTr.children.length - 3];
+                } else if (itemType == "spell") {
+                    itemTd = charTr.children[charTr.children.length - 2];
+                } else {
+                    itemTd = charTr.children[charTr.children.length - 1];
+                }
 
-    if (itemType == "weapon") {
-        itemTd = charTr.children[charTr.children.length - 3];
-    } else if (itemType == "spell") {
-        itemTd = charTr.children[charTr.children.length - 2];
-    } else {
-        itemTd = charTr.children[charTr.children.length - 1];
-    }
+                if (actionType == "add") {
+                    const span = document.createElement("span");
+                    span.innerHTML = itemId;
 
-    if (actionType == "add") {
-        const span = document.createElement("span");
-        span.innerHTML = itemId;
+                    if (itemTd.children.length > 0) {
+                        itemTd.appendChild(document.createElement("hr"));
+                    }
 
-        if (itemTd.children.length > 0) {
-            itemTd.appendChild(document.createElement("hr"));
-        }
+                    itemTd.appendChild(span);
+                } else {
+                    itemTd.removeChild(itemTd.lastChild);
 
-        itemTd.appendChild(span);
-    } else {
-        itemTd.removeChild(itemTd.lastChild);
-
-        if (itemTd.children.length > 0) {
-            itemTd.removeChild(itemTd.lastChild);
-        }
-    }
+                    if (itemTd.children.length > 0) {
+                        itemTd.removeChild(itemTd.lastChild);
+                    }
+                }
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 document.querySelector("#all-items-btn").addEventListener("click", async e => {

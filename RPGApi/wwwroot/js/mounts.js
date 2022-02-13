@@ -53,8 +53,8 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
 });
 
 // GET request to find a mount
-document.querySelector("#find-mount-btn").addEventListener("click", async e => {
-    await fetch(`../api/mounts/${document.getElementById("find-mount-id").value}`, {
+document.querySelector("#find-btn").addEventListener("click", async e => {
+    await fetch(`../api/mounts/${document.getElementById("find-id").value}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
@@ -85,12 +85,8 @@ document.querySelector("#find-mount-btn").addEventListener("click", async e => {
 // POST request to create a mount
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const mountName = document.querySelector("#create-name").value;
-    let mountType = document.querySelector("#create-type").value;
+    const mountType = document.querySelector("#create-type").value;
     let mountSpeed = document.querySelector("#create-speed").value;
-
-    if (mountType == "" || mountType > 10 || mountType < 0) {
-        mountType = 0;
-    }
 
     if (mountSpeed == "") {
         mountSpeed = 8;
@@ -125,12 +121,8 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
     const mountId = document.getElementById("edit-id").value;
     const mountTr = document.getElementsByClassName(`${mountId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
-    let newType = document.getElementById("edit-type").value;
+    const newType = document.getElementById("edit-type").value;
     let newSpeed = document.getElementById("edit-speed").value;
-
-    if (newType == "" || newType > 10 || newType < 0) {
-        newType = 0;
-    }
 
     if (newSpeed == "") {
         newSpeed = 8;
