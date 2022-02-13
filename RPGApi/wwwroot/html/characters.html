@@ -54,21 +54,23 @@
             <input id="find-char-btn" class="btn btn-primary" type="submit" value="Find" />
         </div>
 
-        <div class="ml-3 p-2 border border-secondary rounded w-1 d-inline-block">
-            <div class="form-group">
-                <label for="create-name">Name</label>
-                <input id="create-name" class="form-control" type="text" />
-            </div>
-            <div class="form-group">
-                <label for="create-race">Race</label>
-                <input id="create-race" class="form-control" type="number" />
-            </div>
-            <div class="form-group">
-                <label for="create-player-id">Player Id</label>
-                <input id="create-player-id" class="form-control" type="text" />
-            </div>
+        <div class="d-none align-items-start justify-content-center manage-div">
+            <div class="ml-3 p-2 border border-secondary rounded w-1 d-inline-block">
+                <div class="form-group">
+                    <label for="create-name">Name</label>
+                    <input id="create-name" class="form-control" type="text" placeholder="Length (1..20)" />
+                </div>
+                <div class="form-group">
+                    <label for="create-race">Race</label>
+                    <input id="create-race" class="form-control" type="number" placeholder="0..20 (default 0)" />
+                </div>
+                <div class="form-group">
+                    <label for="create-player-id">Player Id</label>
+                    <input id="create-player-id" class="form-control" type="text" />
+                </div>
 
-            <input id="create-btn" class="btn btn-success" type="submit" value="Create" />
+                <input id="create-btn" class="btn btn-success" type="submit" value="Create" />
+            </div>
         </div>
 
         <div class="ml-3 p-2 border border-secondary rounded w-1 d-inline-block">
@@ -78,11 +80,11 @@
             </div>
             <div class="form-group">
                 <label for="edit-name">New name</label>
-                <input id="edit-name" class="form-control" type="text" />
+                <input id="edit-name" class="form-control" type="text" placeholder="Length(1..20)" />
             </div>
             <div class="form-group">
                 <label for="edit-race">New race</label>
-                <input id="edit-race" class="form-control" type="number" />
+                <input id="edit-race" class="form-control" type="number" placeholder="0..20 (default 0)" />
             </div>
 
             <input id="edit-btn" class="btn btn-info" type="submit" value="Edit" />
@@ -97,34 +99,36 @@
             <input id="del-btn" class="btn btn-danger" type="submit" value="Delete" />
         </div>
 
-        <div class="ml-3 mb-3 p-2 border border-secondary rounded w-1 d-inline-block">
-            <div class="form-group">
-                <label>Action type</label>
-                <br />
-                <select id="action-type" class="form-select form-select-lg rounded py-2 w-100">
-                    <option value="add">Add</option>
-                    <option value="remove">Remove</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Item type</label>
-                <br />
-                <select id="item-type" class="form-select form-select-lg rounded py-2 w-100">
-                    <option value="weapon">Weapon</option>
-                    <option value="spell">Spell</option>
-                    <option value="mount">Mount</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="add-remove-item-charId">Character Id</label>
-                <input id="add-remove-item-charId" class="form-control" type="text" />
-            </div>
-            <div class="form-group">
-                <label for="add-remove-item-itemId">Item Id</label>
-                <input id="add-remove-item-itemId" class="form-control" type="text" />
-            </div>
+        <div class="d-none align-items-start justify-content-center manage-div">
+            <div class="ml-3 mb-3 p-2 border border-secondary rounded w-1 d-inline-block">
+                <div class="form-group">
+                    <label>Action type</label>
+                    <br />
+                    <select id="action-type" class="form-select form-select-lg rounded py-2 w-100">
+                        <option value="add">Add</option>
+                        <option value="remove">Remove</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Item type</label>
+                    <br />
+                    <select id="item-type" class="form-select form-select-lg rounded py-2 w-100">
+                        <option value="weapon">Weapon</option>
+                        <option value="spell">Spell</option>
+                        <option value="mount">Mount</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="add-remove-item-charId">Character Id</label>
+                    <input id="add-remove-item-charId" class="form-control" type="text" />
+                </div>
+                <div class="form-group">
+                    <label for="add-remove-item-itemId">Item Id</label>
+                    <input id="add-remove-item-itemId" class="form-control" type="text" />
+                </div>
 
-            <input id="add-remove-item-btn" class="btn btn-info" type="submit" value="Edit item" />
+                <input id="add-remove-item-btn" class="btn btn-info" type="submit" value="Edit item" />
+            </div>
         </div>
     </div>
 
