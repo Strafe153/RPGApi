@@ -6,6 +6,7 @@ const token = sessionStorage.getItem("token");
 sessionStorage.setItem("currentPage", 1);
 
 window.addEventListener("load", async e => {
+    const userRole = sessionStorage.getItem("userRole");
     const currentPage = sessionStorage.getItem("currentPage");
 
     document.querySelector("#log-out-btn").innerHTML = `Log Out (${sessionStorage.getItem("username")})`;
@@ -23,6 +24,12 @@ window.addEventListener("load", async e => {
             sessionStorage.setItem("currentPage", data.currentPage);
             utility.displayItems(data.items, "spells-tbody");
         });
+
+    if (userRole == "0") {
+        const manageDiv = document.querySelector("#manage-div");
+        manageDiv.classList.remove("d-none");
+        manageDiv.classList.add("d-flex");
+    }
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
         document.querySelector("#next-btn").style.display = "inline";
@@ -53,22 +60,41 @@ document.querySelector("#find-spell-btn").addEventListener("click", async e => {
             "Authorization": `Bearer ${token}`
         }
     })
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok) {
+                if (response.url.endsWith("/")) {
+                    throw new Error("Id is not provided");
+                }
+
+                return response.json();
+            } else {
+                throw new Error("The spell with the provided id does not exist");
+            }
+        })
         .then(data => {
             utility.displayItems([data], "spells-tbody");
+
             document.querySelector("#all-items-btn").style.display = "inline";
             document.querySelector("#prev-btn").style.display = "none";
             document.querySelector("#curr-page").style.display = "none";
             document.querySelector("#next-btn").style.display = "none";
-        });
+        })
+        .catch(error => alert(error.message));
 });
 
 // POST request to create a spell
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const spellName = document.querySelector("#create-name").value;
-    const spellType = document.querySelector("#create-type").value;
-    const spellDamage = document.querySelector("#create-damage").value;
-    let spellId;
+    let spellType = document.querySelector("#create-type").value;
+    let spellDamage = document.querySelector("#create-damage").value;
+
+    if (spellType == "" || spellType > 10 || spellType < 0) {
+        spellType = 0;
+    }
+
+    if (spellDamage == "") {
+        spellDamage = 15;
+    }
 
     await fetch("../api/spells", {
         method: "POST",
@@ -83,10 +109,15 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
             damage: spellDamage
         })
     })
-        .then(response => response.json())
-        .then(data => spellId = data["id"]);
-
-    utility.addItemToTable("spells-tbody", spellId, spellName, spellType, spellDamage, []);
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .then(data => utility.addItemToTable("spells-tbody", data["id"], spellName, spellType, spellDamage, []))
+        .catch(error => alert(error.message));
 });
 
 // PUT request to edit a spell
@@ -94,8 +125,16 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
     const spellId = document.getElementById("edit-id").value;
     const spellTr = document.getElementsByClassName(`${spellId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
-    const newType = document.getElementById("edit-type").value;
-    const newDamage = document.getElementById("edit-damage").value;
+    let newType = document.getElementById("edit-type").value;
+    let newDamage = document.getElementById("edit-damage").value;
+
+    if (newType == "" || newType > 10 || newType < 0) {
+        newType = 0;
+    }
+
+    if (newDamage == "") {
+        newDamage = 15;
+    }
 
     await fetch(`../api/spells/${spellId}`, {
         method: "PUT",
@@ -109,11 +148,17 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
             type: newType,
             damage: newDamage
         })
-    });
-
-    spellTr.children[1].innerHTML = newName;
-    spellTr.children[2].innerHTML = newType;
-    spellTr.children[3].innerHTML = newDamage;
+    })
+        .then(response => {
+            if (response.ok) {
+                spellTr.children[1].innerHTML = newName;
+                spellTr.children[2].innerHTML = newType;
+                spellTr.children[3].innerHTML = newDamage;
+            } else {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 // DELETE request to delete a spell
@@ -127,9 +172,15 @@ document.querySelector("#del-btn").addEventListener("click", async e => {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
         }
-    });
-
-    document.getElementsByClassName(`${spellId}-tr`)[0].remove();
+    })
+        .then(response => {
+            if (response.ok) {
+                document.getElementsByClassName(`${spellId}-tr`)[0].remove();
+            } else {
+                throw new Error("You provided incorrect id");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 // PUT request to hit a character
@@ -150,7 +201,13 @@ document.querySelector("#hit-btn").addEventListener("click", async e => {
             receiverId: receiver,
             itemId: item
         })
-    });
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("You provided incorrect data");
+            }
+        })
+        .catch(error => alert(error.message));
 });
 
 document.querySelector("#all-items-btn").addEventListener("click", async e => {
