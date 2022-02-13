@@ -53,8 +53,8 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
 });
 
 // GET request to find a mount
-document.querySelector("#find-mount-btn").addEventListener("click", async e => {
-    await fetch(`../api/mounts/${document.getElementById("find-mount-id").value}`, {
+document.querySelector("#find-btn").addEventListener("click", async e => {
+    await fetch(`../api/mounts/${document.getElementById("find-id").value}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`

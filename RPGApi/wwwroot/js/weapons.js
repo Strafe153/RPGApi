@@ -53,8 +53,8 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
 });
 
 // GET request to find a weapon
-document.querySelector("#find-weapon-btn").addEventListener("click", async e => {
-    await fetch(`../api/weapons/${document.getElementById("find-weapon-id").value}`, {
+document.querySelector("#find-btn").addEventListener("click", async e => {
+    await fetch(`../api/weapons/${document.getElementById("find-id").value}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`

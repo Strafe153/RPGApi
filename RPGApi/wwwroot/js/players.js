@@ -53,8 +53,8 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
 });
 
 // GET request to find a player
-document.querySelector("#find-player-btn").addEventListener("click", async e => {
-    await fetch(`../api/players/${document.getElementById("find-player-id").value}`, {
+document.querySelector("#find-btn").addEventListener("click", async e => {
+    await fetch(`../api/players/${document.getElementById("find-id").value}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`

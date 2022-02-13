@@ -53,8 +53,8 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
 });
 
 // GET request to find a spell
-document.querySelector("#find-spell-btn").addEventListener("click", async e => {
-    await fetch(`../api/spells/${document.getElementById("find-spell-id").value}`, {
+document.querySelector("#find-btn").addEventListener("click", async e => {
+    await fetch(`../api/spells/${document.getElementById("find-id").value}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`

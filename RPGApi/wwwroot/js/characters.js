@@ -56,8 +56,8 @@ document.querySelector("#prev-btn").addEventListener("click", async e => {
 });
 
 // GET request to find a character
-document.querySelector("#find-char-btn").addEventListener("click", async e => {
-    await fetch(`../api/characters/${document.getElementById("find-char-id").value}`, {
+document.querySelector("#find-btn").addEventListener("click", async e => {
+    await fetch(`../api/characters/${document.getElementById("find-id").value}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${token}`
