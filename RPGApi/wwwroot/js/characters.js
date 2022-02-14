@@ -5,85 +5,12 @@ const token = sessionStorage.getItem("token");
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
 
-window.addEventListener("load", async e => {
-    const userRole = sessionStorage.getItem("userRole");
-    const currentPage = sessionStorage.getItem("currentPage");
-
-    document.querySelector("#log-out-btn").innerHTML = `Log Out (${sessionStorage.getItem("username")})`;
-    document.getElementById("curr-page").value = currentPage;
-
-    await fetch(`../api/characters/page/${currentPage}`, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    })
-        .then(response => response.json())
-        .then(data => {
-            sessionStorage.setItem("pagesCount", data.pagesCount);
-            sessionStorage.setItem("currentPage", data.currentPage);
-            utility.displayItems(data.items);
-        });
-
-    if (userRole == "0") {
-        const manageDivs = document.querySelectorAll(".manage-div");
-
-        for (let div of manageDivs) {
-            div.classList.remove("d-none");
-            div.classList.add("d-flex");
-        }
-    }
-
-    if (currentPage < sessionStorage.getItem("pagesCount")) {
-        document.querySelector("#next-btn").style.display = "inline";
-    }
-});
-
-// load characters from the previous page
-document.querySelector("#next-btn").addEventListener("click", async e => {
-    const page = sessionStorage.getItem("currentPage");
-    sessionStorage.setItem("currentPage", parseInt(page) + 1);
-
-    await utility.getItems("characters");
-});
-
-// load characters from the next page
-document.querySelector("#prev-btn").addEventListener("click", async e => {
-    const page = sessionStorage.getItem("currentPage");
-    sessionStorage.setItem("currentPage", parseInt(page) - 1);
-
-    await utility.getItems("characters");
-});
-
-// GET request to find a character
-document.querySelector("#find-btn").addEventListener("click", async e => {
-    await fetch(`../api/characters/${document.getElementById("find-id").value}`, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    })
-        .then(response => {
-            if (response.ok) {
-                if (response.url.endsWith("/")) {
-                    throw new Error("Id is not provided");
-                }
-
-                return response.json();
-            } else {
-                throw new Error("The character with the provided id does not exist");
-            }
-        })
-        .then(data => {
-            utility.displayItems([data]);
-
-            document.querySelector("#all-items-btn").style.display = "inline";
-            document.querySelector("#prev-btn").style.display = "none";
-            document.querySelector("#curr-page").style.display = "none";
-            document.querySelector("#next-btn").style.display = "none";
-        })
-        .catch(error => alert(error.message));
-});
+utility.showItemsOnLoad("characters");
+utility.loadNextPageOnClick("characters");
+utility.loadPreviousPageOnClick("characters");
+utility.loadAllItemsOnClick("characters");
+utility.makeGetRequest("characters");
+utility.makeDeleteRequest("characters");
 
 // POST request to create a character
 document.querySelector("#create-btn").addEventListener("click", async e => {
@@ -146,28 +73,6 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
         .catch(error => alert(error.message));
 });
 
-// DELETE request to delete a character
-document.querySelector("#del-btn").addEventListener("click", async e => {
-    const charId = document.querySelector("#del-id").value;
-
-    await fetch(`../api/characters/${charId}`, {
-        method: "DELETE",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        }
-    })
-        .then(response => {
-            if (response.ok) {
-                document.getElementsByClassName(`${charId}-tr`)[0].remove();
-            } else {
-                throw new Error("You provided incorrect id");
-            }
-        })
-        .catch(error => alert(error.message));
-});
-
 // PUT request to add an item to a character
 document.querySelector("#add-remove-item-btn").addEventListener("click", async e => {
     const actionType = document.querySelector("#action-type").value;
@@ -220,10 +125,4 @@ document.querySelector("#add-remove-item-btn").addEventListener("click", async e
             }
         })
         .catch(error => alert(error.message));
-});
-
-document.querySelector("#all-items-btn").addEventListener("click", async e => {
-    await utility.getItems("characters");
-    document.querySelector("#all-items-btn").style.display = "none";
-    document.querySelector("#curr-page").style.display = "inline";
 });
