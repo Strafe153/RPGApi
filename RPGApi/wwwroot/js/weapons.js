@@ -17,11 +17,7 @@ utility.hitCharacterAsync("weapons");
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const weaponName = document.querySelector("#create-name").value;
     const weaponType = document.querySelector("#create-type").value;
-    let weaponDamage = document.querySelector("#create-damage").value;
-
-    if (weaponDamage == "") {
-        weaponDamage = 30;
-    }
+    const weaponDamage = document.querySelector("#create-damage").value;
 
     await fetch("../api/weapons", {
         method: "POST",
@@ -53,11 +49,7 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
     const weaponTr = document.getElementsByClassName(`${weaponId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
     const newType = document.getElementById("edit-type").value;
-    let newDamage = document.getElementById("edit-damage").value;
-
-    if (newDamage == "") {
-        newDamage = 30;
-    }
+    const newDamage = document.getElementById("edit-damage").value;
 
     await fetch(`../api/weapons/${weaponId}`, {
         method: "PUT",
