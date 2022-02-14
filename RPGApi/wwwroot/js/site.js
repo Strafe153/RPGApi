@@ -3,22 +3,26 @@ const currentPageElem = document.getElementById("curr-page");
 
 sessionStorage.setItem("currentPage", 1);
 
-// asynchronously gets the items on a specified page
+// gets the items on a specified page
 export async function getItems(itemNames) {
     const currentPage = sessionStorage.getItem("currentPage");
     const prevButton = document.querySelector("#prev-btn");
     const nextButton = document.querySelector("#next-btn");
 
     if (currentPage > 1) {
-        prevButton.style.display = "inline";
+        prevButton.classList.remove("d-none");
+        prevButton.classList.add("d-inline");
     } else {
-        prevButton.style.display = "none";
+        prevButton.classList.remove("d-inline");
+        prevButton.classList.add("d-none");
     }
 
     if (currentPage < sessionStorage.getItem("pagesCount")) {
-        nextButton.style.display = "inline";
+        nextButton.classList.remove("d-none");
+        nextButton.classList.add("d-inline");
     } else {
-        nextButton.style.display = "none";
+        nextButton.classList.remove("d-inline");
+        nextButton.classList.add("d-none");
     }
 
     await fetch(`../api/${itemNames}/page/${currentPage}`, {
@@ -114,7 +118,9 @@ export function showItemsOnLoad(itemNames) {
         }
 
         if (currentPage < sessionStorage.getItem("pagesCount")) {
-            document.querySelector("#next-btn").style.display = "inline";
+            const nextBtn = document.querySelector("#next-btn");
+            nextBtn.classList.remove("d-none");
+            nextBtn.classList.add("d-inline");
         }
     });
 }
@@ -143,8 +149,14 @@ export function loadPreviousPageOnClick(itemNames) {
 export function loadAllItemsOnClick(itemNames) {
     document.querySelector("#all-items-btn").addEventListener("click", async e => {
         await getItems(itemNames);
-        document.querySelector("#all-items-btn").style.display = "none";
-        document.querySelector("#curr-page").style.display = "inline";
+
+        const allItemsBtn = document.querySelector("#all-items-btn");
+        allItemsBtn.classList.remove("d-inline");
+        allItemsBtn.classList.add("d-none");
+
+        const currPage = document.querySelector("#curr-page");
+        currPage.classList.remove("d-none");
+        currPage.classList.add("d-inline");
     });
 }
 
@@ -172,10 +184,21 @@ export function makeGetRequest(itemNames) {
             .then(data => {
                 displayItems([data]);
 
-                document.querySelector("#all-items-btn").style.display = "inline";
-                document.querySelector("#prev-btn").style.display = "none";
-                document.querySelector("#curr-page").style.display = "none";
-                document.querySelector("#next-btn").style.display = "none";
+                const nextBtn = document.querySelector("#next-btn");
+                nextBtn.classList.remove("d-inline");
+                nextBtn.classList.add("d-none");
+
+                const allItemsBtn = document.querySelector("#all-items-btn");
+                allItemsBtn.classList.remove("d-none");
+                allItemsBtn.classList.add("d-inline");
+
+                const prevBtn = document.querySelector("#prev-btn");
+                prevBtn.classList.remove("d-inline");
+                prevBtn.classList.add("d-none");
+
+                const currPage = document.querySelector("#curr-page");
+                currPage.classList.remove("d-inline");
+                currPage.classList.add("d-none");
             })
             .catch(error => alert(error.message));
     });
