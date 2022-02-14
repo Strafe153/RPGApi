@@ -5,22 +5,19 @@ const token = sessionStorage.getItem("token");
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
 
-utility.showItemsOnLoad("weapons");
-utility.loadNextPageOnClick("weapons");
-utility.loadPreviousPageOnClick("weapons");
-utility.loadAllItemsOnClick("weapons");
-utility.makeGetRequest("weapons");
-utility.makeDeleteRequest("weapons");
+utility.showItemsOnLoadAsync("weapons");
+utility.loadNextPageAsync("weapons");
+utility.loadPreviousPageAsync("weapons");
+utility.loadAllItemsAsync("weapons");
+utility.getItemAsync("weapons");
+utility.deleteItemAsync("weapons");
+utility.hitCharacterAsync("weapons");
 
 // POST request to create a weapon
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const weaponName = document.querySelector("#create-name").value;
     const weaponType = document.querySelector("#create-type").value;
-    let weaponDamage = document.querySelector("#create-damage").value;
-
-    if (weaponDamage == "") {
-        weaponDamage = 30;
-    }
+    const weaponDamage = document.querySelector("#create-damage").value;
 
     await fetch("../api/weapons", {
         method: "POST",
@@ -42,7 +39,7 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
                 throw new Error("You provided incorrect data");
             }
         })
-        .then(data => utility.addItemToTable(data["id"], weaponName, weaponType, weaponDamage, []))
+        .then(data => utility.addItemToTableAsync(data["id"], weaponName, weaponType, weaponDamage, []))
         .catch(error => alert(error.message));
 });
 
@@ -52,11 +49,7 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
     const weaponTr = document.getElementsByClassName(`${weaponId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
     const newType = document.getElementById("edit-type").value;
-    let newDamage = document.getElementById("edit-damage").value;
-
-    if (newDamage == "") {
-        newDamage = 30;
-    }
+    const newDamage = document.getElementById("edit-damage").value;
 
     await fetch(`../api/weapons/${weaponId}`, {
         method: "PUT",
@@ -77,33 +70,6 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
                 weaponTr.children[2].innerHTML = newType;
                 weaponTr.children[3].innerHTML = newDamage;
             } else {
-                throw new Error("You provided incorrect data");
-            }
-        })
-        .catch(error => alert(error.message));
-});
-
-// PUT request to hit a character
-document.querySelector("#hit-btn").addEventListener("click", async e => {
-    const dealer = document.querySelector("#hit-dealer-id").value;
-    const receiver = document.querySelector("#hit-receiver-id").value;
-    const item = document.querySelector("#hit-item-id").value;
-
-    await fetch("../api/weapons/hit", {
-        method: "PUT",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            dealerId: dealer,
-            receiverId: receiver,
-            itemId: item
-        })
-    })
-        .then(response => {
-            if (!response.ok) {
                 throw new Error("You provided incorrect data");
             }
         })

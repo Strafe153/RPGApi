@@ -4,7 +4,7 @@ const currentPageElem = document.getElementById("curr-page");
 sessionStorage.setItem("currentPage", 1);
 
 // gets the items on a specified page
-export async function getItems(itemNames) {
+export async function getItemsAsync(itemNames) {
     const currentPage = sessionStorage.getItem("currentPage");
     const prevButton = document.querySelector("#prev-btn");
     const nextButton = document.querySelector("#next-btn");
@@ -39,7 +39,7 @@ export async function getItems(itemNames) {
 }
 
 // adds an item to a table
-export function addItemToTable(...itemProps) {
+export function addItemToTableAsync(...itemProps) {
     const tbody = document.getElementsByTagName("tbody")[0];
     let newItemTr = tbody.insertRow();
     let td;
@@ -76,7 +76,7 @@ export function displayItems(items) {
     const tbody = document.getElementsByTagName("tbody")[0];
     tbody.innerHTML = "";
 
-    items.forEach(i => addItemToTable(...Object.values(i)));
+    items.forEach(i => addItemToTableAsync(...Object.values(i)));
 }
 
 // updates an item value in a table
@@ -87,7 +87,7 @@ export function updateItemValue(trElem, ...itemProps) {
 }
 
 // shows items when the page is loaded for the first time
-export function showItemsOnLoad(itemNames) {
+export function showItemsOnLoadAsync(itemNames) {
     window.addEventListener("load", async e => {
         const userRole = sessionStorage.getItem("userRole");
         const currentPage = sessionStorage.getItem("currentPage");
@@ -126,29 +126,29 @@ export function showItemsOnLoad(itemNames) {
 }
 
 // loads the items from the next page
-export function loadNextPageOnClick(itemNames) {
+export function loadNextPageAsync(itemNames) {
     document.querySelector("#next-btn").addEventListener("click", async e => {
         const page = sessionStorage.getItem("currentPage");
         sessionStorage.setItem("currentPage", parseInt(page) + 1);
 
-        await getItems(itemNames);
+        await getItemsAsync(itemNames);
     });
 }
 
 // loads the items from the previous page
-export function loadPreviousPageOnClick(itemNames) {
+export function loadPreviousPageAsync(itemNames) {
     document.querySelector("#prev-btn").addEventListener("click", async e => {
         const page = sessionStorage.getItem("currentPage");
         sessionStorage.setItem("currentPage", parseInt(page) - 1);
 
-        await getItems(itemNames);
+        await getItemsAsync(itemNames);
     });
 }
 
 // loads all the items on a page
-export function loadAllItemsOnClick(itemNames) {
+export function loadAllItemsAsync(itemNames) {
     document.querySelector("#all-items-btn").addEventListener("click", async e => {
-        await getItems(itemNames);
+        await getItemsAsync(itemNames);
 
         const allItemsBtn = document.querySelector("#all-items-btn");
         allItemsBtn.classList.remove("d-inline");
@@ -161,7 +161,7 @@ export function loadAllItemsOnClick(itemNames) {
 }
 
 // makes a get request
-export function makeGetRequest(itemNames) {
+export function getItemAsync(itemNames) {
     document.querySelector("#find-btn").addEventListener("click", async e => {
         await fetch(`../api/${itemNames}/${document.getElementById("find-id").value}`, {
             method: "GET",
@@ -205,7 +205,7 @@ export function makeGetRequest(itemNames) {
 }
 
 // makes a DELETE request
-export function makeDeleteRequest(itemNames) {
+export function deleteItemAsync(itemNames) {
     document.querySelector("#del-btn").addEventListener("click", async e => {
         const itemId = document.querySelector("#del-id").value;
 
@@ -222,6 +222,35 @@ export function makeDeleteRequest(itemNames) {
                     document.getElementsByClassName(`${itemId}-tr`)[0].remove();
                 } else {
                     throw new Error("You provided incorrect id");
+                }
+            })
+            .catch(error => alert(error.message));
+    });
+}
+
+// hits a character with the specified item
+export function hitCharacterAsync(itemNames) {
+    document.querySelector("#hit-btn").addEventListener("click", async e => {
+        const dealer = document.querySelector("#hit-dealer-id").value;
+        const receiver = document.querySelector("#hit-receiver-id").value;
+        const item = document.querySelector("#hit-item-id").value;
+
+        await fetch(`../api/${itemNames}/hit`, {
+            method: "PUT",
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                dealerId: dealer,
+                receiverId: receiver,
+                itemId: item
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("You provided incorrect data");
                 }
             })
             .catch(error => alert(error.message));

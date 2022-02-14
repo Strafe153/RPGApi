@@ -5,12 +5,12 @@ const token = sessionStorage.getItem("token");
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
 
-utility.showItemsOnLoad("characters");
-utility.loadNextPageOnClick("characters");
-utility.loadPreviousPageOnClick("characters");
-utility.loadAllItemsOnClick("characters");
-utility.makeGetRequest("characters");
-utility.makeDeleteRequest("characters");
+utility.showItemsOnLoadAsync("characters");
+utiloadNextPageAsyncClick("characters");
+utility.loadPreviousPageAsync("characters");
+utility.loadAllItemsAsync("characters");
+utility.getItemAsync("characters");
+utility.deleteItemAsync("characters");
 
 // POST request to create a character
 document.querySelector("#create-btn").addEventListener("click", async e => {
@@ -38,7 +38,7 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
                 throw new Error("You provided incorrect data");
             }
         })
-        .then(data => utility.addItemToTable(data["id"], charName,
+        .then(data => utility.addItemToTableAsync(data["id"], charName,
             charRace, 100, charPlayerId, [], [], []))
         .catch(error => alert(error.message));
 });
