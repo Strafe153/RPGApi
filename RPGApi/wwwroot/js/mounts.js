@@ -5,12 +5,12 @@ const token = sessionStorage.getItem("token");
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
 
-utility.showItemsOnLoad("mounts");
-utility.loadNextPageOnClick("mounts");
-utility.loadPreviousPageOnClick("mounts");
-utility.loadAllItemsOnClick("mounts");
-utility.makeGetRequest("mounts");
-utility.makeDeleteRequest("mounts");
+utility.showItemsOnLoadAsync("mounts");
+utility.loadNextPageAsync("mounts");
+utility.loadPreviousPageAsync("mounts");
+utility.loadAllItemsAsync("mounts");
+utility.getItemAsync("mounts");
+utility.deleteItemAsync("mounts");
 
 // POST request to create a mount
 document.querySelector("#create-btn").addEventListener("click", async e => {
@@ -38,7 +38,7 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
                 throw new Error("You provided incorrect data");
             }
         })
-        .then(data => utility.addItemToTable(data["id"], mountName, mountType, mountSpeed, []))
+        .then(data => utility.addItemToTableAsync(data["id"], mountName, mountType, mountSpeed, []))
         .catch(error => alert(error.message));
 });
 

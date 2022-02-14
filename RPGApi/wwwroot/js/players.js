@@ -5,12 +5,12 @@ const token = sessionStorage.getItem("token");
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
 
-utility.showItemsOnLoad("players");
-utility.loadNextPageOnClick("players");
-utility.loadPreviousPageOnClick("players");
-utility.loadAllItemsOnClick("players");
-utility.makeGetRequest("players");
-utility.makeDeleteRequest("players");
+utility.showItemsOnLoadAsync("players");
+utility.loadNextPageAsync("players");
+utility.loadPreviousPageAsync("players");
+utility.loadAllItemsAsync("players");
+utility.getItemAsync("players");
+utility.deleteItemAsync("players");
 
 // PUT request to update a player
 document.querySelector("#edit-btn").addEventListener("click", async e => {

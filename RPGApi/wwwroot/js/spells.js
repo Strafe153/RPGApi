@@ -5,22 +5,19 @@ const token = sessionStorage.getItem("token");
 // setting initial page value
 sessionStorage.setItem("currentPage", 1);
 
-utility.showItemsOnLoad("spells");
-utility.loadNextPageOnClick("spells");
-utility.loadPreviousPageOnClick("spells");
-utility.loadAllItemsOnClick("spells");
-utility.makeGetRequest("spells");
-utility.makeDeleteRequest("spells");
+utility.showItemsOnLoadAsync("spells");
+utility.loadNextPageAsync("spells");
+utility.loadPreviousPageAsync("spells");
+utility.loadAllItemsAsync("spells");
+utility.getItemAsync("spells");
+utility.deleteItemAsync("spells");
+utility.hitCharacterAsync("spells");
 
 // POST request to create a spell
 document.querySelector("#create-btn").addEventListener("click", async e => {
     const spellName = document.querySelector("#create-name").value;
     const spellType = document.querySelector("#create-type").value;
     let spellDamage = document.querySelector("#create-damage").value;
-
-    if (spellDamage == "") {
-        spellDamage = 15;
-    }
 
     await fetch("../api/spells", {
         method: "POST",
@@ -42,7 +39,7 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
                 throw new Error("You provided incorrect data");
             }
         })
-        .then(data => utility.addItemToTable(data["id"], spellName, spellType, spellDamage, []))
+        .then(data => utility.addItemToTableAsync(data["id"], spellName, spellType, spellDamage, []))
         .catch(error => alert(error.message));
 });
 
@@ -52,11 +49,7 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
     const spellTr = document.getElementsByClassName(`${spellId}-tr`)[0];
     const newName = document.getElementById("edit-name").value;
     const newType = document.getElementById("edit-type").value;
-    let newDamage = document.getElementById("edit-damage").value;
-
-    if (newDamage == "") {
-        newDamage = 15;
-    }
+    const newDamage = document.getElementById("edit-damage").value;
 
     await fetch(`../api/spells/${spellId}`, {
         method: "PUT",
@@ -77,33 +70,6 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
                 spellTr.children[2].innerHTML = newType;
                 spellTr.children[3].innerHTML = newDamage;
             } else {
-                throw new Error("You provided incorrect data");
-            }
-        })
-        .catch(error => alert(error.message));
-});
-
-// PUT request to hit a character
-document.querySelector("#hit-btn").addEventListener("click", async e => {
-    const dealer = document.querySelector("#hit-dealer-id").value;
-    const receiver = document.querySelector("#hit-receiver-id").value;
-    const item = document.querySelector("#hit-item-id").value;
-
-    await fetch("../api/spells/hit", {
-        method: "PUT",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            dealerId: dealer,
-            receiverId: receiver,
-            itemId: item
-        })
-    })
-        .then(response => {
-            if (!response.ok) {
                 throw new Error("You provided incorrect data");
             }
         })
