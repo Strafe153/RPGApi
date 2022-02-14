@@ -51,7 +51,7 @@
             <input id="find-btn" class="btn btn-primary" type="submit" value="Find" />
         </div>
 
-        <div id="manage-div" class="d-none align-items-start justify-content-center">
+        <div class="d-none align-items-start justify-content-center manage-div">
             <div class="ml-3 p-2 border border-secondary rounded w-1 d-inline-block">
                 <div class="form-group">
                     <label for="create-name">Name</label>
@@ -75,7 +75,9 @@
                 </div>
                 <div class="form-group">
                     <label for="create-speed">Speed</label>
-                    <input id="create-speed" class="form-control" type="number" placeholder="1...50 (default 8)" />
+                    <input id="create-speed" class="form-control" type="range" min="1" max="50" 
+                           value="8" step="1" oninput="this.nextElementSibling.value = this.value" />
+                    <output class="d-flex justify-content-center">8</output>
                 </div>
 
                 <input id="create-btn" class="btn btn-success" type="submit" value="Create" />
@@ -108,7 +110,9 @@
                 </div>
                 <div class="form-group">
                     <label for="edit-speed">Speed</label>
-                    <input id="edit-speed" class="form-control" type="number" placeholder="1...50 (default 8)" />
+                    <input id="edit-speed" class="form-control" type="range" min="1" max="50"
+                           value="8" step="1" oninput="this.nextElementSibling.value = this.value" />
+                    <output class="d-flex justify-content-center">8</output>
                 </div>
 
                 <input id="edit-btn" class="btn btn-info" type="submit" value="Edit" />
