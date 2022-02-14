@@ -165,8 +165,8 @@ export function makeGetRequest(itemNames) {
 
                     return response.json();
                 } else {
-                    throw new Error(`The ${itemNames.slice(itemNames.length - 1)}
-                        with the provided id does not exist`);
+                    throw new Error(`The ${itemNames.slice(0, itemNames.length - 1)}` + 
+                        " with the provided id does not exist");
                 }
             })
             .then(data => {
