@@ -6,7 +6,7 @@ const token = sessionStorage.getItem("token");
 sessionStorage.setItem("currentPage", 1);
 
 utility.showItemsOnLoadAsync("characters");
-utiloadNextPageAsyncClick("characters");
+utility.loadNextPageAsync("characters");
 utility.loadPreviousPageAsync("characters");
 utility.loadAllItemsAsync("characters");
 utility.getItemAsync("characters");
