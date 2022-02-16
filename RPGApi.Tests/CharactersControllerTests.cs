@@ -14,7 +14,10 @@
 
         private static readonly Character _character = new()
         {
-            Player = new(),
+            Player = new()
+            {
+                Name = "identity_name"
+            },
             Weapons = new List<Weapon>(),
             Spells = new List<Spell>(),
             Mounts = new List<Mount>()
@@ -234,6 +237,7 @@
         public async Task DeleteCharacterAsync_NoAccessRights_ReturnsForbidResult()
         {
             // Arrange
+            _character.Player!.Name = "player_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Character());
 
             Utility.MockUserIdentityName(_controller);
@@ -266,6 +270,7 @@
             // Arrange
             _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+            _playerRepo.Setup(pr => pr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character.Player);
             _weaponRepo.Setup(wr => wr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Weapon?)null);
 
             // Act
@@ -386,6 +391,7 @@
             // Arrange
             _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+            _playerRepo.Setup(pr => pr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character.Player);
             _spellRepo.Setup(sr => sr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Spell?)null);
 
             // Act
@@ -491,6 +497,7 @@
             // Arrange
             _character.Player!.Name = "identity_name";
             _charRepo.Setup(cr => cr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character);
+            _playerRepo.Setup(pr => pr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(_character.Player);
             _mountRepo.Setup(mr => mr.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync(new Mount());
 
             // Act
