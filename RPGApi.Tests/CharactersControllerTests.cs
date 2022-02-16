@@ -3,12 +3,14 @@
     public class CharactersControllerTests
     {
         private static readonly Mock<IControllerRepository<Character>> _charRepo = new();
+        private static readonly Mock<IPlayerControllerRepository> _playerRepo = new();
         private static readonly Mock<IControllerRepository<Weapon>> _weaponRepo = new();
         private static readonly Mock<IControllerRepository<Spell>> _spellRepo = new();
         private static readonly Mock<IControllerRepository<Mount>> _mountRepo = new();
         private static readonly Mock<IMapper> _mapper = new();
-        private static readonly CharactersController _controller = new(_charRepo.Object,
-            _weaponRepo.Object, _spellRepo.Object, _mountRepo.Object, _mapper.Object);
+        private static readonly CharactersController _controller = new(_charRepo.Object, 
+            _weaponRepo.Object, _spellRepo.Object, _mountRepo.Object, _playerRepo.Object,
+            _mapper.Object);
 
         private static readonly Character _character = new()
         {

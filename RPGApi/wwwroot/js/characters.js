@@ -35,7 +35,7 @@ document.querySelector("#create-btn").addEventListener("click", async e => {
             if (response.ok) {
                 return response.json();
             } else {
-                throw new Error("You provided incorrect data");
+                throw new Error("Not enough rights");
             }
         })
         .then(data => utility.addItemToTableAsync(data["id"], charName,

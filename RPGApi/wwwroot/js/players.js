@@ -31,6 +31,7 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
         .then(response => {
             if (response.ok) {
                 document.getElementsByClassName(`${playerId}-tr`)[0].children[1].innerHTML = newName;
+                document.querySelector("#log-out-btn").innerHTML = `Log Out (${newName})`;
             } else {
                 throw new Error("You provided incorrect data");
             }
