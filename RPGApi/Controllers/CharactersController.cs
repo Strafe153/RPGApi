@@ -18,17 +18,20 @@ namespace RPGApi.Controllers
         private readonly IControllerRepository<Weapon> _weaponRepo;
         private readonly IControllerRepository<Spell> _spellRepo;
         private readonly IControllerRepository<Mount> _mountRepo;
+        private readonly IPlayerControllerRepository _playerRepo;
         private readonly IMapper _mapper;
         private const int PageSize = 3;
 
-        public CharactersController(IControllerRepository<Character> charRepo,
+        public CharactersController(IControllerRepository<Character> charRepo, 
             IControllerRepository<Weapon> weaponRepo, IControllerRepository<Spell> spellRepo,
-            IControllerRepository<Mount> mountRepo, IMapper mapper)
+            IControllerRepository<Mount> mountRepo, IPlayerControllerRepository playerRepo,
+            IMapper mapper)
         {
             _charRepo = charRepo;
             _weaponRepo = weaponRepo;
             _spellRepo = spellRepo;
             _mountRepo = mountRepo;
+            _playerRepo = playerRepo;
             _mapper = mapper;
         }
 
@@ -78,7 +81,7 @@ namespace RPGApi.Controllers
         {
             Character character = _mapper.Map<Character>(createDto);
 
-            if (!CheckPlayerAccessRights(character))
+            if (!CheckPlayerAccessRightsAsync(character).Result)
             {
                 return Forbid();
             }
@@ -102,7 +105,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (!CheckPlayerAccessRights(character))
+            if (!CheckPlayerAccessRightsAsync(character).Result)
             {
                 return Forbid();
             }
@@ -126,7 +129,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (!CheckPlayerAccessRights(character))
+            if (!CheckPlayerAccessRightsAsync(character).Result)
             {
                 return Forbid();
             }
@@ -157,7 +160,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (!CheckPlayerAccessRights(character))
+            if (!CheckPlayerAccessRightsAsync(character).Result)
             {
                 return Forbid();
             }
@@ -179,7 +182,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (!CheckPlayerAccessRights(character))
+            if (!CheckPlayerAccessRightsAsync(character).Result)
             {
                 return Forbid();
             }
@@ -209,7 +212,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (!CheckPlayerAccessRights(character))
+            if (!CheckPlayerAccessRightsAsync(character).Result)
             {
                 return Forbid();
             }
@@ -239,7 +242,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (!CheckPlayerAccessRights(character))
+            if (!CheckPlayerAccessRightsAsync(character).Result)
             {
                 return Forbid();
             }
@@ -269,7 +272,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (!CheckPlayerAccessRights(character))
+            if (!CheckPlayerAccessRightsAsync(character).Result)
             {
                 return Forbid();
             }
@@ -299,7 +302,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (!CheckPlayerAccessRights(character))
+            if (!CheckPlayerAccessRightsAsync(character).Result)
             {
                 return Forbid();
             }
@@ -329,7 +332,7 @@ namespace RPGApi.Controllers
                 return NotFound();
             }
 
-            if (!CheckPlayerAccessRights(character))
+            if (!CheckPlayerAccessRightsAsync(character).Result)
             {
                 return Forbid();
             }
@@ -349,9 +352,11 @@ namespace RPGApi.Controllers
             return NoContent();
         }
 
-        private bool CheckPlayerAccessRights(Character character)
+        private async Task<bool> CheckPlayerAccessRightsAsync(Character character)
         {
-            if (character.Player?.Name != User?.Identity?.Name && User?.Claims.Where(
+            Player? player = await _playerRepo.GetByIdAsync(character.PlayerId);
+
+            if (player?.Name != User?.Identity?.Name && User?.Claims.Where(
                 c => c.Value == PlayerRole.Admin.ToString()).Count() == 0)
             {
                 return false;

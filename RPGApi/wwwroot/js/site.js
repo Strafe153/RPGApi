@@ -221,7 +221,7 @@ export function deleteItemAsync(itemNames) {
                 if (response.ok) {
                     document.getElementsByClassName(`${itemId}-tr`)[0].remove();
                 } else {
-                    throw new Error("You provided incorrect id");
+                    throw new Error("Incorrect id/Not enough rights");
                 }
             })
             .catch(error => alert(error.message));

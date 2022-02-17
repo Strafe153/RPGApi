@@ -130,6 +130,11 @@ namespace RPGApi.Controllers
         [Authorize]
         public async Task<ActionResult> UpdatePlayerAsync(Guid id, PlayerUpdateDto updateDto)
         {
+            if (await _playerRepo.GetByNameAsync(updateDto.Name!) != null)
+            {
+                return BadRequest("Player with the given name already exists");
+            }
+
             Player? player = await _playerRepo.GetByIdAsync(id);
 
             if (player is null)
@@ -168,6 +173,12 @@ namespace RPGApi.Controllers
             }
 
             var updateDto = _mapper.Map<PlayerUpdateDto>(player);
+
+            if (await _playerRepo.GetByNameAsync(updateDto.Name!) != null)
+            {
+                return BadRequest("Player with the given name already exists");
+            }
+
             patchDoc.ApplyTo(updateDto, ModelState);
 
             if (!TryValidateModel(updateDto))
