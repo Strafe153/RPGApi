@@ -32,6 +32,9 @@ document.querySelector("#edit-btn").addEventListener("click", async e => {
             if (response.ok) {
                 document.getElementsByClassName(`${playerId}-tr`)[0].children[1].innerHTML = newName;
                 document.querySelector("#log-out-btn").innerHTML = `Log Out (${newName})`;
+
+                relogin(newName);
+                location.reload(true);
             } else {
                 throw new Error("You provided incorrect data");
             }
@@ -65,3 +68,29 @@ document.querySelector("#change-role-btn").addEventListener("click", async e => 
         })
         .catch(error => alert(error.message));
 });
+
+async function relogin(newName) {
+    await fetch("../api/players/login", {
+        method: "POST",
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: newName,
+            password: sessionStorage.getItem("password")
+        })
+    })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error("Incorrect login and/or password");
+            }
+        })
+        .then(data => {
+            sessionStorage.setItem("token", data.token);
+            sessionStorage.setItem("username", newName);
+        })
+        .catch(error => alert(error.message));
+}
