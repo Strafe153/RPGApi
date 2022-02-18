@@ -1,4 +1,4 @@
 # RPGApi
 ASP.NET Web Api Project
 
-### The api is the implementation of a typical RPG game with players, characters, weapons, spells etc. GET, POST, PUT, DELETE and PATCH requests interact with data via DTOS and automapping. Authentication is done via JWT-tokens.
+### The api is the implementation of a typical RPG game. Data operations are performed via DTOS and automapping. JWT-token authorization is present. Frontend part utilizes JavaScript Fetch API to make calls
