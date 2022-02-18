@@ -46,7 +46,7 @@ document.querySelector("#submit-login").addEventListener("click", async e => {
             sessionStorage.setItem("username", loginUsername);
             sessionStorage.setItem("password", loginPassword);
 
-            window.location.href = "../html/players.html";
+            window.location.href = "html/players.html";
         })
         .catch(error => alert(error.message));
 });

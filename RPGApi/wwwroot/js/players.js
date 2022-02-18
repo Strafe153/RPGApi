@@ -10,34 +10,29 @@ utility.loadNextPageAsync("players");
 utility.loadPreviousPageAsync("players");
 utility.loadAllItemsAsync("players");
 utility.getItemAsync("players");
-utility.deleteItemAsync("players");
 
-// PUT request to update a player
-document.querySelector("#edit-btn").addEventListener("click", async e => {
-    const playerId = document.querySelector("#edit-id").value;
-    const newName = document.querySelector("#edit-name").value;
+// DELETE request to delete a player
+document.querySelector("#del-btn").addEventListener("click", async e => {
+    const playerId = document.querySelector("#del-id").value;
+    const playerTr = document.getElementsByClassName(`${playerId}-tr`)[0];
 
     await fetch(`../api/players/${playerId}`, {
-        method: "PUT",
+        method: "DELETE",
         headers: {
             "Accept": "application/json",
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            name: newName
-        })
+        }
     })
         .then(response => {
             if (response.ok) {
-                document.getElementsByClassName(`${playerId}-tr`)[0].children[1].innerHTML = newName;
-                document.querySelector("#log-out-btn").innerHTML = `Log Out (${newName})`;
-                sessionStorage.setItem("username", newName);
+                playerTr.remove();
 
-                relogin();
-                location.reload(true);
+                if (sessionStorage.getItem("username") == playerTr.children[1].innerHTML) {
+                    window.location.href = "../index.html";
+                }
             } else {
-                throw new Error("You provided incorrect data");
+                throw new Error("Incorrect id/Not enough rights");
             }
         })
         .catch(error => alert(error.message));
@@ -69,28 +64,3 @@ document.querySelector("#change-role-btn").addEventListener("click", async e => 
         })
         .catch(error => alert(error.message));
 });
-
-async function relogin() {
-    await fetch("../api/players/login", {
-        method: "POST",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            name: sessionStorage.getItem("username"),
-            password: sessionStorage.getItem("password")
-        })
-    })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error("Incorrect login and/or password");
-            }
-        })
-        .then(data => {
-            sessionStorage.setItem("token", data.token);
-        })
-        .catch(error => alert(error.message));
-}

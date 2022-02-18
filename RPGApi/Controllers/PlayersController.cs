@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Authorization;
 using RPGApi.Data;
 using RPGApi.Dtos;
@@ -124,74 +123,6 @@ namespace RPGApi.Controllers
             returnDto = returnDto with { Token = token };
 
             return Ok(returnDto);
-        }
-
-        [HttpPut("{id}")]
-        [Authorize]
-        public async Task<ActionResult> UpdatePlayerAsync(Guid id, PlayerUpdateDto updateDto)
-        {
-            if (await _playerRepo.GetByNameAsync(updateDto.Name!) != null)
-            {
-                return BadRequest("Player with the given name already exists");
-            }
-
-            Player? player = await _playerRepo.GetByIdAsync(id);
-
-            if (player is null)
-            {
-                return NotFound();
-            }
-
-            if (!CheckPlayerAccessRights(player))
-            {
-                return Forbid();
-            }
-
-            _mapper.Map(updateDto, player);
-            _playerRepo.Update(player);
-            _playerRepo.LogInformation($"Updated player {player.Name}");
-            await _playerRepo.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        [HttpPatch("{id}")]
-        [Authorize]
-        public async Task<ActionResult> PartialUpdatePlayerAsync(Guid id,
-            [FromBody]JsonPatchDocument<PlayerUpdateDto> patchDoc)
-        {
-            Player? player = await _playerRepo.GetByIdAsync(id);
-
-            if (player is null)
-            {
-                return NotFound();
-            }
-
-            if (!CheckPlayerAccessRights(player))
-            {
-                return Forbid();
-            }
-
-            var updateDto = _mapper.Map<PlayerUpdateDto>(player);
-
-            if (await _playerRepo.GetByNameAsync(updateDto.Name!) != null)
-            {
-                return BadRequest("Player with the given name already exists");
-            }
-
-            patchDoc.ApplyTo(updateDto, ModelState);
-
-            if (!TryValidateModel(updateDto))
-            {
-                return ValidationProblem(ModelState);
-            }
-
-            _mapper.Map(updateDto, player);
-            _playerRepo.Update(player);
-            _playerRepo.LogInformation($"Updated player {player.Name}");
-            await _playerRepo.SaveChangesAsync();
-
-            return NoContent();
         }
 
         [HttpDelete("{id}")]

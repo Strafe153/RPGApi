@@ -220,6 +220,7 @@ export function deleteItemAsync(itemNames) {
             .then(response => {
                 if (response.ok) {
                     document.getElementsByClassName(`${itemId}-tr`)[0].remove();
+                    window.location.href = "../html/players.html";
                 } else {
                     throw new Error("Incorrect id/Not enough rights");
                 }
