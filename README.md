@@ -1,6 +1,6 @@
 # RPG Api
 
-### The api is the implementation of a typical RPG game. Data operations are performed via DTOS and automapping. JWT-token authorization is present. Frontend part utilizes JavaScript Fetch API to make calls
+### The api is the implementation of a typical RPG game. Data operations are performed via viewmodels and custom mapping. JWT-token authorization is present. Frontend part utilizes JavaScript Fetch API to make calls
 
 ## What Can It Do?
 * Signs you up, logs you in and out
