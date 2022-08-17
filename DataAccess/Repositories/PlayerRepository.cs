@@ -1,10 +1,12 @@
 ﻿using Core.Entities;
 using Core.Interfaces.Repositories;
+using Core.Models;
+using DataAccess.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories
 {
-    public class PlayerRepository : IRepository<Player>
+    public class PlayerRepository : IPlayerRepository
     {
         private readonly RPGContext _context;
 
@@ -13,7 +15,7 @@ namespace DataAccess.Repositories
             _context = context;
         }
 
-        public void Create(Player entity)
+        public void Add(Player entity)
         {
             _context.Players.Add(entity);
         }
@@ -23,15 +25,27 @@ namespace DataAccess.Repositories
             _context.Players.Remove(entity);
         }
 
-        public async Task<IEnumerable<Player>> GetAllAsync()
+        public async Task<PagedList<Player>> GetAllAsync(int pageNumber, int pageSize)
         {
-            var players = await _context.Players.ToListAsync();
+            var players = await _context.Players
+                .Include(p => p.Characters)
+                .ToPagedListAsync(pageNumber, pageSize);
+
             return players;
         }
 
         public async Task<Player?> GetByIdAsync(int id)
         {
-            var player = await _context.Players.SingleOrDefaultAsync(p => p.Id == id);
+            var player = await _context.Players
+                .Include(p => p.Characters)
+                .SingleOrDefaultAsync(p => p.Id == id);
+
+            return player;
+        }
+
+        public async Task<Player?> GetByNameAsync(string name)
+        {
+            var player = await _context.Players.SingleOrDefaultAsync(p => p.Name == name);
             return player;
         }
 

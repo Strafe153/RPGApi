@@ -1,5 +1,7 @@
 ﻿using Core.Entities;
 using Core.Interfaces.Repositories;
+using Core.Models;
+using DataAccess.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories
@@ -13,7 +15,7 @@ namespace DataAccess.Repositories
             _context = context;
         }
 
-        public void Create(Spell entity)
+        public void Add(Spell entity)
         {
             _context.Spells.Add(entity);
         }
@@ -23,15 +25,23 @@ namespace DataAccess.Repositories
             _context.Spells.Remove(entity);
         }
 
-        public async Task<IEnumerable<Spell>> GetAllAsync()
+        public async Task<PagedList<Spell>> GetAllAsync(int pageNumber, int pageSize)
         {
-            var spells = await _context.Spells.ToListAsync();
+            var spells = await _context.Spells
+                .Include(s => s.CharacterSpells)
+                    .ThenInclude(cs => cs.Character)
+                .ToPagedListAsync(pageNumber, pageSize);
+
             return spells;
         }
 
         public async Task<Spell?> GetByIdAsync(int id)
         {
-            var spell = await _context.Spells.SingleOrDefaultAsync(s => s.Id == id);
+            var spell = await _context.Spells
+                .Include(s => s.CharacterSpells)
+                    .ThenInclude(cs => cs.Character)
+                .SingleOrDefaultAsync(s => s.Id == id);
+
             return spell;
         }
 

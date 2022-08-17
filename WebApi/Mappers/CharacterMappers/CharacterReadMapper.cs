@@ -1,5 +1,5 @@
 ﻿using Core.Entities;
-using Core.VeiwModels.CharacterViewModels;
+using Core.ViewModels.CharacterViewModels;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.CharacterMappers
@@ -8,6 +8,10 @@ namespace WebApi.Mappers.CharacterMappers
     {
         public CharacterReadViewModel Map(Character source)
         {
+            var weapons = source.CharacterWeapons.Select(cw => cw.Weapon!);
+            var spells = source.CharacterSpells.Select(cs => cs.Spell!);
+            var mounts = source.CharacterMounts.Select(cm => cm.Mount!);
+
             return new CharacterReadViewModel()
             {
                 Id = source.Id,
@@ -15,9 +19,9 @@ namespace WebApi.Mappers.CharacterMappers
                 Race = source.Race,
                 Health = source.Health,
                 PlayerId = source.PlayerId,
-                Weapons = source.CharacterWeapons.Select(cw => cw.Weapon),
-                Spells = source.CharacterSpells.Select(cs => cs.Spell),
-                Mounts = source.CharacterMounts.Select(cm => cm.Mount)
+                Weapons = weapons,
+                Spells = spells,
+                Mounts = mounts
             };
         }
     }

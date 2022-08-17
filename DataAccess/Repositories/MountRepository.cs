@@ -1,5 +1,7 @@
 ﻿using Core.Entities;
 using Core.Interfaces.Repositories;
+using Core.Models;
+using DataAccess.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories
@@ -13,7 +15,7 @@ namespace DataAccess.Repositories
             _context = context;
         }
 
-        public void Create(Mount entity)
+        public void Add(Mount entity)
         {
             _context.Mounts.Add(entity);
         }
@@ -23,15 +25,23 @@ namespace DataAccess.Repositories
             _context.Mounts.Remove(entity);
         }
 
-        public async Task<IEnumerable<Mount>> GetAllAsync()
+        public async Task<PagedList<Mount>> GetAllAsync(int pageNumber, int pageSize)
         {
-            var mounts = await _context.Mounts.ToListAsync();
+            var mounts = await _context.Mounts
+                .Include(m => m.CharacterMounts)
+                    .ThenInclude(cm => cm.Character)
+                .ToPagedListAsync(pageNumber, pageSize);
+
             return mounts;
         }
 
         public async Task<Mount?> GetByIdAsync(int id)
         {
-            var mount = await _context.Mounts.SingleOrDefaultAsync(m => m.Id == id);
+            var mount = await _context.Mounts
+                .Include(m => m.CharacterMounts)
+                    .ThenInclude(cm => cm.Character)
+                .SingleOrDefaultAsync(m => m.Id == id);
+
             return mount;
         }
 

@@ -1,5 +1,7 @@
 ﻿using Core.Entities;
 using Core.Interfaces.Repositories;
+using Core.Models;
+using DataAccess.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Repositories
@@ -13,7 +15,7 @@ namespace DataAccess.Repositories
             _context = context;
         }
 
-        public void Create(Weapon entity)
+        public void Add(Weapon entity)
         {
             _context.Weapons.Add(entity);
         }
@@ -23,15 +25,23 @@ namespace DataAccess.Repositories
             _context.Weapons.Remove(entity);
         }
 
-        public async Task<IEnumerable<Weapon>> GetAllAsync()
+        public async Task<PagedList<Weapon>> GetAllAsync(int pageNumber, int pageSize)
         {
-            var weapons = await _context.Weapons.ToListAsync();
+            var weapons = await _context.Weapons
+                .Include(w => w.CharacterWeapons)
+                    .ThenInclude(cw => cw.Character)
+                .ToPagedListAsync(pageNumber, pageSize);
+
             return weapons;
         }
 
         public async Task<Weapon?> GetByIdAsync(int id)
         {
-            var weapon = await _context.Weapons.SingleOrDefaultAsync(w => w.Id == id);
+            var weapon = await _context.Weapons
+                .Include(w => w.CharacterWeapons)
+                    .ThenInclude(cw => cw.Character)
+                .SingleOrDefaultAsync(w => w.Id == id);
+
             return weapon;
         }
 

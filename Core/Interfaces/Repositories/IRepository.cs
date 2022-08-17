@@ -1,11 +1,13 @@
-﻿namespace Core.Interfaces.Repositories
+﻿using Core.Models;
+
+namespace Core.Interfaces.Repositories
 {
     public interface IRepository<T> where T : class
     {
-        Task<IEnumerable<T>> GetAllAsync();
+        Task<PagedList<T>> GetAllAsync(int pageNumber, int pageSize);
         Task<T?> GetByIdAsync(int id);
         Task SaveChangesAsync();
-        void Create(T entity);
+        void Add(T entity);
         void Update(T entity);
         void Delete(T entity);
     }

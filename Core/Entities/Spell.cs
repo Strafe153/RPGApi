@@ -9,6 +9,6 @@ namespace Core.Entities
         public SpellType Type { get; set; }
         public int Damage { get; set; }
 
-        public IEnumerable<CharacterSpell> CharacterSpells { get; set; } = new List<CharacterSpell>();
+        public ICollection<CharacterSpell> CharacterSpells { get; set; } = new List<CharacterSpell>();
     }
 }

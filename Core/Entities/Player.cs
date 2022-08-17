@@ -10,6 +10,6 @@ namespace Core.Entities
         public byte[]? PasswordHash { get; set; }
         public byte[]? PasswordSalt { get; set; }
 
-        public IEnumerable<Character>? Characters { get; set; }
+        public ICollection<Character> Characters { get; set; } = new List<Character>();
     }
 }

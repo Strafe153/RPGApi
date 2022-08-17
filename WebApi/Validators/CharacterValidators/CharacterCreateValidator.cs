@@ -1,4 +1,4 @@
-﻿using Core.VeiwModels.CharacterViewModels;
+﻿using Core.ViewModels.CharacterViewModels;
 using FluentValidation;
 
 namespace WebApi.Validators.CharacterValidators

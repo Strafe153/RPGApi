@@ -1,5 +1,5 @@
 ﻿using Core.Entities;
-using Core.VeiwModels.CharacterViewModels;
+using Core.ViewModels.CharacterViewModels;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.CharacterMappers

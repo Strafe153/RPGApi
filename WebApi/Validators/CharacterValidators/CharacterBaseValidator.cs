@@ -1,4 +1,5 @@
-﻿using Core.VeiwModels.CharacterViewModels;
+﻿using Core.Enums;
+using Core.ViewModels.CharacterViewModels;
 using FluentValidation;
 
 namespace WebApi.Validators.CharacterValidators
@@ -14,6 +15,22 @@ namespace WebApi.Validators.CharacterValidators
                 .WithMessage("Name must be at least 2 characters long")
                 .MaximumLength(30)
                 .WithMessage("Name must not be longer than 30 characters");
+
+            RuleFor(c => c.Race)
+                .Must(BeInRange)
+                .WithMessage("Role must be in the range from 0 to 20 inclusive");
+        }
+
+        private bool BeInRange(CharacterRace race)
+        {
+            int raceAsInt = (int)race;
+
+            if ((raceAsInt > -1) && (raceAsInt < 21))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

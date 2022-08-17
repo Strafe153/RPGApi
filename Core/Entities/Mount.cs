@@ -9,6 +9,6 @@ namespace Core.Entities
         public MountType Type { get; set; }
         public int Speed { get; set; }
 
-        public IEnumerable<CharacterMount> CharacterMounts { get; set; } = new List<CharacterMount>();
+        public ICollection<CharacterMount> CharacterMounts { get; set; } = new List<CharacterMount>();
     }
 }

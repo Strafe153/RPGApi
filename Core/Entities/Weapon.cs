@@ -9,6 +9,6 @@ namespace Core.Entities
         public WeaponType Type { get; set; }
         public int Damage { get; set; }
 
-        public IEnumerable<CharacterWeapon> CharacterWeapons { get; set; } = new List<CharacterWeapon>();
+        public ICollection<CharacterWeapon> CharacterWeapons { get; set; } = new List<CharacterWeapon>();
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Core.Entities;
-using Core.VeiwModels.WeaponViewModels;
+using Core.ViewModels.WeaponViewModels;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.WeaponMappers
@@ -8,13 +8,15 @@ namespace WebApi.Mappers.WeaponMappers
     {
         public WeaponReadViewModel Map(Weapon source)
         {
+            var characters = source.CharacterWeapons.Select(cw => cw.Character!);
+
             return new WeaponReadViewModel()
             {
                 Id = source.Id,
                 Name = source.Name,
                 Type = source.Type,
                 Damage = source.Damage,
-                Characters = source.CharacterWeapons.Select(cw => cw.Character)
+                Characters = characters
             };
         }
     }
