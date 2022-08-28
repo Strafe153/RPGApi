@@ -18,7 +18,7 @@ namespace WebApi.Controllers
         private readonly IItemService<Weapon> _weaponService;
         private readonly ICharacterService _characterService;
         private readonly IPlayerService _playerService;
-        private readonly IEnumerableMapper<PagedList<Weapon>, PageViewModel<WeaponReadViewModel>> _pagedMapper;
+        private readonly IMapper<PaginatedList<Weapon>, PageViewModel<WeaponReadViewModel>> _paginatedMapper;
         private readonly IMapper<Weapon, WeaponReadViewModel> _readMapper;
         private readonly IMapper<WeaponBaseViewModel, Weapon> _createMapper;
         private readonly IUpdateMapper<WeaponBaseViewModel, Weapon> _updateMapper;
@@ -27,7 +27,7 @@ namespace WebApi.Controllers
             IItemService<Weapon> weaponService,
             ICharacterService characterService,
             IPlayerService playerService,
-            IEnumerableMapper<PagedList<Weapon>, PageViewModel<WeaponReadViewModel>> pagedMapper,
+            IMapper<PaginatedList<Weapon>, PageViewModel<WeaponReadViewModel>> paginatedMapper,
             IMapper<Weapon, WeaponReadViewModel> readMapper,
             IMapper<WeaponBaseViewModel, Weapon> createMapper,
             IUpdateMapper<WeaponBaseViewModel, Weapon> updateMapper)
@@ -35,7 +35,7 @@ namespace WebApi.Controllers
             _weaponService = weaponService;
             _characterService = characterService;
             _playerService = playerService;
-            _pagedMapper = pagedMapper;
+            _paginatedMapper = paginatedMapper;
             _readMapper = readMapper;
             _createMapper = createMapper;
             _updateMapper = updateMapper;
@@ -46,7 +46,7 @@ namespace WebApi.Controllers
             [FromQuery] PageParameters pageParams)
         {
             var weapons = await _weaponService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
-            var readModels = _pagedMapper.Map(weapons);
+            var readModels = _paginatedMapper.Map(weapons);
 
             return Ok(readModels);
         }

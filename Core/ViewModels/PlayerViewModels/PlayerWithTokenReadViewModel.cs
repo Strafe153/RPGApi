@@ -2,10 +2,9 @@
 
 namespace Core.ViewModels.PlayerViewModels
 {
-    public record PlayerWithTokenReadViewModel
+    public record PlayerWithTokenReadViewModel : PlayerBaseViewModel
     {
         public int Id { get; init; }
-        public string? Name { get; init; }
         public PlayerRole Role { get; init; }
         public string? Token { get; init; }
     }

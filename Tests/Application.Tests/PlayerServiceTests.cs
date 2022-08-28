@@ -54,7 +54,7 @@ namespace Application.Tests
 
             Assert.NotNull(result);
             Assert.NotEmpty(result);
-            Assert.IsType<PagedList<Player>>(result);
+            Assert.IsType<PaginatedList<Player>>(result);
         }
 
         [Fact]

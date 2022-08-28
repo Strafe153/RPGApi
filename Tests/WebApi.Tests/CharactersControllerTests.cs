@@ -2,6 +2,7 @@
 using Core.Models;
 using Core.ViewModels;
 using Core.ViewModels.CharacterViewModels;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using WebApi.Tests.Fixtures;
@@ -22,29 +23,28 @@ namespace WebApi.Tests
         }
 
         [Fact]
-        public async Task GetAsync_ValidPageParameters_ReturnsOkObjectResult()
+        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageViewModelOfCharacterReadViewModel()
         {
             // Arrange
             _fixture.MockCharacterService
                 .Setup(s => s.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_fixture.PagedList);
 
-            _fixture.MockPagedMapper
-                .Setup(m => m.Map(It.IsAny<PagedList<Character>>()))
+            _fixture.MockPaginatedMapper
+                .Setup(m => m.Map(It.IsAny<PaginatedList<Character>>()))
                 .Returns(_fixture.PageViewModel);
 
             // Act
             var result = await _fixture.MockCharactersController.GetAsync(_fixture.PageParameters);
-            var pageViewModel = (result.Result as OkObjectResult)!.Value as PageViewModel<CharacterReadViewModel>;
+            var pageViewModel = result.Result.As<OkObjectResult>().Value.As<PageViewModel<CharacterReadViewModel>>();
 
-            // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<PageViewModel<CharacterReadViewModel>>>(result);
-            Assert.NotEmpty(pageViewModel!.Entities!);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<PageViewModel<CharacterReadViewModel>>>();
+            pageViewModel.Entities.Should().NotBeEmpty();
         }
 
         [Fact]
-        public async Task GetAsync_ValidId_ReturnsOkObjectResult()
+        public async Task GetAsync_ExistingCharacter_ReturnsActionResultOfCharacterReadViewModel()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -57,16 +57,16 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockCharactersController.GetAsync(_fixture.Id);
-            var readViewModel = (result.Result as OkObjectResult)!.Value as CharacterReadViewModel;
+            var readViewModel = result.Result.As<OkObjectResult>().Value.As<CharacterReadViewModel>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<CharacterReadViewModel>>(result);
-            Assert.NotNull(readViewModel);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<CharacterReadViewModel>>();
+            readViewModel.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task CreateAsync_ValidViewModel_ReturnsCreatedAtActionResult()
+        public async Task CreateAsync_ValidViewModel_ReturnsActionResultOfCharacterReadViewModel()
         {
             // Arrange
             _fixture.MockCreateMapper
@@ -75,16 +75,16 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockCharactersController.CreateAsync(_fixture.CharacterCreateViewModel);
-            var readViewModel = (result.Result as CreatedAtActionResult)!.Value as CharacterReadViewModel;
+            var readViewModel = result.Result.As<CreatedAtActionResult>().Value.As<CharacterReadViewModel>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<CharacterReadViewModel>>(result);
-            Assert.NotNull(readViewModel);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<CharacterReadViewModel>>();
+            readViewModel.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task UpdateAsync_ValidViewModel_ReturnsNoContentResult()
+        public async Task UpdateAsync_ExistingCharacterValidViewModel_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -92,16 +92,15 @@ namespace WebApi.Tests
                 .ReturnsAsync(_fixture.Character);
 
             // Act
-            var result = await _fixture.MockCharactersController
-                .UpdateAsync(_fixture.Id, _fixture.CharacterUpdateViewModel);
+            var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.CharacterUpdateViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task UpdateAsync_ValidPatchDocument_ReturnsNoContentResult()
+        public async Task UpdateAsync_ExistingCharacterValidPatchDocument_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -116,12 +115,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task UpdateAsync_InvalidPatchDocument_ReturnsObjectResult()
+        public async Task UpdateAsync_ExistingCharacterInvalidPatchDocument_ReturnsObjectResult()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -138,8 +137,8 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ObjectResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ObjectResult>();
         }
 
         [Fact]
@@ -154,12 +153,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.DeleteAsync(_fixture.Id);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task AddWeaponAsync_ExistingWeapon_ReturnsNoContent()
+        public async Task AddWeaponAsync_ExistingCharacterExistingWeapon_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -174,12 +173,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.AddWeaponAsync(_fixture.ItemViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task RemoveWeaponAsync_ExistingWeapon_ReturnsNoContent()
+        public async Task RemoveWeaponAsync_ExistingCharacterExistingWeapon_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -194,12 +193,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.RemoveWeaponAsync(_fixture.ItemViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task AddSpellAsync_ExistingSpell_ReturnsNoContent()
+        public async Task AddSpellAsync_ExistingCharacterExistingSpell_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -214,12 +213,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.AddSpellAsync(_fixture.ItemViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task RemoveSpellAsync_ExistingSpell_ReturnsNoContent()
+        public async Task RemoveSpellAsync_ExistingCharacterExistingSpell_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -234,12 +233,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.RemoveSpellAsync(_fixture.ItemViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task AddMountAsync_ExistingMount_ReturnsNoContent()
+        public async Task AddMountAsync_ExistingCharacterExistingMount_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -254,12 +253,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.AddMountAsync(_fixture.ItemViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task RemoveMountAsync_ExistingMount_ReturnsNoContent()
+        public async Task RemoveMountAsync_ExistingCharacterExistingMount_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -274,8 +273,8 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.RemoveMountAsync(_fixture.ItemViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
     }
 }

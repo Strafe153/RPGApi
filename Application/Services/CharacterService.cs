@@ -36,7 +36,7 @@ namespace Application.Services
             _logger.LogInformation($"Succesfully deleted a character with id {entity.Id}");
         }
 
-        public async Task<PagedList<Character>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize)
         {
             var characters = await _characterRepository.GetAllAsync(pageNumber, pageSize);
             _logger.LogInformation("Successfully retrieved all characters");

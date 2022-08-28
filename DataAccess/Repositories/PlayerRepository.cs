@@ -25,11 +25,11 @@ namespace DataAccess.Repositories
             _context.Players.Remove(entity);
         }
 
-        public async Task<PagedList<Player>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize)
         {
             var players = await _context.Players
                 .Include(p => p.Characters)
-                .ToPagedListAsync(pageNumber, pageSize);
+                .ToPaginatedListAsync(pageNumber, pageSize);
 
             return players;
         }

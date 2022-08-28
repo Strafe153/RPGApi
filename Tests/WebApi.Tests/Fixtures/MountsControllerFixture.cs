@@ -26,14 +26,14 @@ namespace WebApi.Tests.Fixtures
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
 
             MockMountService = fixture.Freeze<Mock<IItemService<Mount>>>();
-            MockPagedMapper = fixture.Freeze<Mock<IEnumerableMapper<PagedList<Mount>, PageViewModel<MountReadViewModel>>>>();
+            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Mount>, PageViewModel<MountReadViewModel>>>>();
             MockReadMapper = fixture.Freeze<Mock<IMapper<Mount, MountReadViewModel>>>();
             MockCreateMapper = fixture.Freeze<Mock<IMapper<MountBaseViewModel, Mount>>>();
             MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<MountBaseViewModel, Mount>>>();
 
             MockMountsController = new(
                 MockMountService.Object,
-                MockPagedMapper.Object,
+                MockPaginatedMapper.Object,
                 MockReadMapper.Object,
                 MockCreateMapper.Object,
                 MockUpdateMapper.Object);
@@ -53,7 +53,7 @@ namespace WebApi.Tests.Fixtures
 
         public MountsController MockMountsController { get; }
         public Mock<IItemService<Mount>> MockMountService { get; }
-        public Mock<IEnumerableMapper<PagedList<Mount>, PageViewModel<MountReadViewModel>>> MockPagedMapper { get; }
+        public Mock<IMapper<PaginatedList<Mount>, PageViewModel<MountReadViewModel>>> MockPaginatedMapper { get; }
         public Mock<IMapper<Mount, MountReadViewModel>> MockReadMapper { get; }
         public Mock<IMapper<MountBaseViewModel, Mount>> MockCreateMapper { get; }
         public Mock<IUpdateMapper<MountBaseViewModel, Mount>> MockUpdateMapper { get; }
@@ -66,7 +66,7 @@ namespace WebApi.Tests.Fixtures
         public MountBaseViewModel MountBaseViewModel { get; }
         public HitViewModel HitViewModel { get; }
         public PageParameters PageParameters { get; }
-        public PagedList<Mount> PagedList { get; }
+        public PaginatedList<Mount> PagedList { get; }
         public PageViewModel<MountReadViewModel> PageViewModel { get; }
         public JsonPatchDocument<MountBaseViewModel> PatchDocument { get; }
 
@@ -147,9 +147,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PagedList<Mount> GetPagedList()
+        private PaginatedList<Mount> GetPagedList()
         {
-            return new PagedList<Mount>(GetMounts(), 6, 1, 5);
+            return new PaginatedList<Mount>(GetMounts(), 6, 1, 5);
         }
 
         private MountBaseViewModel GetMountBaseViewModel()

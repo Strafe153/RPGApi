@@ -25,7 +25,7 @@ namespace DataAccess.Repositories
             _context.Characters.Remove(entity);
         }
 
-        public async Task<PagedList<Character>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize)
         {
             var characters = await _context.Characters
                 .Include(c => c.Player)
@@ -35,7 +35,7 @@ namespace DataAccess.Repositories
                     .ThenInclude(cs => cs.Spell)
                 .Include(c => c.CharacterMounts)
                     .ThenInclude(cm => cm.Mount)
-                .ToPagedListAsync(pageNumber, pageSize);
+                .ToPaginatedListAsync(pageNumber, pageSize);
 
             return characters;
         }

@@ -25,12 +25,12 @@ namespace DataAccess.Repositories
             _context.Mounts.Remove(entity);
         }
 
-        public async Task<PagedList<Mount>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize)
         {
             var mounts = await _context.Mounts
                 .Include(m => m.CharacterMounts)
                     .ThenInclude(cm => cm.Character)
-                .ToPagedListAsync(pageNumber, pageSize);
+                .ToPaginatedListAsync(pageNumber, pageSize);
 
             return mounts;
         }

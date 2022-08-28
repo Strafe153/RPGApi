@@ -48,7 +48,7 @@ namespace Application.Services
             _logger.LogInformation($"Succesfully deleted a mount with id {entity.Id}");
         }
 
-        public async Task<PagedList<Mount>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize)
         {
             var mounts = await _repository.GetAllAsync(pageNumber, pageSize);
             _logger.LogInformation("Successfully retrieved all mounts");

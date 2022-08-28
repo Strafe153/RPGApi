@@ -28,7 +28,7 @@ namespace WebApi.Tests.Fixtures
             MockWeaponService = fixture.Freeze<Mock<IItemService<Weapon>>>();
             MockCharacterService = fixture.Freeze<Mock<ICharacterService>>();
             MockPlayerService = fixture.Freeze<Mock<IPlayerService>>();
-            MockPagedMapper = fixture.Freeze<Mock<IEnumerableMapper<PagedList<Weapon>, PageViewModel<WeaponReadViewModel>>>>();
+            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Weapon>, PageViewModel<WeaponReadViewModel>>>>();
             MockReadMapper = fixture.Freeze<Mock<IMapper<Weapon, WeaponReadViewModel>>>();
             MockCreateMapper = fixture.Freeze<Mock<IMapper<WeaponBaseViewModel, Weapon>>>();
             MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<WeaponBaseViewModel, Weapon>>>();
@@ -37,7 +37,7 @@ namespace WebApi.Tests.Fixtures
                 MockWeaponService.Object,
                 MockCharacterService.Object,
                 MockPlayerService.Object,
-                MockPagedMapper.Object,
+                MockPaginatedMapper.Object,
                 MockReadMapper.Object,
                 MockCreateMapper.Object,
                 MockUpdateMapper.Object);
@@ -59,7 +59,7 @@ namespace WebApi.Tests.Fixtures
         public Mock<IItemService<Weapon>> MockWeaponService { get; }
         public Mock<ICharacterService> MockCharacterService { get; }
         public Mock<IPlayerService> MockPlayerService { get; }
-        public Mock<IEnumerableMapper<PagedList<Weapon>, PageViewModel<WeaponReadViewModel>>> MockPagedMapper { get; }
+        public Mock<IMapper<PaginatedList<Weapon>, PageViewModel<WeaponReadViewModel>>> MockPaginatedMapper { get; }
         public Mock<IMapper<Weapon, WeaponReadViewModel>> MockReadMapper { get; }
         public Mock<IMapper<WeaponBaseViewModel, Weapon>> MockCreateMapper { get; }
         public Mock<IUpdateMapper<WeaponBaseViewModel, Weapon>> MockUpdateMapper { get; }
@@ -72,7 +72,7 @@ namespace WebApi.Tests.Fixtures
         public WeaponBaseViewModel SpellBaseViewModel { get; }
         public HitViewModel HitViewModel { get; }
         public PageParameters PageParameters { get; }
-        public PagedList<Weapon> PagedList { get; }
+        public PaginatedList<Weapon> PagedList { get; }
         public PageViewModel<WeaponReadViewModel> PageViewModel { get; }
         public JsonPatchDocument<WeaponBaseViewModel> PatchDocument { get; }
 
@@ -153,9 +153,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PagedList<Weapon> GetPagedList()
+        private PaginatedList<Weapon> GetPagedList()
         {
-            return new PagedList<Weapon>(GetWeapons(), 6, 1, 5);
+            return new PaginatedList<Weapon>(GetWeapons(), 6, 1, 5);
         }
 
         private WeaponBaseViewModel GetWeaponBaseViewModel()

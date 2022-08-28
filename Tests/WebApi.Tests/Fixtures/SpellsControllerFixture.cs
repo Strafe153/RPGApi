@@ -27,7 +27,7 @@ namespace WebApi.Tests.Fixtures
             MockSpellService = fixture.Freeze<Mock<IItemService<Spell>>>();
             MockCharacterService = fixture.Freeze<Mock<ICharacterService>>();
             MockPlayerService = fixture.Freeze<Mock<IPlayerService>>();
-            MockPagedMapper = fixture.Freeze<Mock<IEnumerableMapper<PagedList<Spell>, PageViewModel<SpellReadViewModel>>>>();
+            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Spell>, PageViewModel<SpellReadViewModel>>>>();
             MockReadMapper = fixture.Freeze<Mock<IMapper<Spell, SpellReadViewModel>>>();
             MockCreateMapper = fixture.Freeze<Mock<IMapper<SpellBaseViewModel, Spell>>>();
             MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<SpellBaseViewModel, Spell>>>();
@@ -36,7 +36,7 @@ namespace WebApi.Tests.Fixtures
                 MockSpellService.Object,
                 MockCharacterService.Object,
                 MockPlayerService.Object,
-                MockPagedMapper.Object,
+                MockPaginatedMapper.Object,
                 MockReadMapper.Object,
                 MockCreateMapper.Object,
                 MockUpdateMapper.Object);
@@ -58,7 +58,7 @@ namespace WebApi.Tests.Fixtures
         public Mock<IItemService<Spell>> MockSpellService { get; }
         public Mock<ICharacterService> MockCharacterService { get; }
         public Mock<IPlayerService> MockPlayerService { get; }
-        public Mock<IEnumerableMapper<PagedList<Spell>, PageViewModel<SpellReadViewModel>>> MockPagedMapper { get; }
+        public Mock<IMapper<PaginatedList<Spell>, PageViewModel<SpellReadViewModel>>> MockPaginatedMapper { get; }
         public Mock<IMapper<Spell, SpellReadViewModel>> MockReadMapper { get; }
         public Mock<IMapper<SpellBaseViewModel, Spell>> MockCreateMapper { get; }
         public Mock<IUpdateMapper<SpellBaseViewModel, Spell>> MockUpdateMapper { get; }
@@ -71,7 +71,7 @@ namespace WebApi.Tests.Fixtures
         public SpellBaseViewModel SpellBaseViewModel { get; }
         public HitViewModel HitViewModel { get; }
         public PageParameters PageParameters { get; }
-        public PagedList<Spell> PagedList { get; }
+        public PaginatedList<Spell> PagedList { get; }
         public PageViewModel<SpellReadViewModel> PageViewModel { get; }
         public JsonPatchDocument<SpellBaseViewModel> PatchDocument { get; }
 
@@ -141,9 +141,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PagedList<Spell> GetPagedList()
+        private PaginatedList<Spell> GetPagedList()
         {
-            return new PagedList<Spell>(GetSpells(), 6, 1, 5);
+            return new PaginatedList<Spell>(GetSpells(), 6, 1, 5);
         }
 
         private SpellBaseViewModel GetSpellBaseViewModel()

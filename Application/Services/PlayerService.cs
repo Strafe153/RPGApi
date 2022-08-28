@@ -39,7 +39,7 @@ namespace Application.Services
             _logger.LogInformation($"Succesfully deleted a player with id {entity.Id}");
         }
 
-        public async Task<PagedList<Player>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize)
         {
             var players = await _repository.GetAllAsync(pageNumber, pageSize);
             _logger.LogInformation("Successfully retrieved all players");

@@ -6,16 +6,16 @@ using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.CharacterMappers
 {
-    public class CharacterPagedMapper : IEnumerableMapper<PagedList<Character>, PageViewModel<CharacterReadViewModel>>
+    public class CharacterPaginatedMapper : IMapper<PaginatedList<Character>, PageViewModel<CharacterReadViewModel>>
     {
         private readonly IMapper<Character, CharacterReadViewModel> _readMapper;
 
-        public CharacterPagedMapper(IMapper<Character, CharacterReadViewModel> readMapper)
+        public CharacterPaginatedMapper(IMapper<Character, CharacterReadViewModel> readMapper)
         {
             _readMapper = readMapper;
         }
 
-        public PageViewModel<CharacterReadViewModel> Map(PagedList<Character> source)
+        public PageViewModel<CharacterReadViewModel> Map(PaginatedList<Character> source)
         {
             return new PageViewModel<CharacterReadViewModel>()
             {

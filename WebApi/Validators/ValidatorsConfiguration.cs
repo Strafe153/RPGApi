@@ -17,7 +17,9 @@ namespace WebApi.Validators
         public static void AddApplicationValidators(this IServiceCollection services)
         {
             // Player validators
+            services.AddScoped<IValidator<PlayerBaseViewModel>, PlayerBaseValidator<PlayerBaseViewModel>>();
             services.AddScoped<IValidator<PlayerAuthorizeViewModel>, PlayerAuthorizeValidator>();
+            services.AddScoped<IValidator<PlayerChangePasswordViewModel>, PlayerChangePasswordValidator>();
             services.AddScoped<IValidator<PlayerChangeRoleViewModel>, PlayerChangeRoleValidator>();
 
             // Character validators

@@ -20,14 +20,14 @@ namespace WebApi.Tests.Fixtures
 
             MockPlayerService = fixture.Freeze<Mock<IPlayerService>>();
             MockPasswordService = fixture.Freeze<Mock<IPasswordService>>();
-            MockPagedMapper = fixture.Freeze<Mock<IEnumerableMapper<PagedList<Player>, PageViewModel<PlayerReadViewModel>>>>();
+            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Player>, PageViewModel<PlayerReadViewModel>>>>();
             MockReadMapper = fixture.Freeze<Mock<IMapper<Player, PlayerReadViewModel>>>();
             MockReadWithTokenMapper = fixture.Freeze<Mock<IMapper<Player, PlayerWithTokenReadViewModel>>>();
 
             MockPlayersController = new(
                 MockPlayerService.Object,
                 MockPasswordService.Object,
-                MockPagedMapper.Object,
+                MockPaginatedMapper.Object,
                 MockReadMapper.Object,
                 MockReadWithTokenMapper.Object);
 
@@ -39,6 +39,7 @@ namespace WebApi.Tests.Fixtures
             PlayerWithTokenReadViewModel = GetPlayerWithTokenReadViewModel();
             PlayerAuthorizeViewModel = GetPlayerAuthorizeViewModel();
             PlayerUpdateViewModel = GetPlayerUpdateViewModel();
+            PlayerChangePasswordViewModel = GetPlayerChangePasswordViewModel();
             PlayerChangeRoleViewModel = GetPlayerChangeRoleViewModel();
             PageParameters = GetPageParameters();
             PagedList = GetPagedList();
@@ -48,7 +49,7 @@ namespace WebApi.Tests.Fixtures
         public PlayersController MockPlayersController { get; }
         public Mock<IPlayerService> MockPlayerService { get; }
         public Mock<IPasswordService> MockPasswordService { get; }
-        public Mock<IEnumerableMapper<PagedList<Player>, PageViewModel<PlayerReadViewModel>>> MockPagedMapper { get; }
+        public Mock<IMapper<PaginatedList<Player>, PageViewModel<PlayerReadViewModel>>> MockPaginatedMapper { get; }
         public Mock<IMapper<Player, PlayerReadViewModel>> MockReadMapper { get; }
         public Mock<IMapper<Player, PlayerWithTokenReadViewModel>> MockReadWithTokenMapper { get; }
 
@@ -59,10 +60,11 @@ namespace WebApi.Tests.Fixtures
         public PlayerReadViewModel PlayerReadViewModel { get; }
         public PlayerWithTokenReadViewModel PlayerWithTokenReadViewModel { get; }
         public PlayerAuthorizeViewModel PlayerAuthorizeViewModel { get; }
-        public PlayerUpdateViewModel PlayerUpdateViewModel { get; }
+        public PlayerBaseViewModel PlayerUpdateViewModel { get; }
+        public PlayerChangePasswordViewModel PlayerChangePasswordViewModel { get; }
         public PlayerChangeRoleViewModel PlayerChangeRoleViewModel { get; }
         public PageParameters PageParameters { get; }
-        public PagedList<Player> PagedList { get; }
+        public PaginatedList<Player> PagedList { get; }
         public PageViewModel<PlayerReadViewModel> PageViewModel { get; }
 
         private Player GetPlayer()
@@ -134,11 +136,19 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PlayerUpdateViewModel GetPlayerUpdateViewModel()
+        private PlayerBaseViewModel GetPlayerUpdateViewModel()
         {
-            return new PlayerUpdateViewModel()
+            return new PlayerBaseViewModel()
             {
-                Value = Name
+                Name = Name
+            };
+        }
+
+        private PlayerChangePasswordViewModel GetPlayerChangePasswordViewModel()
+        {
+            return new PlayerChangePasswordViewModel()
+            {
+                Password = Name
             };
         }
 
@@ -150,9 +160,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PagedList<Player> GetPagedList()
+        private PaginatedList<Player> GetPagedList()
         {
-            return new PagedList<Player>(GetPlayers(), 6, 1, 5);
+            return new PaginatedList<Player>(GetPlayers(), 6, 1, 5);
         }
 
         private PageViewModel<PlayerReadViewModel> GetPageViewModel()

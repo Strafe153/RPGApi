@@ -1,23 +1,23 @@
 ﻿using Core.Entities;
 using Core.Models;
 using Core.ViewModels;
-using Core.ViewModels.SpellViewModels;
+using Core.ViewModels.MountViewModels;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Mappers.SpellMappers
+namespace WebApi.Mappers.MountMappers
 {
-    public class SpellPagedMapper : IEnumerableMapper<PagedList<Spell>, PageViewModel<SpellReadViewModel>>
+    public class MountPaginatedMapper : IMapper<PaginatedList<Mount>, PageViewModel<MountReadViewModel>>
     {
-        private readonly IMapper<Spell, SpellReadViewModel> _readMapper;
+        private readonly IMapper<Mount, MountReadViewModel> _readMapper;
 
-        public SpellPagedMapper(IMapper<Spell, SpellReadViewModel> readMapper)
+        public MountPaginatedMapper(IMapper<Mount, MountReadViewModel> readMapper)
         {
             _readMapper = readMapper;
         }
 
-        public PageViewModel<SpellReadViewModel> Map(PagedList<Spell> source)
+        public PageViewModel<MountReadViewModel> Map(PaginatedList<Mount> source)
         {
-            return new PageViewModel<SpellReadViewModel>()
+            return new PageViewModel<MountReadViewModel>()
             {
                 CurrentPage = source.CurrentPage,
                 TotalPages = source.TotalPages,

@@ -25,12 +25,12 @@ namespace DataAccess.Repositories
             _context.Spells.Remove(entity);
         }
 
-        public async Task<PagedList<Spell>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Spell>> GetAllAsync(int pageNumber, int pageSize)
         {
             var spells = await _context.Spells
                 .Include(s => s.CharacterSpells)
                     .ThenInclude(cs => cs.Character)
-                .ToPagedListAsync(pageNumber, pageSize);
+                .ToPaginatedListAsync(pageNumber, pageSize);
 
             return spells;
         }
