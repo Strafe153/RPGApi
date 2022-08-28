@@ -48,7 +48,7 @@ namespace Application.Services
             _logger.LogInformation($"Succesfully deleted a weapon with id {entity.Id}");
         }
 
-        public async Task<PagedList<Weapon>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize)
         {
             var weapons = await _repository.GetAllAsync(pageNumber, pageSize);
             _logger.LogInformation("Successfully retrieved all weapons");

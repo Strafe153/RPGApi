@@ -1,6 +1,6 @@
 ﻿namespace Core.ViewModels.PlayerViewModels
 {
-    public record PlayerAuthorizeViewModel : PlayerBaseViewModel
+    public record PlayerChangePasswordViewModel
     {
         public string? Password { get; init; }
     }

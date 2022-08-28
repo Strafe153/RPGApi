@@ -30,7 +30,7 @@ namespace WebApi.Tests.Fixtures
             MockWeaponService = fixture.Freeze<Mock<IItemService<Weapon>>>();
             MockSpellService = fixture.Freeze<Mock<IItemService<Spell>>>();
             MockMountService = fixture.Freeze<Mock<IItemService<Mount>>>();
-            MockPagedMapper = fixture.Freeze<Mock<IEnumerableMapper<PagedList<Character>, PageViewModel<CharacterReadViewModel>>>>();
+            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Character>, PageViewModel<CharacterReadViewModel>>>>();
             MockReadMapper = fixture.Freeze<Mock<IMapper<Character, CharacterReadViewModel>>>();
             MockCreateMapper = fixture.Freeze<Mock<IMapper<CharacterCreateViewModel, Character>>>();
             MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<CharacterBaseViewModel, Character>>>();
@@ -41,7 +41,7 @@ namespace WebApi.Tests.Fixtures
                 MockWeaponService.Object,
                 MockSpellService.Object,
                 MockMountService.Object,
-                MockPagedMapper.Object,
+                MockPaginatedMapper.Object,
                 MockReadMapper.Object,
                 MockCreateMapper.Object,
                 MockUpdateMapper.Object);
@@ -68,7 +68,7 @@ namespace WebApi.Tests.Fixtures
         public Mock<IItemService<Weapon>> MockWeaponService { get; }
         public Mock<IItemService<Spell>> MockSpellService { get; }
         public Mock<IItemService<Mount>> MockMountService { get; }
-        public Mock<IEnumerableMapper<PagedList<Character>, PageViewModel<CharacterReadViewModel>>> MockPagedMapper { get; }
+        public Mock<IMapper<PaginatedList<Character>, PageViewModel<CharacterReadViewModel>>> MockPaginatedMapper { get; }
         public Mock<IMapper<Character, CharacterReadViewModel>> MockReadMapper { get; }
         public Mock<IMapper<CharacterCreateViewModel, Character>> MockCreateMapper { get; }
         public Mock<IUpdateMapper<CharacterBaseViewModel, Character>> MockUpdateMapper { get; }
@@ -85,7 +85,7 @@ namespace WebApi.Tests.Fixtures
         public JsonPatchDocument<CharacterBaseViewModel> PatchDocument { get; }
         public AddRemoveItemViewModel ItemViewModel { get; }
         public PageParameters PageParameters { get; }
-        public PagedList<Character> PagedList { get; }
+        public PaginatedList<Character> PagedList { get; }
         public PageViewModel<CharacterReadViewModel> PageViewModel { get; }
 
         public void MockControllerBaseUser()
@@ -243,9 +243,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PagedList<Character> GetPagedList()
+        private PaginatedList<Character> GetPagedList()
         {
-            return new PagedList<Character>(GetCharacters(), 6, 1, 5);
+            return new PaginatedList<Character>(GetCharacters(), 6, 1, 5);
         }
 
         private PageViewModel<CharacterReadViewModel> GetPageViewModel()

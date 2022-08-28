@@ -2,6 +2,7 @@
 using Core.Models;
 using Core.ViewModels;
 using Core.ViewModels.SpellViewModels;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using WebApi.Tests.Fixtures;
@@ -21,29 +22,29 @@ namespace WebApi.Tests
         }
 
         [Fact]
-        public async Task GetAsync_ValidPageParameters_ReturnsOkObjectResult()
+        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageViewModelOfSpellReadViewModel()
         {
             // Arrange
             _fixture.MockSpellService
                 .Setup(s => s.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_fixture.PagedList);
 
-            _fixture.MockPagedMapper
-                .Setup(m => m.Map(It.IsAny<PagedList<Spell>>()))
+            _fixture.MockPaginatedMapper
+                .Setup(m => m.Map(It.IsAny<PaginatedList<Spell>>()))
                 .Returns(_fixture.PageViewModel);
 
             // Act
             var result = await _fixture.MockSpellsController.GetAsync(_fixture.PageParameters);
-            var pageViewModel = (result.Result as OkObjectResult)!.Value as PageViewModel<SpellReadViewModel>;
+            var pageViewModel = result.Result.As<OkObjectResult>().Value.As<PageViewModel<SpellReadViewModel>>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<PageViewModel<SpellReadViewModel>>>(result);
-            Assert.NotEmpty(pageViewModel!.Entities!);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<PageViewModel<SpellReadViewModel>>>();
+            pageViewModel.Entities.Should().NotBeEmpty();
         }
 
         [Fact]
-        public async Task GetAsync_ValidId_ReturnsOkObjectResult()
+        public async Task GetAsync_ExistingSpell_ReturnsActionResultOfSpellReadViewModel()
         {
             // Arrange
             _fixture.MockSpellService
@@ -56,16 +57,16 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockSpellsController.GetAsync(_fixture.Id);
-            var readViewModel = (result.Result as OkObjectResult)!.Value as SpellReadViewModel;
+            var readViewModel = result.Result.As<OkObjectResult>().Value.As<SpellReadViewModel>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<SpellReadViewModel>>(result);
-            Assert.NotNull(readViewModel);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<SpellReadViewModel>>();
+            readViewModel.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task CreateAsync_ValidViewModel_ReturnsCreatedAtActionResult()
+        public async Task CreateAsync_ValidViewModel_ReturnsActionResultOfSpellReadViewModel()
         {
             // Arrange
             _fixture.MockCreateMapper
@@ -74,16 +75,16 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockSpellsController.CreateAsync(_fixture.SpellBaseViewModel);
-            var readViewModel = (result.Result as CreatedAtActionResult)!.Value as SpellReadViewModel;
+            var readViewModel = result.Result.As<CreatedAtActionResult>().Value.As<SpellReadViewModel>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<SpellReadViewModel>>(result);
-            Assert.NotNull(readViewModel);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<SpellReadViewModel>>();
+            readViewModel.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task UpdateAsync_ValidViewModel_ReturnsNoContentResult()
+        public async Task UpdateAsync_ExistingSpellValidViewModel_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockSpellService
@@ -94,12 +95,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockSpellsController.UpdateAsync(_fixture.Id, _fixture.SpellBaseViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task UpdateAsync_ValidPatchDocument_ReturnsNoContentResult()
+        public async Task UpdateAsync_ExistingSpellValidPatchDocument_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockSpellService
@@ -114,8 +115,8 @@ namespace WebApi.Tests
             var result = await _fixture.MockSpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -136,8 +137,8 @@ namespace WebApi.Tests
             var result = await _fixture.MockSpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ObjectResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ObjectResult>();
         }
 
         [Fact]
@@ -152,8 +153,8 @@ namespace WebApi.Tests
             var result = await _fixture.MockSpellsController.DeleteAsync(_fixture.Id);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -172,8 +173,8 @@ namespace WebApi.Tests
             var result = await _fixture.MockSpellsController.HitAsync(_fixture.HitViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
     }
 }

@@ -48,7 +48,7 @@ namespace Application.Services
             _logger.LogInformation($"Succesfully deleted a spell with id {entity.Id}");
         }
 
-        public async Task<PagedList<Spell>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Spell>> GetAllAsync(int pageNumber, int pageSize)
         {
             var spells = await _repository.GetAllAsync(pageNumber, pageSize);
             _logger.LogInformation("Successfully retrieved all spells");

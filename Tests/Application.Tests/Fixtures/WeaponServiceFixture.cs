@@ -39,7 +39,7 @@ namespace Application.Tests.Fixtures
         public string? Name { get; }
         public Weapon Weapon { get; }
         public Character Character { get; }
-        public PagedList<Weapon> PagedList { get; }
+        public PaginatedList<Weapon> PagedList { get; }
 
         private Character GetCharacter()
         {
@@ -93,9 +93,9 @@ namespace Application.Tests.Fixtures
             };
         }
 
-        private PagedList<Weapon> GetPagedList()
+        private PaginatedList<Weapon> GetPagedList()
         {
-            return new PagedList<Weapon>(GetWeapons(), 6, 1, 5);
+            return new PaginatedList<Weapon>(GetWeapons(), 6, 1, 5);
         }
     }
 }

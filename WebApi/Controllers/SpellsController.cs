@@ -18,7 +18,7 @@ namespace WebApi.Controllers
         private readonly IItemService<Spell> _spellService;
         private readonly ICharacterService _characterService;
         private readonly IPlayerService _playerService;
-        private readonly IEnumerableMapper<PagedList<Spell>, PageViewModel<SpellReadViewModel>> _pagedMapper;
+        private readonly IMapper<PaginatedList<Spell>, PageViewModel<SpellReadViewModel>> _paginatedMapper;
         private readonly IMapper<Spell, SpellReadViewModel> _readMapper;
         private readonly IMapper<SpellBaseViewModel, Spell> _createMapper;
         private readonly IUpdateMapper<SpellBaseViewModel, Spell> _updateMapper;
@@ -27,7 +27,7 @@ namespace WebApi.Controllers
             IItemService<Spell> spellService,
             ICharacterService characterService,
             IPlayerService playerService,
-            IEnumerableMapper<PagedList<Spell>, PageViewModel<SpellReadViewModel>> pagedMapper,
+            IMapper<PaginatedList<Spell>, PageViewModel<SpellReadViewModel>> paginatedMapper,
             IMapper<Spell, SpellReadViewModel> readMapper,
             IMapper<SpellBaseViewModel, Spell> createMapper,
             IUpdateMapper<SpellBaseViewModel, Spell> updateMapper)
@@ -35,7 +35,7 @@ namespace WebApi.Controllers
             _spellService = spellService;
             _characterService = characterService;
             _playerService = playerService;
-            _pagedMapper = pagedMapper;
+            _paginatedMapper = paginatedMapper;
             _readMapper = readMapper;
             _createMapper = createMapper;
             _updateMapper = updateMapper;
@@ -46,9 +46,9 @@ namespace WebApi.Controllers
             [FromQuery] PageParameters pageParams)
         {
             var spells = await _spellService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
-            var readModels = _pagedMapper.Map(spells);
+            var pageModel = _paginatedMapper.Map(spells);
 
-            return Ok(readModels);
+            return Ok(pageModel);
         }
 
         [HttpGet("{id:int:min(1)}")]

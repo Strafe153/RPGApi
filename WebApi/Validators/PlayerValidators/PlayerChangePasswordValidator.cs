@@ -3,11 +3,11 @@ using FluentValidation;
 
 namespace WebApi.Validators.PlayerValidators
 {
-    public class PlayerAuthorizeValidator : PlayerBaseValidator<PlayerAuthorizeViewModel>
+    public class PlayerChangePasswordValidator : AbstractValidator<PlayerChangePasswordViewModel>
     {
-        public PlayerAuthorizeValidator()
+        public PlayerChangePasswordValidator()
         {
-            RuleFor(p => p.Password)
+            RuleFor(u => u.Password)
                 .NotEmpty()
                 .WithMessage("Password is required")
                 .MinimumLength(6)

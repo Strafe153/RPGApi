@@ -16,20 +16,20 @@ namespace WebApi.Controllers
     public class MountsController : ControllerBase
     {
         private readonly IItemService<Mount> _mountService;
-        private readonly IEnumerableMapper<PagedList<Mount>, PageViewModel<MountReadViewModel>> _pagedMapper;
+        private readonly IMapper<PaginatedList<Mount>, PageViewModel<MountReadViewModel>> _paginatedMapper;
         private readonly IMapper<Mount, MountReadViewModel> _readMapper;
         private readonly IMapper<MountBaseViewModel, Mount> _createMapper;
         private readonly IUpdateMapper<MountBaseViewModel, Mount> _updateMapper;
 
         public MountsController(
             IItemService<Mount> mountService,
-            IEnumerableMapper<PagedList<Mount>, PageViewModel<MountReadViewModel>> pagedMapper, 
+            IMapper<PaginatedList<Mount>, PageViewModel<MountReadViewModel>> paginatedMapper, 
             IMapper<Mount, MountReadViewModel> readMapper, 
             IMapper<MountBaseViewModel, Mount> createMapper,
             IUpdateMapper<MountBaseViewModel, Mount> updateMapper)
         {
             _mountService = mountService;
-            _pagedMapper = pagedMapper;
+            _paginatedMapper = paginatedMapper;
             _readMapper = readMapper;
             _createMapper = createMapper;
             _updateMapper = updateMapper;
@@ -40,9 +40,9 @@ namespace WebApi.Controllers
             [FromQuery] PageParameters pageParams)
         {
             var mounts = await _mountService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
-            var readModels = _pagedMapper.Map(mounts);
+            var pageModel = _paginatedMapper.Map(mounts);
 
-            return Ok(readModels);
+            return Ok(pageModel);
         }
 
         [HttpGet("{id:int:min(1)}")]

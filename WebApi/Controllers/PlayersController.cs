@@ -16,20 +16,20 @@ namespace WebApi.Controllers
     {
         private readonly IPlayerService _playerService;
         private readonly IPasswordService _passwordService;
-        private readonly IEnumerableMapper<PagedList<Player>, PageViewModel<PlayerReadViewModel>> _pagedMapper;
+        private readonly IMapper<PaginatedList<Player>, PageViewModel<PlayerReadViewModel>> _paginatedMapper;
         private readonly IMapper<Player, PlayerReadViewModel> _readMapper;
         private readonly IMapper<Player, PlayerWithTokenReadViewModel> _readWithTokenMapper;
 
         public PlayersController(
             IPlayerService playerService,
             IPasswordService passwordService,
-            IEnumerableMapper<PagedList<Player>, PageViewModel<PlayerReadViewModel>> pageMapper,
+            IMapper<PaginatedList<Player>, PageViewModel<PlayerReadViewModel>> paginatedMapper,
             IMapper<Player, PlayerReadViewModel> readMapper,
             IMapper<Player, PlayerWithTokenReadViewModel> readWithTokenMapper)
         {
             _playerService = playerService;
             _passwordService = passwordService;
-            _pagedMapper = pageMapper;
+            _paginatedMapper = paginatedMapper;
             _readMapper = readMapper;
             _readWithTokenMapper = readWithTokenMapper;
         }
@@ -39,9 +39,9 @@ namespace WebApi.Controllers
             [FromQuery] PageParameters pageParams)
         {
             var players = await _playerService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
-            var readModels = _pagedMapper.Map(players);
+            var pageModel = _paginatedMapper.Map(players);
 
-            return Ok(readModels);
+            return Ok(pageModel);
         }
 
         [HttpGet("{id:int:min(1)}")]
@@ -84,33 +84,31 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("{id:int:min(1)}")]
-        public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] PlayerUpdateViewModel updateModel)
+        public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] PlayerBaseViewModel updateModel)
         {
             var player = await _playerService.GetByIdAsync(id);
 
             _playerService.VerifyPlayerAccessRights(player, User?.Identity!, User?.Claims!);
-            await _playerService.VerifyNameUniqueness(updateModel.Value!);
-            player.Name = updateModel.Value;
+            await _playerService.VerifyNameUniqueness(updateModel.Name!);
+            player.Name = updateModel.Name;
             await _playerService.UpdateAsync(player);
 
             return NoContent();
         }
 
         [HttpPut("{id:int:min(1)}/changePassword")]
-        public async Task<ActionResult<string>> ChangePasswordAsync(
+        public async Task<ActionResult> ChangePasswordAsync(
             [FromRoute] int id, 
-            [FromBody] PlayerUpdateViewModel updateModel)
+            [FromBody] PlayerChangePasswordViewModel changePasswordModel)
         {
             var player = await _playerService.GetByIdAsync(id);
 
             _playerService.VerifyPlayerAccessRights(player, User?.Identity!, User?.Claims!);
-            _passwordService.CreatePasswordHash(updateModel.Value!, out byte[] hash, out byte[] salt);
+            _passwordService.CreatePasswordHash(changePasswordModel.Password!, out byte[] hash, out byte[] salt);
             _playerService.ChangePasswordData(player, hash, salt);
             await _playerService.UpdateAsync(player);
 
-            string token = _passwordService.CreateToken(player);
-
-            return Ok(token);
+            return NoContent();
         }
 
         [HttpPut("{id:int:min(1)}/changeRole")]

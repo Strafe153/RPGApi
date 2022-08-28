@@ -48,7 +48,7 @@ namespace Application.Tests.Fixtures
         public CharacterRace Race { get; }
         public Player Player { get; }
         public List<Player> Players { get; }
-        public PagedList<Player> PagedList { get; }
+        public PaginatedList<Player> PagedList { get; }
         public IIdentity IIdentity { get; }
         public IEnumerable<Claim> SufficientClaims { get; }
         public IEnumerable<Claim> InsufficientClaims { get; }
@@ -96,9 +96,9 @@ namespace Application.Tests.Fixtures
             };
         }
 
-        private PagedList<Player> GetPagedList()
+        private PaginatedList<Player> GetPagedList()
         {
-            return new PagedList<Player>(Players, 6, 1, 5);
+            return new PaginatedList<Player>(Players, 6, 1, 5);
         }
 
         private IIdentity GetClaimsIdentity()

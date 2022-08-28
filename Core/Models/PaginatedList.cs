@@ -1,6 +1,6 @@
 ﻿namespace Core.Models
 {
-    public class PagedList<T> : List<T>
+    public class PaginatedList<T> : List<T>
     {
         public int TotalItems { get; private set; }
         public int CurrentPage { get; private set; }
@@ -10,7 +10,7 @@
         public bool HasPrevious => CurrentPage > 1;
         public bool HasNext => CurrentPage < TotalPages;
 
-        public PagedList(List<T> items, int totalItems, int pageNumber, int pageSize)
+        public PaginatedList(List<T> items, int totalItems, int pageNumber, int pageSize)
         {
             TotalItems = totalItems;
             CurrentPage = pageNumber;

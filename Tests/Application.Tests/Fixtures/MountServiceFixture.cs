@@ -41,7 +41,7 @@ namespace Application.Tests.Fixtures
         public Mount Mount { get; }
         public Character Character { get; }
         public List<Mount> Mounts { get; }
-        public PagedList<Mount> PagedList { get; }
+        public PaginatedList<Mount> PagedList { get; }
 
         private CharacterMount GetCharacterMount(int characterId, int mountId)
         {
@@ -95,9 +95,9 @@ namespace Application.Tests.Fixtures
             };
         }
 
-        private PagedList<Mount> GetPagedList()
+        private PaginatedList<Mount> GetPagedList()
         {
-            return new PagedList<Mount>(Mounts, 6, 1, 5);
+            return new PaginatedList<Mount>(Mounts, 6, 1, 5);
         }
     }
 }

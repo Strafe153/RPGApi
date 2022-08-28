@@ -1,23 +1,23 @@
 ﻿using Core.Entities;
 using Core.Models;
 using Core.ViewModels;
-using Core.ViewModels.PlayerViewModels;
+using Core.ViewModels.WeaponViewModels;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Mappers.PlayerMappers
+namespace WebApi.Mappers.WeaponMappers
 {
-    public class PlayerPagedMapper : IEnumerableMapper<PagedList<Player>, PageViewModel<PlayerReadViewModel>>
+    public class WeaponPaginatedMapper : IMapper<PaginatedList<Weapon>, PageViewModel<WeaponReadViewModel>>
     {
-        private readonly IMapper<Player, PlayerReadViewModel> _readMapper;
+        private readonly IMapper<Weapon, WeaponReadViewModel> _readMapper;
 
-        public PlayerPagedMapper(IMapper<Player, PlayerReadViewModel> readMapper)
+        public WeaponPaginatedMapper(IMapper<Weapon, WeaponReadViewModel> readMapper)
         {
             _readMapper = readMapper;
         }
 
-        public PageViewModel<PlayerReadViewModel> Map(PagedList<Player> source)
+        public PageViewModel<WeaponReadViewModel> Map(PaginatedList<Weapon> source)
         {
-            return new PageViewModel<PlayerReadViewModel>()
+            return new PageViewModel<WeaponReadViewModel>()
             {
                 CurrentPage = source.CurrentPage,
                 TotalPages = source.TotalPages,

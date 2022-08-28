@@ -20,7 +20,7 @@ namespace WebApi.Controllers
         private readonly IItemService<Weapon> _weaponService;
         private readonly IItemService<Spell> _spellService;
         private readonly IItemService<Mount> _mountService;
-        private readonly IEnumerableMapper<PagedList<Character>, PageViewModel<CharacterReadViewModel>> _pagedMapper;
+        private readonly IMapper<PaginatedList<Character>, PageViewModel<CharacterReadViewModel>> _paginatedMapper;
         private readonly IMapper<Character, CharacterReadViewModel> _readMapper;
         private readonly IMapper<CharacterCreateViewModel, Character> _createMapper;
         private readonly IUpdateMapper<CharacterBaseViewModel, Character> _updateMapper;
@@ -31,7 +31,7 @@ namespace WebApi.Controllers
             IItemService<Weapon> weaponService,
             IItemService<Spell> spellService,
             IItemService<Mount> mountService,
-            IEnumerableMapper<PagedList<Character>, PageViewModel<CharacterReadViewModel>> pagedMapper,
+            IMapper<PaginatedList<Character>, PageViewModel<CharacterReadViewModel>> paginatedMapper,
             IMapper<Character, CharacterReadViewModel> readMapper,
             IMapper<CharacterCreateViewModel, Character> createMapper,
             IUpdateMapper<CharacterBaseViewModel, Character> updateMapper)
@@ -41,7 +41,7 @@ namespace WebApi.Controllers
             _weaponService = weaponService;
             _spellService = spellService;
             _mountService = mountService;
-            _pagedMapper = pagedMapper;
+            _paginatedMapper = paginatedMapper;
             _readMapper = readMapper;
             _createMapper = createMapper;
             _updateMapper = updateMapper;
@@ -52,9 +52,9 @@ namespace WebApi.Controllers
             [FromQuery] PageParameters pageParams)
         {
             var characters = await _characterService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
-            var readModels = _pagedMapper.Map(characters);
+            var pageModel = _paginatedMapper.Map(characters);
 
-            return Ok(readModels);
+            return Ok(pageModel);
         }
 
         [HttpGet("{id:int:min(1)}")]

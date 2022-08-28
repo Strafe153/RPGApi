@@ -2,6 +2,7 @@
 using Core.Models;
 using Core.ViewModels;
 using Core.ViewModels.WeaponViewModels;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using WebApi.Tests.Fixtures;
@@ -22,29 +23,29 @@ namespace WebApi.Tests
         }
 
         [Fact]
-        public async Task GetAsync_ValidPageParameters_ReturnsOkObjectResult()
+        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageViewModelOfWeaponReadViewModel()
         {
             // Arrange
             _fixture.MockWeaponService
                 .Setup(s => s.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_fixture.PagedList);
 
-            _fixture.MockPagedMapper
-                .Setup(m => m.Map(It.IsAny<PagedList<Weapon>>()))
+            _fixture.MockPaginatedMapper
+                .Setup(m => m.Map(It.IsAny<PaginatedList<Weapon>>()))
                 .Returns(_fixture.PageViewModel);
 
             // Act
             var result = await _fixture.MockWeaponsController.GetAsync(_fixture.PageParameters);
-            var pageViewModel = (result.Result as OkObjectResult)!.Value as PageViewModel<WeaponReadViewModel>;
+            var pageViewModel = result.Result.As<OkObjectResult>().Value.As<PageViewModel<WeaponReadViewModel>>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<PageViewModel<WeaponReadViewModel>>>(result);
-            Assert.NotEmpty(pageViewModel!.Entities!);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<PageViewModel<WeaponReadViewModel>>>();
+            pageViewModel.Entities.Should().NotBeEmpty();
         }
 
         [Fact]
-        public async Task GetAsync_ValidId_ReturnsOkObjectResult()
+        public async Task GetAsync_ExistingWeapon_ReturnsActionResultOfWeaponReadViewModel()
         {
             // Arrange
             _fixture.MockWeaponService
@@ -57,16 +58,16 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockWeaponsController.GetAsync(_fixture.Id);
-            var readViewModel = (result.Result as OkObjectResult)!.Value as WeaponReadViewModel;
+            var readViewModel = result.Result.As<OkObjectResult>().Value.As<WeaponReadViewModel>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<WeaponReadViewModel>>(result);
-            Assert.NotNull(readViewModel);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<WeaponReadViewModel>>();
+            readViewModel.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task CreateAsync_ValidViewModel_ReturnsCreatedAtActionResult()
+        public async Task CreateAsync_ValidViewModel_ReturnsActionResultOfWeaponReadViewModel()
         {
             // Arrange
             _fixture.MockCreateMapper
@@ -75,16 +76,16 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockWeaponsController.CreateAsync(_fixture.SpellBaseViewModel);
-            var readViewModel = (result.Result as CreatedAtActionResult)!.Value as WeaponReadViewModel;
+            var readViewModel = result.Result.As<CreatedAtActionResult>().Value.As<WeaponReadViewModel>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<WeaponReadViewModel>>(result);
-            Assert.NotNull(readViewModel);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<WeaponReadViewModel>>();
+            readViewModel.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task UpdateAsync_ValidViewModel_ReturnsNoContentResult()
+        public async Task UpdateAsync_ExistingWeaponValidViewModel_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockWeaponService
@@ -95,12 +96,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockWeaponsController.UpdateAsync(_fixture.Id, _fixture.SpellBaseViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task UpdateAsync_ValidPatchDocument_ReturnsNoContentResult()
+        public async Task UpdateAsync_ExistingWeaponValidPatchDocument_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockWeaponService
@@ -115,12 +116,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockWeaponsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task UpdateAsync_InvalidPatchDocument_ReturnsObjectResult()
+        public async Task UpdateAsync_ExistingWeaponInvalidPatchDocument_ReturnsObjectResult()
         {
             // Arrange
             _fixture.MockWeaponService
@@ -137,8 +138,8 @@ namespace WebApi.Tests
             var result = await _fixture.MockWeaponsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ObjectResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ObjectResult>();
         }
 
         [Fact]
@@ -153,8 +154,8 @@ namespace WebApi.Tests
             var result = await _fixture.MockWeaponsController.DeleteAsync(_fixture.Id);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -173,8 +174,8 @@ namespace WebApi.Tests
             var result = await _fixture.MockWeaponsController.HitAsync(_fixture.HitViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
     }
 }

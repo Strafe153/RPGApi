@@ -25,12 +25,12 @@ namespace DataAccess.Repositories
             _context.Weapons.Remove(entity);
         }
 
-        public async Task<PagedList<Weapon>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize)
         {
             var weapons = await _context.Weapons
                 .Include(w => w.CharacterWeapons)
                     .ThenInclude(cw => cw.Character)
-                .ToPagedListAsync(pageNumber, pageSize);
+                .ToPaginatedListAsync(pageNumber, pageSize);
 
             return weapons;
         }

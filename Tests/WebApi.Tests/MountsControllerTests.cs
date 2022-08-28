@@ -2,6 +2,7 @@
 using Core.Models;
 using Core.ViewModels;
 using Core.ViewModels.MountViewModels;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using WebApi.Tests.Fixtures;
@@ -22,29 +23,29 @@ namespace WebApi.Tests
         }
 
         [Fact]
-        public async Task GetAsync_ValidPageParameters_ReturnsOkObjectResult()
+        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageViewModelOfMountReadViewModel()
         {
             // Arrange
             _fixture.MockMountService
                 .Setup(s => s.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_fixture.PagedList);
 
-            _fixture.MockPagedMapper
-                .Setup(m => m.Map(It.IsAny<PagedList<Mount>>()))
+            _fixture.MockPaginatedMapper
+                .Setup(m => m.Map(It.IsAny<PaginatedList<Mount>>()))
                 .Returns(_fixture.PageViewModel);
 
             // Act
             var result = await _fixture.MockMountsController.GetAsync(_fixture.PageParameters);
-            var pageViewModel = (result.Result as OkObjectResult)!.Value as PageViewModel<MountReadViewModel>;
+            var pageViewModel = result.Result.As<OkObjectResult>().Value.As<PageViewModel<MountReadViewModel>>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<PageViewModel<MountReadViewModel>>>(result);
-            Assert.NotEmpty(pageViewModel!.Entities!);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<PageViewModel<MountReadViewModel>>>();
+            pageViewModel.Entities.Should().NotBeEmpty();
         }
 
         [Fact]
-        public async Task GetAsync_ValidId_ReturnsOkObjectResult()
+        public async Task GetAsync_ExistingMount_ReturnsActionResultOfMountReadViewModel()
         {
             // Arrange
             _fixture.MockMountService
@@ -57,16 +58,16 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockMountsController.GetAsync(_fixture.Id);
-            var readViewModel = (result.Result as OkObjectResult)!.Value as MountReadViewModel;
+            var readViewModel = result.Result.As<OkObjectResult>().Value.As<MountReadViewModel>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<MountReadViewModel>>(result);
-            Assert.NotNull(readViewModel);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<MountReadViewModel>>();
+            readViewModel.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task CreateAsync_ValidViewModel_ReturnsCreatedAtActionResult()
+        public async Task CreateAsync_ValidViewModel_ReturnsActionResultOfMountReadViewModel()
         {
             // Arrange
             _fixture.MockCreateMapper
@@ -75,16 +76,16 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockMountsController.CreateAsync(_fixture.MountBaseViewModel);
-            var readViewModel = (result.Result as CreatedAtActionResult)!.Value as MountReadViewModel;
+            var readViewModel = result.Result.As<CreatedAtActionResult>().Value.As<MountReadViewModel>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<MountReadViewModel>>(result);
-            Assert.NotNull(readViewModel);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<MountReadViewModel>>();
+            readViewModel.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task UpdateAsync_ValidViewModel_ReturnsNoContentResult()
+        public async Task UpdateAsync_ExistingMountValidViewModel_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockMountService
@@ -95,12 +96,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockMountsController.UpdateAsync(_fixture.Id, _fixture.MountBaseViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task UpdateAsync_ValidPatchDocument_ReturnsNoContentResult()
+        public async Task UpdateAsync_ExistingMountValidPatchDocument_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockMountService
@@ -115,12 +116,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockMountsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task UpdateAsync_InvalidPatchDocument_ReturnsObjectResult()
+        public async Task UpdateAsync_ExistingMountInvalidPatchDocument_ReturnsObjectResult()
         {
             // Arrange
             _fixture.MockMountService
@@ -137,8 +138,8 @@ namespace WebApi.Tests
             var result = await _fixture.MockMountsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ObjectResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ObjectResult>();
         }
 
         [Fact]
@@ -153,8 +154,8 @@ namespace WebApi.Tests
             var result = await _fixture.MockMountsController.DeleteAsync(_fixture.Id);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
     }
 }

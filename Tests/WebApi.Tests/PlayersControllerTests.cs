@@ -2,6 +2,7 @@
 using Core.Models;
 using Core.ViewModels;
 using Core.ViewModels.PlayerViewModels;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using WebApi.Tests.Fixtures;
@@ -19,29 +20,29 @@ namespace WebApi.Tests
         }
 
         [Fact]
-        public async Task GetAsync_ValidPageParameters_ReturnsOkObjectResult()
+        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageViewModelOfPlayerReadViewModel()
         {
             // Arrange
             _fixture.MockPlayerService
                 .Setup(s => s.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
                 .ReturnsAsync(_fixture.PagedList);
 
-            _fixture.MockPagedMapper
-                .Setup(m => m.Map(It.IsAny<PagedList<Player>>()))
+            _fixture.MockPaginatedMapper
+                .Setup(m => m.Map(It.IsAny<PaginatedList<Player>>()))
                 .Returns(_fixture.PageViewModel);
 
             // Act
             var result = await _fixture.MockPlayersController.GetAsync(_fixture.PageParameters);
-            var pageViewModels = (result.Result as OkObjectResult)!.Value as PageViewModel<PlayerReadViewModel>;
+            var pageViewModel = result.Result.As<OkObjectResult>().Value.As<PageViewModel<PlayerReadViewModel>>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<PageViewModel<PlayerReadViewModel>>>(result);
-            Assert.NotNull(pageViewModels!.Entities);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<PageViewModel<PlayerReadViewModel>>>();
+            pageViewModel.Entities.Should().NotBeEmpty();
         }
 
         [Fact]
-        public async Task GetAsync_ValidId_ReturnsOkObjectResult()
+        public async Task GetAsync_ExistingPlayer_ReturnsActionResultOfPlayerReadViewModel()
         {
             // Arrange
             _fixture.MockPlayerService
@@ -54,16 +55,16 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockPlayersController.GetAsync(_fixture.Id);
-            var readViewModel = (result.Result as OkObjectResult)!.Value as PlayerReadViewModel;
+            var readViewModel = result.Result.As<OkObjectResult>().Value.As<PlayerReadViewModel>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<PlayerReadViewModel>>(result);
-            Assert.NotNull(readViewModel);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<PlayerReadViewModel>>();
+            readViewModel.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task RegisterAsync_ValidViewModel_ReturnsCreatedAtActionResult()
+        public async Task RegisterAsync_ValidViewModel_ReturnsActionResultOfPlayerReadViewModel()
         {
             // Arrange
             _fixture.MockReadMapper
@@ -72,16 +73,16 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockPlayersController.RegisterAsync(_fixture.PlayerAuthorizeViewModel);
-            var readViewModel = (result.Result as CreatedAtActionResult)!.Value as PlayerReadViewModel;
+            var readViewModel = result.Result.As<CreatedAtActionResult>().Value.As<PlayerReadViewModel>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<PlayerReadViewModel>>(result);
-            Assert.NotNull(readViewModel);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<PlayerReadViewModel>>();
+            readViewModel.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task LoginAsync_ValidViewModel_ReturnsOkObjectResult()
+        public async Task LoginAsync_ValidViewModel_ReturnsActionResultOfPlayerWithTokenReadViewModel()
         {
             // Arrange
             _fixture.MockReadWithTokenMapper
@@ -90,16 +91,16 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockPlayersController.LoginAsync(_fixture.PlayerAuthorizeViewModel);
-            var readWithTokenViewModel = (result.Result as OkObjectResult)!.Value as PlayerWithTokenReadViewModel;
+            var readWithTokenViewModel = result.Result.As<OkObjectResult>().Value.As<PlayerWithTokenReadViewModel>();
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<PlayerWithTokenReadViewModel>>(result);
-            Assert.NotNull(readWithTokenViewModel);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<PlayerWithTokenReadViewModel>>();
+            readWithTokenViewModel.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task UpdateAsync_ValidName_ReturnsNoContentResult()
+        public async Task UpdateAsync_ValidViewModel_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockPlayerService
@@ -110,12 +111,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockPlayersController.UpdateAsync(_fixture.Id, _fixture.PlayerUpdateViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task ChangePasswordAsync_ValidPassword_ReturnsNoContentResult()
+        public async Task ChangePasswordAsync_ValidViewModel_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockPlayerService
@@ -124,13 +125,11 @@ namespace WebApi.Tests
 
             // Act
             var result = await _fixture.MockPlayersController
-                .ChangePasswordAsync(_fixture.Id, _fixture.PlayerUpdateViewModel!);
-            var readToken = result.Result;
+                .ChangePasswordAsync(_fixture.Id, _fixture.PlayerChangePasswordViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<ActionResult<string>>(result);
-            Assert.NotNull(readToken);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -145,12 +144,12 @@ namespace WebApi.Tests
             var result = await _fixture.MockPlayersController.DeleteAsync(_fixture.Id);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
 
         [Fact]
-        public async Task ChangeRoleAsync_ExistingPlayer_ReturnsNoContentResult()
+        public async Task ChangeRoleAsync_ExistingPlayerValidRole_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockPlayerService
@@ -158,12 +157,11 @@ namespace WebApi.Tests
                 .ReturnsAsync(_fixture.Player);
 
             // Act
-            var result = await _fixture.MockPlayersController
-                .ChangeRoleAsync(_fixture.Id, _fixture.PlayerChangeRoleViewModel);
+            var result = await _fixture.MockPlayersController.ChangeRoleAsync(_fixture.Id, _fixture.PlayerChangeRoleViewModel);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<NoContentResult>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<NoContentResult>();
         }
     }
 }

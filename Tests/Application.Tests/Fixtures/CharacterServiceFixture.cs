@@ -39,7 +39,7 @@ namespace Application.Tests.Fixtures
         public string? Name { get; }
         public Character Character { get; }
         public List<Character> Characters { get; }
-        public PagedList<Character> PagedList { get; }
+        public PaginatedList<Character> PagedList { get; }
 
         private Spell GetSpell(int id)
         {
@@ -126,9 +126,9 @@ namespace Application.Tests.Fixtures
             };
         }
 
-        private PagedList<Character> GetPagedList()
+        private PaginatedList<Character> GetPagedList()
         {
-            return new PagedList<Character>(Characters, 6, 1, 5);
+            return new PaginatedList<Character>(Characters, 6, 1, 5);
         }
     }
 }
