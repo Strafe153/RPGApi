@@ -10,7 +10,7 @@ namespace Application.Services
     public class MountService : IItemService<Mount>
     {
         private readonly IRepository<Mount> _repository;
-        private readonly ILogger _logger;
+        private readonly ILogger<MountService> _logger;
 
         public MountService(
             IRepository<Mount> repository, 

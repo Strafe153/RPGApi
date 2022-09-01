@@ -14,7 +14,7 @@ namespace Application.Services
     public class PasswordService : IPasswordService
     {
         private readonly IConfiguration _configuration;
-        private readonly ILogger _logger;
+        private readonly ILogger<PasswordService> _logger;
 
         public PasswordService(
             IConfiguration configuration, 
