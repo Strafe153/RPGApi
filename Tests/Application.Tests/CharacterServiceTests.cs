@@ -67,7 +67,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void AddAsync_ValidCharacter_ReturnsVoid()
+        public void AddAsync_ValidCharacter_ReturnsTask()
         {
             // Act
             var result = _fixture.MockCharacterService.AddAsync(_fixture.Character);
@@ -77,7 +77,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void UpdateAsync_ValidCharacter_ReturnsVoid()
+        public void UpdateAsync_ValidCharacter_ReturnsTask()
         {
             // Act
             var result = _fixture.MockCharacterService.UpdateAsync(_fixture.Character);
@@ -87,7 +87,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void DeleteAsync_ValidCharacter_ReturnsVoid()
+        public void DeleteAsync_ValidCharacter_ReturnsTask()
         {
             // Act
             var result = _fixture.MockCharacterService.DeleteAsync(_fixture.Character);

@@ -18,7 +18,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public async Task GetAllAsync_ValidParameters_ReturnsPaginatedList()
+        public async Task GetAllAsync_ValidParameters_ReturnsPaginatedListOfWeapon()
         {
             // Arrange
             _fixture.MockWeaponRepository
@@ -67,7 +67,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void AddAsync_ValidWeapon_ReturnsVoid()
+        public void AddAsync_ValidWeapon_ReturnsTask()
         {
             // Act
             var result = _fixture.MockWeaponService.AddAsync(_fixture.Weapon);
@@ -77,7 +77,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void UpdateAsync_ValidWeapon_ReturnsVoid()
+        public void UpdateAsync_ValidWeapon_ReturnsTask()
         {
             // Act
             var result = _fixture.MockWeaponService.UpdateAsync(_fixture.Weapon);
@@ -87,7 +87,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void DeleteAsync_ValidWeapon_ReturnsVoid()
+        public void DeleteAsync_ValidWeapon_ReturnsTask()
         {
             // Act
             var result = _fixture.MockWeaponService.DeleteAsync(_fixture.Weapon);
