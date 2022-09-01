@@ -1,23 +1,23 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.PlayerDtos;
+using Core.Entities;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.PlayerViewModels;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.PlayerMappers
 {
-    public class PlayerPaginatedMapper : IMapper<PaginatedList<Player>, PageViewModel<PlayerReadViewModel>>
+    public class PlayerPaginatedMapper : IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>
     {
-        private readonly IMapper<Player, PlayerReadViewModel> _readMapper;
+        private readonly IMapper<Player, PlayerReadDto> _readMapper;
 
-        public PlayerPaginatedMapper(IMapper<Player, PlayerReadViewModel> readMapper)
+        public PlayerPaginatedMapper(IMapper<Player, PlayerReadDto> readMapper)
         {
             _readMapper = readMapper;
         }
 
-        public PageViewModel<PlayerReadViewModel> Map(PaginatedList<Player> source)
+        public PageDto<PlayerReadDto> Map(PaginatedList<Player> source)
         {
-            return new PageViewModel<PlayerReadViewModel>()
+            return new PageDto<PlayerReadDto>()
             {
                 CurrentPage = source.CurrentPage,
                 TotalPages = source.TotalPages,

@@ -2,59 +2,36 @@
 using Core.Entities;
 using Core.Exceptions;
 using Core.Models;
+using FluentAssertions;
 using Moq;
 using Xunit;
 
 namespace Application.Tests
 {
-    public class SpellServiceTests : IClassFixture<SpellServiceFixture>, IDisposable
+    public class SpellServiceTests : IClassFixture<SpellServiceFixture>
     {
         private readonly SpellServiceFixture _fixture;
-        private bool _disposed;
 
         public SpellServiceTests(SpellServiceFixture fixture)
         {
             _fixture = fixture;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                _fixture.MockSpellRepository.Invocations.Clear();
-            }
-
-            _disposed = true;
-        }
-
         [Fact]
-        public async Task GetAllAsync_ValidData_ReturnsPagedList()
+        public async Task GetAllAsync_ValidParameters_ReturnsPaginatedListOfSpell()
         {
             // Arrange
             _fixture.MockSpellRepository
                 .Setup(r => r.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PagedList);
+                .ReturnsAsync(_fixture.PaginatedList);
 
             // Act
             var result = await _fixture.MockSpellService.GetAllAsync(_fixture.Id, _fixture.Id);
 
             // Assert
-            _fixture.MockSpellRepository.Verify(r => r.GetAllAsync(_fixture.Id, _fixture.Id), Times.Once());
-
-            Assert.NotNull(result);
-            Assert.NotEmpty(result);
-            Assert.IsType<PaginatedList<Spell>>(result);
+            result.Should().NotBeNull();
+            result.Should().NotBeEmpty();
+            result.Should().BeOfType<PaginatedList<Spell>>();
         }
 
         [Fact]
@@ -69,10 +46,8 @@ namespace Application.Tests
             var result = await _fixture.MockSpellService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            _fixture.MockSpellRepository.Verify(r => r.GetByIdAsync(_fixture.Id), Times.Once());
-
-            Assert.NotNull(result);
-            Assert.IsType<Spell>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<Spell>();
         }
 
         [Fact]
@@ -84,46 +59,41 @@ namespace Application.Tests
                 .ReturnsAsync((Spell)null!);
 
             // Act
-            var result = _fixture.MockSpellService.GetByIdAsync(_fixture.Id);
+            var result = async () => await _fixture.MockSpellService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            _fixture.MockSpellRepository.Verify(r => r.GetByIdAsync(_fixture.Id), Times.Once());
-
-            Assert.True(result.IsFaulted);
-            await Assert.ThrowsAsync<NullReferenceException>(async () => await result);
+            result.Should().NotBeNull();
+            await result.Should().ThrowAsync<NullReferenceException>();
         }
 
         [Fact]
-        public void AddAsync_ValidSpell_ReturnsTask()
+        public void AddAsync_ValidSpell_ReturnsVoid()
         {
             // Act
             var result = _fixture.MockSpellService.AddAsync(_fixture.Spell);
 
             // Assert
-            _fixture.MockSpellRepository.Verify(r => r.Add(_fixture.Spell), Times.Once());
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
-        public void UpdateAsync_ValidSpell_ReturnsTask()
+        public void UpdateAsync_ValidSpell_ReturnsVoid()
         {
             // Act
             var result = _fixture.MockSpellService.UpdateAsync(_fixture.Spell);
 
             // Assert
-            _fixture.MockSpellRepository.Verify(r => r.Update(_fixture.Spell), Times.Once());
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
-        public void DeleteAsync_ValidSpell_ReturnsTask()
+        public void DeleteAsync_ValidSpell_ReturnsVoid()
         {
             // Act
             var result = _fixture.MockSpellService.DeleteAsync(_fixture.Spell);
 
             // Assert
-            _fixture.MockSpellRepository.Verify(r => r.Delete(_fixture.Spell), Times.Once());
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
@@ -133,7 +103,7 @@ namespace Application.Tests
             var result = () => _fixture.MockSpellService.AddToCharacter(_fixture.Character, _fixture.Spell);
 
             // Assert
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
@@ -143,7 +113,7 @@ namespace Application.Tests
             var result = () => _fixture.MockSpellService.RemoveFromCharacter(_fixture.Character, _fixture.Spell);
 
             // Assert
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
@@ -153,7 +123,7 @@ namespace Application.Tests
             var result = () => _fixture.MockSpellService.RemoveFromCharacter(_fixture.Character, _fixture.Spell);
 
             // Assert
-            Assert.Throws<ItemNotFoundException>(result);
+            result.Should().Throw<ItemNotFoundException>();
         }
     }
 }

@@ -28,7 +28,7 @@ namespace Application.Tests.Fixtures
             Name = "StringPlaceholder";
             Character = GetCharacter();
             Characters = GetCharacters();
-            PagedList = GetPagedList();
+            PaginatedList = GetPaginatedList();
         }
 
         public ICharacterService MockCharacterService { get; }
@@ -39,7 +39,7 @@ namespace Application.Tests.Fixtures
         public string? Name { get; }
         public Character Character { get; }
         public List<Character> Characters { get; }
-        public PaginatedList<Character> PagedList { get; }
+        public PaginatedList<Character> PaginatedList { get; }
 
         private Spell GetSpell(int id)
         {
@@ -126,7 +126,7 @@ namespace Application.Tests.Fixtures
             };
         }
 
-        private PaginatedList<Character> GetPagedList()
+        private PaginatedList<Character> GetPaginatedList()
         {
             return new PaginatedList<Character>(Characters, 6, 1, 5);
         }

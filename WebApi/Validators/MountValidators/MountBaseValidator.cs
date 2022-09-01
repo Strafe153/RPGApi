@@ -1,10 +1,10 @@
-﻿using Core.Enums;
-using Core.ViewModels.MountViewModels;
+﻿using Core.Dtos.MountDtos;
+using Core.Enums;
 using FluentValidation;
 
 namespace WebApi.Validators.MountValidators
 {
-    public class MountBaseValidator<T> : AbstractValidator<T> where T : MountBaseViewModel
+    public class MountBaseValidator<T> : AbstractValidator<T> where T : MountBaseDto
     {
         public MountBaseValidator()
         {

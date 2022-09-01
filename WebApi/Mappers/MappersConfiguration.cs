@@ -1,11 +1,11 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.CharacterDtos;
+using Core.Dtos.MountDtos;
+using Core.Dtos.PlayerDtos;
+using Core.Dtos.SpellDtos;
+using Core.Dtos.WeaponDtos;
+using Core.Entities;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.CharacterViewModels;
-using Core.ViewModels.MountViewModels;
-using Core.ViewModels.PlayerViewModels;
-using Core.ViewModels.SpellViewModels;
-using Core.ViewModels.WeaponViewModels;
 using WebApi.Mappers.CharacterMappers;
 using WebApi.Mappers.Interfaces;
 using WebApi.Mappers.MountMappers;
@@ -20,33 +20,33 @@ namespace WebApi.Mappers
         public static void AddApplicationMappers(this IServiceCollection services)
         {
             // Player mappers
-            services.AddScoped<IMapper<PaginatedList<Player>, PageViewModel<PlayerReadViewModel>>, PlayerPaginatedMapper>();
-            services.AddScoped<IMapper<Player, PlayerReadViewModel>, PlayerReadMapper>();
-            services.AddScoped<IMapper<Player, PlayerWithTokenReadViewModel>, PlayerWithTokenReadMapper>();
+            services.AddScoped<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>, PlayerPaginatedMapper>();
+            services.AddScoped<IMapper<Player, PlayerReadDto>, PlayerReadMapper>();
+            services.AddScoped<IMapper<Player, PlayerWithTokenReadDto>, PlayerWithTokenReadMapper>();
 
             // Character mappers
-            services.AddScoped<IMapper<PaginatedList<Character>, PageViewModel<CharacterReadViewModel>>, CharacterPaginatedMapper>();
-            services.AddScoped<IMapper<Character, CharacterReadViewModel>, CharacterReadMapper>();
-            services.AddScoped<IMapper<CharacterCreateViewModel, Character>, CharacterCreateMapper>();
-            services.AddScoped<IUpdateMapper<CharacterBaseViewModel, Character>, CharacterUpdateMapper>();
+            services.AddScoped<IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>, CharacterPaginatedMapper>();
+            services.AddScoped<IMapper<Character, CharacterReadDto>, CharacterReadMapper>();
+            services.AddScoped<IMapper<CharacterCreateDto, Character>, CharacterCreateMapper>();
+            services.AddScoped<IUpdateMapper<CharacterBaseDto, Character>, CharacterUpdateMapper>();
 
             // Weapon mappers
-            services.AddScoped<IMapper<PaginatedList<Weapon>, PageViewModel<WeaponReadViewModel>>, WeaponPaginatedMapper>();
-            services.AddScoped<IMapper<Weapon, WeaponReadViewModel>, WeaponReadMapper>();
-            services.AddScoped<IMapper<WeaponBaseViewModel, Weapon>, WeaponCreateMapper>();
-            services.AddScoped<IUpdateMapper<WeaponBaseViewModel, Weapon>, WeaponUpdateMapper>();
+            services.AddScoped<IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>, WeaponPaginatedMapper>();
+            services.AddScoped<IMapper<Weapon, WeaponReadDto>, WeaponReadMapper>();
+            services.AddScoped<IMapper<WeaponBaseDto, Weapon>, WeaponCreateMapper>();
+            services.AddScoped<IUpdateMapper<WeaponBaseDto, Weapon>, WeaponUpdateMapper>();
 
             // Spell mappers
-            services.AddScoped<IMapper<PaginatedList<Spell>, PageViewModel<SpellReadViewModel>>, SpellPaginatedMapper>();
-            services.AddScoped<IMapper<Spell, SpellReadViewModel>, SpellReadMapper>();
-            services.AddScoped<IMapper<SpellBaseViewModel, Spell>, SpellCreateMapper>();
-            services.AddScoped<IUpdateMapper<SpellBaseViewModel, Spell>, SpellUpdateMapper>();
+            services.AddScoped<IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>>, SpellPaginatedMapper>();
+            services.AddScoped<IMapper<Spell, SpellReadDto>, SpellReadMapper>();
+            services.AddScoped<IMapper<SpellBaseDto, Spell>, SpellCreateMapper>();
+            services.AddScoped<IUpdateMapper<SpellBaseDto, Spell>, SpellUpdateMapper>();
 
             // Mount mappers
-            services.AddScoped<IMapper<PaginatedList<Mount>, PageViewModel<MountReadViewModel>>, MountPaginatedMapper>();
-            services.AddScoped<IMapper<Mount, MountReadViewModel>, MountReadMapper>();
-            services.AddScoped<IMapper<MountBaseViewModel, Mount>, MountCreateMapper>();
-            services.AddScoped<IUpdateMapper<MountBaseViewModel, Mount>, MountUpdateMapper>();
+            services.AddScoped<IMapper<PaginatedList<Mount>, PageDto<MountReadDto>>, MountPaginatedMapper>();
+            services.AddScoped<IMapper<Mount, MountReadDto>, MountReadMapper>();
+            services.AddScoped<IMapper<MountBaseDto, Mount>, MountCreateMapper>();
+            services.AddScoped<IUpdateMapper<MountBaseDto, Mount>, MountUpdateMapper>();
         }
     }
 }

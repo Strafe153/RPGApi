@@ -1,9 +1,9 @@
-﻿using Core.ViewModels.MountViewModels;
+﻿using Core.Dtos.MountDtos;
 using FluentValidation;
 
 namespace WebApi.Validators.MountValidators
 {
-    public class MountCreateUpdateValidator : MountBaseValidator<MountBaseViewModel>
+    public class MountCreateUpdateValidator : MountBaseValidator<MountBaseDto>
     {
         public MountCreateUpdateValidator()
         {

@@ -32,7 +32,7 @@ namespace Application.Tests.Fixtures
             Race = CharacterRace.Human;
             Player = GetPlayer();
             Players = GetPlayers();
-            PagedList = GetPagedList();
+            PaginatedList = GetPaginatedList();
             IIdentity = GetClaimsIdentity();
             SufficientClaims = GetSufficientClaims();
             InsufficientClaims = GetInsufficientClaims();
@@ -48,7 +48,7 @@ namespace Application.Tests.Fixtures
         public CharacterRace Race { get; }
         public Player Player { get; }
         public List<Player> Players { get; }
-        public PaginatedList<Player> PagedList { get; }
+        public PaginatedList<Player> PaginatedList { get; }
         public IIdentity IIdentity { get; }
         public IEnumerable<Claim> SufficientClaims { get; }
         public IEnumerable<Claim> InsufficientClaims { get; }
@@ -96,7 +96,7 @@ namespace Application.Tests.Fixtures
             };
         }
 
-        private PaginatedList<Player> GetPagedList()
+        private PaginatedList<Player> GetPaginatedList()
         {
             return new PaginatedList<Player>(Players, 6, 1, 5);
         }

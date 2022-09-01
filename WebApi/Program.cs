@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-// Add custom validators, repositories, services, mappers, etc...
+// Add custom validators, repositories, services, mappers.
 builder.Services.AddApplicationValidators();
 builder.Services.AddApplicationRepositories();
 builder.Services.AddApplicationServices();

@@ -1,9 +1,9 @@
-﻿using Core.ViewModels.WeaponViewModels;
+﻿using Core.Dtos.WeaponDtos;
 using FluentValidation;
 
 namespace WebApi.Validators.WeaponValidators
 {
-    public class WeaponCreateUpdateValidator : WeaponBaseValidator<WeaponBaseViewModel>
+    public class WeaponCreateUpdateValidator : WeaponBaseValidator<WeaponBaseDto>
     {
         public WeaponCreateUpdateValidator()
         {

@@ -1,20 +1,20 @@
-﻿using Core.Entities;
-using Core.ViewModels.CharacterViewModels;
+﻿using Core.Dtos.CharacterDtos;
+using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.CharacterMappers
 {
-    public class CharacterUpdateMapper : IUpdateMapper<CharacterBaseViewModel, Character>
+    public class CharacterUpdateMapper : IUpdateMapper<CharacterBaseDto, Character>
     {
-        public void Map(CharacterBaseViewModel first, Character second)
+        public void Map(CharacterBaseDto first, Character second)
         {
             second.Name = first.Name;
             second.Race = first.Race;
         }
 
-        public CharacterBaseViewModel Map(Character second)
+        public CharacterBaseDto Map(Character second)
         {
-            return new CharacterBaseViewModel()
+            return new CharacterBaseDto()
             {
                 Name = second.Name,
                 Race = second.Race

@@ -1,9 +1,9 @@
-﻿using Core.ViewModels.PlayerViewModels;
+﻿using Core.Dtos.PlayerDtos;
 using FluentValidation;
 
 namespace WebApi.Validators.PlayerValidators
 {
-    public class PlayerChangePasswordValidator : AbstractValidator<PlayerChangePasswordViewModel>
+    public class PlayerChangePasswordValidator : AbstractValidator<PlayerChangePasswordDto>
     {
         public PlayerChangePasswordValidator()
         {

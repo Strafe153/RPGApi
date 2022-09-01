@@ -1,5 +1,6 @@
 ﻿using Application.Tests.Fixtures;
 using Core.Exceptions;
+using FluentAssertions;
 using Moq;
 using Xunit;
 
@@ -15,18 +16,18 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void CreatePasswordHash_ValidData_ReturnsVoid()
+        public void CreatePasswordHash_ValidPassword_ReturnsVoid()
         {
             // Act
             var result = () => _fixture.MockPasswordService
                 .CreatePasswordHash(_fixture.StringPlaceholder!, out byte[] hash, out byte[] salt);
 
             // Assert
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
-        public void CreateToken_ValidData_ReturnsJsonWebToken()
+        public void CreateToken_ValidPlayer_ReturnsString()
         {
             // Arrange
             _fixture.MockConfigurationSection
@@ -41,31 +42,31 @@ namespace Application.Tests
             var result = _fixture.MockPasswordService.CreateToken(_fixture.Player);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<string>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<string>();
         }
 
         [Fact]
-        public void VerifyPasswordHash_ValidPassword_ReturnsVoid()
+        public void VerifyPasswordHash_ValidParameters_ReturnsVoid()
         {
             // Act
             var result = () => _fixture.MockPasswordService
                 .VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.PasswordHash, _fixture.Bytes);
 
             // Assert
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
-        public void VerifyPasswordHash_InvalidPassword_ThrowsIncorrectPasswordException()
+        public void VerifyPasswordHash_InvalidParameters_ThrowsIncorrectPasswordException()
         {
             // Act
             var result = () => _fixture.MockPasswordService
                 .VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.Bytes, _fixture.Bytes);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Throws<IncorrectPasswordException>(result);
+            result.Should().NotBeNull();
+            result.Should().Throw<IncorrectPasswordException>();
         }
     }
 }

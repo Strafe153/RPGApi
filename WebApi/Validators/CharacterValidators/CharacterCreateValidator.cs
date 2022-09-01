@@ -1,9 +1,9 @@
-﻿using Core.ViewModels.CharacterViewModels;
+﻿using Core.Dtos.CharacterDtos;
 using FluentValidation;
 
 namespace WebApi.Validators.CharacterValidators
 {
-    public class CharacterCreateValidator : CharacterBaseValidator<CharacterCreateViewModel>
+    public class CharacterCreateValidator : CharacterBaseValidator<CharacterCreateDto>
     {
         public CharacterCreateValidator()
         {

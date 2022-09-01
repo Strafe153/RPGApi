@@ -1,8 +1,8 @@
 ﻿using Core.Enums;
 
-namespace Core.ViewModels.CharacterViewModels
+namespace Core.Dtos.CharacterDtos
 {
-    public record CharacterBaseViewModel
+    public record CharacterBaseDto
     {
         public string? Name { get; init; }
         public CharacterRace Race { get; init; }

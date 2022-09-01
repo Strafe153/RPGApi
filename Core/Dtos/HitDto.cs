@@ -1,6 +1,6 @@
-﻿namespace Core.ViewModels
+﻿namespace Core.Dtos
 {
-    public record HitViewModel
+    public record HitDto
     {
         public int DealerId { get; init; }
         public int ReceiverId { get; init; }

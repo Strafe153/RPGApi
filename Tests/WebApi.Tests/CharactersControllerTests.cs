@@ -1,7 +1,7 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.CharacterDtos;
+using Core.Entities;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.CharacterViewModels;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -23,28 +23,28 @@ namespace WebApi.Tests
         }
 
         [Fact]
-        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageViewModelOfCharacterReadViewModel()
+        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageDtoOfCharacterReadDto()
         {
             // Arrange
             _fixture.MockCharacterService
                 .Setup(s => s.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PagedList);
+                .ReturnsAsync(_fixture.PaginatedList);
 
             _fixture.MockPaginatedMapper
                 .Setup(m => m.Map(It.IsAny<PaginatedList<Character>>()))
-                .Returns(_fixture.PageViewModel);
+                .Returns(_fixture.PageDto);
 
             // Act
             var result = await _fixture.MockCharactersController.GetAsync(_fixture.PageParameters);
-            var pageViewModel = result.Result.As<OkObjectResult>().Value.As<PageViewModel<CharacterReadViewModel>>();
+            var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<CharacterReadDto>>();
 
             result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<PageViewModel<CharacterReadViewModel>>>();
-            pageViewModel.Entities.Should().NotBeEmpty();
+            result.Should().BeOfType<ActionResult<PageDto<CharacterReadDto>>>();
+            pageDto.Entities.Should().NotBeEmpty();
         }
 
         [Fact]
-        public async Task GetAsync_ExistingCharacter_ReturnsActionResultOfCharacterReadViewModel()
+        public async Task GetAsync_ExistingCharacter_ReturnsActionResultOfCharacterReadDto()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -53,34 +53,34 @@ namespace WebApi.Tests
 
             _fixture.MockReadMapper
                 .Setup(m => m.Map(It.IsAny<Character>()))
-                .Returns(_fixture.CharacterReadViewModel);
+                .Returns(_fixture.CharacterReadDto);
 
             // Act
             var result = await _fixture.MockCharactersController.GetAsync(_fixture.Id);
-            var readViewModel = result.Result.As<OkObjectResult>().Value.As<CharacterReadViewModel>();
+            var readDto = result.Result.As<OkObjectResult>().Value.As<CharacterReadDto>();
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<CharacterReadViewModel>>();
-            readViewModel.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<CharacterReadDto>>();
+            readDto.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task CreateAsync_ValidViewModel_ReturnsActionResultOfCharacterReadViewModel()
+        public async Task CreateAsync_ValidDto_ReturnsActionResultOfCharacterReadDto()
         {
             // Arrange
             _fixture.MockCreateMapper
-                .Setup(m => m.Map(It.IsAny<CharacterCreateViewModel>()))
+                .Setup(m => m.Map(It.IsAny<CharacterCreateDto>()))
                 .Returns(_fixture.Character);
 
             // Act
-            var result = await _fixture.MockCharactersController.CreateAsync(_fixture.CharacterCreateViewModel);
-            var readViewModel = result.Result.As<CreatedAtActionResult>().Value.As<CharacterReadViewModel>();
+            var result = await _fixture.MockCharactersController.CreateAsync(_fixture.CharacterCreateDto);
+            var readDto = result.Result.As<CreatedAtActionResult>().Value.As<CharacterReadDto>();
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<CharacterReadViewModel>>();
-            readViewModel.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<CharacterReadDto>>();
+            readDto.Should().NotBeNull();
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace WebApi.Tests
                 .ReturnsAsync(_fixture.Character);
 
             // Act
-            var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.CharacterUpdateViewModel);
+            var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.CharacterUpdateDto);
 
             // Assert
             result.Should().NotBeNull();
@@ -109,7 +109,7 @@ namespace WebApi.Tests
 
             _fixture.MockUpdateMapper
                 .Setup(m => m.Map(_fixture.Character))
-                .Returns(_fixture.CharacterUpdateViewModel);
+                .Returns(_fixture.CharacterUpdateDto);
 
             // Act
             var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
@@ -129,7 +129,7 @@ namespace WebApi.Tests
 
             _fixture.MockUpdateMapper
                 .Setup(m => m.Map(_fixture.Character))
-                .Returns(_fixture.CharacterUpdateViewModel);
+                .Returns(_fixture.CharacterUpdateDto);
 
             _fixture.MockModelError(_fixture.MockCharactersController);
 
@@ -170,7 +170,7 @@ namespace WebApi.Tests
                 .ReturnsAsync(_fixture.Weapon);
 
             // Act
-            var result = await _fixture.MockCharactersController.AddWeaponAsync(_fixture.ItemViewModel);
+            var result = await _fixture.MockCharactersController.AddWeaponAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull();
@@ -190,7 +190,7 @@ namespace WebApi.Tests
                 .ReturnsAsync(_fixture.Weapon);
 
             // Act
-            var result = await _fixture.MockCharactersController.RemoveWeaponAsync(_fixture.ItemViewModel);
+            var result = await _fixture.MockCharactersController.RemoveWeaponAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull();
@@ -210,7 +210,7 @@ namespace WebApi.Tests
                 .ReturnsAsync(_fixture.Spell);
 
             // Act
-            var result = await _fixture.MockCharactersController.AddSpellAsync(_fixture.ItemViewModel);
+            var result = await _fixture.MockCharactersController.AddSpellAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull();
@@ -230,7 +230,7 @@ namespace WebApi.Tests
                 .ReturnsAsync(_fixture.Spell);
 
             // Act
-            var result = await _fixture.MockCharactersController.RemoveSpellAsync(_fixture.ItemViewModel);
+            var result = await _fixture.MockCharactersController.RemoveSpellAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull();
@@ -250,7 +250,7 @@ namespace WebApi.Tests
                 .ReturnsAsync(_fixture.Mount);
 
             // Act
-            var result = await _fixture.MockCharactersController.AddMountAsync(_fixture.ItemViewModel);
+            var result = await _fixture.MockCharactersController.AddMountAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull();
@@ -270,7 +270,7 @@ namespace WebApi.Tests
                 .ReturnsAsync(_fixture.Mount);
 
             // Act
-            var result = await _fixture.MockCharactersController.RemoveMountAsync(_fixture.ItemViewModel);
+            var result = await _fixture.MockCharactersController.RemoveMountAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull();

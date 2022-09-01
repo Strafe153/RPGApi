@@ -1,23 +1,23 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.CharacterDtos;
+using Core.Entities;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.CharacterViewModels;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.CharacterMappers
 {
-    public class CharacterPaginatedMapper : IMapper<PaginatedList<Character>, PageViewModel<CharacterReadViewModel>>
+    public class CharacterPaginatedMapper : IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>
     {
-        private readonly IMapper<Character, CharacterReadViewModel> _readMapper;
+        private readonly IMapper<Character, CharacterReadDto> _readMapper;
 
-        public CharacterPaginatedMapper(IMapper<Character, CharacterReadViewModel> readMapper)
+        public CharacterPaginatedMapper(IMapper<Character, CharacterReadDto> readMapper)
         {
             _readMapper = readMapper;
         }
 
-        public PageViewModel<CharacterReadViewModel> Map(PaginatedList<Character> source)
+        public PageDto<CharacterReadDto> Map(PaginatedList<Character> source)
         {
-            return new PageViewModel<CharacterReadViewModel>()
+            return new PageDto<CharacterReadDto>()
             {
                 CurrentPage = source.CurrentPage,
                 TotalPages = source.TotalPages,

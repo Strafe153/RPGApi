@@ -1,8 +1,8 @@
 ﻿using Core.Enums;
 
-namespace Core.ViewModels.MountViewModels
+namespace Core.Dtos.MountDtos
 {
-    public record MountBaseViewModel
+    public record MountBaseDto
     {
         public string? Name { get; init; }
         public MountType Type { get; init; }

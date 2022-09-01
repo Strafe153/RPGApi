@@ -1,18 +1,18 @@
-﻿using Core.Entities;
-using Core.ViewModels.CharacterViewModels;
+﻿using Core.Dtos.CharacterDtos;
+using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.CharacterMappers
 {
-    public class CharacterReadMapper : IMapper<Character, CharacterReadViewModel>
+    public class CharacterReadMapper : IMapper<Character, CharacterReadDto>
     {
-        public CharacterReadViewModel Map(Character source)
+        public CharacterReadDto Map(Character source)
         {
             var weapons = source.CharacterWeapons.Select(cw => cw.Weapon!);
             var spells = source.CharacterSpells.Select(cs => cs.Spell!);
             var mounts = source.CharacterMounts.Select(cm => cm.Mount!);
 
-            return new CharacterReadViewModel()
+            return new CharacterReadDto()
             {
                 Id = source.Id,
                 Name = source.Name,

@@ -1,12 +1,12 @@
-﻿using Core.Entities;
-using Core.ViewModels.CharacterViewModels;
+﻿using Core.Dtos.CharacterDtos;
+using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.CharacterMappers
 {
-    public class CharacterCreateMapper : IMapper<CharacterCreateViewModel, Character>
+    public class CharacterCreateMapper : IMapper<CharacterCreateDto, Character>
     {
-        public Character Map(CharacterCreateViewModel source)
+        public Character Map(CharacterCreateDto source)
         {
             return new Character()
             {

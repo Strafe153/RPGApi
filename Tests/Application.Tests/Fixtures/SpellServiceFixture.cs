@@ -28,7 +28,7 @@ namespace Application.Tests.Fixtures
             Name = "StringPlaceholder";
             Spell = GetSpell(Id);
             Character = GetCharacter();
-            PagedList = GetPagedList();
+            PaginatedList = GetPaginatedList();
         }
 
         public IItemService<Spell> MockSpellService { get; }
@@ -39,7 +39,7 @@ namespace Application.Tests.Fixtures
         public string? Name { get; }
         public Spell Spell { get; }
         public Character Character { get; }
-        public PaginatedList<Spell> PagedList { get; }
+        public PaginatedList<Spell> PaginatedList { get; }
 
         private Character GetCharacter()
         {
@@ -93,7 +93,7 @@ namespace Application.Tests.Fixtures
             };
         }
 
-        private PaginatedList<Spell> GetPagedList()
+        private PaginatedList<Spell> GetPaginatedList()
         {
             return new PaginatedList<Spell>(GetSpells(), 6, 1, 5);
         }

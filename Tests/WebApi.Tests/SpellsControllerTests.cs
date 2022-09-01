@@ -1,7 +1,7 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.SpellDtos;
+using Core.Entities;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.SpellViewModels;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -18,33 +18,34 @@ namespace WebApi.Tests
         {
             _fixture = fixture;
 
+            _fixture.MockControllerBaseUser();
             _fixture.MockObjectModelValidator(_fixture.MockSpellsController);
         }
 
         [Fact]
-        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageViewModelOfSpellReadViewModel()
+        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageDtoOfSpellReadDto()
         {
             // Arrange
             _fixture.MockSpellService
                 .Setup(s => s.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PagedList);
+                .ReturnsAsync(_fixture.PaginatedList);
 
             _fixture.MockPaginatedMapper
                 .Setup(m => m.Map(It.IsAny<PaginatedList<Spell>>()))
-                .Returns(_fixture.PageViewModel);
+                .Returns(_fixture.PageDto);
 
             // Act
             var result = await _fixture.MockSpellsController.GetAsync(_fixture.PageParameters);
-            var pageViewModel = result.Result.As<OkObjectResult>().Value.As<PageViewModel<SpellReadViewModel>>();
+            var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<SpellReadDto>>();
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<PageViewModel<SpellReadViewModel>>>();
-            pageViewModel.Entities.Should().NotBeEmpty();
+            result.Should().BeOfType<ActionResult<PageDto<SpellReadDto>>>();
+            pageDto.Entities.Should().NotBeEmpty();
         }
 
         [Fact]
-        public async Task GetAsync_ExistingSpell_ReturnsActionResultOfSpellReadViewModel()
+        public async Task GetAsync_ExistingSpell_ReturnsActionResultOfSpellReadDto()
         {
             // Arrange
             _fixture.MockSpellService
@@ -53,38 +54,38 @@ namespace WebApi.Tests
 
             _fixture.MockReadMapper
                 .Setup(m => m.Map(It.IsAny<Spell>()))
-                .Returns(_fixture.SpellReadViewModel);
+                .Returns(_fixture.SpellReadDto);
 
             // Act
             var result = await _fixture.MockSpellsController.GetAsync(_fixture.Id);
-            var readViewModel = result.Result.As<OkObjectResult>().Value.As<SpellReadViewModel>();
+            var readDto = result.Result.As<OkObjectResult>().Value.As<SpellReadDto>();
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<SpellReadViewModel>>();
-            readViewModel.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<SpellReadDto>>();
+            readDto.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task CreateAsync_ValidViewModel_ReturnsActionResultOfSpellReadViewModel()
+        public async Task CreateAsync_ValidDto_ReturnsActionResultOfSpellReadDto()
         {
             // Arrange
             _fixture.MockCreateMapper
-                .Setup(m => m.Map(It.IsAny<SpellBaseViewModel>()))
+                .Setup(m => m.Map(It.IsAny<SpellBaseDto>()))
                 .Returns(_fixture.Spell);
 
             // Act
-            var result = await _fixture.MockSpellsController.CreateAsync(_fixture.SpellBaseViewModel);
-            var readViewModel = result.Result.As<CreatedAtActionResult>().Value.As<SpellReadViewModel>();
+            var result = await _fixture.MockSpellsController.CreateAsync(_fixture.SpellBaseDto);
+            var readDto = result.Result.As<CreatedAtActionResult>().Value.As<SpellReadDto>();
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<SpellReadViewModel>>();
-            readViewModel.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<SpellReadDto>>();
+            readDto.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task UpdateAsync_ExistingSpellValidViewModel_ReturnsNoContentResult()
+        public async Task UpdateAsync_ExistingSpellValidDto_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockSpellService
@@ -92,7 +93,7 @@ namespace WebApi.Tests
                 .ReturnsAsync(_fixture.Spell);
 
             // Act
-            var result = await _fixture.MockSpellsController.UpdateAsync(_fixture.Id, _fixture.SpellBaseViewModel);
+            var result = await _fixture.MockSpellsController.UpdateAsync(_fixture.Id, _fixture.SpellBaseDto);
 
             // Assert
             result.Should().NotBeNull();
@@ -109,7 +110,7 @@ namespace WebApi.Tests
 
             _fixture.MockUpdateMapper
                 .Setup(m => m.Map(_fixture.Spell))
-                .Returns(_fixture.SpellBaseViewModel);
+                .Returns(_fixture.SpellBaseDto);
 
             // Act
             var result = await _fixture.MockSpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
@@ -120,7 +121,7 @@ namespace WebApi.Tests
         }
 
         [Fact]
-        public async Task UpdateAsync_InvalidPatchDocument_ReturnsObjectResult()
+        public async Task UpdateAsync_ExistingSpellInvalidPatchDocument_ReturnsObjectResult()
         {
             // Arrange
             _fixture.MockSpellService
@@ -129,7 +130,7 @@ namespace WebApi.Tests
 
             _fixture.MockUpdateMapper
                 .Setup(m => m.Map(_fixture.Spell))
-                .Returns(_fixture.SpellBaseViewModel);
+                .Returns(_fixture.SpellBaseDto);
 
             _fixture.MockModelError(_fixture.MockSpellsController);
 
@@ -158,7 +159,7 @@ namespace WebApi.Tests
         }
 
         [Fact]
-        public async Task HitAsync_ValidViewModel_ReturnsNoContentResult()
+        public async Task HitAsync_ValidDto_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -170,7 +171,7 @@ namespace WebApi.Tests
                 .Returns(_fixture.Spell);
 
             // Act
-            var result = await _fixture.MockSpellsController.HitAsync(_fixture.HitViewModel);
+            var result = await _fixture.MockSpellsController.HitAsync(_fixture.HitDto);
 
             // Assert
             result.Should().NotBeNull();

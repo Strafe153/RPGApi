@@ -1,11 +1,11 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
+using Core.Dtos;
+using Core.Dtos.CharacterDtos;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Services;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.CharacterViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -30,10 +30,10 @@ namespace WebApi.Tests.Fixtures
             MockWeaponService = fixture.Freeze<Mock<IItemService<Weapon>>>();
             MockSpellService = fixture.Freeze<Mock<IItemService<Spell>>>();
             MockMountService = fixture.Freeze<Mock<IItemService<Mount>>>();
-            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Character>, PageViewModel<CharacterReadViewModel>>>>();
-            MockReadMapper = fixture.Freeze<Mock<IMapper<Character, CharacterReadViewModel>>>();
-            MockCreateMapper = fixture.Freeze<Mock<IMapper<CharacterCreateViewModel, Character>>>();
-            MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<CharacterBaseViewModel, Character>>>();
+            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>>>();
+            MockReadMapper = fixture.Freeze<Mock<IMapper<Character, CharacterReadDto>>>();
+            MockCreateMapper = fixture.Freeze<Mock<IMapper<CharacterCreateDto, Character>>>();
+            MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<CharacterBaseDto, Character>>>();
 
             MockCharactersController = new(
                 MockCharacterService.Object,
@@ -52,14 +52,14 @@ namespace WebApi.Tests.Fixtures
             Spell = GetSpell();
             Mount = GetMount();
             Character = GetCharacter();
-            CharacterReadViewModel = GetCharacterReadViewModel();
-            CharacterCreateViewModel = GetCharacterCreateViewModel();
-            CharacterUpdateViewModel = GetCharacterBaseViewModel();
+            CharacterReadDto = GetCharacterReadDto();
+            CharacterCreateDto = GetCharacterCreateDto();
+            CharacterUpdateDto = GetCharacterBaseDto();
             PatchDocument = GetPatchDocument();
-            ItemViewModel = GetItemViewModel();
+            ItemDto = GetItemDto();
             PageParameters = GetPageParameters();
-            PagedList = GetPagedList();
-            PageViewModel = GetPageViewModel();
+            PaginatedList = GetPaginatedList();
+            PageDto = GetPageDto();
         }
 
         public CharactersController MockCharactersController { get; }
@@ -68,10 +68,10 @@ namespace WebApi.Tests.Fixtures
         public Mock<IItemService<Weapon>> MockWeaponService { get; }
         public Mock<IItemService<Spell>> MockSpellService { get; }
         public Mock<IItemService<Mount>> MockMountService { get; }
-        public Mock<IMapper<PaginatedList<Character>, PageViewModel<CharacterReadViewModel>>> MockPaginatedMapper { get; }
-        public Mock<IMapper<Character, CharacterReadViewModel>> MockReadMapper { get; }
-        public Mock<IMapper<CharacterCreateViewModel, Character>> MockCreateMapper { get; }
-        public Mock<IUpdateMapper<CharacterBaseViewModel, Character>> MockUpdateMapper { get; }
+        public Mock<IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>> MockPaginatedMapper { get; }
+        public Mock<IMapper<Character, CharacterReadDto>> MockReadMapper { get; }
+        public Mock<IMapper<CharacterCreateDto, Character>> MockCreateMapper { get; }
+        public Mock<IUpdateMapper<CharacterBaseDto, Character>> MockUpdateMapper { get; }
 
         public int Id { get; }
         public string? Name { get; }
@@ -79,14 +79,14 @@ namespace WebApi.Tests.Fixtures
         public Spell Spell { get; }
         public Mount Mount { get; }
         public Character Character { get; }
-        public CharacterReadViewModel CharacterReadViewModel { get; }
-        public CharacterCreateViewModel CharacterCreateViewModel { get; }
-        public CharacterBaseViewModel CharacterUpdateViewModel { get; }
-        public JsonPatchDocument<CharacterBaseViewModel> PatchDocument { get; }
-        public AddRemoveItemViewModel ItemViewModel { get; }
+        public CharacterReadDto CharacterReadDto { get; }
+        public CharacterCreateDto CharacterCreateDto { get; }
+        public CharacterBaseDto CharacterUpdateDto { get; }
+        public JsonPatchDocument<CharacterBaseDto> PatchDocument { get; }
+        public AddRemoveItemDto ItemDto { get; }
         public PageParameters PageParameters { get; }
-        public PaginatedList<Character> PagedList { get; }
-        public PageViewModel<CharacterReadViewModel> PageViewModel { get; }
+        public PaginatedList<Character> PaginatedList { get; }
+        public PageDto<CharacterReadDto> PageDto { get; }
 
         public void MockControllerBaseUser()
         {
@@ -181,9 +181,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private CharacterReadViewModel GetCharacterReadViewModel()
+        private CharacterReadDto GetCharacterReadDto()
         {
-            return new CharacterReadViewModel()
+            return new CharacterReadDto()
             {
                 Id = Id,
                 Name = Name,
@@ -192,9 +192,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private CharacterCreateViewModel GetCharacterCreateViewModel()
+        private CharacterCreateDto GetCharacterCreateDto()
         {
-            return new CharacterCreateViewModel()
+            return new CharacterCreateDto()
             {
                 Name = Name,
                 Race = CharacterRace.Human,
@@ -202,35 +202,35 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private CharacterBaseViewModel GetCharacterBaseViewModel()
+        private CharacterBaseDto GetCharacterBaseDto()
         {
-            return new CharacterBaseViewModel()
+            return new CharacterBaseDto()
             {
                 Name = Name,
                 Race = CharacterRace.Human
             };
         }
 
-        private JsonPatchDocument<CharacterBaseViewModel> GetPatchDocument()
+        private JsonPatchDocument<CharacterBaseDto> GetPatchDocument()
         {
-            return new JsonPatchDocument<CharacterBaseViewModel>();
+            return new JsonPatchDocument<CharacterBaseDto>();
         }
 
-        private AddRemoveItemViewModel GetItemViewModel()
+        private AddRemoveItemDto GetItemDto()
         {
-            return new AddRemoveItemViewModel()
+            return new AddRemoveItemDto()
             {
                 CharacterId = Id,
                 ItemId = Id
             };
         }
 
-        private List<CharacterReadViewModel> GetCharacterReadViewModels()
+        private List<CharacterReadDto> GetCharacterReadDtos()
         {
-            return new List<CharacterReadViewModel>()
+            return new List<CharacterReadDto>()
             {
-                CharacterReadViewModel,
-                CharacterReadViewModel
+                CharacterReadDto,
+                CharacterReadDto
             };
         }
 
@@ -243,14 +243,14 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PaginatedList<Character> GetPagedList()
+        private PaginatedList<Character> GetPaginatedList()
         {
             return new PaginatedList<Character>(GetCharacters(), 6, 1, 5);
         }
 
-        private PageViewModel<CharacterReadViewModel> GetPageViewModel()
+        private PageDto<CharacterReadDto> GetPageDto()
         {
-            return new PageViewModel<CharacterReadViewModel>()
+            return new PageDto<CharacterReadDto>()
             {
                 CurrentPage = 1,
                 TotalPages = 2,
@@ -258,7 +258,7 @@ namespace WebApi.Tests.Fixtures
                 TotalItems = 6,
                 HasPrevious = false,
                 HasNext = true,
-                Entities = GetCharacterReadViewModels()
+                Entities = GetCharacterReadDtos()
             };
         }
     }

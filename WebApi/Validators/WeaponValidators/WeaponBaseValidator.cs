@@ -1,10 +1,10 @@
-﻿using Core.Enums;
-using Core.ViewModels.WeaponViewModels;
+﻿using Core.Dtos.WeaponDtos;
+using Core.Enums;
 using FluentValidation;
 
 namespace WebApi.Validators.WeaponValidators
 {
-    public class WeaponBaseValidator<T> : AbstractValidator<T> where T : WeaponBaseViewModel
+    public class WeaponBaseValidator<T> : AbstractValidator<T> where T : WeaponBaseDto
     {
         public WeaponBaseValidator()
         {

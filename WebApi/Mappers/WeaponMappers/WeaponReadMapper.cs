@@ -1,16 +1,16 @@
-﻿using Core.Entities;
-using Core.ViewModels.WeaponViewModels;
+﻿using Core.Dtos.WeaponDtos;
+using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.WeaponMappers
 {
-    public class WeaponReadMapper : IMapper<Weapon, WeaponReadViewModel>
+    public class WeaponReadMapper : IMapper<Weapon, WeaponReadDto>
     {
-        public WeaponReadViewModel Map(Weapon source)
+        public WeaponReadDto Map(Weapon source)
         {
             var characters = source.CharacterWeapons.Select(cw => cw.Character!);
 
-            return new WeaponReadViewModel()
+            return new WeaponReadDto()
             {
                 Id = source.Id,
                 Name = source.Name,

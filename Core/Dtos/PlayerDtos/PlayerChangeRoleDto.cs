@@ -1,8 +1,8 @@
 ﻿using Core.Enums;
 
-namespace Core.ViewModels.PlayerViewModels
+namespace Core.Dtos.PlayerDtos
 {
-    public record PlayerChangeRoleViewModel
+    public record PlayerChangeRoleDto
     {
         public PlayerRole Role { get; init; } = PlayerRole.Player;
     }

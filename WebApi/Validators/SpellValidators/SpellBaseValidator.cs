@@ -1,10 +1,10 @@
-﻿using Core.Enums;
-using Core.ViewModels.SpellViewModels;
+﻿using Core.Dtos.SpellDtos;
+using Core.Enums;
 using FluentValidation;
 
 namespace WebApi.Validators.SpellValidators
 {
-    public class SpellBaseValidator<T> : AbstractValidator<T> where T : SpellBaseViewModel
+    public class SpellBaseValidator<T> : AbstractValidator<T> where T : SpellBaseDto
     {
         public SpellBaseValidator()
         {

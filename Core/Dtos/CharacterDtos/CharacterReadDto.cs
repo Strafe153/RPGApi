@@ -1,8 +1,8 @@
 ﻿using Core.Entities;
 
-namespace Core.ViewModels.CharacterViewModels
+namespace Core.Dtos.CharacterDtos
 {
-    public record CharacterReadViewModel : CharacterBaseViewModel
+    public record CharacterReadDto : CharacterBaseDto
     {
         public int Id { get; init; }
         public int Health { get; init; }

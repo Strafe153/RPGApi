@@ -1,21 +1,21 @@
-﻿using Core.Entities;
-using Core.ViewModels.WeaponViewModels;
+﻿using Core.Dtos.WeaponDtos;
+using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.WeaponMappers
 {
-    public class WeaponUpdateMapper : IUpdateMapper<WeaponBaseViewModel, Weapon>
+    public class WeaponUpdateMapper : IUpdateMapper<WeaponBaseDto, Weapon>
     {
-        public void Map(WeaponBaseViewModel first, Weapon second)
+        public void Map(WeaponBaseDto first, Weapon second)
         {
             second.Name = first.Name;
             second.Type = first.Type;
             second.Damage = first.Damage;
         }
 
-        public WeaponBaseViewModel Map(Weapon second)
+        public WeaponBaseDto Map(Weapon second)
         {
-            return new WeaponBaseViewModel()
+            return new WeaponBaseDto()
             {
                 Name = second.Name,
                 Type = second.Type,

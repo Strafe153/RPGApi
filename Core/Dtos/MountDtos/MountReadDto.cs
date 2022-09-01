@@ -1,8 +1,8 @@
 ﻿using Core.Entities;
 
-namespace Core.ViewModels.WeaponViewModels
+namespace Core.Dtos.MountDtos
 {
-    public record WeaponReadViewModel : WeaponBaseViewModel
+    public record MountReadDto : MountBaseDto
     {
         public int Id { get; init; }
         public IEnumerable<Character>? Characters { get; init; }

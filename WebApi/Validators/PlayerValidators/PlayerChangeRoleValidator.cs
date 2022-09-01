@@ -1,10 +1,10 @@
-﻿using Core.Enums;
-using Core.ViewModels.PlayerViewModels;
+﻿using Core.Dtos.PlayerDtos;
+using Core.Enums;
 using FluentValidation;
 
 namespace WebApi.Validators.PlayerValidators
 {
-    public class PlayerChangeRoleValidator : AbstractValidator<PlayerChangeRoleViewModel>
+    public class PlayerChangeRoleValidator : AbstractValidator<PlayerChangeRoleDto>
     {
         public PlayerChangeRoleValidator()
         {

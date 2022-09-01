@@ -1,12 +1,12 @@
-﻿using Core.Entities;
-using Core.ViewModels.MountViewModels;
+﻿using Core.Dtos.MountDtos;
+using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.MountMappers
 {
-    public class MountCreateMapper : IMapper<MountBaseViewModel, Mount>
+    public class MountCreateMapper : IMapper<MountBaseDto, Mount>
     {
-        public Mount Map(MountBaseViewModel source)
+        public Mount Map(MountBaseDto source)
         {
             return new Mount()
             {

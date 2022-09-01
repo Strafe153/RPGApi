@@ -1,8 +1,8 @@
 ﻿using Core.Entities;
 
-namespace Core.ViewModels.SpellViewModels
+namespace Core.Dtos.SpellDtos
 {
-    public record SpellReadViewModel : SpellBaseViewModel
+    public record SpellReadDto : SpellBaseDto
     {
         public int Id { get; init; }
         public IEnumerable<Character>? Characters { get; init; }

@@ -1,16 +1,16 @@
-﻿using Core.Entities;
-using Core.ViewModels.MountViewModels;
+﻿using Core.Dtos.MountDtos;
+using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.MountMappers
 {
-    public class MountReadMapper : IMapper<Mount, MountReadViewModel>
+    public class MountReadMapper : IMapper<Mount, MountReadDto>
     {
-        public MountReadViewModel Map(Mount source)
+        public MountReadDto Map(Mount source)
         {
             var characters = source.CharacterMounts.Select(cm => cm.Character!);
 
-            return new MountReadViewModel()
+            return new MountReadDto()
             {
                 Id = source.Id,
                 Name = source.Name,

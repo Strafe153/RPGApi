@@ -1,21 +1,21 @@
-﻿using Core.Entities;
-using Core.ViewModels.MountViewModels;
+﻿using Core.Dtos.MountDtos;
+using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.MountMappers
 {
-    public class MountUpdateMapper : IUpdateMapper<MountBaseViewModel, Mount>
+    public class MountUpdateMapper : IUpdateMapper<MountBaseDto, Mount>
     {
-        public void Map(MountBaseViewModel first, Mount second)
+        public void Map(MountBaseDto first, Mount second)
         {
             second.Name = first.Name;
             second.Type = first.Type;
             second.Speed = first.Speed;
         }
 
-        public MountBaseViewModel Map(Mount second)
+        public MountBaseDto Map(Mount second)
         {
-            return new MountBaseViewModel()
+            return new MountBaseDto()
             {
                 Name = second.Name,
                 Type = second.Type,

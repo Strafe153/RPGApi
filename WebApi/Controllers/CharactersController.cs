@@ -1,8 +1,8 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.CharacterDtos;
+using Core.Entities;
 using Core.Interfaces.Services;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.CharacterViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -20,10 +20,10 @@ namespace WebApi.Controllers
         private readonly IItemService<Weapon> _weaponService;
         private readonly IItemService<Spell> _spellService;
         private readonly IItemService<Mount> _mountService;
-        private readonly IMapper<PaginatedList<Character>, PageViewModel<CharacterReadViewModel>> _paginatedMapper;
-        private readonly IMapper<Character, CharacterReadViewModel> _readMapper;
-        private readonly IMapper<CharacterCreateViewModel, Character> _createMapper;
-        private readonly IUpdateMapper<CharacterBaseViewModel, Character> _updateMapper;
+        private readonly IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>> _paginatedMapper;
+        private readonly IMapper<Character, CharacterReadDto> _readMapper;
+        private readonly IMapper<CharacterCreateDto, Character> _createMapper;
+        private readonly IUpdateMapper<CharacterBaseDto, Character> _updateMapper;
 
         public CharactersController(
             ICharacterService characterService,
@@ -31,10 +31,10 @@ namespace WebApi.Controllers
             IItemService<Weapon> weaponService,
             IItemService<Spell> spellService,
             IItemService<Mount> mountService,
-            IMapper<PaginatedList<Character>, PageViewModel<CharacterReadViewModel>> paginatedMapper,
-            IMapper<Character, CharacterReadViewModel> readMapper,
-            IMapper<CharacterCreateViewModel, Character> createMapper,
-            IUpdateMapper<CharacterBaseViewModel, Character> updateMapper)
+            IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>> paginatedMapper,
+            IMapper<Character, CharacterReadDto> readMapper,
+            IMapper<CharacterCreateDto, Character> createMapper,
+            IUpdateMapper<CharacterBaseDto, Character> updateMapper)
         {
             _characterService = characterService;
             _playerService = playerService;
@@ -48,48 +48,44 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PageViewModel<CharacterReadViewModel>>> GetAsync(
-            [FromQuery] PageParameters pageParams)
+        public async Task<ActionResult<PageDto<CharacterReadDto>>> GetAsync([FromQuery] PageParameters pageParams)
         {
             var characters = await _characterService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
-            var pageModel = _paginatedMapper.Map(characters);
+            var pageDto = _paginatedMapper.Map(characters);
 
-            return Ok(pageModel);
+            return Ok(pageDto);
         }
 
         [HttpGet("{id:int:min(1)}")]
-        public async Task<ActionResult<CharacterReadViewModel>> GetAsync([FromRoute] int id)
+        public async Task<ActionResult<CharacterReadDto>> GetAsync([FromRoute] int id)
         {
             var character = await _characterService.GetByIdAsync(id);
-            var readModel = _readMapper.Map(character);
+            var readDto = _readMapper.Map(character);
 
-            return Ok(readModel);
+            return Ok(readDto);
         }
 
         [HttpPost]
-        public async Task<ActionResult<CharacterReadViewModel>> CreateAsync(
-            [FromBody] CharacterCreateViewModel createModel)
+        public async Task<ActionResult<CharacterReadDto>> CreateAsync([FromBody] CharacterCreateDto createDto)
         {
-            var player = await _playerService.GetByIdAsync(createModel.PlayerId);
-            var character = _createMapper.Map(createModel);
+            var player = await _playerService.GetByIdAsync(createDto.PlayerId);
+            var character = _createMapper.Map(createDto);
 
             _playerService.VerifyPlayerAccessRights(player, User.Identity!, User.Claims!);
             await _characterService.AddAsync(character);
 
-            var readModel = _readMapper.Map(character);
+            var readDto = _readMapper.Map(character);
 
-            return CreatedAtAction(nameof(GetAsync), new { id = readModel.Id }, readModel);
+            return CreatedAtAction(nameof(GetAsync), new { id = readDto.Id }, readDto);
         }
 
         [HttpPut("{id:int:min(1)}")]
-        public async Task<ActionResult> UpdateAsync(
-            [FromRoute] int id, 
-            [FromBody] CharacterBaseViewModel updateModel)
+        public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] CharacterBaseDto updateDto)
         {
             var character = await _characterService.GetByIdAsync(id);
 
             _playerService.VerifyPlayerAccessRights(character.Player!, User.Identity!, User.Claims!);
-            _updateMapper.Map(updateModel, character);
+            _updateMapper.Map(updateDto, character);
             await _characterService.UpdateAsync(character);
 
             return NoContent();
@@ -98,20 +94,20 @@ namespace WebApi.Controllers
         [HttpPatch("{id:int:min(1)}")]
         public async Task<ActionResult> UpdateAsync(
             [FromRoute] int id,
-            [FromBody] JsonPatchDocument<CharacterBaseViewModel> patchDocument)
+            [FromBody] JsonPatchDocument<CharacterBaseDto> patchDocument)
         {
             var character = await _characterService.GetByIdAsync(id);
-            var updateModel = _updateMapper.Map(character);
+            var updateDto = _updateMapper.Map(character);
 
             _playerService.VerifyPlayerAccessRights(character.Player!, User.Identity!, User.Claims!);
-            patchDocument.ApplyTo(updateModel, ModelState);
+            patchDocument.ApplyTo(updateDto, ModelState);
 
-            if (!TryValidateModel(updateModel))
+            if (!TryValidateModel(updateDto))
             {
                 return ValidationProblem(ModelState);
             }
 
-            _updateMapper.Map(updateModel, character);
+            _updateMapper.Map(updateDto, character);
             await _characterService.UpdateAsync(character);
 
             return NoContent();
@@ -129,10 +125,10 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("add/weapon")]
-        public async Task<ActionResult> AddWeaponAsync([FromBody] AddRemoveItemViewModel itemModel)
+        public async Task<ActionResult> AddWeaponAsync([FromBody] AddRemoveItemDto itemDto)
         {
-            var character = await _characterService.GetByIdAsync(itemModel.CharacterId);
-            var weapon = await _weaponService.GetByIdAsync(itemModel.ItemId);
+            var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
+            var weapon = await _weaponService.GetByIdAsync(itemDto.ItemId);
 
             _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
             _weaponService.AddToCharacter(character, weapon);
@@ -142,10 +138,10 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("remove/weapon")]
-        public async Task<ActionResult> RemoveWeaponAsync([FromBody] AddRemoveItemViewModel itemModel)
+        public async Task<ActionResult> RemoveWeaponAsync([FromBody] AddRemoveItemDto itemDto)
         {
-            var character = await _characterService.GetByIdAsync(itemModel.CharacterId);
-            var weapon = await _weaponService.GetByIdAsync(itemModel.ItemId);
+            var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
+            var weapon = await _weaponService.GetByIdAsync(itemDto.ItemId);
 
             _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
             _weaponService.RemoveFromCharacter(character, weapon);
@@ -155,10 +151,10 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("add/spell")]
-        public async Task<ActionResult> AddSpellAsync([FromBody] AddRemoveItemViewModel itemModel)
+        public async Task<ActionResult> AddSpellAsync([FromBody] AddRemoveItemDto itemDto)
         {
-            var character = await _characterService.GetByIdAsync(itemModel.CharacterId);
-            var spell = await _spellService.GetByIdAsync(itemModel.ItemId);
+            var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
+            var spell = await _spellService.GetByIdAsync(itemDto.ItemId);
 
             _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
             _spellService.AddToCharacter(character, spell);
@@ -168,10 +164,10 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("remove/spell")]
-        public async Task<ActionResult> RemoveSpellAsync([FromBody] AddRemoveItemViewModel itemModel)
+        public async Task<ActionResult> RemoveSpellAsync([FromBody] AddRemoveItemDto itemDto)
         {
-            var character = await _characterService.GetByIdAsync(itemModel.CharacterId);
-            var spell = await _spellService.GetByIdAsync(itemModel.ItemId);
+            var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
+            var spell = await _spellService.GetByIdAsync(itemDto.ItemId);
 
             _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
             _spellService.RemoveFromCharacter(character, spell);
@@ -181,10 +177,10 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("add/mount")]
-        public async Task<ActionResult> AddMountAsync([FromBody] AddRemoveItemViewModel itemModel)
+        public async Task<ActionResult> AddMountAsync([FromBody] AddRemoveItemDto itemDto)
         {
-            var character = await _characterService.GetByIdAsync(itemModel.CharacterId);
-            var mount = await _mountService.GetByIdAsync(itemModel.ItemId);
+            var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
+            var mount = await _mountService.GetByIdAsync(itemDto.ItemId);
 
             _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
             _mountService.AddToCharacter(character, mount);
@@ -194,10 +190,10 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("remove/mount")]
-        public async Task<ActionResult> RemoveMountAsync([FromBody] AddRemoveItemViewModel itemModel)
+        public async Task<ActionResult> RemoveMountAsync([FromBody] AddRemoveItemDto itemDto)
         {
-            var character = await _characterService.GetByIdAsync(itemModel.CharacterId);
-            var mount = await _mountService.GetByIdAsync(itemModel.ItemId);
+            var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
+            var mount = await _mountService.GetByIdAsync(itemDto.ItemId);
 
             _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
             _mountService.RemoveFromCharacter(character, mount);

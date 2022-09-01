@@ -1,11 +1,11 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
+using Core.Dtos;
+using Core.Dtos.SpellDtos;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Services;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.SpellViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
 using Moq;
+using System.Security.Claims;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
 
@@ -27,10 +28,10 @@ namespace WebApi.Tests.Fixtures
             MockSpellService = fixture.Freeze<Mock<IItemService<Spell>>>();
             MockCharacterService = fixture.Freeze<Mock<ICharacterService>>();
             MockPlayerService = fixture.Freeze<Mock<IPlayerService>>();
-            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Spell>, PageViewModel<SpellReadViewModel>>>>();
-            MockReadMapper = fixture.Freeze<Mock<IMapper<Spell, SpellReadViewModel>>>();
-            MockCreateMapper = fixture.Freeze<Mock<IMapper<SpellBaseViewModel, Spell>>>();
-            MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<SpellBaseViewModel, Spell>>>();
+            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>>>>();
+            MockReadMapper = fixture.Freeze<Mock<IMapper<Spell, SpellReadDto>>>();
+            MockCreateMapper = fixture.Freeze<Mock<IMapper<SpellBaseDto, Spell>>>();
+            MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<SpellBaseDto, Spell>>>();
 
             MockSpellsController = new(
                 MockSpellService.Object,
@@ -45,12 +46,12 @@ namespace WebApi.Tests.Fixtures
             Name = "Name";
             Character = GetCharacter();
             Spell = GetSpell();
-            SpellReadViewModel = GetSpellReadViewModel();
-            SpellBaseViewModel = GetSpellBaseViewModel();
-            HitViewModel = GetHitViewModel();
+            SpellReadDto = GetSpellReadDto();
+            SpellBaseDto = GetSpellBaseViewModel();
+            HitDto = GetHitDto();
             PageParameters = GetPageParameters();
-            PagedList = GetPagedList();
-            PageViewModel = GetPageViewModel();
+            PaginatedList = GetPaginatedList();
+            PageDto = GetPageDto();
             PatchDocument = GetPatchDocument();
         }
 
@@ -58,22 +59,33 @@ namespace WebApi.Tests.Fixtures
         public Mock<IItemService<Spell>> MockSpellService { get; }
         public Mock<ICharacterService> MockCharacterService { get; }
         public Mock<IPlayerService> MockPlayerService { get; }
-        public Mock<IMapper<PaginatedList<Spell>, PageViewModel<SpellReadViewModel>>> MockPaginatedMapper { get; }
-        public Mock<IMapper<Spell, SpellReadViewModel>> MockReadMapper { get; }
-        public Mock<IMapper<SpellBaseViewModel, Spell>> MockCreateMapper { get; }
-        public Mock<IUpdateMapper<SpellBaseViewModel, Spell>> MockUpdateMapper { get; }
+        public Mock<IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>>> MockPaginatedMapper { get; }
+        public Mock<IMapper<Spell, SpellReadDto>> MockReadMapper { get; }
+        public Mock<IMapper<SpellBaseDto, Spell>> MockCreateMapper { get; }
+        public Mock<IUpdateMapper<SpellBaseDto, Spell>> MockUpdateMapper { get; }
 
         public int Id { get; }
         public string? Name { get; }
         public Character Character { get; }
         public Spell Spell { get; }
-        public SpellReadViewModel SpellReadViewModel { get; }
-        public SpellBaseViewModel SpellBaseViewModel { get; }
-        public HitViewModel HitViewModel { get; }
+        public SpellReadDto SpellReadDto { get; }
+        public SpellBaseDto SpellBaseDto { get; }
+        public HitDto HitDto { get; }
         public PageParameters PageParameters { get; }
-        public PaginatedList<Spell> PagedList { get; }
-        public PageViewModel<SpellReadViewModel> PageViewModel { get; }
-        public JsonPatchDocument<SpellBaseViewModel> PatchDocument { get; }
+        public PaginatedList<Spell> PaginatedList { get; }
+        public PageDto<SpellReadDto> PageDto { get; }
+        public JsonPatchDocument<SpellBaseDto> PatchDocument { get; }
+
+        public void MockControllerBaseUser()
+        {
+            var user = new ClaimsPrincipal(new ClaimsIdentity());
+
+            MockSpellsController.ControllerContext = new ControllerContext();
+            MockSpellsController.ControllerContext.HttpContext = new DefaultHttpContext()
+            {
+                User = user
+            };
+        }
 
         public void MockObjectModelValidator(ControllerBase controller)
         {
@@ -141,14 +153,14 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PaginatedList<Spell> GetPagedList()
+        private PaginatedList<Spell> GetPaginatedList()
         {
             return new PaginatedList<Spell>(GetSpells(), 6, 1, 5);
         }
 
-        private SpellBaseViewModel GetSpellBaseViewModel()
+        private SpellBaseDto GetSpellBaseViewModel()
         {
-            return new SpellBaseViewModel()
+            return new SpellBaseDto()
             {
                 Name = Name,
                 Type = SpellType.Fire,
@@ -156,9 +168,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private SpellReadViewModel GetSpellReadViewModel()
+        private SpellReadDto GetSpellReadDto()
         {
-            return new SpellReadViewModel()
+            return new SpellReadDto()
             {
                 Id = Id,
                 Name = Name,
@@ -167,18 +179,18 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private List<SpellReadViewModel> GetSpellReadViewModels()
+        private List<SpellReadDto> GetSpellReadDtos()
         {
-            return new List<SpellReadViewModel>()
+            return new List<SpellReadDto>()
             {
-                SpellReadViewModel,
-                SpellReadViewModel
+                SpellReadDto,
+                SpellReadDto
             };
         }
 
-        private HitViewModel GetHitViewModel()
+        private HitDto GetHitDto()
         {
-            return new HitViewModel()
+            return new HitDto()
             {
                 DealerId = Id,
                 ItemId = Id,
@@ -186,9 +198,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PageViewModel<SpellReadViewModel> GetPageViewModel()
+        private PageDto<SpellReadDto> GetPageDto()
         {
-            return new PageViewModel<SpellReadViewModel>()
+            return new PageDto<SpellReadDto>()
             {
                 CurrentPage = 1,
                 TotalPages = 2,
@@ -196,13 +208,13 @@ namespace WebApi.Tests.Fixtures
                 TotalItems = 6,
                 HasPrevious = false,
                 HasNext = true,
-                Entities = GetSpellReadViewModels()
+                Entities = GetSpellReadDtos()
             };
         }
 
-        private JsonPatchDocument<SpellBaseViewModel> GetPatchDocument()
+        private JsonPatchDocument<SpellBaseDto> GetPatchDocument()
         {
-            return new JsonPatchDocument<SpellBaseViewModel>();
+            return new JsonPatchDocument<SpellBaseDto>();
         }
     }
 }

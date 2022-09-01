@@ -1,23 +1,23 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.WeaponDtos;
+using Core.Entities;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.WeaponViewModels;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.WeaponMappers
 {
-    public class WeaponPaginatedMapper : IMapper<PaginatedList<Weapon>, PageViewModel<WeaponReadViewModel>>
+    public class WeaponPaginatedMapper : IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>
     {
-        private readonly IMapper<Weapon, WeaponReadViewModel> _readMapper;
+        private readonly IMapper<Weapon, WeaponReadDto> _readMapper;
 
-        public WeaponPaginatedMapper(IMapper<Weapon, WeaponReadViewModel> readMapper)
+        public WeaponPaginatedMapper(IMapper<Weapon, WeaponReadDto> readMapper)
         {
             _readMapper = readMapper;
         }
 
-        public PageViewModel<WeaponReadViewModel> Map(PaginatedList<Weapon> source)
+        public PageDto<WeaponReadDto> Map(PaginatedList<Weapon> source)
         {
-            return new PageViewModel<WeaponReadViewModel>()
+            return new PageDto<WeaponReadDto>()
             {
                 CurrentPage = source.CurrentPage,
                 TotalPages = source.TotalPages,

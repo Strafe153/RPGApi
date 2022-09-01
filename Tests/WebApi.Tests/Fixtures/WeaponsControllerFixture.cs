@@ -1,11 +1,11 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
+using Core.Dtos;
+using Core.Dtos.WeaponDtos;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Services;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.WeaponViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -28,10 +28,10 @@ namespace WebApi.Tests.Fixtures
             MockWeaponService = fixture.Freeze<Mock<IItemService<Weapon>>>();
             MockCharacterService = fixture.Freeze<Mock<ICharacterService>>();
             MockPlayerService = fixture.Freeze<Mock<IPlayerService>>();
-            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Weapon>, PageViewModel<WeaponReadViewModel>>>>();
-            MockReadMapper = fixture.Freeze<Mock<IMapper<Weapon, WeaponReadViewModel>>>();
-            MockCreateMapper = fixture.Freeze<Mock<IMapper<WeaponBaseViewModel, Weapon>>>();
-            MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<WeaponBaseViewModel, Weapon>>>();
+            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>>>();
+            MockReadMapper = fixture.Freeze<Mock<IMapper<Weapon, WeaponReadDto>>>();
+            MockCreateMapper = fixture.Freeze<Mock<IMapper<WeaponBaseDto, Weapon>>>();
+            MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<WeaponBaseDto, Weapon>>>();
 
             MockWeaponsController = new(
                 MockWeaponService.Object,
@@ -46,12 +46,12 @@ namespace WebApi.Tests.Fixtures
             Name = "Name";
             Character = GetCharacter();
             Weapon = GetWeapon();
-            WeaponReadViewModel = GetWeaponReadViewmModel();
-            SpellBaseViewModel = GetWeaponBaseViewModel();
-            HitViewModel = GetHitViewModel();
+            WeaponReadDto = GetWeaponReadDto();
+            WeaponBaseDto = GetWeaponBaseDto();
+            HitDto = GetHitDto();
             PageParameters = GetPageParameters();
-            PagedList = GetPagedList();
-            PageViewModel = GetPageViewModel();
+            PaginatedList = GetPaginatedList();
+            PageDto = GetPageDto();
             PatchDocument = GetPatchDocument();
         }
 
@@ -59,22 +59,22 @@ namespace WebApi.Tests.Fixtures
         public Mock<IItemService<Weapon>> MockWeaponService { get; }
         public Mock<ICharacterService> MockCharacterService { get; }
         public Mock<IPlayerService> MockPlayerService { get; }
-        public Mock<IMapper<PaginatedList<Weapon>, PageViewModel<WeaponReadViewModel>>> MockPaginatedMapper { get; }
-        public Mock<IMapper<Weapon, WeaponReadViewModel>> MockReadMapper { get; }
-        public Mock<IMapper<WeaponBaseViewModel, Weapon>> MockCreateMapper { get; }
-        public Mock<IUpdateMapper<WeaponBaseViewModel, Weapon>> MockUpdateMapper { get; }
+        public Mock<IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>> MockPaginatedMapper { get; }
+        public Mock<IMapper<Weapon, WeaponReadDto>> MockReadMapper { get; }
+        public Mock<IMapper<WeaponBaseDto, Weapon>> MockCreateMapper { get; }
+        public Mock<IUpdateMapper<WeaponBaseDto, Weapon>> MockUpdateMapper { get; }
 
         public int Id { get; }
         public string? Name { get; }
         public Character Character { get; }
         public Weapon Weapon { get; }
-        public WeaponReadViewModel WeaponReadViewModel { get; }
-        public WeaponBaseViewModel SpellBaseViewModel { get; }
-        public HitViewModel HitViewModel { get; }
+        public WeaponReadDto WeaponReadDto { get; }
+        public WeaponBaseDto WeaponBaseDto { get; }
+        public HitDto HitDto { get; }
         public PageParameters PageParameters { get; }
-        public PaginatedList<Weapon> PagedList { get; }
-        public PageViewModel<WeaponReadViewModel> PageViewModel { get; }
-        public JsonPatchDocument<WeaponBaseViewModel> PatchDocument { get; }
+        public PaginatedList<Weapon> PaginatedList { get; }
+        public PageDto<WeaponReadDto> PageDto { get; }
+        public JsonPatchDocument<WeaponBaseDto> PatchDocument { get; }
 
         public void MockControllerBaseUser()
         {
@@ -153,14 +153,14 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PaginatedList<Weapon> GetPagedList()
+        private PaginatedList<Weapon> GetPaginatedList()
         {
             return new PaginatedList<Weapon>(GetWeapons(), 6, 1, 5);
         }
 
-        private WeaponBaseViewModel GetWeaponBaseViewModel()
+        private WeaponBaseDto GetWeaponBaseDto()
         {
-            return new WeaponBaseViewModel()
+            return new WeaponBaseDto()
             {
                 Name = Name,
                 Type = WeaponType.Sword,
@@ -168,9 +168,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private WeaponReadViewModel GetWeaponReadViewmModel()
+        private WeaponReadDto GetWeaponReadDto()
         {
-            return new WeaponReadViewModel()
+            return new WeaponReadDto()
             {
                 Id = Id,
                 Name = Name,
@@ -179,18 +179,18 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private List<WeaponReadViewModel> GetWeaponReadViewModels()
+        private List<WeaponReadDto> GetWeaponReadDtos()
         {
-            return new List<WeaponReadViewModel>()
+            return new List<WeaponReadDto>()
             {
-                WeaponReadViewModel,
-                WeaponReadViewModel
+                WeaponReadDto,
+                WeaponReadDto
             };
         }
 
-        private HitViewModel GetHitViewModel()
+        private HitDto GetHitDto()
         {
-            return new HitViewModel()
+            return new HitDto()
             {
                 DealerId = Id,
                 ItemId = Id,
@@ -198,9 +198,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PageViewModel<WeaponReadViewModel> GetPageViewModel()
+        private PageDto<WeaponReadDto> GetPageDto()
         {
-            return new PageViewModel<WeaponReadViewModel>()
+            return new PageDto<WeaponReadDto>()
             {
                 CurrentPage = 1,
                 TotalPages = 2,
@@ -208,13 +208,13 @@ namespace WebApi.Tests.Fixtures
                 TotalItems = 6,
                 HasPrevious = false,
                 HasNext = true,
-                Entities = GetWeaponReadViewModels()
+                Entities = GetWeaponReadDtos()
             };
         }
 
-        private JsonPatchDocument<WeaponBaseViewModel> GetPatchDocument()
+        private JsonPatchDocument<WeaponBaseDto> GetPatchDocument()
         {
-            return new JsonPatchDocument<WeaponBaseViewModel>();
+            return new JsonPatchDocument<WeaponBaseDto>();
         }
     }
 }
