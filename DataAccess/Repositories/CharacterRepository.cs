@@ -28,7 +28,6 @@ namespace DataAccess.Repositories
         public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize)
         {
             var characters = await _context.Characters
-                .Include(c => c.Player)
                 .Include(c => c.CharacterWeapons)
                     .ThenInclude(cw => cw.Weapon)
                 .Include(c => c.CharacterSpells)
@@ -43,7 +42,6 @@ namespace DataAccess.Repositories
         public async Task<Character?> GetByIdAsync(int id)
         {
             var character = await _context.Characters
-                .Include(c => c.Player)
                 .Include(c => c.CharacterWeapons)
                     .ThenInclude(cw => cw.Weapon)
                 .Include(c => c.CharacterSpells)
