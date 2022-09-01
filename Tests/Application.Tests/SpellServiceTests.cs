@@ -51,7 +51,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public async void GetByIdAsync_NonexistingSpell_ThrowsNullReferenceException()
+        public async Task GetByIdAsync_NonexistingSpell_ThrowsNullReferenceException()
         {
             // Arrange
             _fixture.MockSpellRepository
@@ -67,7 +67,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void AddAsync_ValidSpell_ReturnsVoid()
+        public void AddAsync_ValidSpell_ReturnsTask()
         {
             // Act
             var result = _fixture.MockSpellService.AddAsync(_fixture.Spell);
@@ -77,7 +77,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void UpdateAsync_ValidSpell_ReturnsVoid()
+        public void UpdateAsync_ValidSpell_ReturnsTask()
         {
             // Act
             var result = _fixture.MockSpellService.UpdateAsync(_fixture.Spell);
@@ -87,7 +87,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void DeleteAsync_ValidSpell_ReturnsVoid()
+        public void DeleteAsync_ValidSpell_ReturnsTask()
         {
             // Act
             var result = _fixture.MockSpellService.DeleteAsync(_fixture.Spell);

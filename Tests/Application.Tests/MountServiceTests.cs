@@ -67,7 +67,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void AddAsync_ValidMount_ReturnsVoid()
+        public void AddAsync_ValidMount_ReturnsTask()
         {
             // Act
             var result = _fixture.MockMountService.AddAsync(_fixture.Mount);
@@ -77,7 +77,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void UpdateAsync_ValidMount_ReturnsVoid()
+        public void UpdateAsync_ValidMount_ReturnsTask()
         {
             // Act
             var result = _fixture.MockMountService.UpdateAsync(_fixture.Mount);
@@ -87,7 +87,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void DeleteAsync_ValidMount_ReturnsVoid()
+        public void DeleteAsync_ValidMount_ReturnsTask()
         {
             // Act
             var result = _fixture.MockMountService.DeleteAsync(_fixture.Mount);

@@ -51,7 +51,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public async void GetByIdAsync_NonexistingPlayer_ThrowsNullReferenceException()
+        public async Task GetByIdAsync_NonexistingPlayer_ThrowsNullReferenceException()
         {
             // Arrange
             _fixture.MockPlayerRepository
@@ -99,7 +99,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void AddAsync_ValidPlayer_ReturnsVoid()
+        public void AddAsync_ValidPlayer_ReturnsTask()
         {
             // Act
             var result = _fixture.MockPlayerService.AddAsync(_fixture.Player);
@@ -109,7 +109,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void UpdateAsync_ValidPlayer_ReturnsVoid()
+        public void UpdateAsync_ValidPlayer_ReturnsTask()
         {
             // Act
             var result = _fixture.MockPlayerService.UpdateAsync(_fixture.Player);
@@ -119,7 +119,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void DeleteAsync_ValidPlayer_ReturnsVoid()
+        public void DeleteAsync_ValidPlayer_ReturnsTask()
         {
             // Act
             var result = _fixture.MockPlayerService.DeleteAsync(_fixture.Player);
@@ -129,7 +129,7 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void VerifyNameUniqueness_UniqueName_ReturnsVoid()
+        public void VerifyNameUniqueness_UniqueName_ReturnsTask()
         {
             // Arrange
             _fixture.MockPlayerRepository
