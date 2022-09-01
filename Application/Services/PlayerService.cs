@@ -13,7 +13,7 @@ namespace Application.Services
     public class PlayerService : IPlayerService
     {
         private readonly IPlayerRepository _repository;
-        private readonly ILogger _logger;
+        private readonly ILogger<PlayerService> _logger;
 
         public PlayerService(
             IPlayerRepository repository,
@@ -68,11 +68,11 @@ namespace Application.Services
 
             if (player is null)
             {
-                _logger.LogWarning($"Failed to retrieve a player with name {name}");
+                _logger.LogWarning($"Failed to retrieve a player with name '{name}'");
                 throw new NullReferenceException("Player not found");
             }
 
-            _logger.LogInformation($"Successfully retrieved a player with name {name}");
+            _logger.LogInformation($"Successfully retrieved a player with name '{name}'");
 
             return player;
         }

@@ -10,12 +10,13 @@ using System.Text;
 using WebApi.Mappers;
 using WebApi.Middleware;
 using WebApi.Validators;
+using NLog.Web;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add logging
 builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
+builder.Host.UseNLog();
 
 // Add custom validators, repositories, services, mappers.
 builder.Services.AddApplicationValidators();

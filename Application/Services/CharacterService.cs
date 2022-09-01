@@ -10,7 +10,7 @@ namespace Application.Services
     public class CharacterService : ICharacterService
     {
         private readonly IRepository<Character> _characterRepository;
-        private readonly ILogger _logger;
+        private readonly ILogger<CharacterService> _logger;
 
         public CharacterService(
             IRepository<Character> repository,
