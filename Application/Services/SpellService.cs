@@ -10,7 +10,7 @@ namespace Application.Services
     public class SpellService : IItemService<Spell>
     {
         private readonly IRepository<Spell> _repository;
-        private readonly ILogger _logger;
+        private readonly ILogger<SpellService> _logger;
 
         public SpellService(
             IRepository<Spell> repository,

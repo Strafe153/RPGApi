@@ -83,7 +83,7 @@ namespace Application.Services
 
             if (player is not null)
             {
-                _logger.LogWarning($"Failed to create a player due to the name {name} being taken");
+                _logger.LogWarning($"Failed to create a player due to the name '{name}' being taken");
                 throw new NameNotUniqueException($"Name '{name}' is already taken");
             }
         }

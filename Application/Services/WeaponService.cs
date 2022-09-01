@@ -10,7 +10,7 @@ namespace Application.Services
     public class WeaponService : IItemService<Weapon>
     {
         private readonly IRepository<Weapon> _repository;
-        private readonly ILogger _logger;
+        private readonly ILogger<WeaponService> _logger;
 
         public WeaponService(
             IRepository<Weapon> repository,
