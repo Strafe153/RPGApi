@@ -28,7 +28,7 @@ namespace Application.Tests.Fixtures
             Name = "StringPlaceholder";
             Weapon = GetWeapon(Id);
             Character = GetCharacter();
-            PagedList = GetPagedList();
+            PaginatedList = GetPaginatedList();
         }
 
         public IItemService<Weapon> MockWeaponService { get; }
@@ -39,7 +39,7 @@ namespace Application.Tests.Fixtures
         public string? Name { get; }
         public Weapon Weapon { get; }
         public Character Character { get; }
-        public PaginatedList<Weapon> PagedList { get; }
+        public PaginatedList<Weapon> PaginatedList { get; }
 
         private Character GetCharacter()
         {
@@ -93,7 +93,7 @@ namespace Application.Tests.Fixtures
             };
         }
 
-        private PaginatedList<Weapon> GetPagedList()
+        private PaginatedList<Weapon> GetPaginatedList()
         {
             return new PaginatedList<Weapon>(GetWeapons(), 6, 1, 5);
         }

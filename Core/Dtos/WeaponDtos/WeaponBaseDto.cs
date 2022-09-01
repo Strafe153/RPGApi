@@ -1,8 +1,8 @@
 ﻿using Core.Enums;
 
-namespace Core.ViewModels.WeaponViewModels
+namespace Core.Dtos.WeaponDtos
 {
-    public record WeaponBaseViewModel
+    public record WeaponBaseDto
     {
         public string? Name { get; init; }
         public WeaponType Type { get; init; }

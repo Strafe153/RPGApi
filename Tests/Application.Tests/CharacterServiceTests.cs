@@ -2,59 +2,36 @@
 using Core.Entities;
 using Core.Exceptions;
 using Core.Models;
+using FluentAssertions;
 using Moq;
 using Xunit;
 
 namespace Application.Tests
 {
-    public class CharacterServiceTests : IClassFixture<CharacterServiceFixture>, IDisposable
+    public class CharacterServiceTests : IClassFixture<CharacterServiceFixture>
     {
         private readonly CharacterServiceFixture _fixture;
-        private bool _disposed;
 
         public CharacterServiceTests(CharacterServiceFixture fixture)
         {
             _fixture = fixture;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                _fixture.MockCharacterRepository.Invocations.Clear();
-            }
-
-            _disposed = true;
-        }
-
         [Fact]
-        public async Task GetAllAsync_ValidData_ReturnsPagedList()
+        public async Task GetAllAsync_ValidParameters_ReturnsPaginatedListOfCharacter()
         {
             // Arrange
             _fixture.MockCharacterRepository
                 .Setup(r => r.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PagedList);
+                .ReturnsAsync(_fixture.PaginatedList);
 
             // Act
             var result = await _fixture.MockCharacterService.GetAllAsync(_fixture.Id, _fixture.Id);
 
             // Assert
-            _fixture.MockCharacterRepository.Verify(r => r.GetAllAsync(_fixture.Id, _fixture.Id), Times.Once());
-
-            Assert.NotNull(result);
-            Assert.NotEmpty(result);
-            Assert.IsType<PaginatedList<Character>>(result);
+            result.Should().NotBeNull();
+            result.Should().NotBeEmpty();
+            result.Should().BeOfType<PaginatedList<Character>>();
         }
 
         [Fact]
@@ -69,10 +46,8 @@ namespace Application.Tests
             var result = await _fixture.MockCharacterService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            _fixture.MockCharacterRepository.Verify(r => r.GetByIdAsync(_fixture.Id), Times.Once());
-
-            Assert.NotNull(result);
-            Assert.IsType<Character>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<Character>();
         }
 
         [Fact]
@@ -84,46 +59,41 @@ namespace Application.Tests
                 .ReturnsAsync((Character)null!);
 
             // Act
-            var result = _fixture.MockCharacterService.GetByIdAsync(_fixture.Id);
+            var result = async () => await _fixture.MockCharacterService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            _fixture.MockCharacterRepository.Verify(r => r.GetByIdAsync(_fixture.Id), Times.Once());
-
-            Assert.True(result.IsFaulted);
-            await Assert.ThrowsAsync<NullReferenceException>(async () => await result);
+            result.Should().NotBeNull();
+            await result.Should().ThrowAsync<NullReferenceException>();
         }
 
         [Fact]
-        public void AddAsync_ValidCharacter_ReturnsTask()
+        public void AddAsync_ValidCharacter_ReturnsVoid()
         {
             // Act
             var result = _fixture.MockCharacterService.AddAsync(_fixture.Character);
 
             // Assert
-            _fixture.MockCharacterRepository.Verify(r => r.Add(_fixture.Character), Times.Once());
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
-        public void UpdateAsync_ValidCharacter_ReturnsTask()
+        public void UpdateAsync_ValidCharacter_ReturnsVoid()
         {
             // Act
             var result = _fixture.MockCharacterService.UpdateAsync(_fixture.Character);
 
             // Assert
-            _fixture.MockCharacterRepository.Verify(r => r.Update(_fixture.Character), Times.Once());
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
-        public void DeleteAsync_ValidCharacter_ReturnsTask()
+        public void DeleteAsync_ValidCharacter_ReturnsVoid()
         {
             // Act
             var result = _fixture.MockCharacterService.DeleteAsync(_fixture.Character);
 
             // Assert
-            _fixture.MockCharacterRepository.Verify(r => r.Delete(_fixture.Character), Times.Once());
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
@@ -133,8 +103,8 @@ namespace Application.Tests
             var result = _fixture.MockCharacterService.GetWeapon(_fixture.Character, _fixture.Id);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<Weapon>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<Weapon>();
         }
 
         [Fact]
@@ -144,18 +114,18 @@ namespace Application.Tests
             var result = () => _fixture.MockCharacterService.GetWeapon(_fixture.Character, 3);
 
             // Assert
-            Assert.Throws<ItemNotFoundException>(result);
+            result.Should().Throw<ItemNotFoundException>();
         }
 
         [Fact]
-        public void GetSpell_ExistingSpell_ReturnsWeapon()
+        public void GetSpell_ExistingSpell_ReturnsSpell()
         {
             // Act
             var result = _fixture.MockCharacterService.GetSpell(_fixture.Character, _fixture.Id);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<Spell>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<Spell>();
         }
 
         [Fact]
@@ -165,7 +135,7 @@ namespace Application.Tests
             var result = () => _fixture.MockCharacterService.GetSpell(_fixture.Character, 3);
 
             // Assert
-            Assert.Throws<ItemNotFoundException>(result);
+            result.Should().Throw<ItemNotFoundException>();
         }
 
         [Theory]
@@ -178,7 +148,7 @@ namespace Application.Tests
             _fixture.MockCharacterService.CalculateHealth(_fixture.Character, damage);
 
             // Assert
-            Assert.Equal(resultingHealth, _fixture.Character.Health);
+            resultingHealth.Should().Be(_fixture.Character.Health);
         }
     }
 }

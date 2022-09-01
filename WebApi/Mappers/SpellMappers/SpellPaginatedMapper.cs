@@ -1,23 +1,23 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.SpellDtos;
+using Core.Entities;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.SpellViewModels;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.SpellMappers
 {
-    public class SpellPaginatedMapper : IMapper<PaginatedList<Spell>, PageViewModel<SpellReadViewModel>>
+    public class SpellPaginatedMapper : IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>>
     {
-        private readonly IMapper<Spell, SpellReadViewModel> _readMapper;
+        private readonly IMapper<Spell, SpellReadDto> _readMapper;
 
-        public SpellPaginatedMapper(IMapper<Spell, SpellReadViewModel> readMapper)
+        public SpellPaginatedMapper(IMapper<Spell, SpellReadDto> readMapper)
         {
             _readMapper = readMapper;
         }
 
-        public PageViewModel<SpellReadViewModel> Map(PaginatedList<Spell> source)
+        public PageDto<SpellReadDto> Map(PaginatedList<Spell> source)
         {
-            return new PageViewModel<SpellReadViewModel>()
+            return new PageDto<SpellReadDto>()
             {
                 CurrentPage = source.CurrentPage,
                 TotalPages = source.TotalPages,

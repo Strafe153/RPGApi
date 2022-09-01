@@ -1,11 +1,11 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
+using Core.Dtos;
+using Core.Dtos.PlayerDtos;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Services;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.PlayerViewModels;
 using Moq;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
@@ -20,9 +20,9 @@ namespace WebApi.Tests.Fixtures
 
             MockPlayerService = fixture.Freeze<Mock<IPlayerService>>();
             MockPasswordService = fixture.Freeze<Mock<IPasswordService>>();
-            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Player>, PageViewModel<PlayerReadViewModel>>>>();
-            MockReadMapper = fixture.Freeze<Mock<IMapper<Player, PlayerReadViewModel>>>();
-            MockReadWithTokenMapper = fixture.Freeze<Mock<IMapper<Player, PlayerWithTokenReadViewModel>>>();
+            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>>>();
+            MockReadMapper = fixture.Freeze<Mock<IMapper<Player, PlayerReadDto>>>();
+            MockReadWithTokenMapper = fixture.Freeze<Mock<IMapper<Player, PlayerWithTokenReadDto>>>();
 
             MockPlayersController = new(
                 MockPlayerService.Object,
@@ -35,37 +35,37 @@ namespace WebApi.Tests.Fixtures
             Name = "Name";
             Bytes = new byte[0];
             Player = GetPlayer();
-            PlayerReadViewModel = GetPlayerReadViewModel();
-            PlayerWithTokenReadViewModel = GetPlayerWithTokenReadViewModel();
-            PlayerAuthorizeViewModel = GetPlayerAuthorizeViewModel();
-            PlayerUpdateViewModel = GetPlayerUpdateViewModel();
-            PlayerChangePasswordViewModel = GetPlayerChangePasswordViewModel();
-            PlayerChangeRoleViewModel = GetPlayerChangeRoleViewModel();
+            PlayerReadDto = GetPlayerReadDto();
+            PlayerWithTokenReadDto = GetPlayerWithTokenReadDto();
+            PlayerAuthorizeDto = GetPlayerAuthorizeDto();
+            PlayerUpdateDto = GetPlayerUpdateDto();
+            PlayerChangePasswordDto = GetPlayerChangePasswordDto();
+            PlayerChangeRoleDto = GetPlayerChangeRoleDto();
             PageParameters = GetPageParameters();
-            PagedList = GetPagedList();
-            PageViewModel = GetPageViewModel();
+            PaginatedList = GetPaginatedList();
+            PageDto = GetPageDto();
         }
 
         public PlayersController MockPlayersController { get; }
         public Mock<IPlayerService> MockPlayerService { get; }
         public Mock<IPasswordService> MockPasswordService { get; }
-        public Mock<IMapper<PaginatedList<Player>, PageViewModel<PlayerReadViewModel>>> MockPaginatedMapper { get; }
-        public Mock<IMapper<Player, PlayerReadViewModel>> MockReadMapper { get; }
-        public Mock<IMapper<Player, PlayerWithTokenReadViewModel>> MockReadWithTokenMapper { get; }
+        public Mock<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>> MockPaginatedMapper { get; }
+        public Mock<IMapper<Player, PlayerReadDto>> MockReadMapper { get; }
+        public Mock<IMapper<Player, PlayerWithTokenReadDto>> MockReadWithTokenMapper { get; }
 
         public int Id { get; }
         public string? Name { get; }
         public byte[] Bytes { get; }
         public Player Player { get; }
-        public PlayerReadViewModel PlayerReadViewModel { get; }
-        public PlayerWithTokenReadViewModel PlayerWithTokenReadViewModel { get; }
-        public PlayerAuthorizeViewModel PlayerAuthorizeViewModel { get; }
-        public PlayerBaseViewModel PlayerUpdateViewModel { get; }
-        public PlayerChangePasswordViewModel PlayerChangePasswordViewModel { get; }
-        public PlayerChangeRoleViewModel PlayerChangeRoleViewModel { get; }
+        public PlayerReadDto PlayerReadDto { get; }
+        public PlayerWithTokenReadDto PlayerWithTokenReadDto { get; }
+        public PlayerAuthorizeDto PlayerAuthorizeDto { get; }
+        public PlayerBaseDto PlayerUpdateDto { get; }
+        public PlayerChangePasswordDto PlayerChangePasswordDto { get; }
+        public PlayerChangeRoleDto PlayerChangeRoleDto { get; }
         public PageParameters PageParameters { get; }
-        public PaginatedList<Player> PagedList { get; }
-        public PageViewModel<PlayerReadViewModel> PageViewModel { get; }
+        public PaginatedList<Player> PaginatedList { get; }
+        public PageDto<PlayerReadDto> PageDto { get; }
 
         private Player GetPlayer()
         {
@@ -97,9 +97,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PlayerReadViewModel GetPlayerReadViewModel()
+        private PlayerReadDto GetPlayerReadDto()
         {
-            return new PlayerReadViewModel()
+            return new PlayerReadDto()
             {
                 Id = Id,
                 Name = Name,
@@ -107,18 +107,18 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private List<PlayerReadViewModel> GetPlayerReadViewModels()
+        private List<PlayerReadDto> GetPlayerReadDtos()
         {
-            return new List<PlayerReadViewModel>()
+            return new List<PlayerReadDto>()
             {
-                PlayerReadViewModel,
-                PlayerReadViewModel
+                PlayerReadDto,
+                PlayerReadDto
             };
         }
 
-        private PlayerWithTokenReadViewModel GetPlayerWithTokenReadViewModel()
+        private PlayerWithTokenReadDto GetPlayerWithTokenReadDto()
         {
-            return new PlayerWithTokenReadViewModel()
+            return new PlayerWithTokenReadDto()
             {
                 Id = Id,
                 Name = Name,
@@ -127,47 +127,47 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PlayerAuthorizeViewModel GetPlayerAuthorizeViewModel()
+        private PlayerAuthorizeDto GetPlayerAuthorizeDto()
         {
-            return new PlayerAuthorizeViewModel()
+            return new PlayerAuthorizeDto()
             {
                 Name = Name,
                 Password = Name
             };
         }
 
-        private PlayerBaseViewModel GetPlayerUpdateViewModel()
+        private PlayerBaseDto GetPlayerUpdateDto()
         {
-            return new PlayerBaseViewModel()
+            return new PlayerBaseDto()
             {
                 Name = Name
             };
         }
 
-        private PlayerChangePasswordViewModel GetPlayerChangePasswordViewModel()
+        private PlayerChangePasswordDto GetPlayerChangePasswordDto()
         {
-            return new PlayerChangePasswordViewModel()
+            return new PlayerChangePasswordDto()
             {
                 Password = Name
             };
         }
 
-        private PlayerChangeRoleViewModel GetPlayerChangeRoleViewModel()
+        private PlayerChangeRoleDto GetPlayerChangeRoleDto()
         {
-            return new PlayerChangeRoleViewModel()
+            return new PlayerChangeRoleDto()
             {
                 Role = PlayerRole.Admin
             };
         }
 
-        private PaginatedList<Player> GetPagedList()
+        private PaginatedList<Player> GetPaginatedList()
         {
             return new PaginatedList<Player>(GetPlayers(), 6, 1, 5);
         }
 
-        private PageViewModel<PlayerReadViewModel> GetPageViewModel()
+        private PageDto<PlayerReadDto> GetPageDto()
         {
-            return new PageViewModel<PlayerReadViewModel>()
+            return new PageDto<PlayerReadDto>()
             {
                 CurrentPage = 1,
                 TotalPages = 2,
@@ -175,7 +175,7 @@ namespace WebApi.Tests.Fixtures
                 TotalItems = 6,
                 HasPrevious = false,
                 HasNext = true,
-                Entities = GetPlayerReadViewModels()
+                Entities = GetPlayerReadDtos()
             };
         }
     }

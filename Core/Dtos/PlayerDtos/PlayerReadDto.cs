@@ -1,9 +1,9 @@
 ﻿using Core.Entities;
 using Core.Enums;
 
-namespace Core.ViewModels.PlayerViewModels
+namespace Core.Dtos.PlayerDtos
 {
-    public record PlayerReadViewModel : PlayerBaseViewModel
+    public record PlayerReadDto : PlayerBaseDto
     {
         public int Id { get; init; }
         public PlayerRole Role { get; init; }

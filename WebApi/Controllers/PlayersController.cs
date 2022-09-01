@@ -1,8 +1,8 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.PlayerDtos;
+using Core.Entities;
 using Core.Interfaces.Services;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.PlayerViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Mappers.Interfaces;
@@ -16,16 +16,16 @@ namespace WebApi.Controllers
     {
         private readonly IPlayerService _playerService;
         private readonly IPasswordService _passwordService;
-        private readonly IMapper<PaginatedList<Player>, PageViewModel<PlayerReadViewModel>> _paginatedMapper;
-        private readonly IMapper<Player, PlayerReadViewModel> _readMapper;
-        private readonly IMapper<Player, PlayerWithTokenReadViewModel> _readWithTokenMapper;
+        private readonly IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>> _paginatedMapper;
+        private readonly IMapper<Player, PlayerReadDto> _readMapper;
+        private readonly IMapper<Player, PlayerWithTokenReadDto> _readWithTokenMapper;
 
         public PlayersController(
             IPlayerService playerService,
             IPasswordService passwordService,
-            IMapper<PaginatedList<Player>, PageViewModel<PlayerReadViewModel>> paginatedMapper,
-            IMapper<Player, PlayerReadViewModel> readMapper,
-            IMapper<Player, PlayerWithTokenReadViewModel> readWithTokenMapper)
+            IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>> paginatedMapper,
+            IMapper<Player, PlayerReadDto> readMapper,
+            IMapper<Player, PlayerWithTokenReadDto> readWithTokenMapper)
         {
             _playerService = playerService;
             _passwordService = passwordService;
@@ -35,28 +35,27 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PageViewModel<PlayerReadViewModel>>> GetAsync(
-            [FromQuery] PageParameters pageParams)
+        public async Task<ActionResult<PageDto<PlayerReadDto>>> GetAsync([FromQuery] PageParameters pageParams)
         {
             var players = await _playerService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
-            var pageModel = _paginatedMapper.Map(players);
+            var pageDto = _paginatedMapper.Map(players);
 
-            return Ok(pageModel);
+            return Ok(pageDto);
         }
 
         [HttpGet("{id:int:min(1)}")]
-        public async Task<ActionResult<PlayerReadViewModel>> GetAsync([FromRoute] int id)
+        public async Task<ActionResult<PlayerReadDto>> GetAsync([FromRoute] int id)
         {
             var player = await _playerService.GetByIdAsync(id);
-            var readModel = _readMapper.Map(player);
+            var readDto = _readMapper.Map(player);
 
-            return Ok(readModel);
+            return Ok(readDto);
         }
 
         [HttpPost("register")]
         [AllowAnonymous]
-        public async Task<ActionResult<PlayerReadViewModel>> RegisterAsync(
-            [FromBody] PlayerAuthorizeViewModel authorizeModel)
+        public async Task<ActionResult<PlayerReadDto>> RegisterAsync(
+            [FromBody] PlayerAuthorizeDto authorizeModel)
         {
             await _playerService.VerifyNameUniqueness(authorizeModel.Name!);
             _passwordService.CreatePasswordHash(authorizeModel.Password!, out byte[] hash, out byte[] salt);
@@ -64,33 +63,32 @@ namespace WebApi.Controllers
             Player player = _playerService.CreatePlayer(authorizeModel.Name!, hash, salt);
             await _playerService.AddAsync(player);
 
-            var readModel = _readMapper.Map(player);
+            var readDto = _readMapper.Map(player);
 
-            return CreatedAtAction(nameof(GetAsync), new { Id = readModel.Id }, readModel);
+            return CreatedAtAction(nameof(GetAsync), new { Id = readDto.Id }, readDto);
         }
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<PlayerWithTokenReadViewModel>> LoginAsync(
-            [FromBody] PlayerAuthorizeViewModel authorizeModel)
+        public async Task<ActionResult<PlayerWithTokenReadDto>> LoginAsync([FromBody] PlayerAuthorizeDto authorizeDto)
         {
-            var player = await _playerService.GetByNameAsync(authorizeModel.Name!);
-            _passwordService.VerifyPasswordHash(authorizeModel.Password!, player.PasswordHash!, player.PasswordSalt!);
+            var player = await _playerService.GetByNameAsync(authorizeDto.Name!);
+            _passwordService.VerifyPasswordHash(authorizeDto.Password!, player.PasswordHash!, player.PasswordSalt!);
 
             string token = _passwordService.CreateToken(player);
-            var readModel = _readWithTokenMapper.Map(player) with { Token = token };
+            var readDto = _readWithTokenMapper.Map(player) with { Token = token };
 
-            return Ok(readModel);
+            return Ok(readDto);
         }
 
         [HttpPut("{id:int:min(1)}")]
-        public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] PlayerBaseViewModel updateModel)
+        public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] PlayerBaseDto updateDto)
         {
             var player = await _playerService.GetByIdAsync(id);
 
             _playerService.VerifyPlayerAccessRights(player, User?.Identity!, User?.Claims!);
-            await _playerService.VerifyNameUniqueness(updateModel.Name!);
-            player.Name = updateModel.Name;
+            await _playerService.VerifyNameUniqueness(updateDto.Name!);
+            player.Name = updateDto.Name;
             await _playerService.UpdateAsync(player);
 
             return NoContent();
@@ -99,12 +97,12 @@ namespace WebApi.Controllers
         [HttpPut("{id:int:min(1)}/changePassword")]
         public async Task<ActionResult> ChangePasswordAsync(
             [FromRoute] int id, 
-            [FromBody] PlayerChangePasswordViewModel changePasswordModel)
+            [FromBody] PlayerChangePasswordDto changePasswordDto)
         {
             var player = await _playerService.GetByIdAsync(id);
 
             _playerService.VerifyPlayerAccessRights(player, User?.Identity!, User?.Claims!);
-            _passwordService.CreatePasswordHash(changePasswordModel.Password!, out byte[] hash, out byte[] salt);
+            _passwordService.CreatePasswordHash(changePasswordDto.Password!, out byte[] hash, out byte[] salt);
             _playerService.ChangePasswordData(player, hash, salt);
             await _playerService.UpdateAsync(player);
 
@@ -113,13 +111,11 @@ namespace WebApi.Controllers
 
         [HttpPut("{id:int:min(1)}/changeRole")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> ChangeRoleAsync(
-            [FromRoute] int id,
-            [FromBody] PlayerChangeRoleViewModel changeRoleModel)
+        public async Task<ActionResult> ChangeRoleAsync([FromRoute] int id, [FromBody] PlayerChangeRoleDto changeRoleDto)
         {
             var player = await _playerService.GetByIdAsync(id);
 
-            player.Role = changeRoleModel.Role;
+            player.Role = changeRoleDto.Role;
             await _playerService.UpdateAsync(player);
 
             return NoContent();

@@ -1,11 +1,11 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoMoq;
+using Core.Dtos;
+using Core.Dtos.MountDtos;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Services;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.MountViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -26,10 +26,10 @@ namespace WebApi.Tests.Fixtures
             var fixture = new Fixture().Customize(new AutoMoqCustomization());
 
             MockMountService = fixture.Freeze<Mock<IItemService<Mount>>>();
-            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Mount>, PageViewModel<MountReadViewModel>>>>();
-            MockReadMapper = fixture.Freeze<Mock<IMapper<Mount, MountReadViewModel>>>();
-            MockCreateMapper = fixture.Freeze<Mock<IMapper<MountBaseViewModel, Mount>>>();
-            MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<MountBaseViewModel, Mount>>>();
+            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Mount>, PageDto<MountReadDto>>>>();
+            MockReadMapper = fixture.Freeze<Mock<IMapper<Mount, MountReadDto>>>();
+            MockCreateMapper = fixture.Freeze<Mock<IMapper<MountBaseDto, Mount>>>();
+            MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<MountBaseDto, Mount>>>();
 
             MockMountsController = new(
                 MockMountService.Object,
@@ -42,33 +42,33 @@ namespace WebApi.Tests.Fixtures
             Name = "Name";
             Character = GetCharacter();
             Mount = GetMount();
-            MountReadViewModel = GetMountReadViewModel();
-            MountBaseViewModel = GetMountBaseViewModel();
-            HitViewModel = GetHitViewModel();
+            MountReadDto = GetMountReadDto();
+            MountBaseDto = GetMountBaseDto();
+            HitDto = GetHitDto();
             PageParameters = GetPageParameters();
-            PagedList = GetPagedList();
-            PageViewModel = GetPageViewModel();
+            PaginatedList = GetPaginatedList();
+            PageDto = GetPageViewModel();
             PatchDocument = GetPatchDocument();
         }
 
         public MountsController MockMountsController { get; }
         public Mock<IItemService<Mount>> MockMountService { get; }
-        public Mock<IMapper<PaginatedList<Mount>, PageViewModel<MountReadViewModel>>> MockPaginatedMapper { get; }
-        public Mock<IMapper<Mount, MountReadViewModel>> MockReadMapper { get; }
-        public Mock<IMapper<MountBaseViewModel, Mount>> MockCreateMapper { get; }
-        public Mock<IUpdateMapper<MountBaseViewModel, Mount>> MockUpdateMapper { get; }
+        public Mock<IMapper<PaginatedList<Mount>, PageDto<MountReadDto>>> MockPaginatedMapper { get; }
+        public Mock<IMapper<Mount, MountReadDto>> MockReadMapper { get; }
+        public Mock<IMapper<MountBaseDto, Mount>> MockCreateMapper { get; }
+        public Mock<IUpdateMapper<MountBaseDto, Mount>> MockUpdateMapper { get; }
 
         public int Id { get; }
         public string? Name { get; }
         public Character Character { get; }
         public Mount Mount { get; }
-        public MountReadViewModel MountReadViewModel { get; }
-        public MountBaseViewModel MountBaseViewModel { get; }
-        public HitViewModel HitViewModel { get; }
+        public MountReadDto MountReadDto { get; }
+        public MountBaseDto MountBaseDto { get; }
+        public HitDto HitDto { get; }
         public PageParameters PageParameters { get; }
-        public PaginatedList<Mount> PagedList { get; }
-        public PageViewModel<MountReadViewModel> PageViewModel { get; }
-        public JsonPatchDocument<MountBaseViewModel> PatchDocument { get; }
+        public PaginatedList<Mount> PaginatedList { get; }
+        public PageDto<MountReadDto> PageDto { get; }
+        public JsonPatchDocument<MountBaseDto> PatchDocument { get; }
 
         public void MockControllerBaseUser()
         {
@@ -147,14 +147,14 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PaginatedList<Mount> GetPagedList()
+        private PaginatedList<Mount> GetPaginatedList()
         {
             return new PaginatedList<Mount>(GetMounts(), 6, 1, 5);
         }
 
-        private MountBaseViewModel GetMountBaseViewModel()
+        private MountBaseDto GetMountBaseDto()
         {
-            return new MountBaseViewModel()
+            return new MountBaseDto()
             {
                 Name = Name,
                 Type = MountType.Horse,
@@ -162,9 +162,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private MountReadViewModel GetMountReadViewModel()
+        private MountReadDto GetMountReadDto()
         {
-            return new MountReadViewModel()
+            return new MountReadDto()
             {
                 Id = Id,
                 Name = Name,
@@ -173,18 +173,18 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private List<MountReadViewModel> GetMountReadViewModels()
+        private List<MountReadDto> GetMountReadDtos()
         {
-            return new List<MountReadViewModel>()
+            return new List<MountReadDto>()
             {
-                MountReadViewModel,
-                MountReadViewModel
+                MountReadDto,
+                MountReadDto
             };
         }
 
-        private HitViewModel GetHitViewModel()
+        private HitDto GetHitDto()
         {
-            return new HitViewModel()
+            return new HitDto()
             {
                 DealerId = Id,
                 ItemId = Id,
@@ -192,9 +192,9 @@ namespace WebApi.Tests.Fixtures
             };
         }
 
-        private PageViewModel<MountReadViewModel> GetPageViewModel()
+        private PageDto<MountReadDto> GetPageViewModel()
         {
-            return new PageViewModel<MountReadViewModel>()
+            return new PageDto<MountReadDto>()
             {
                 CurrentPage = 1,
                 TotalPages = 2,
@@ -202,13 +202,13 @@ namespace WebApi.Tests.Fixtures
                 TotalItems = 6,
                 HasPrevious = false,
                 HasNext = true,
-                Entities = GetMountReadViewModels()
+                Entities = GetMountReadDtos()
             };
         }
 
-        private JsonPatchDocument<MountBaseViewModel> GetPatchDocument()
+        private JsonPatchDocument<MountBaseDto> GetPatchDocument()
         {
-            return new JsonPatchDocument<MountBaseViewModel>();
+            return new JsonPatchDocument<MountBaseDto>();
         }
     }
 }

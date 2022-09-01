@@ -1,12 +1,12 @@
-﻿using Core.Entities;
-using Core.ViewModels.SpellViewModels;
+﻿using Core.Dtos.SpellDtos;
+using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.SpellMappers
 {
-    public class SpellCreateMapper : IMapper<SpellBaseViewModel, Spell>
+    public class SpellCreateMapper : IMapper<SpellBaseDto, Spell>
     {
-        public Spell Map(SpellBaseViewModel source)
+        public Spell Map(SpellBaseDto source)
         {
             return new Spell()
             {

@@ -1,23 +1,23 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.MountDtos;
+using Core.Entities;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.MountViewModels;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.MountMappers
 {
-    public class MountPaginatedMapper : IMapper<PaginatedList<Mount>, PageViewModel<MountReadViewModel>>
+    public class MountPaginatedMapper : IMapper<PaginatedList<Mount>, PageDto<MountReadDto>>
     {
-        private readonly IMapper<Mount, MountReadViewModel> _readMapper;
+        private readonly IMapper<Mount, MountReadDto> _readMapper;
 
-        public MountPaginatedMapper(IMapper<Mount, MountReadViewModel> readMapper)
+        public MountPaginatedMapper(IMapper<Mount, MountReadDto> readMapper)
         {
             _readMapper = readMapper;
         }
 
-        public PageViewModel<MountReadViewModel> Map(PaginatedList<Mount> source)
+        public PageDto<MountReadDto> Map(PaginatedList<Mount> source)
         {
-            return new PageViewModel<MountReadViewModel>()
+            return new PageDto<MountReadDto>()
             {
                 CurrentPage = source.CurrentPage,
                 TotalPages = source.TotalPages,

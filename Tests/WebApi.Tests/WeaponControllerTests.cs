@@ -1,7 +1,7 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.WeaponDtos;
+using Core.Entities;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.WeaponViewModels;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -23,29 +23,29 @@ namespace WebApi.Tests
         }
 
         [Fact]
-        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageViewModelOfWeaponReadViewModel()
+        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageDtoOfWeaponReadDto()
         {
             // Arrange
             _fixture.MockWeaponService
                 .Setup(s => s.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PagedList);
+                .ReturnsAsync(_fixture.PaginatedList);
 
             _fixture.MockPaginatedMapper
                 .Setup(m => m.Map(It.IsAny<PaginatedList<Weapon>>()))
-                .Returns(_fixture.PageViewModel);
+                .Returns(_fixture.PageDto);
 
             // Act
             var result = await _fixture.MockWeaponsController.GetAsync(_fixture.PageParameters);
-            var pageViewModel = result.Result.As<OkObjectResult>().Value.As<PageViewModel<WeaponReadViewModel>>();
+            var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<WeaponReadDto>>();
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<PageViewModel<WeaponReadViewModel>>>();
-            pageViewModel.Entities.Should().NotBeEmpty();
+            result.Should().BeOfType<ActionResult<PageDto<WeaponReadDto>>>();
+            pageDto.Entities.Should().NotBeEmpty();
         }
 
         [Fact]
-        public async Task GetAsync_ExistingWeapon_ReturnsActionResultOfWeaponReadViewModel()
+        public async Task GetAsync_ExistingWeapon_ReturnsActionResultOfWeaponReadDto()
         {
             // Arrange
             _fixture.MockWeaponService
@@ -54,38 +54,38 @@ namespace WebApi.Tests
 
             _fixture.MockReadMapper
                 .Setup(m => m.Map(It.IsAny<Weapon>()))
-                .Returns(_fixture.WeaponReadViewModel);
+                .Returns(_fixture.WeaponReadDto);
 
             // Act
             var result = await _fixture.MockWeaponsController.GetAsync(_fixture.Id);
-            var readViewModel = result.Result.As<OkObjectResult>().Value.As<WeaponReadViewModel>();
+            var readDto = result.Result.As<OkObjectResult>().Value.As<WeaponReadDto>();
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<WeaponReadViewModel>>();
-            readViewModel.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<WeaponReadDto>>();
+            readDto.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task CreateAsync_ValidViewModel_ReturnsActionResultOfWeaponReadViewModel()
+        public async Task CreateAsync_ValidDto_ReturnsActionResultOfWeaponReadDto()
         {
             // Arrange
             _fixture.MockCreateMapper
-                .Setup(m => m.Map(It.IsAny<WeaponBaseViewModel>()))
+                .Setup(m => m.Map(It.IsAny<WeaponBaseDto>()))
                 .Returns(_fixture.Weapon);
 
             // Act
-            var result = await _fixture.MockWeaponsController.CreateAsync(_fixture.SpellBaseViewModel);
-            var readViewModel = result.Result.As<CreatedAtActionResult>().Value.As<WeaponReadViewModel>();
+            var result = await _fixture.MockWeaponsController.CreateAsync(_fixture.WeaponBaseDto);
+            var readDto = result.Result.As<CreatedAtActionResult>().Value.As<WeaponReadDto>();
 
             // Assert
             result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<WeaponReadViewModel>>();
-            readViewModel.Should().NotBeNull();
+            result.Should().BeOfType<ActionResult<WeaponReadDto>>();
+            readDto.Should().NotBeNull();
         }
 
         [Fact]
-        public async Task UpdateAsync_ExistingWeaponValidViewModel_ReturnsNoContentResult()
+        public async Task UpdateAsync_ExistingWeaponValidDto_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockWeaponService
@@ -93,7 +93,7 @@ namespace WebApi.Tests
                 .ReturnsAsync(_fixture.Weapon);
 
             // Act
-            var result = await _fixture.MockWeaponsController.UpdateAsync(_fixture.Id, _fixture.SpellBaseViewModel);
+            var result = await _fixture.MockWeaponsController.UpdateAsync(_fixture.Id, _fixture.WeaponBaseDto);
 
             // Assert
             result.Should().NotBeNull();
@@ -110,7 +110,7 @@ namespace WebApi.Tests
 
             _fixture.MockUpdateMapper
                 .Setup(m => m.Map(_fixture.Weapon))
-                .Returns(_fixture.SpellBaseViewModel);
+                .Returns(_fixture.WeaponBaseDto);
 
             // Act
             var result = await _fixture.MockWeaponsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
@@ -130,7 +130,7 @@ namespace WebApi.Tests
 
             _fixture.MockUpdateMapper
                 .Setup(m => m.Map(_fixture.Weapon))
-                .Returns(_fixture.SpellBaseViewModel);
+                .Returns(_fixture.WeaponBaseDto);
 
             _fixture.MockModelError(_fixture.MockWeaponsController);
 
@@ -159,7 +159,7 @@ namespace WebApi.Tests
         }
 
         [Fact]
-        public async Task HitAsync_ValidViewModel_ReturnsNoContentResult()
+        public async Task HitAsync_ValidDto_ReturnsNoContentResult()
         {
             // Arrange
             _fixture.MockCharacterService
@@ -171,7 +171,7 @@ namespace WebApi.Tests
                 .Returns(_fixture.Weapon);
 
             // Act
-            var result = await _fixture.MockWeaponsController.HitAsync(_fixture.HitViewModel);
+            var result = await _fixture.MockWeaponsController.HitAsync(_fixture.HitDto);
 
             // Assert
             result.Should().NotBeNull();

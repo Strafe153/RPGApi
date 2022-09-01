@@ -1,6 +1,6 @@
-﻿namespace Core.ViewModels
+﻿namespace Core.Dtos
 {
-    public record AddRemoveItemViewModel
+    public record AddRemoveItemDto
     {
         public int CharacterId { get; init; }
         public int ItemId { get; init; }

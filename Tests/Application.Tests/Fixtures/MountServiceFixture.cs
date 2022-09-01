@@ -29,7 +29,7 @@ namespace Application.Tests.Fixtures
             Mount = GetMount(Id);
             Character = GetCharacter();
             Mounts = GetMounts();
-            PagedList = GetPagedList();
+            PaginatedList = GetPaginatedList();
     }
 
         public IItemService<Mount> MockMountService { get; }
@@ -41,7 +41,7 @@ namespace Application.Tests.Fixtures
         public Mount Mount { get; }
         public Character Character { get; }
         public List<Mount> Mounts { get; }
-        public PaginatedList<Mount> PagedList { get; }
+        public PaginatedList<Mount> PaginatedList { get; }
 
         private CharacterMount GetCharacterMount(int characterId, int mountId)
         {
@@ -95,7 +95,7 @@ namespace Application.Tests.Fixtures
             };
         }
 
-        private PaginatedList<Mount> GetPagedList()
+        private PaginatedList<Mount> GetPaginatedList()
         {
             return new PaginatedList<Mount>(Mounts, 6, 1, 5);
         }

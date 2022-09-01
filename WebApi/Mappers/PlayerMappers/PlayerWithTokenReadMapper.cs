@@ -1,14 +1,14 @@
-﻿using Core.Entities;
-using Core.ViewModels.PlayerViewModels;
+﻿using Core.Dtos.PlayerDtos;
+using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.PlayerMappers
 {
-    public class PlayerWithTokenReadMapper : IMapper<Player, PlayerWithTokenReadViewModel>
+    public class PlayerWithTokenReadMapper : IMapper<Player, PlayerWithTokenReadDto>
     {
-        public PlayerWithTokenReadViewModel Map(Player source)
+        public PlayerWithTokenReadDto Map(Player source)
         {
-            return new PlayerWithTokenReadViewModel()
+            return new PlayerWithTokenReadDto()
             {
                 Id = source.Id,
                 Name = source.Name,

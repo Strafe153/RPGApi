@@ -1,9 +1,9 @@
-﻿using Core.ViewModels.PlayerViewModels;
+﻿using Core.Dtos.PlayerDtos;
 using FluentValidation;
 
 namespace WebApi.Validators.PlayerValidators
 {
-    public class PlayerBaseValidator<T> : AbstractValidator<T> where T : PlayerBaseViewModel
+    public class PlayerBaseValidator<T> : AbstractValidator<T> where T : PlayerBaseDto
     {
         public PlayerBaseValidator()
         {

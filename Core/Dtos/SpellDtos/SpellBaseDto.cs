@@ -1,8 +1,8 @@
 ﻿using Core.Enums;
 
-namespace Core.ViewModels.SpellViewModels
+namespace Core.Dtos.SpellDtos
 {
-    public record SpellBaseViewModel
+    public record SpellBaseDto
     {
         public string? Name { get; init; }
         public SpellType Type { get; init; }

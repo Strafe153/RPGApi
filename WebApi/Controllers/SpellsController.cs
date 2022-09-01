@@ -1,8 +1,8 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.SpellDtos;
+using Core.Entities;
 using Core.Interfaces.Services;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.SpellViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -18,19 +18,19 @@ namespace WebApi.Controllers
         private readonly IItemService<Spell> _spellService;
         private readonly ICharacterService _characterService;
         private readonly IPlayerService _playerService;
-        private readonly IMapper<PaginatedList<Spell>, PageViewModel<SpellReadViewModel>> _paginatedMapper;
-        private readonly IMapper<Spell, SpellReadViewModel> _readMapper;
-        private readonly IMapper<SpellBaseViewModel, Spell> _createMapper;
-        private readonly IUpdateMapper<SpellBaseViewModel, Spell> _updateMapper;
+        private readonly IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>> _paginatedMapper;
+        private readonly IMapper<Spell, SpellReadDto> _readMapper;
+        private readonly IMapper<SpellBaseDto, Spell> _createMapper;
+        private readonly IUpdateMapper<SpellBaseDto, Spell> _updateMapper;
 
         public SpellsController(
             IItemService<Spell> spellService,
             ICharacterService characterService,
             IPlayerService playerService,
-            IMapper<PaginatedList<Spell>, PageViewModel<SpellReadViewModel>> paginatedMapper,
-            IMapper<Spell, SpellReadViewModel> readMapper,
-            IMapper<SpellBaseViewModel, Spell> createMapper,
-            IUpdateMapper<SpellBaseViewModel, Spell> updateMapper)
+            IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>> paginatedMapper,
+            IMapper<Spell, SpellReadDto> readMapper,
+            IMapper<SpellBaseDto, Spell> createMapper,
+            IUpdateMapper<SpellBaseDto, Spell> updateMapper)
         {
             _spellService = spellService;
             _characterService = characterService;
@@ -42,43 +42,42 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PageViewModel<SpellReadViewModel>>> GetAsync(
-            [FromQuery] PageParameters pageParams)
+        public async Task<ActionResult<PageDto<SpellReadDto>>> GetAsync([FromQuery] PageParameters pageParams)
         {
             var spells = await _spellService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
-            var pageModel = _paginatedMapper.Map(spells);
+            var pageDto = _paginatedMapper.Map(spells);
 
-            return Ok(pageModel);
+            return Ok(pageDto);
         }
 
         [HttpGet("{id:int:min(1)}")]
-        public async Task<ActionResult<SpellReadViewModel>> GetAsync([FromRoute] int id)
+        public async Task<ActionResult<SpellReadDto>> GetAsync([FromRoute] int id)
         {
             var spell = await _spellService.GetByIdAsync(id);
-            var readModel = _readMapper.Map(spell);
+            var readDto = _readMapper.Map(spell);
 
-            return Ok(readModel);
+            return Ok(readDto);
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<SpellReadViewModel>> CreateAsync([FromBody] SpellBaseViewModel createModel)
+        public async Task<ActionResult<SpellReadDto>> CreateAsync([FromBody] SpellBaseDto createDto)
         {
-            var spell = _createMapper.Map(createModel);
+            var spell = _createMapper.Map(createDto);
             await _spellService.AddAsync(spell);
 
-            var readModel = _readMapper.Map(spell);
+            var readDto = _readMapper.Map(spell);
 
-            return CreatedAtAction(nameof(GetAsync), new { Id = readModel.Id }, readModel);
+            return CreatedAtAction(nameof(GetAsync), new { Id = readDto.Id }, readDto);
         }
 
         [HttpPut("{id:int:min(1)}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] SpellBaseViewModel updateModel)
+        public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] SpellBaseDto updateDto)
         {
             var spell = await _spellService.GetByIdAsync(id);
 
-            _updateMapper.Map(updateModel, spell);
+            _updateMapper.Map(updateDto, spell);
             await _spellService.UpdateAsync(spell);
 
             return NoContent();
@@ -88,19 +87,19 @@ namespace WebApi.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateAsync(
             [FromRoute] int id,
-            [FromBody] JsonPatchDocument<SpellBaseViewModel> patchDocument)
+            [FromBody] JsonPatchDocument<SpellBaseDto> patchDocument)
         {
             var spell = await _spellService.GetByIdAsync(id);
-            var updateModel = _updateMapper.Map(spell);
+            var updateDto = _updateMapper.Map(spell);
 
-            patchDocument.ApplyTo(updateModel, ModelState);
+            patchDocument.ApplyTo(updateDto, ModelState);
 
-            if (!TryValidateModel(updateModel))
+            if (!TryValidateModel(updateDto))
             {
                 return ValidationProblem(ModelState);
             }
 
-            _updateMapper.Map(updateModel, spell);
+            _updateMapper.Map(updateDto, spell);
             await _spellService.UpdateAsync(spell);
 
             return NoContent();
@@ -117,11 +116,11 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("hit")]
-        public async Task<ActionResult> HitAsync([FromBody] HitViewModel hitViewModel)
+        public async Task<ActionResult> HitAsync([FromBody] HitDto hitDto)
         {
-            var dealer = await _characterService.GetByIdAsync(hitViewModel.DealerId);
-            var spell = _characterService.GetSpell(dealer, hitViewModel.ItemId);
-            var receiver = await _characterService.GetByIdAsync(hitViewModel.ReceiverId);
+            var dealer = await _characterService.GetByIdAsync(hitDto.DealerId);
+            var spell = _characterService.GetSpell(dealer, hitDto.ItemId);
+            var receiver = await _characterService.GetByIdAsync(hitDto.ReceiverId);
 
             _playerService.VerifyPlayerAccessRights(dealer.Player!, User.Identity!, User.Claims!);
             _characterService.CalculateHealth(receiver, spell.Damage);

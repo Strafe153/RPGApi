@@ -1,9 +1,9 @@
-﻿using Core.ViewModels;
+﻿using Core.Dtos;
 using FluentValidation;
 
 namespace WebApi.Validators
 {
-    public class HitValidator : AbstractValidator<HitViewModel>
+    public class HitValidator : AbstractValidator<HitDto>
     {
         public HitValidator()
         {

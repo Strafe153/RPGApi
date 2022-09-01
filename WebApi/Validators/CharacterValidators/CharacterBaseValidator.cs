@@ -1,10 +1,10 @@
-﻿using Core.Enums;
-using Core.ViewModels.CharacterViewModels;
+﻿using Core.Dtos.CharacterDtos;
+using Core.Enums;
 using FluentValidation;
 
 namespace WebApi.Validators.CharacterValidators
 {
-    public class CharacterBaseValidator<T> : AbstractValidator<T> where T : CharacterBaseViewModel
+    public class CharacterBaseValidator<T> : AbstractValidator<T> where T : CharacterBaseDto
     {
         public CharacterBaseValidator()
         {

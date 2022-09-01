@@ -1,9 +1,9 @@
-﻿using Core.ViewModels.SpellViewModels;
+﻿using Core.Dtos.SpellDtos;
 using FluentValidation;
 
 namespace WebApi.Validators.SpellValidators
 {
-    public class SpellCreateUpdateValidator : SpellBaseValidator<SpellBaseViewModel>
+    public class SpellCreateUpdateValidator : SpellBaseValidator<SpellBaseDto>
     {
         public SpellCreateUpdateValidator()
         {

@@ -1,12 +1,12 @@
-﻿using Core.Entities;
-using Core.ViewModels.WeaponViewModels;
+﻿using Core.Dtos.WeaponDtos;
+using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.WeaponMappers
 {
-    public class WeaponCreateMapper : IMapper<WeaponBaseViewModel, Weapon>
+    public class WeaponCreateMapper : IMapper<WeaponBaseDto, Weapon>
     {
-        public Weapon Map(WeaponBaseViewModel source)
+        public Weapon Map(WeaponBaseDto source)
         {
             return new Weapon()
             {

@@ -2,59 +2,36 @@
 using Core.Entities;
 using Core.Exceptions;
 using Core.Models;
+using FluentAssertions;
 using Moq;
 using Xunit;
 
 namespace Application.Tests
 {
-    public class PlayerServiceTests : IClassFixture<PlayerServiceFixture>, IDisposable
+    public class PlayerServiceTests : IClassFixture<PlayerServiceFixture>
     {
         private readonly PlayerServiceFixture _fixture;
-        private bool _disposed;
 
         public PlayerServiceTests(PlayerServiceFixture fixture)
         {
             _fixture = fixture;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed)
-            {
-                return;
-            }
-
-            if (disposing)
-            {
-                _fixture.MockPlayerRepository.Invocations.Clear();
-            }
-
-            _disposed = true;
-        }
-
         [Fact]
-        public async Task GetAllAsync_ValidData_ReturnsPagedList()
+        public async Task GetAllAsync_ValidParameters_ReturnsPaginatedListOfPlayer()
         {
             // Arrange
             _fixture.MockPlayerRepository
                 .Setup(r => r.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PagedList);
+                .ReturnsAsync(_fixture.PaginatedList);
 
             // Act
             var result = await _fixture.MockPlayerService.GetAllAsync(_fixture.Id, _fixture.Id);
 
             // Assert
-            _fixture.MockPlayerRepository.Verify(r => r.GetAllAsync(_fixture.Id, _fixture.Id), Times.Once());
-
-            Assert.NotNull(result);
-            Assert.NotEmpty(result);
-            Assert.IsType<PaginatedList<Player>>(result);
+            result.Should().NotBeNull();
+            result.Should().NotBeEmpty();
+            result.Should().BeOfType<PaginatedList<Player>>();
         }
 
         [Fact]
@@ -69,10 +46,8 @@ namespace Application.Tests
             var result = await _fixture.MockPlayerService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            _fixture.MockPlayerRepository.Verify(r => r.GetByIdAsync(_fixture.Id), Times.Once());
-
-            Assert.NotNull(result);
-            Assert.IsType<Player>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<Player>();
         }
 
         [Fact]
@@ -84,13 +59,11 @@ namespace Application.Tests
                 .ReturnsAsync((Player)null!);
 
             // Act
-            var result = _fixture.MockPlayerService.GetByIdAsync(_fixture.Id);
+            var result = async () => await _fixture.MockPlayerService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            _fixture.MockPlayerRepository.Verify(r => r.GetByIdAsync(_fixture.Id), Times.Once());
-
-            Assert.True(result.IsFaulted);
-            await Assert.ThrowsAsync<NullReferenceException>(async () => await result);
+            result.Should().NotBeNull();
+            await result.Should().ThrowAsync<NullReferenceException>();
         }
 
         [Fact]
@@ -105,10 +78,8 @@ namespace Application.Tests
             var result = await _fixture.MockPlayerService.GetByNameAsync(_fixture.Name!);
 
             // Assert
-            _fixture.MockPlayerRepository.Verify(r => r.GetByNameAsync(_fixture.Name!), Times.Once());
-
-            Assert.NotNull(result);
-            Assert.IsType<Player>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<Player>();
         }
 
         [Fact]
@@ -120,50 +91,45 @@ namespace Application.Tests
                 .ReturnsAsync((Player)null!);
 
             // Act
-            var result = _fixture.MockPlayerService.GetByNameAsync(_fixture.Name!);
+            var result = async () => await _fixture.MockPlayerService.GetByNameAsync(_fixture.Name!);
 
             // Assert
-            _fixture.MockPlayerRepository.Verify(r => r.GetByNameAsync(_fixture.Name!), Times.Once());
-
-            Assert.True(result.IsFaulted);
-            await Assert.ThrowsAsync<NullReferenceException>(async () => await result);
+            result.Should().NotBeNull();
+            await result.Should().ThrowAsync<NullReferenceException>();
         }
 
         [Fact]
-        public void AddAsync_ValidPlayer_ReturnsTask()
+        public void AddAsync_ValidPlayer_ReturnsVoid()
         {
             // Act
             var result = _fixture.MockPlayerService.AddAsync(_fixture.Player);
 
             // Assert
-            _fixture.MockPlayerRepository.Verify(r => r.Add(_fixture.Player), Times.Once());
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
-        public void UpdateAsync_ValidPlayer_ReturnsTask()
+        public void UpdateAsync_ValidPlayer_ReturnsVoid()
         {
             // Act
             var result = _fixture.MockPlayerService.UpdateAsync(_fixture.Player);
 
             // Assert
-            _fixture.MockPlayerRepository.Verify(r => r.Update(_fixture.Player), Times.Once());
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
-        public void DeleteAsync_ValidPlayer_ReturnsTask()
+        public void DeleteAsync_ValidPlayer_ReturnsVoid()
         {
             // Act
             var result = _fixture.MockPlayerService.DeleteAsync(_fixture.Player);
 
             // Assert
-            _fixture.MockPlayerRepository.Verify(r => r.Delete(_fixture.Player), Times.Once());
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
-        public void VerifyNameUniqueness_UniqueName_ReturnsTask()
+        public void VerifyNameUniqueness_UniqueName_ReturnsVoid()
         {
             // Arrange
             _fixture.MockPlayerRepository
@@ -174,8 +140,7 @@ namespace Application.Tests
             var result = _fixture.MockPlayerService.VerifyNameUniqueness(_fixture.Name!);
 
             // Assert
-            _fixture.MockPlayerRepository.Verify(r => r.GetByNameAsync(_fixture.Name!), Times.Once());
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
@@ -187,13 +152,11 @@ namespace Application.Tests
                 .ReturnsAsync(_fixture.Player);
 
             // Act
-            var result = _fixture.MockPlayerService.VerifyNameUniqueness(_fixture.Name!);
+            var result = async () => await _fixture.MockPlayerService.VerifyNameUniqueness(_fixture.Name!);
 
             // Assert
-            _fixture.MockPlayerRepository.Verify(r => r.GetByNameAsync(_fixture.Name!), Times.Once());
-
-            Assert.True(result.IsFaulted);
-            await Assert.ThrowsAsync<NameNotUniqueException>(async () => await result);
+            result.Should().NotBeNull();
+            await result.Should().ThrowAsync<NameNotUniqueException>();
         }
 
         [Fact]
@@ -203,8 +166,8 @@ namespace Application.Tests
             var result = _fixture.MockPlayerService.CreatePlayer(_fixture.Name!, _fixture.Bytes, _fixture.Bytes);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.IsType<Player>(result);
+            result.Should().NotBeNull();
+            result.Should().BeOfType<Player>();
         }
 
         [Fact]
@@ -215,7 +178,7 @@ namespace Application.Tests
                 .ChangePasswordData(_fixture.Player, _fixture.Bytes, _fixture.Bytes);
 
             // Assert
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
@@ -226,7 +189,7 @@ namespace Application.Tests
                 .VerifyPlayerAccessRights(_fixture.Player, _fixture.IIdentity, _fixture.SufficientClaims);
 
             // Assert
-            Assert.NotNull(result);
+            result.Should().NotBeNull();
         }
 
         [Fact]
@@ -237,8 +200,8 @@ namespace Application.Tests
                 .VerifyPlayerAccessRights(_fixture.Player, _fixture.IIdentity, _fixture.InsufficientClaims);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Throws<NotEnoughRightsException>(result);
+            result.Should().NotBeNull();
+            result.Should().Throw<NotEnoughRightsException>();
         }
     }
 }

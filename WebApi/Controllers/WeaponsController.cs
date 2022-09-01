@@ -1,8 +1,8 @@
-﻿using Core.Entities;
+﻿using Core.Dtos;
+using Core.Dtos.WeaponDtos;
+using Core.Entities;
 using Core.Interfaces.Services;
 using Core.Models;
-using Core.ViewModels;
-using Core.ViewModels.WeaponViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -18,19 +18,19 @@ namespace WebApi.Controllers
         private readonly IItemService<Weapon> _weaponService;
         private readonly ICharacterService _characterService;
         private readonly IPlayerService _playerService;
-        private readonly IMapper<PaginatedList<Weapon>, PageViewModel<WeaponReadViewModel>> _paginatedMapper;
-        private readonly IMapper<Weapon, WeaponReadViewModel> _readMapper;
-        private readonly IMapper<WeaponBaseViewModel, Weapon> _createMapper;
-        private readonly IUpdateMapper<WeaponBaseViewModel, Weapon> _updateMapper;
+        private readonly IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> _paginatedMapper;
+        private readonly IMapper<Weapon, WeaponReadDto> _readMapper;
+        private readonly IMapper<WeaponBaseDto, Weapon> _createMapper;
+        private readonly IUpdateMapper<WeaponBaseDto, Weapon> _updateMapper;
 
         public WeaponsController(
             IItemService<Weapon> weaponService,
             ICharacterService characterService,
             IPlayerService playerService,
-            IMapper<PaginatedList<Weapon>, PageViewModel<WeaponReadViewModel>> paginatedMapper,
-            IMapper<Weapon, WeaponReadViewModel> readMapper,
-            IMapper<WeaponBaseViewModel, Weapon> createMapper,
-            IUpdateMapper<WeaponBaseViewModel, Weapon> updateMapper)
+            IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> paginatedMapper,
+            IMapper<Weapon, WeaponReadDto> readMapper,
+            IMapper<WeaponBaseDto, Weapon> createMapper,
+            IUpdateMapper<WeaponBaseDto, Weapon> updateMapper)
         {
             _weaponService = weaponService;
             _characterService = characterService;
@@ -42,43 +42,42 @@ namespace WebApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PageViewModel<WeaponReadViewModel>>> GetAsync(
-            [FromQuery] PageParameters pageParams)
+        public async Task<ActionResult<PageDto<WeaponReadDto>>> GetAsync([FromQuery] PageParameters pageParams)
         {
             var weapons = await _weaponService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
-            var readModels = _paginatedMapper.Map(weapons);
+            var pageDto = _paginatedMapper.Map(weapons);
 
-            return Ok(readModels);
+            return Ok(pageDto);
         }
 
         [HttpGet("{id:int:min(1)}")]
-        public async Task<ActionResult<WeaponReadViewModel>> GetAsync([FromRoute] int id)
+        public async Task<ActionResult<WeaponReadDto>> GetAsync([FromRoute] int id)
         {
             var weapon = await _weaponService.GetByIdAsync(id);
-            var readModel = _readMapper.Map(weapon);
+            var readDto = _readMapper.Map(weapon);
 
-            return Ok(readModel);
+            return Ok(readDto);
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<WeaponReadViewModel>> CreateAsync([FromBody] WeaponBaseViewModel createModel)
+        public async Task<ActionResult<WeaponReadDto>> CreateAsync([FromBody] WeaponBaseDto createDto)
         {
-            var weapon = _createMapper.Map(createModel);
+            var weapon = _createMapper.Map(createDto);
             await _weaponService.AddAsync(weapon);
 
-            var readModel = _readMapper.Map(weapon);
+            var readDto = _readMapper.Map(weapon);
 
-            return CreatedAtAction(nameof(GetAsync), new { Id = readModel.Id }, readModel);
+            return CreatedAtAction(nameof(GetAsync), new { Id = readDto.Id }, readDto);
         }
 
         [HttpPut("{id:int:min(1)}")]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] WeaponBaseViewModel updateModel)
+        public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] WeaponBaseDto updateDto)
         {
             var weapon = await _weaponService.GetByIdAsync(id);
 
-            _updateMapper.Map(updateModel, weapon);
+            _updateMapper.Map(updateDto, weapon);
             await _weaponService.UpdateAsync(weapon);
 
             return NoContent();
@@ -88,19 +87,19 @@ namespace WebApi.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> UpdateAsync(
             [FromRoute] int id,
-            [FromBody] JsonPatchDocument<WeaponBaseViewModel> patchDocument)
+            [FromBody] JsonPatchDocument<WeaponBaseDto> patchDocument)
         {
             var weapon = await _weaponService.GetByIdAsync(id);
-            var updateModel = _updateMapper.Map(weapon);
+            var updateDto = _updateMapper.Map(weapon);
 
-            patchDocument.ApplyTo(updateModel, ModelState);
+            patchDocument.ApplyTo(updateDto, ModelState);
 
-            if (!TryValidateModel(updateModel))
+            if (!TryValidateModel(updateDto))
             {
                 return ValidationProblem(ModelState);
             }
 
-            _updateMapper.Map(updateModel, weapon);
+            _updateMapper.Map(updateDto, weapon);
             await _weaponService.UpdateAsync(weapon);
 
             return NoContent();
@@ -117,11 +116,11 @@ namespace WebApi.Controllers
         }
 
         [HttpPut("hit")]
-        public async Task<ActionResult> HitAsync([FromBody] HitViewModel hitViewModel)
+        public async Task<ActionResult> HitAsync([FromBody] HitDto hitDto)
         {
-            var dealer = await _characterService.GetByIdAsync(hitViewModel.DealerId);
-            var weapon = _characterService.GetWeapon(dealer, hitViewModel.ItemId);
-            var receiver = await _characterService.GetByIdAsync(hitViewModel.ReceiverId);
+            var dealer = await _characterService.GetByIdAsync(hitDto.DealerId);
+            var weapon = _characterService.GetWeapon(dealer, hitDto.ItemId);
+            var receiver = await _characterService.GetByIdAsync(hitDto.ReceiverId);
 
             _playerService.VerifyPlayerAccessRights(dealer.Player!, User.Identity!, User.Claims!);
             _characterService.CalculateHealth(receiver, weapon.Damage);
