@@ -3,7 +3,7 @@ using Core.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DataAccess.Configurations
+namespace DataAccess.EntitiesConfiguration
 {
     public class PlayerConfiguration : IEntityTypeConfiguration<Player>
     {
@@ -11,6 +11,10 @@ namespace DataAccess.Configurations
         {
             builder
                 .HasKey(p => p.Id);
+
+            builder
+                .HasIndex(p => p.Name)
+                .IsUnique();
 
             builder
                 .Property(p => p.Name)

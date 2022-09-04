@@ -57,7 +57,6 @@ namespace WebApi.Controllers
         public async Task<ActionResult<PlayerReadDto>> RegisterAsync(
             [FromBody] PlayerAuthorizeDto authorizeModel)
         {
-            await _playerService.VerifyNameUniqueness(authorizeModel.Name!);
             _passwordService.CreatePasswordHash(authorizeModel.Password!, out byte[] hash, out byte[] salt);
 
             Player player = _playerService.CreatePlayer(authorizeModel.Name!, hash, salt);
@@ -87,7 +86,6 @@ namespace WebApi.Controllers
             var player = await _playerService.GetByIdAsync(id);
 
             _playerService.VerifyPlayerAccessRights(player, User?.Identity!, User?.Claims!);
-            await _playerService.VerifyNameUniqueness(updateDto.Name!);
             player.Name = updateDto.Name;
             await _playerService.UpdateAsync(player);
 
