@@ -129,37 +129,6 @@ namespace Application.Tests
         }
 
         [Fact]
-        public void VerifyNameUniqueness_UniqueName_ReturnsTask()
-        {
-            // Arrange
-            _fixture.MockPlayerRepository
-                .Setup(r => r.GetByNameAsync(It.IsAny<string>()))
-                .ReturnsAsync((Player)null!);
-
-            // Act
-            var result = _fixture.MockPlayerService.VerifyNameUniqueness(_fixture.Name!);
-
-            // Assert
-            result.Should().NotBeNull();
-        }
-
-        [Fact]
-        public async Task VerifyNameUniqueness_NotUniqueName_ThrowsNameNotUniqueException()
-        {
-            // Arrange
-            _fixture.MockPlayerRepository
-                .Setup(r => r.GetByNameAsync(It.IsAny<string>()))
-                .ReturnsAsync(_fixture.Player);
-
-            // Act
-            var result = async () => await _fixture.MockPlayerService.VerifyNameUniqueness(_fixture.Name!);
-
-            // Assert
-            result.Should().NotBeNull();
-            await result.Should().ThrowAsync<NameNotUniqueException>();
-        }
-
-        [Fact]
         public void CreatePlayer_ValidPlayer_ReturnsPlayer()
         {
             // Act

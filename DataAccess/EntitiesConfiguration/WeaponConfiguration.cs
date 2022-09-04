@@ -3,7 +3,7 @@ using Core.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DataAccess.Configurations
+namespace DataAccess.EntitiesConfiguration
 {
     public class WeaponConfiguration : IEntityTypeConfiguration<Weapon>
     {

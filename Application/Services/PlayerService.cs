@@ -4,6 +4,7 @@ using Core.Exceptions;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using System.Security.Principal;
@@ -25,10 +26,18 @@ namespace Application.Services
 
         public async Task AddAsync(Player entity)
         {
-            _repository.Add(entity);
-            await _repository.SaveChangesAsync();
+            try
+            {
+                _repository.Add(entity);
+                await _repository.SaveChangesAsync();
 
-            _logger.LogInformation("Succesfully registered a player");
+                _logger.LogInformation("Succesfully registered a player");
+            }
+            catch (DbUpdateException)
+            {
+                _logger.LogWarning($"Failed to register a player. The name '{entity.Name}' is already taken");
+                throw new NameNotUniqueException($"Name '{entity.Name}' is already taken");
+            }
         }
 
         public async Task DeleteAsync(Player entity)
@@ -77,23 +86,20 @@ namespace Application.Services
             return player;
         }
 
-        public async Task VerifyNameUniqueness(string name)
-        {
-            var player = await _repository.GetByNameAsync(name);
-
-            if (player is not null)
-            {
-                _logger.LogWarning($"Failed to create a player due to the name '{name}' being taken");
-                throw new NameNotUniqueException($"Name '{name}' is already taken");
-            }
-        }
-
         public async Task UpdateAsync(Player entity)
         {
-            _repository.Update(entity);
-            await _repository.SaveChangesAsync();
+            try
+            {
+                _repository.Update(entity);
+                await _repository.SaveChangesAsync();
 
-            _logger.LogInformation($"Successfully updated a player with id {entity.Id}");
+                _logger.LogInformation($"Successfully updated a player with id {entity.Id}");
+            }
+            catch (DbUpdateException)
+            {
+                _logger.LogWarning($"Failed to update a player. The name '{entity.Name}' is already taken");
+                throw new NameNotUniqueException($"Name '{entity.Name}' is already taken");
+            }
         }
 
         public Player CreatePlayer(string name, byte[] passwordHash, byte[] passwordSalt)
