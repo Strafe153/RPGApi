@@ -29,9 +29,7 @@ namespace Application.Tests
             var result = await _fixture.MockPlayerService.GetAllAsync(_fixture.Id, _fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().NotBeEmpty();
-            result.Should().BeOfType<PaginatedList<Player>>();
+            result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Player>>();
         }
 
         [Fact]
@@ -46,8 +44,7 @@ namespace Application.Tests
             var result = await _fixture.MockPlayerService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<Player>();
+            result.Should().NotBeNull().And.BeOfType<Player>();
         }
 
         [Fact]
@@ -62,7 +59,6 @@ namespace Application.Tests
             var result = async () => await _fixture.MockPlayerService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
             await result.Should().ThrowAsync<NullReferenceException>();
         }
 
@@ -78,8 +74,7 @@ namespace Application.Tests
             var result = await _fixture.MockPlayerService.GetByNameAsync(_fixture.Name!);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<Player>();
+            result.Should().NotBeNull().And.BeOfType<Player>();
         }
 
         [Fact]
@@ -94,7 +89,6 @@ namespace Application.Tests
             var result = async () => await _fixture.MockPlayerService.GetByNameAsync(_fixture.Name!);
 
             // Assert
-            result.Should().NotBeNull();
             await result.Should().ThrowAsync<NullReferenceException>();
         }
 
@@ -135,8 +129,7 @@ namespace Application.Tests
             var result = _fixture.MockPlayerService.CreatePlayer(_fixture.Name!, _fixture.Bytes, _fixture.Bytes);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<Player>();
+            result.Should().NotBeNull().And.BeOfType<Player>();
         }
 
         [Fact]
@@ -169,7 +162,6 @@ namespace Application.Tests
                 .VerifyPlayerAccessRights(_fixture.Player, _fixture.IIdentity, _fixture.InsufficientClaims);
 
             // Assert
-            result.Should().NotBeNull();
             result.Should().Throw<NotEnoughRightsException>();
         }
     }

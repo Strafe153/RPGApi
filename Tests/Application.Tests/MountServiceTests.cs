@@ -29,9 +29,7 @@ namespace Application.Tests
             var result = await _fixture.MockMountService.GetAllAsync(_fixture.Id, _fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().NotBeEmpty();
-            result.Should().BeOfType<PaginatedList<Mount>>();
+            result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Mount>>();
         }
 
         [Fact]
@@ -46,8 +44,7 @@ namespace Application.Tests
             var result = await _fixture.MockMountService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<Mount>();
+            result.Should().NotBeNull().And.BeOfType<Mount>();
         }
 
         [Fact]
@@ -62,7 +59,6 @@ namespace Application.Tests
             var result = async () => await _fixture.MockMountService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
             await result.Should().ThrowAsync<NullReferenceException>();
         }
 

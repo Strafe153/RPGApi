@@ -36,8 +36,7 @@ namespace WebApi.Tests
             var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<PlayerReadDto>>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<PageDto<PlayerReadDto>>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<PlayerReadDto>>>();
             pageDto.Entities.Should().NotBeEmpty();
         }
 
@@ -58,8 +57,7 @@ namespace WebApi.Tests
             var readDto = result.Result.As<OkObjectResult>().Value.As<PlayerReadDto>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<PlayerReadDto>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<PlayerReadDto>>();
             readDto.Should().NotBeNull();
         }
 
@@ -76,8 +74,7 @@ namespace WebApi.Tests
             var readDto = result.Result.As<CreatedAtActionResult>().Value.As<PlayerReadDto>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<PlayerReadDto>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<PlayerReadDto>>();
             readDto.Should().NotBeNull();
         }
 
@@ -94,8 +91,7 @@ namespace WebApi.Tests
             var readWithTokenDto = result.Result.As<OkObjectResult>().Value.As<PlayerWithTokenReadDto>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<PlayerWithTokenReadDto>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<PlayerWithTokenReadDto>>();
             readWithTokenDto.Should().NotBeNull();
         }
 
@@ -111,8 +107,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockPlayersController.UpdateAsync(_fixture.Id, _fixture.PlayerUpdateDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -127,8 +122,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockPlayersController.ChangePasswordAsync(_fixture.Id, _fixture.PlayerChangePasswordDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -143,8 +137,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockPlayersController.DeleteAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -159,8 +152,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockPlayersController.ChangeRoleAsync(_fixture.Id, _fixture.PlayerChangeRoleDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
     }
 }

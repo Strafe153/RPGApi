@@ -39,8 +39,7 @@ namespace WebApi.Tests
             var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<WeaponReadDto>>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<PageDto<WeaponReadDto>>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<WeaponReadDto>>>();
             pageDto.Entities.Should().NotBeEmpty();
         }
 
@@ -61,8 +60,7 @@ namespace WebApi.Tests
             var readDto = result.Result.As<OkObjectResult>().Value.As<WeaponReadDto>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<WeaponReadDto>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<WeaponReadDto>>();
             readDto.Should().NotBeNull();
         }
 
@@ -79,8 +77,7 @@ namespace WebApi.Tests
             var readDto = result.Result.As<CreatedAtActionResult>().Value.As<WeaponReadDto>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<WeaponReadDto>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<WeaponReadDto>>();
             readDto.Should().NotBeNull();
         }
 
@@ -96,8 +93,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockWeaponsController.UpdateAsync(_fixture.Id, _fixture.WeaponBaseDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -116,8 +112,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockWeaponsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -138,8 +133,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockWeaponsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ObjectResult>();
+            result.Should().NotBeNull().And.BeOfType<ObjectResult>();
         }
 
         [Fact]
@@ -154,8 +148,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockWeaponsController.DeleteAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -174,8 +167,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockWeaponsController.HitAsync(_fixture.HitDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
     }
 }
