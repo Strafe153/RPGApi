@@ -29,9 +29,7 @@ namespace Application.Tests
             var result = await _fixture.MockWeaponService.GetAllAsync(_fixture.Id, _fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().NotBeEmpty();
-            result.Should().BeOfType<PaginatedList<Weapon>>();
+            result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Weapon>>();
         }
 
         [Fact]
@@ -46,8 +44,7 @@ namespace Application.Tests
             var result = await _fixture.MockWeaponService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<Weapon>();
+            result.Should().NotBeNull().And.BeOfType<Weapon>();
         }
 
         [Fact]
@@ -62,7 +59,6 @@ namespace Application.Tests
             var result = async () => await _fixture.MockWeaponService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
             await result.Should().ThrowAsync<NullReferenceException>();
         }
 

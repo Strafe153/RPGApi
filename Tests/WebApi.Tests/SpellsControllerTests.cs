@@ -39,8 +39,7 @@ namespace WebApi.Tests
             var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<SpellReadDto>>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<PageDto<SpellReadDto>>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<SpellReadDto>>>();
             pageDto.Entities.Should().NotBeEmpty();
         }
 
@@ -61,8 +60,7 @@ namespace WebApi.Tests
             var readDto = result.Result.As<OkObjectResult>().Value.As<SpellReadDto>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<SpellReadDto>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
             readDto.Should().NotBeNull();
         }
 
@@ -79,8 +77,7 @@ namespace WebApi.Tests
             var readDto = result.Result.As<CreatedAtActionResult>().Value.As<SpellReadDto>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<SpellReadDto>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
             readDto.Should().NotBeNull();
         }
 
@@ -96,8 +93,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockSpellsController.UpdateAsync(_fixture.Id, _fixture.SpellBaseDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -116,8 +112,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockSpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -138,8 +133,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockSpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ObjectResult>();
+            result.Should().NotBeNull().And.BeOfType<ObjectResult>();
         }
 
         [Fact]
@@ -154,8 +148,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockSpellsController.DeleteAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -174,8 +167,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockSpellsController.HitAsync(_fixture.HitDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
     }
 }

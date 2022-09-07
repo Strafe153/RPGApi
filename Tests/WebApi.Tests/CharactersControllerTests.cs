@@ -38,8 +38,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.GetAsync(_fixture.PageParameters);
             var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<CharacterReadDto>>();
 
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<PageDto<CharacterReadDto>>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<CharacterReadDto>>>();
             pageDto.Entities.Should().NotBeEmpty();
         }
 
@@ -60,8 +59,7 @@ namespace WebApi.Tests
             var readDto = result.Result.As<OkObjectResult>().Value.As<CharacterReadDto>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<CharacterReadDto>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<CharacterReadDto>>();
             readDto.Should().NotBeNull();
         }
 
@@ -78,8 +76,7 @@ namespace WebApi.Tests
             var readDto = result.Result.As<CreatedAtActionResult>().Value.As<CharacterReadDto>();
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ActionResult<CharacterReadDto>>();
+            result.Should().NotBeNull().And.BeOfType<ActionResult<CharacterReadDto>>();
             readDto.Should().NotBeNull();
         }
 
@@ -95,8 +92,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.CharacterUpdateDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -115,8 +111,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -137,8 +132,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<ObjectResult>();
+            result.Should().NotBeNull().And.BeOfType<ObjectResult>();
         }
 
         [Fact]
@@ -153,8 +147,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.DeleteAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -173,8 +166,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.AddWeaponAsync(_fixture.ItemDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -193,8 +185,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.RemoveWeaponAsync(_fixture.ItemDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -213,8 +204,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.AddSpellAsync(_fixture.ItemDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -233,8 +223,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.RemoveSpellAsync(_fixture.ItemDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -253,8 +242,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.AddMountAsync(_fixture.ItemDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
         [Fact]
@@ -273,8 +261,7 @@ namespace WebApi.Tests
             var result = await _fixture.MockCharactersController.RemoveMountAsync(_fixture.ItemDto);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<NoContentResult>();
+            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
     }
 }

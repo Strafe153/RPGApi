@@ -42,8 +42,7 @@ namespace Application.Tests
             var result = _fixture.MockPasswordService.CreateToken(_fixture.Player);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<string>();
+            result.Should().NotBeNull().And.BeOfType<string>();
         }
 
         [Fact]
@@ -65,7 +64,6 @@ namespace Application.Tests
                 .VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.Bytes, _fixture.Bytes);
 
             // Assert
-            result.Should().NotBeNull();
             result.Should().Throw<IncorrectPasswordException>();
         }
     }

@@ -29,9 +29,7 @@ namespace Application.Tests
             var result = await _fixture.MockCharacterService.GetAllAsync(_fixture.Id, _fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().NotBeEmpty();
-            result.Should().BeOfType<PaginatedList<Character>>();
+            result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Character>>();
         }
 
         [Fact]
@@ -46,8 +44,7 @@ namespace Application.Tests
             var result = await _fixture.MockCharacterService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<Character>();
+            result.Should().NotBeNull().And.BeOfType<Character>();
         }
 
         [Fact]
@@ -62,7 +59,6 @@ namespace Application.Tests
             var result = async () => await _fixture.MockCharacterService.GetByIdAsync(_fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
             await result.Should().ThrowAsync<NullReferenceException>();
         }
 
@@ -103,8 +99,7 @@ namespace Application.Tests
             var result = _fixture.MockCharacterService.GetWeapon(_fixture.Character, _fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<Weapon>();
+            result.Should().NotBeNull().And.BeOfType<Weapon>();
         }
 
         [Fact]
@@ -124,8 +119,7 @@ namespace Application.Tests
             var result = _fixture.MockCharacterService.GetSpell(_fixture.Character, _fixture.Id);
 
             // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType<Spell>();
+            result.Should().NotBeNull().And.BeOfType<Spell>();
         }
 
         [Fact]
