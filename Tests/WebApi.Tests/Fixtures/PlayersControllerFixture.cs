@@ -1,12 +1,11 @@
 ﻿using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.AutoNSubstitute;
 using Core.Dtos;
 using Core.Dtos.PlayerDtos;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Services;
 using Core.Models;
-using Moq;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
 
@@ -16,20 +15,20 @@ namespace WebApi.Tests.Fixtures
     {
         public PlayersControllerFixture()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-            MockPlayerService = fixture.Freeze<Mock<IPlayerService>>();
-            MockPasswordService = fixture.Freeze<Mock<IPasswordService>>();
-            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>>>();
-            MockReadMapper = fixture.Freeze<Mock<IMapper<Player, PlayerReadDto>>>();
-            MockReadWithTokenMapper = fixture.Freeze<Mock<IMapper<Player, PlayerWithTokenReadDto>>>();
+            PlayerService = fixture.Freeze<IPlayerService>();
+            PasswordService = fixture.Freeze<IPasswordService>();
+            PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>>();
+            ReadMapper = fixture.Freeze<IMapper<Player, PlayerReadDto>>();
+            ReadWithTokenMapper = fixture.Freeze<IMapper<Player, PlayerWithTokenReadDto>>();
 
-            MockPlayersController = new(
-                MockPlayerService.Object,
-                MockPasswordService.Object,
-                MockPaginatedMapper.Object,
-                MockReadMapper.Object,
-                MockReadWithTokenMapper.Object);
+            PlayerContainer = new(
+                PlayerService,
+                PasswordService,
+                PaginatedMapper,
+                ReadMapper,
+                ReadWithTokenMapper);
 
             Id = 1;
             Name = "Name";
@@ -46,12 +45,12 @@ namespace WebApi.Tests.Fixtures
             PageDto = GetPageDto();
         }
 
-        public PlayersController MockPlayersController { get; }
-        public Mock<IPlayerService> MockPlayerService { get; }
-        public Mock<IPasswordService> MockPasswordService { get; }
-        public Mock<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>> MockPaginatedMapper { get; }
-        public Mock<IMapper<Player, PlayerReadDto>> MockReadMapper { get; }
-        public Mock<IMapper<Player, PlayerWithTokenReadDto>> MockReadWithTokenMapper { get; }
+        public PlayersController PlayerContainer { get; }
+        public IPlayerService PlayerService { get; }
+        public IPasswordService PasswordService { get; }
+        public IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>> PaginatedMapper { get; }
+        public IMapper<Player, PlayerReadDto> ReadMapper { get; }
+        public IMapper<Player, PlayerWithTokenReadDto> ReadWithTokenMapper { get; }
 
         public int Id { get; }
         public string? Name { get; }

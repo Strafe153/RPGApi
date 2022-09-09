@@ -4,75 +4,86 @@ using Core.Entities;
 using Core.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
+using NSubstitute;
+using NUnit.Framework;
 using WebApi.Tests.Fixtures;
-using Xunit;
 
 namespace WebApi.Tests
 {
-    public class CharactersControllerTests : IClassFixture<CharactersControllerFixture>
+    [TestFixture]
+    public class CharactersControllerTests
     {
-        private readonly CharactersControllerFixture _fixture;
+        private CharactersControllerFixture _fixture = default!;
 
-        public CharactersControllerTests(CharactersControllerFixture fixture)
+        [OneTimeSetUp]
+        public void SetUp()
         {
-            _fixture = fixture;
+            _fixture = new CharactersControllerFixture();
 
             _fixture.MockControllerBaseUser();
-            _fixture.MockObjectModelValidator(_fixture.MockCharactersController);
+            _fixture.MockObjectModelValidator(_fixture.CharactersController);
         }
 
-        [Fact]
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture.CharactersController.ControllerContext = _fixture.MockControllerContext();
+        }
+
+        [Test]
         public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageDtoOfCharacterReadDto()
         {
-            // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PaginatedList);
+            _fixture.CharacterService
+                .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
+                .Returns(_fixture.PaginatedList);
 
-            _fixture.MockPaginatedMapper
-                .Setup(m => m.Map(It.IsAny<PaginatedList<Character>>()))
+            _fixture.PaginatedMapper
+                .Map(Arg.Any<PaginatedList<Character>>())
                 .Returns(_fixture.PageDto);
 
             // Act
-            var result = await _fixture.MockCharactersController.GetAsync(_fixture.PageParameters);
+            var result = await _fixture.CharactersController.GetAsync(_fixture.PageParameters);
             var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<CharacterReadDto>>();
 
             result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<CharacterReadDto>>>();
             pageDto.Entities.Should().NotBeEmpty();
         }
 
-        [Fact]
+        [Test]
         public async Task GetAsync_ExistingCharacter_ReturnsActionResultOfCharacterReadDto()
         {
             // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
-            _fixture.MockReadMapper
-                .Setup(m => m.Map(It.IsAny<Character>()))
+            _fixture.ReadMapper
+                .Map(Arg.Any<Character>())
                 .Returns(_fixture.CharacterReadDto);
 
             // Act
-            var result = await _fixture.MockCharactersController.GetAsync(_fixture.Id);
+            var result = await _fixture.CharactersController.GetAsync(_fixture.Id);
             var readDto = result.Result.As<OkObjectResult>().Value.As<CharacterReadDto>();
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<ActionResult<CharacterReadDto>>();
             readDto.Should().NotBeNull();
         }
-
-        [Fact]
+        
+        [Test]
         public async Task CreateAsync_ValidDto_ReturnsActionResultOfCharacterReadDto()
         {
             // Arrange
-            _fixture.MockCreateMapper
-                .Setup(m => m.Map(It.IsAny<CharacterCreateDto>()))
+            _fixture.CreateMapper
+                .Map(Arg.Any<CharacterCreateDto>())
                 .Returns(_fixture.Character);
 
+            _fixture.ReadMapper
+                .Map(Arg.Any<Character>())
+                .Returns(_fixture.CharacterReadDto);
+
             // Act
-            var result = await _fixture.MockCharactersController.CreateAsync(_fixture.CharacterCreateDto);
+            var result = await _fixture.CharactersController.CreateAsync(_fixture.CharacterCreateDto);
             var readDto = result.Result.As<CreatedAtActionResult>().Value.As<CharacterReadDto>();
 
             // Assert
@@ -80,185 +91,185 @@ namespace WebApi.Tests
             readDto.Should().NotBeNull();
         }
 
-        [Fact]
-        public async Task UpdateAsync_ExistingCharacterValidViewModel_ReturnsNoContentResult()
+        [Test]
+        public async Task UpdateAsync_ExistingCharacterValidDto_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
             // Act
-            var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.CharacterUpdateDto);
+            var result = await _fixture.CharactersController.UpdateAsync(_fixture.Id, _fixture.CharacterUpdateDto);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task UpdateAsync_ExistingCharacterValidPatchDocument_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
-            _fixture.MockUpdateMapper
-                .Setup(m => m.Map(_fixture.Character))
+            _fixture.UpdateMapper
+                .Map(Arg.Any<Character>())
                 .Returns(_fixture.CharacterUpdateDto);
 
             // Act
-            var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+            var result = await _fixture.CharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task UpdateAsync_ExistingCharacterInvalidPatchDocument_ReturnsObjectResult()
         {
             // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
-            _fixture.MockUpdateMapper
-                .Setup(m => m.Map(_fixture.Character))
-                .Returns(_fixture.CharacterUpdateDto);
-
-            _fixture.MockModelError(_fixture.MockCharactersController);
+            _fixture.UpdateMapper
+                .Map(Arg.Any<Character>())
+                .Returns(_fixture.CharacterUpdateDto); 
+            
+            _fixture.MockModelError(_fixture.CharactersController);
 
             // Act
-            var result = await _fixture.MockCharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+            var result = await _fixture.CharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<ObjectResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task DeleteAsync_ExistingCharacter_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
             // Act
-            var result = await _fixture.MockCharactersController.DeleteAsync(_fixture.Id);
+            var result = await _fixture.CharactersController.DeleteAsync(_fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task AddWeaponAsync_ExistingCharacterExistingWeapon_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
-            _fixture.MockWeaponService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Weapon);
+            _fixture.WeaponService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Weapon);
 
             // Act
-            var result = await _fixture.MockCharactersController.AddWeaponAsync(_fixture.ItemDto);
+            var result = await _fixture.CharactersController.AddWeaponAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task RemoveWeaponAsync_ExistingCharacterExistingWeapon_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
-            _fixture.MockWeaponService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Weapon);
+            _fixture.WeaponService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Weapon);
 
             // Act
-            var result = await _fixture.MockCharactersController.RemoveWeaponAsync(_fixture.ItemDto);
+            var result = await _fixture.CharactersController.RemoveWeaponAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task AddSpellAsync_ExistingCharacterExistingSpell_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
-            _fixture.MockSpellService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Spell);
+            _fixture.SpellService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Spell);
 
             // Act
-            var result = await _fixture.MockCharactersController.AddSpellAsync(_fixture.ItemDto);
+            var result = await _fixture.CharactersController.AddSpellAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task RemoveSpellAsync_ExistingCharacterExistingSpell_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
-            _fixture.MockSpellService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Spell);
+            _fixture.SpellService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Spell);
 
             // Act
-            var result = await _fixture.MockCharactersController.RemoveSpellAsync(_fixture.ItemDto);
+            var result = await _fixture.CharactersController.RemoveSpellAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task AddMountAsync_ExistingCharacterExistingMount_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
-            _fixture.MockMountService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Mount);
+            _fixture.MountService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Mount);
 
             // Act
-            var result = await _fixture.MockCharactersController.AddMountAsync(_fixture.ItemDto);
+            var result = await _fixture.CharactersController.AddMountAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task RemoveMountAsync_ExistingCharacterExistingMount_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockCharacterService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
-            _fixture.MockMountService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Mount);
+            _fixture.MountService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Mount);
 
             // Act
-            var result = await _fixture.MockCharactersController.RemoveMountAsync(_fixture.ItemDto);
+            var result = await _fixture.CharactersController.RemoveMountAsync(_fixture.ItemDto);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();

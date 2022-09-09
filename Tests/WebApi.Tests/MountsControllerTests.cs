@@ -4,38 +4,46 @@ using Core.Entities;
 using Core.Models;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using Moq;
+using NSubstitute;
+using NUnit.Framework;
 using WebApi.Tests.Fixtures;
-using Xunit;
 
 namespace WebApi.Tests
 {
-    public class MountsControllerTests : IClassFixture<MountsControllerFixture>
+    [TestFixture]
+    public class MountsControllerTests
     {
-        private readonly MountsControllerFixture _fixture;
+        private MountsControllerFixture _fixture = default!;
 
-        public MountsControllerTests(MountsControllerFixture fixture)
+        [OneTimeSetUp]
+        public void SetUp()
         {
-            _fixture = fixture;
+            _fixture = new MountsControllerFixture();
 
             _fixture.MockControllerBaseUser();
-            _fixture.MockObjectModelValidator(_fixture.MockMountsController);
+            _fixture.MockObjectModelValidator(_fixture.MountsController);
         }
 
-        [Fact]
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture.MountsController.ControllerContext = _fixture.MockControllerContext();
+        }
+
+        [Test]
         public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageDtoOfMountReadDto()
         {
             // Arrange
-            _fixture.MockMountService
-                .Setup(s => s.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PaginatedList);
+            _fixture.MountService
+                .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
+                .Returns(_fixture.PaginatedList);
 
-            _fixture.MockPaginatedMapper
-                .Setup(m => m.Map(It.IsAny<PaginatedList<Mount>>()))
+            _fixture.PaginatedMapper
+                .Map(Arg.Any<PaginatedList<Mount>>())
                 .Returns(_fixture.PageDto);
 
             // Act
-            var result = await _fixture.MockMountsController.GetAsync(_fixture.PageParameters);
+            var result = await _fixture.MountsController.GetAsync(_fixture.PageParameters);
             var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<MountReadDto>>();
 
             // Assert
@@ -43,20 +51,20 @@ namespace WebApi.Tests
             pageDto.Entities.Should().NotBeEmpty();
         }
 
-        [Fact]
+        [Test]
         public async Task GetAsync_ExistingMount_ReturnsActionResultOfMountReadDto()
         {
             // Arrange
-            _fixture.MockMountService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Mount);
+            _fixture.MountService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Mount);
 
-            _fixture.MockReadMapper
-                .Setup(m => m.Map(It.IsAny<Mount>()))
+            _fixture.ReadMapper
+                .Map(Arg.Any<Mount>())
                 .Returns(_fixture.MountReadDto);
 
             // Act
-            var result = await _fixture.MockMountsController.GetAsync(_fixture.Id);
+            var result = await _fixture.MountsController.GetAsync(_fixture.Id);
             var readDto = result.Result.As<OkObjectResult>().Value.As<MountReadDto>();
 
             // Assert
@@ -64,16 +72,20 @@ namespace WebApi.Tests
             readDto.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public async Task CreateAsync_ValidDto_ReturnsActionResultOfMountReadDto()
         {
             // Arrange
-            _fixture.MockCreateMapper
-                .Setup(m => m.Map(It.IsAny<MountBaseDto>()))
+            _fixture.CreateMapper
+                .Map(Arg.Any<MountBaseDto>())
                 .Returns(_fixture.Mount);
 
+            _fixture.ReadMapper
+                .Map(Arg.Any<Mount>())
+                .Returns(_fixture.MountReadDto);
+
             // Act
-            var result = await _fixture.MockMountsController.CreateAsync(_fixture.MountBaseDto);
+            var result = await _fixture.MountsController.CreateAsync(_fixture.MountBaseDto);
             var readDto = result.Result.As<CreatedAtActionResult>().Value.As<MountReadDto>();
 
             // Assert
@@ -81,71 +93,71 @@ namespace WebApi.Tests
             readDto.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public async Task UpdateAsync_ExistingMountValidDto_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockMountService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Mount);
+            _fixture.MountService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Mount);
 
             // Act
-            var result = await _fixture.MockMountsController.UpdateAsync(_fixture.Id, _fixture.MountBaseDto);
+            var result = await _fixture.MountsController.UpdateAsync(_fixture.Id, _fixture.MountBaseDto);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task UpdateAsync_ExistingMountValidPatchDocument_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockMountService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Mount);
+            _fixture.MountService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Mount);
 
-            _fixture.MockUpdateMapper
-                .Setup(m => m.Map(_fixture.Mount))
+            _fixture.UpdateMapper
+                .Map(Arg.Any<Mount>())
                 .Returns(_fixture.MountBaseDto);
 
             // Act
-            var result = await _fixture.MockMountsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+            var result = await _fixture.MountsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task UpdateAsync_ExistingMountInvalidPatchDocument_ReturnsObjectResult()
         {
             // Arrange
-            _fixture.MockMountService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Mount);
+            _fixture.MountService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Mount);
 
-            _fixture.MockUpdateMapper
-                .Setup(m => m.Map(_fixture.Mount))
+            _fixture.UpdateMapper
+                .Map(Arg.Any<Mount>())
                 .Returns(_fixture.MountBaseDto);
 
-            _fixture.MockModelError(_fixture.MockMountsController);
+            _fixture.MockModelError(_fixture.MountsController);
 
             // Act
-            var result = await _fixture.MockMountsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+            var result = await _fixture.MountsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<ObjectResult>();
         }
 
-        [Fact]
+        [Test]
         public async Task DeleteAsync_ExistingMount_ReturnsNoContentResult()
         {
             // Arrange
-            _fixture.MockMountService
-                .Setup(s => s.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Mount);
+            _fixture.MountService
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Mount);
 
             // Act
-            var result = await _fixture.MockMountsController.DeleteAsync(_fixture.Id);
+            var result = await _fixture.MountsController.DeleteAsync(_fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<NoContentResult>();

@@ -1,13 +1,12 @@
 ﻿using Application.Services;
 using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.AutoNSubstitute;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.Extensions.Logging;
-using Moq;
 
 namespace Application.Tests.Fixtures
 {
@@ -15,14 +14,14 @@ namespace Application.Tests.Fixtures
     {
         public WeaponServiceFixture()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-            MockWeaponRepository = fixture.Freeze<Mock<IRepository<Weapon>>>();
-            MockLogger = fixture.Freeze<Mock<ILogger<WeaponService>>>();
+            WeaponRepository = fixture.Freeze<IRepository<Weapon>>();
+            Logger = fixture.Freeze<ILogger<WeaponService>>();
 
-            MockWeaponService = new WeaponService(
-                MockWeaponRepository.Object,
-                MockLogger.Object);
+            WeaponService = new WeaponService(
+                WeaponRepository,
+                Logger);
 
             Id = 1;
             Name = "StringPlaceholder";
@@ -31,9 +30,9 @@ namespace Application.Tests.Fixtures
             PaginatedList = GetPaginatedList();
         }
 
-        public IItemService<Weapon> MockWeaponService { get; }
-        public Mock<IRepository<Weapon>> MockWeaponRepository { get; }
-        public Mock<ILogger<WeaponService>> MockLogger { get; set; }
+        public IItemService<Weapon> WeaponService { get; }
+        public IRepository<Weapon> WeaponRepository { get; }
+        public ILogger<WeaponService> Logger { get; set; }
 
         public int Id { get; }
         public string? Name { get; }

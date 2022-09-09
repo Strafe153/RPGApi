@@ -3,162 +3,165 @@ using Core.Entities;
 using Core.Exceptions;
 using Core.Models;
 using FluentAssertions;
-using Moq;
-using Xunit;
+using NSubstitute;
+using NSubstitute.ReturnsExtensions;
+using NUnit.Framework;
 
 namespace Application.Tests
 {
-    public class PlayerServiceTests : IClassFixture<PlayerServiceFixture>
+    [TestFixture]
+    public class PlayerServiceTests
     {
-        private readonly PlayerServiceFixture _fixture;
+        private PlayerServiceFixture _fixture = default!;
 
-        public PlayerServiceTests(PlayerServiceFixture fixture)
+        [OneTimeSetUp]
+        public void SetUp()
         {
-            _fixture = fixture;
+            _fixture = new PlayerServiceFixture();
         }
 
-        [Fact]
+        [Test]
         public async Task GetAllAsync_ValidParameters_ReturnsPaginatedListOfPlayer()
         {
             // Arrange
-            _fixture.MockPlayerRepository
-                .Setup(r => r.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PaginatedList);
+            _fixture.PlayerRepository
+                .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
+                .Returns(_fixture.PaginatedList);
 
             // Act
-            var result = await _fixture.MockPlayerService.GetAllAsync(_fixture.Id, _fixture.Id);
+            var result = await _fixture.PlayerService.GetAllAsync(_fixture.Id, _fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Player>>();
         }
 
-        [Fact]
+        [Test]
         public async Task GetByIdAsync_ExistingPlayer_ReturnsPlayer()
         {
             // Arrange
-            _fixture.MockPlayerRepository
-                .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Player);
+            _fixture.PlayerRepository
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Player);
 
             // Act
-            var result = await _fixture.MockPlayerService.GetByIdAsync(_fixture.Id);
+            var result = await _fixture.PlayerService.GetByIdAsync(_fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<Player>();
         }
 
-        [Fact]
+        [Test]
         public async Task GetByIdAsync_NonexistingPlayer_ThrowsNullReferenceException()
         {
             // Arrange
-            _fixture.MockPlayerRepository
-                .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync((Player)null!);
+            _fixture.PlayerRepository
+                .GetByIdAsync(Arg.Any<int>())
+                .ReturnsNull();
 
             // Act
-            var result = async () => await _fixture.MockPlayerService.GetByIdAsync(_fixture.Id);
+            var result = async () => await _fixture.PlayerService.GetByIdAsync(_fixture.Id);
 
             // Assert
             await result.Should().ThrowAsync<NullReferenceException>();
         }
 
-        [Fact]
+        [Test]
         public async Task GetByNameAsync_ExistingPlayer_ReturnsPlayer()
         {
             // Arrange
-            _fixture.MockPlayerRepository
-                .Setup(r => r.GetByNameAsync(It.IsAny<string>()))
-                .ReturnsAsync(_fixture.Player);
+            _fixture.PlayerRepository
+                .GetByNameAsync(Arg.Any<string>())
+                .Returns(_fixture.Player);
 
             // Act
-            var result = await _fixture.MockPlayerService.GetByNameAsync(_fixture.Name!);
+            var result = await _fixture.PlayerService.GetByNameAsync(_fixture.Name!);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<Player>();
         }
 
-        [Fact]
+        [Test]
         public async Task GetByNameAsync_NonexistingPlayer_ThrowsNullReferenceException()
         {
             // Arrange
-            _fixture.MockPlayerRepository
-                .Setup(r => r.GetByNameAsync(It.IsAny<string>()))
-                .ReturnsAsync((Player)null!);
+            _fixture.PlayerRepository
+                .GetByNameAsync(Arg.Any<string>())
+                .ReturnsNull();
 
             // Act
-            var result = async () => await _fixture.MockPlayerService.GetByNameAsync(_fixture.Name!);
+            var result = async () => await _fixture.PlayerService.GetByNameAsync(_fixture.Name!);
 
             // Assert
             await result.Should().ThrowAsync<NullReferenceException>();
         }
 
-        [Fact]
+        [Test]
         public void AddAsync_ValidPlayer_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockPlayerService.AddAsync(_fixture.Player);
+            var result = _fixture.PlayerService.AddAsync(_fixture.Player);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void UpdateAsync_ValidPlayer_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockPlayerService.UpdateAsync(_fixture.Player);
+            var result = _fixture.PlayerService.UpdateAsync(_fixture.Player);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void DeleteAsync_ValidPlayer_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockPlayerService.DeleteAsync(_fixture.Player);
+            var result = _fixture.PlayerService.DeleteAsync(_fixture.Player);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void CreatePlayer_ValidPlayer_ReturnsPlayer()
         {
             // Act
-            var result = _fixture.MockPlayerService.CreatePlayer(_fixture.Name!, _fixture.Bytes, _fixture.Bytes);
+            var result = _fixture.PlayerService.CreatePlayer(_fixture.Name!, _fixture.Bytes, _fixture.Bytes);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<Player>();
         }
 
-        [Fact]
+        [Test]
         public void ChangePasswordData_ValidData_ReturnsVoid()
         {
             // Act
-            var result = () => _fixture.MockPlayerService
+            var result = () => _fixture.PlayerService
                 .ChangePasswordData(_fixture.Player, _fixture.Bytes, _fixture.Bytes);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void VerifyPlayerAccessRights_SufficientRights_ReturnsVoid()
         {
             // Act
-            var result = () => _fixture.MockPlayerService
+            var result = () => _fixture.PlayerService
                 .VerifyPlayerAccessRights(_fixture.Player, _fixture.IIdentity, _fixture.SufficientClaims);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void VerifyPlayerAccessRights_InsufficientRights_ReturnsVoid()
         {
             // Act
-            var result = () => _fixture.MockPlayerService
+            var result = () => _fixture.PlayerService
                 .VerifyPlayerAccessRights(_fixture.Player, _fixture.IIdentity, _fixture.InsufficientClaims);
 
             // Assert

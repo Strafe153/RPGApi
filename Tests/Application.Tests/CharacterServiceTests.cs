@@ -3,143 +3,151 @@ using Core.Entities;
 using Core.Exceptions;
 using Core.Models;
 using FluentAssertions;
-using Moq;
-using Xunit;
+using NSubstitute;
+using NSubstitute.ReturnsExtensions;
+using NUnit.Framework;
 
 namespace Application.Tests
 {
-    public class CharacterServiceTests : IClassFixture<CharacterServiceFixture>
+    [TestFixture]
+    public class CharacterServiceTests
     {
-        private readonly CharacterServiceFixture _fixture;
+        private CharacterServiceFixture _fixture = default!;
 
-        public CharacterServiceTests(CharacterServiceFixture fixture)
+        [OneTimeSetUp]
+        public void SetUp()
         {
-            _fixture = fixture;
+            _fixture = new CharacterServiceFixture();
         }
 
-        [Fact]
+        [TearDown]
+        public void TearDown()
+        {
+            _fixture.Character.Health = 100;
+        }
+
+        [Test]
         public async Task GetAllAsync_ValidParameters_ReturnsPaginatedListOfCharacter()
         {
             // Arrange
-            _fixture.MockCharacterRepository
-                .Setup(r => r.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PaginatedList);
+            _fixture.CharacterRepository
+                .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
+                .Returns(_fixture.PaginatedList);
 
             // Act
-            var result = await _fixture.MockCharacterService.GetAllAsync(_fixture.Id, _fixture.Id);
+            var result = await _fixture.CharacterService.GetAllAsync(_fixture.Id, _fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Character>>();
         }
 
-        [Fact]
+        [Test]
         public async Task GetByIdAsync_ExistingCharacter_ReturnsCharacter()
         {
             // Arrange
-            _fixture.MockCharacterRepository
-                .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Character);
+            _fixture.CharacterRepository
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Character);
 
             // Act
-            var result = await _fixture.MockCharacterService.GetByIdAsync(_fixture.Id);
+            var result = await _fixture.CharacterService.GetByIdAsync(_fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<Character>();
         }
 
-        [Fact]
+        [Test]
         public async Task GetByIdAsync_NonexistingCharacter_ThrowsNullReferenceException()
         {
             // Arrange
-            _fixture.MockCharacterRepository
-                .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync((Character)null!);
+            _fixture.CharacterRepository
+                .GetByIdAsync(Arg.Any<int>())
+                .ReturnsNull();
 
             // Act
-            var result = async () => await _fixture.MockCharacterService.GetByIdAsync(_fixture.Id);
+            var result = async () => await _fixture.CharacterService.GetByIdAsync(_fixture.Id);
 
             // Assert
             await result.Should().ThrowAsync<NullReferenceException>();
         }
 
-        [Fact]
+        [Test]
         public void AddAsync_ValidCharacter_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockCharacterService.AddAsync(_fixture.Character);
+            var result = _fixture.CharacterService.AddAsync(_fixture.Character);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void UpdateAsync_ValidCharacter_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockCharacterService.UpdateAsync(_fixture.Character);
+            var result = _fixture.CharacterService.UpdateAsync(_fixture.Character);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void DeleteAsync_ValidCharacter_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockCharacterService.DeleteAsync(_fixture.Character);
+            var result = _fixture.CharacterService.DeleteAsync(_fixture.Character);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void GetWeapon_ExistingWeapon_ReturnsWeapon()
         {
             // Act
-            var result = _fixture.MockCharacterService.GetWeapon(_fixture.Character, _fixture.Id);
+            var result = _fixture.CharacterService.GetWeapon(_fixture.Character, _fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<Weapon>();
         }
 
-        [Fact]
+        [Test]
         public void GetWeapon_NonexistingWeapon_ThrowsItemNotFoundException()
         {
             // Act
-            var result = () => _fixture.MockCharacterService.GetWeapon(_fixture.Character, 3);
+            var result = () => _fixture.CharacterService.GetWeapon(_fixture.Character, 3);
 
             // Assert
             result.Should().Throw<ItemNotFoundException>();
         }
 
-        [Fact]
+        [Test]
         public void GetSpell_ExistingSpell_ReturnsSpell()
         {
             // Act
-            var result = _fixture.MockCharacterService.GetSpell(_fixture.Character, _fixture.Id);
+            var result = _fixture.CharacterService.GetSpell(_fixture.Character, _fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<Spell>();
         }
 
-        [Fact]
+        [Test]
         public void GetSpell_NonexistingSpell_ThrowsItemNotFoundException()
         {
             // Act
-            var result = () => _fixture.MockCharacterService.GetSpell(_fixture.Character, 3);
+            var result = () => _fixture.CharacterService.GetSpell(_fixture.Character, 3);
 
             // Assert
             result.Should().Throw<ItemNotFoundException>();
         }
 
-        [Theory]
-        [InlineData(20, 80)]
-        [InlineData(100, 0)]
-        [InlineData(-25, 100)]
+        [TestCase(20, 80)]
+        [TestCase(100, 0)]
+        [TestCase(-25, 100)]
         public void CalculateHealth_VariousDamage_ReturnsRemainingHealth(int damage, int resultingHealth)
         {
             // Act
-            _fixture.MockCharacterService.CalculateHealth(_fixture.Character, damage);
+            _fixture.CharacterService.CalculateHealth(_fixture.Character, damage);
 
             // Assert
             resultingHealth.Should().Be(_fixture.Character.Health);

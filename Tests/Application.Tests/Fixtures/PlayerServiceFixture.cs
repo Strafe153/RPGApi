@@ -1,13 +1,12 @@
 ﻿using Application.Services;
 using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.AutoNSubstitute;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.Extensions.Logging;
-using Moq;
 using System.Security.Claims;
 using System.Security.Principal;
 
@@ -17,14 +16,14 @@ namespace Application.Tests.Fixtures
     {
         public PlayerServiceFixture()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-            MockPlayerRepository = fixture.Freeze<Mock<IPlayerRepository>>();
-            MockLogger = fixture.Freeze<Mock<ILogger<PlayerService>>>();
+            PlayerRepository = fixture.Freeze<IPlayerRepository>();
+            Logger = fixture.Freeze<ILogger<PlayerService>>();
 
-            MockPlayerService = new PlayerService(
-                MockPlayerRepository.Object,
-                MockLogger.Object);
+            PlayerService = new PlayerService(
+                PlayerRepository,
+                Logger);
 
             Id = 1;
             Name = "StringPlaceholder";
@@ -38,9 +37,9 @@ namespace Application.Tests.Fixtures
             InsufficientClaims = GetInsufficientClaims();
         }
 
-        public IPlayerService MockPlayerService { get; }
-        public Mock<IPlayerRepository> MockPlayerRepository { get; }
-        public Mock<ILogger<PlayerService>> MockLogger { get; }
+        public IPlayerService PlayerService { get; }
+        public IPlayerRepository PlayerRepository { get; }
+        public ILogger<PlayerService> Logger { get; }
 
         public int Id { get; }
         public string? Name { get; }

@@ -1,5 +1,5 @@
 ﻿using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.AutoNSubstitute;
 using Core.Dtos;
 using Core.Dtos.CharacterDtos;
 using Core.Entities;
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
-using Moq;
+using NSubstitute;
 using System.Security.Claims;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
@@ -23,28 +23,28 @@ namespace WebApi.Tests.Fixtures
     {
         public CharactersControllerFixture()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-            MockCharacterService = fixture.Freeze<Mock<ICharacterService>>();
-            MockPlayerService = fixture.Freeze<Mock<IPlayerService>>();
-            MockWeaponService = fixture.Freeze<Mock<IItemService<Weapon>>>();
-            MockSpellService = fixture.Freeze<Mock<IItemService<Spell>>>();
-            MockMountService = fixture.Freeze<Mock<IItemService<Mount>>>();
-            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>>>();
-            MockReadMapper = fixture.Freeze<Mock<IMapper<Character, CharacterReadDto>>>();
-            MockCreateMapper = fixture.Freeze<Mock<IMapper<CharacterCreateDto, Character>>>();
-            MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<CharacterBaseDto, Character>>>();
+            CharacterService = fixture.Freeze<ICharacterService>();
+            PlayerService = fixture.Freeze<IPlayerService>();
+            WeaponService = fixture.Freeze<IItemService<Weapon>>();
+            SpellService = fixture.Freeze<IItemService<Spell>>();
+            MountService = fixture.Freeze<IItemService<Mount>>();
+            PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>>();
+            ReadMapper = fixture.Freeze<IMapper<Character, CharacterReadDto>>();
+            CreateMapper = fixture.Freeze<IMapper<CharacterCreateDto, Character>>();
+            UpdateMapper = fixture.Freeze<IUpdateMapper<CharacterBaseDto, Character>>();
 
-            MockCharactersController = new(
-                MockCharacterService.Object,
-                MockPlayerService.Object,
-                MockWeaponService.Object,
-                MockSpellService.Object,
-                MockMountService.Object,
-                MockPaginatedMapper.Object,
-                MockReadMapper.Object,
-                MockCreateMapper.Object,
-                MockUpdateMapper.Object);
+            CharactersController = new(
+                CharacterService,
+                PlayerService,
+                WeaponService,
+                SpellService,
+                MountService,
+                PaginatedMapper,
+                ReadMapper,
+                CreateMapper,
+                UpdateMapper);
 
             Id = 1;
             Name = "Name";
@@ -62,16 +62,16 @@ namespace WebApi.Tests.Fixtures
             PageDto = GetPageDto();
         }
 
-        public CharactersController MockCharactersController { get; }
-        public Mock<ICharacterService> MockCharacterService { get; }
-        public Mock<IPlayerService> MockPlayerService { get; }
-        public Mock<IItemService<Weapon>> MockWeaponService { get; }
-        public Mock<IItemService<Spell>> MockSpellService { get; }
-        public Mock<IItemService<Mount>> MockMountService { get; }
-        public Mock<IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>> MockPaginatedMapper { get; }
-        public Mock<IMapper<Character, CharacterReadDto>> MockReadMapper { get; }
-        public Mock<IMapper<CharacterCreateDto, Character>> MockCreateMapper { get; }
-        public Mock<IUpdateMapper<CharacterBaseDto, Character>> MockUpdateMapper { get; }
+        public CharactersController CharactersController { get; }
+        public ICharacterService CharacterService { get; }
+        public IPlayerService PlayerService { get; }
+        public IItemService<Weapon> WeaponService { get; }
+        public IItemService<Spell> SpellService { get; }
+        public IItemService<Mount> MountService { get; }
+        public IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>> PaginatedMapper { get; }
+        public IMapper<Character, CharacterReadDto> ReadMapper { get; }
+        public IMapper<CharacterCreateDto, Character> CreateMapper { get; }
+        public IUpdateMapper<CharacterBaseDto, Character> UpdateMapper { get; }
 
         public int Id { get; }
         public string? Name { get; }
@@ -92,8 +92,8 @@ namespace WebApi.Tests.Fixtures
         {
             var user = new ClaimsPrincipal(new ClaimsIdentity());
 
-            MockCharactersController.ControllerContext = new ControllerContext();
-            MockCharactersController.ControllerContext.HttpContext = new DefaultHttpContext() 
+            CharactersController.ControllerContext = new ControllerContext();
+            CharactersController.ControllerContext.HttpContext = new DefaultHttpContext() 
             { 
                 User = user 
             };
@@ -101,27 +101,34 @@ namespace WebApi.Tests.Fixtures
 
         public void MockObjectModelValidator(ControllerBase controller)
         {
-            var objectValidator = new Mock<IObjectModelValidator>();
+            var objectValidator = Substitute.For<IObjectModelValidator>();
 
-            objectValidator.Setup(o => o.Validate(
-                It.IsAny<ActionContext>(),
-                It.IsAny<ValidationStateDictionary>(),
-                It.IsAny<string>(),
-                It.IsAny<object>()));
+            objectValidator.Validate(
+                Arg.Any<ActionContext>(),
+                Arg.Any<ValidationStateDictionary>(),
+                Arg.Any<string>(),
+                Arg.Any<object>());
 
-            controller.ObjectValidator = objectValidator.Object;
+            controller.ObjectValidator = objectValidator;
+        }
+
+        public ControllerContext MockControllerContext()
+        {
+            var context = new ControllerContext(
+                new ActionContext(
+                    new DefaultHttpContext()
+                    {
+                        TraceIdentifier = "trace"
+                    },
+                    new RouteData(),
+                    new ControllerActionDescriptor()));
+
+            return context;
         }
 
         public void MockModelError(ControllerBase controller)
         {
-            var context = new ControllerContext(
-                new ActionContext(
-                    new DefaultHttpContext() 
-                    { 
-                        TraceIdentifier = "trace" 
-                    },
-                    new RouteData(),
-                    new ControllerActionDescriptor()));
+            var context = MockControllerContext();
 
             context.ModelState.AddModelError("key", "error");
             controller.ControllerContext = context;

@@ -1,11 +1,10 @@
 ﻿using Application.Services;
 using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.AutoNSubstitute;
 using Core.Entities;
 using Core.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Moq;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -15,15 +14,15 @@ namespace Application.Tests.Fixtures
     {
         public PasswordServiceFixture()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-            MockConfiguration = fixture.Freeze<Mock<IConfiguration>>();
-            MockLogger = fixture.Freeze<Mock<ILogger<PasswordService>>>();
-            MockConfigurationSection = fixture.Freeze<Mock<IConfigurationSection>>();
+            Configuration = fixture.Freeze<IConfiguration>();
+            Logger = fixture.Freeze<ILogger<PasswordService>>();
+            ConfigurationSection = fixture.Freeze<IConfigurationSection>();
 
-            MockPasswordService = new(
-                MockConfiguration.Object,
-                MockLogger.Object);
+            PasswordService = new(
+                Configuration,
+                Logger);
 
             StringPlaceholder = "SymmetricSecurityKey";
             Bytes = new byte[0];
@@ -31,10 +30,10 @@ namespace Application.Tests.Fixtures
             Player = GetPlayer();
         }
 
-        public PasswordService MockPasswordService { get; }
-        public Mock<IConfiguration> MockConfiguration { get; }
-        public Mock<ILogger<PasswordService>> MockLogger { get; }
-        public Mock<IConfigurationSection> MockConfigurationSection { get; }
+        public PasswordService PasswordService { get; }
+        public IConfiguration Configuration { get; }
+        public ILogger<PasswordService> Logger { get; }
+        public IConfigurationSection ConfigurationSection { get; }
 
         public string? StringPlaceholder { get; }
         public byte[] Bytes { get; }
