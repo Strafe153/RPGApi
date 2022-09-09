@@ -1,66 +1,66 @@
 ﻿using Application.Tests.Fixtures;
 using Core.Exceptions;
 using FluentAssertions;
-using Moq;
-using Xunit;
+using NSubstitute;
+using NUnit.Framework;
 
 namespace Application.Tests
 {
-    public class PasswordServiceTests : IClassFixture<PasswordServiceFixture>
+    [TestFixture]
+    public class PasswordServiceTests
     {
-        private readonly PasswordServiceFixture _fixture;
+        private PasswordServiceFixture _fixture = default!;
 
-        public PasswordServiceTests(PasswordServiceFixture fixture)
+        [OneTimeSetUp]
+        public void SetUp()
         {
-            _fixture = fixture;
+            _fixture = new PasswordServiceFixture();
         }
 
-        [Fact]
+        [Test]
         public void CreatePasswordHash_ValidPassword_ReturnsVoid()
         {
             // Act
-            var result = () => _fixture.MockPasswordService
+            var result = () => _fixture.PasswordService
                 .CreatePasswordHash(_fixture.StringPlaceholder!, out byte[] hash, out byte[] salt);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void CreateToken_ValidPlayer_ReturnsString()
         {
             // Arrange
-            _fixture.MockConfigurationSection
-                .Setup(cs => cs.Value)
+            _fixture.ConfigurationSection.Value
                 .Returns(_fixture.StringPlaceholder!);
 
-            _fixture.MockConfiguration
-                .Setup(c => c.GetSection(It.IsAny<string>()))
-                .Returns(_fixture.MockConfigurationSection.Object);
+            _fixture.Configuration.GetSection(Arg.Any<string>())
+                .Returns(_fixture.ConfigurationSection);
 
             // Act
-            var result = _fixture.MockPasswordService.CreateToken(_fixture.Player);
+            var result = _fixture.PasswordService.CreateToken(_fixture.Player);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<string>();
         }
 
-        [Fact]
+        [Test]
         public void VerifyPasswordHash_ValidParameters_ReturnsVoid()
         {
             // Act
-            var result = () => _fixture.MockPasswordService
+            var result = () => _fixture.PasswordService
                 .VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.PasswordHash, _fixture.Bytes);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void VerifyPasswordHash_InvalidParameters_ThrowsIncorrectPasswordException()
         {
             // Act
-            var result = () => _fixture.MockPasswordService
+            var result = () => _fixture.PasswordService
                 .VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.Bytes, _fixture.Bytes);
 
             // Assert

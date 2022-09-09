@@ -3,120 +3,123 @@ using Core.Entities;
 using Core.Exceptions;
 using Core.Models;
 using FluentAssertions;
-using Moq;
-using Xunit;
+using NSubstitute;
+using NSubstitute.ReturnsExtensions;
+using NUnit.Framework;
 
 namespace Application.Tests
 {
-    public class MountServiceTests : IClassFixture<MountServiceFixture>
+    [TestFixture]
+    public class MountServiceTests
     {
-        private readonly MountServiceFixture _fixture;
+        private MountServiceFixture _fixture = default!;
 
-        public MountServiceTests(MountServiceFixture fixture)
+        [OneTimeSetUp]
+        public void SetUp()
         {
-            _fixture = fixture;
+            _fixture = new MountServiceFixture();
         }
 
-        [Fact]
+        [Test]
         public async Task GetAllAsync_ValidParameters_ReturnsPaginatedListOfMount()
         {
             // Arrange
-            _fixture.MockMountRepository
-                .Setup(r => r.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PaginatedList);
+            _fixture.MountRepository
+                .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
+                .Returns(_fixture.PaginatedList);
 
             // Act
-            var result = await _fixture.MockMountService.GetAllAsync(_fixture.Id, _fixture.Id);
+            var result = await _fixture.MountService.GetAllAsync(_fixture.Id, _fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Mount>>();
         }
 
-        [Fact]
+        [Test]
         public async Task GetByIdAsync_ExistingMount_ReturnsMount()
         {
             // Arrange
-            _fixture.MockMountRepository
-                .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Mount);
+            _fixture.MountRepository
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Mount);
 
             // Act
-            var result = await _fixture.MockMountService.GetByIdAsync(_fixture.Id);
+            var result = await _fixture.MountService.GetByIdAsync(_fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<Mount>();
         }
 
-        [Fact]
+        [Test]
         public async Task GetByIdAsync_NonexistingMount_ThrowsNullReferenceException()
         {
             // Arrange
-            _fixture.MockMountRepository
-                .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync((Mount)null!);
+            _fixture.MountRepository
+                .GetByIdAsync(Arg.Any<int>())
+                .ReturnsNull();
 
             // Act
-            var result = async () => await _fixture.MockMountService.GetByIdAsync(_fixture.Id);
+            var result = async () => await _fixture.MountService.GetByIdAsync(_fixture.Id);
 
             // Assert
             await result.Should().ThrowAsync<NullReferenceException>();
         }
 
-        [Fact]
+        [Test]
         public void AddAsync_ValidMount_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockMountService.AddAsync(_fixture.Mount);
+            var result = _fixture.MountService.AddAsync(_fixture.Mount);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void UpdateAsync_ValidMount_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockMountService.UpdateAsync(_fixture.Mount);
+            var result = _fixture.MountService.UpdateAsync(_fixture.Mount);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void DeleteAsync_ValidMount_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockMountService.DeleteAsync(_fixture.Mount);
+            var result = _fixture.MountService.DeleteAsync(_fixture.Mount);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void AddToCharacter_ValidData_ReturnsVoid()
         {
             // Act
-            var result = () => _fixture.MockMountService.AddToCharacter(_fixture.Character, _fixture.Mount);
+            var result = () => _fixture.MountService.AddToCharacter(_fixture.Character, _fixture.Mount);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void RemoveFromCharacter_ExistingCharacterMount_ReturnsVoid()
         {
             // Act
-            var result = () => _fixture.MockMountService.RemoveFromCharacter(_fixture.Character, _fixture.Mount);
+            var result = () => _fixture.MountService.RemoveFromCharacter(_fixture.Character, _fixture.Mount);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void RemoveFromCharacter_NonexistingCharacterMount_ThrowsItemNotFoundException()
         {
             // Act
-            var result = () => _fixture.MockMountService.RemoveFromCharacter(_fixture.Character, _fixture.Mount);
+            var result = () => _fixture.MountService.RemoveFromCharacter(_fixture.Character, _fixture.Mount);
 
             // Assert
             result.Should().Throw<ItemNotFoundException>();

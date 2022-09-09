@@ -3,120 +3,123 @@ using Core.Entities;
 using Core.Exceptions;
 using Core.Models;
 using FluentAssertions;
-using Moq;
-using Xunit;
+using NSubstitute;
+using NSubstitute.ReturnsExtensions;
+using NUnit.Framework;
 
 namespace Application.Tests
 {
-    public class WeaponServiceTests : IClassFixture<WeaponServiceFixture>
+    [TestFixture]
+    public class WeaponServiceTests
     {
-        private readonly WeaponServiceFixture _fixture;
+        private WeaponServiceFixture _fixture = default!;
 
-        public WeaponServiceTests(WeaponServiceFixture fixture)
+        [OneTimeSetUp]
+        public void SetUp()
         {
-            _fixture = fixture;
+            _fixture = new WeaponServiceFixture();
         }
 
-        [Fact]
+        [Test]
         public async Task GetAllAsync_ValidParameters_ReturnsPaginatedListOfWeapon()
         {
             // Arrange
-            _fixture.MockWeaponRepository
-                .Setup(r => r.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
-                .ReturnsAsync(_fixture.PaginatedList);
+            _fixture.WeaponRepository
+                .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
+                .Returns(_fixture.PaginatedList);
 
             // Act
-            var result = await _fixture.MockWeaponService.GetAllAsync(_fixture.Id, _fixture.Id);
+            var result = await _fixture.WeaponService.GetAllAsync(_fixture.Id, _fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Weapon>>();
         }
 
-        [Fact]
+        [Test]
         public async Task GetByIdAsync_ExistingWeapon_ReturnsWeapon()
         {
             // Arrange
-            _fixture.MockWeaponRepository
-                .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync(_fixture.Weapon);
+            _fixture.WeaponRepository
+                .GetByIdAsync(Arg.Any<int>())
+                .Returns(_fixture.Weapon);
 
             // Act
-            var result = await _fixture.MockWeaponService.GetByIdAsync(_fixture.Id);
+            var result = await _fixture.WeaponService.GetByIdAsync(_fixture.Id);
 
             // Assert
             result.Should().NotBeNull().And.BeOfType<Weapon>();
         }
 
-        [Fact]
-        public async void GetByIdAsync_NonexistingWeapon_ThrowsNullReferenceException()
+        [Test]
+        public async Task GetByIdAsync_NonexistingWeapon_ThrowsNullReferenceException()
         {
             // Arrange
-            _fixture.MockWeaponRepository
-                .Setup(r => r.GetByIdAsync(It.IsAny<int>()))
-                .ReturnsAsync((Weapon)null!);
+            _fixture.WeaponRepository
+                .GetByIdAsync(Arg.Any<int>())
+                .ReturnsNull();
 
             // Act
-            var result = async () => await _fixture.MockWeaponService.GetByIdAsync(_fixture.Id);
+            var result = async () => await _fixture.WeaponService.GetByIdAsync(_fixture.Id);
 
             // Assert
             await result.Should().ThrowAsync<NullReferenceException>();
         }
 
-        [Fact]
+        [Test]
         public void AddAsync_ValidWeapon_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockWeaponService.AddAsync(_fixture.Weapon);
+            var result = _fixture.WeaponService.AddAsync(_fixture.Weapon);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void UpdateAsync_ValidWeapon_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockWeaponService.UpdateAsync(_fixture.Weapon);
+            var result = _fixture.WeaponService.UpdateAsync(_fixture.Weapon);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void DeleteAsync_ValidWeapon_ReturnsTask()
         {
             // Act
-            var result = _fixture.MockWeaponService.DeleteAsync(_fixture.Weapon);
+            var result = _fixture.WeaponService.DeleteAsync(_fixture.Weapon);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void AddToCharacter_ValidData_ReturnsVoid()
         {
             // Act
-            var result = () => _fixture.MockWeaponService.AddToCharacter(_fixture.Character, _fixture.Weapon);
+            var result = () => _fixture.WeaponService.AddToCharacter(_fixture.Character, _fixture.Weapon);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void RemoveFromCharacter_ExistingWeapon_ReturnsVoid()
         {
             // Act
-            var result = () => _fixture.MockWeaponService.RemoveFromCharacter(_fixture.Character, _fixture.Weapon);
+            var result = () => _fixture.WeaponService.RemoveFromCharacter(_fixture.Character, _fixture.Weapon);
 
             // Assert
             result.Should().NotBeNull();
         }
 
-        [Fact]
+        [Test]
         public void RemoveFromCharacter_NonexistingWeapon_ThrowsItemNotFoundException()
         {
             // Act
-            var result = () => _fixture.MockWeaponService.RemoveFromCharacter(_fixture.Character, _fixture.Weapon);
+            var result = () => _fixture.WeaponService.RemoveFromCharacter(_fixture.Character, _fixture.Weapon);
 
             // Assert
             result.Should().Throw<ItemNotFoundException>();

@@ -1,13 +1,12 @@
 ﻿using Application.Services;
 using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.AutoNSubstitute;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.Extensions.Logging;
-using Moq;
 
 namespace Application.Tests.Fixtures
 {
@@ -15,14 +14,14 @@ namespace Application.Tests.Fixtures
     {
         public MountServiceFixture()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-            MockMountRepository = fixture.Freeze<Mock<IRepository<Mount>>>();
-            MockLogger = fixture.Freeze<Mock<ILogger<MountService>>>();
+            MountRepository = fixture.Freeze<IRepository<Mount>>();
+            Logger = fixture.Freeze<ILogger<MountService>>();
 
-            MockMountService = new MountService(
-                MockMountRepository.Object,
-                MockLogger.Object);
+            MountService = new MountService(
+                MountRepository,
+                Logger);
 
             Id = 1;
             Name = "StringPlaceholder";
@@ -32,9 +31,9 @@ namespace Application.Tests.Fixtures
             PaginatedList = GetPaginatedList();
     }
 
-        public IItemService<Mount> MockMountService { get; }
-        public Mock<IRepository<Mount>> MockMountRepository { get; }
-        public Mock<ILogger<MountService>> MockLogger { get; }
+        public IItemService<Mount> MountService { get; }
+        public IRepository<Mount> MountRepository { get; }
+        public ILogger<MountService> Logger { get; }
 
         public int Id { get; }
         public string? Name { get; }

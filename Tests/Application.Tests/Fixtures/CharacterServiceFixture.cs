@@ -1,13 +1,12 @@
 ﻿using Application.Services;
 using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.AutoNSubstitute;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.Extensions.Logging;
-using Moq;
 
 namespace Application.Tests.Fixtures
 {
@@ -15,14 +14,14 @@ namespace Application.Tests.Fixtures
     {
         public CharacterServiceFixture()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-            MockCharacterRepository = fixture.Freeze<Mock<IRepository<Character>>>();
-            MockLogger = fixture.Freeze<Mock<ILogger<CharacterService>>>();
+            CharacterRepository = fixture.Freeze<IRepository<Character>>();
+            Logger = fixture.Freeze<ILogger<CharacterService>>();
 
-            MockCharacterService = new CharacterService(
-                MockCharacterRepository.Object,
-                MockLogger.Object);
+            CharacterService = new CharacterService(
+                CharacterRepository,
+                Logger);
 
             Id = 1;
             Name = "StringPlaceholder";
@@ -31,9 +30,9 @@ namespace Application.Tests.Fixtures
             PaginatedList = GetPaginatedList();
         }
 
-        public ICharacterService MockCharacterService { get; }
-        public Mock<IRepository<Character>> MockCharacterRepository { get; set; }
-        public Mock<ILogger<CharacterService>> MockLogger { get; set; }
+        public ICharacterService CharacterService { get; }
+        public IRepository<Character> CharacterRepository { get; set; }
+        public ILogger<CharacterService> Logger { get; set; }
 
         public int Id { get; }
         public string? Name { get; }

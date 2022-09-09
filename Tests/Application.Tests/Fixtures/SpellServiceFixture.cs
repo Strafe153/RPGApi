@@ -1,13 +1,12 @@
 ﻿using Application.Services;
 using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.AutoNSubstitute;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.Extensions.Logging;
-using Moq;
 
 namespace Application.Tests.Fixtures
 {
@@ -15,14 +14,14 @@ namespace Application.Tests.Fixtures
     {
         public SpellServiceFixture()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-            MockSpellRepository = fixture.Freeze<Mock<IRepository<Spell>>>();
-            MockLogger = fixture.Freeze<Mock<ILogger<SpellService>>>();
+            SpellRepository = fixture.Freeze<IRepository<Spell>>();
+            Logger = fixture.Freeze<ILogger<SpellService>>();
 
-            MockSpellService = new SpellService(
-                MockSpellRepository.Object,
-                MockLogger.Object);
+            SpellService = new SpellService(
+                SpellRepository,
+                Logger);
 
             Id = 1;
             Name = "StringPlaceholder";
@@ -31,9 +30,9 @@ namespace Application.Tests.Fixtures
             PaginatedList = GetPaginatedList();
         }
 
-        public IItemService<Spell> MockSpellService { get; }
-        public Mock<IRepository<Spell>> MockSpellRepository { get; }
-        public Mock<ILogger<SpellService>> MockLogger { get; set; }
+        public IItemService<Spell> SpellService { get; }
+        public IRepository<Spell> SpellRepository { get; }
+        public ILogger<SpellService> Logger { get; set; }
 
         public int Id { get; }
         public string? Name { get; }

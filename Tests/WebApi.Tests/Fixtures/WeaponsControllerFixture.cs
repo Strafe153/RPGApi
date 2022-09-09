@@ -1,5 +1,5 @@
 ﻿using AutoFixture;
-using AutoFixture.AutoMoq;
+using AutoFixture.AutoNSubstitute;
 using Core.Dtos;
 using Core.Dtos.WeaponDtos;
 using Core.Entities;
@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
-using Moq;
+using NSubstitute;
 using System.Security.Claims;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
@@ -23,24 +23,24 @@ namespace WebApi.Tests.Fixtures
     {
         public WeaponsControllerFixture()
         {
-            var fixture = new Fixture().Customize(new AutoMoqCustomization());
+            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-            MockWeaponService = fixture.Freeze<Mock<IItemService<Weapon>>>();
-            MockCharacterService = fixture.Freeze<Mock<ICharacterService>>();
-            MockPlayerService = fixture.Freeze<Mock<IPlayerService>>();
-            MockPaginatedMapper = fixture.Freeze<Mock<IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>>>();
-            MockReadMapper = fixture.Freeze<Mock<IMapper<Weapon, WeaponReadDto>>>();
-            MockCreateMapper = fixture.Freeze<Mock<IMapper<WeaponBaseDto, Weapon>>>();
-            MockUpdateMapper = fixture.Freeze<Mock<IUpdateMapper<WeaponBaseDto, Weapon>>>();
+            WeaponService = fixture.Freeze<IItemService<Weapon>>();
+            CharacterService = fixture.Freeze<ICharacterService>();
+            PlayerService = fixture.Freeze<IPlayerService>();
+            PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>>();
+            ReadMapper = fixture.Freeze<IMapper<Weapon, WeaponReadDto>>();
+            CreateMapper = fixture.Freeze<IMapper<WeaponBaseDto, Weapon>>();
+            UpdateMapper = fixture.Freeze<IUpdateMapper<WeaponBaseDto, Weapon>>();
 
-            MockWeaponsController = new(
-                MockWeaponService.Object,
-                MockCharacterService.Object,
-                MockPlayerService.Object,
-                MockPaginatedMapper.Object,
-                MockReadMapper.Object,
-                MockCreateMapper.Object,
-                MockUpdateMapper.Object);
+            WeaponsController = new(
+                WeaponService,
+                CharacterService,
+                PlayerService,
+                PaginatedMapper,
+                ReadMapper,
+                CreateMapper,
+                UpdateMapper);
 
             Id = 1;
             Name = "Name";
@@ -55,14 +55,14 @@ namespace WebApi.Tests.Fixtures
             PatchDocument = GetPatchDocument();
         }
 
-        public WeaponsController MockWeaponsController { get; }
-        public Mock<IItemService<Weapon>> MockWeaponService { get; }
-        public Mock<ICharacterService> MockCharacterService { get; }
-        public Mock<IPlayerService> MockPlayerService { get; }
-        public Mock<IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>> MockPaginatedMapper { get; }
-        public Mock<IMapper<Weapon, WeaponReadDto>> MockReadMapper { get; }
-        public Mock<IMapper<WeaponBaseDto, Weapon>> MockCreateMapper { get; }
-        public Mock<IUpdateMapper<WeaponBaseDto, Weapon>> MockUpdateMapper { get; }
+        public WeaponsController WeaponsController { get; }
+        public IItemService<Weapon> WeaponService { get; }
+        public ICharacterService CharacterService { get; }
+        public IPlayerService PlayerService { get; }
+        public IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> PaginatedMapper { get; }
+        public IMapper<Weapon, WeaponReadDto> ReadMapper { get; }
+        public IMapper<WeaponBaseDto, Weapon> CreateMapper { get; }
+        public IUpdateMapper<WeaponBaseDto, Weapon> UpdateMapper { get; }
 
         public int Id { get; }
         public string? Name { get; }
@@ -80,8 +80,8 @@ namespace WebApi.Tests.Fixtures
         {
             var user = new ClaimsPrincipal(new ClaimsIdentity());
 
-            MockWeaponsController.ControllerContext = new ControllerContext();
-            MockWeaponsController.ControllerContext.HttpContext = new DefaultHttpContext()
+            WeaponsController.ControllerContext = new ControllerContext();
+            WeaponsController.ControllerContext.HttpContext = new DefaultHttpContext()
             {
                 User = user
             };
@@ -89,24 +89,31 @@ namespace WebApi.Tests.Fixtures
 
         public void MockObjectModelValidator(ControllerBase controller)
         {
-            var objectValidator = new Mock<IObjectModelValidator>();
+            var objectValidator = Substitute.For<IObjectModelValidator>();
 
-            objectValidator.Setup(o => o.Validate(
-                It.IsAny<ActionContext>(),
-                It.IsAny<ValidationStateDictionary>(),
-                It.IsAny<string>(),
-                It.IsAny<object>()));
+            objectValidator.Validate(
+                Arg.Any<ActionContext>(),
+                Arg.Any<ValidationStateDictionary>(),
+                Arg.Any<string>(),
+                Arg.Any<object>());
 
-            controller.ObjectValidator = objectValidator.Object;
+            controller.ObjectValidator = objectValidator;
         }
 
-        public void MockModelError(ControllerBase controller)
+        public ControllerContext MockControllerContext()
         {
             var context = new ControllerContext(
                 new ActionContext(
                     new DefaultHttpContext() { TraceIdentifier = "trace" },
                     new RouteData(),
                     new ControllerActionDescriptor()));
+
+            return context;
+        }
+
+        public void MockModelError(ControllerBase controller)
+        {
+            var context = MockControllerContext();
 
             context.ModelState.AddModelError("key", "error");
             controller.ControllerContext = context;
