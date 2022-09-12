@@ -20,7 +20,7 @@
 
 ## How To Use?
 1. Register as a new player
-2. Log in
+2. Log In
 3. Create a character
 4. Try things out
 
