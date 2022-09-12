@@ -2,13 +2,13 @@
 
 ### The api is the implementation of a typical RPG game with player accounts, characters, items such as weapons, spells and mounts.
 
-## What can it do?
+## What Can It Do?
 * Authentication and authorization
 * Players management
 * Characters administration
 * Weapons manipulation
-* Spells operations
-* Work with mounts
+* Work with spells 
+* Mounts creation, editing and deletion
 
 ## Dependencies
 * `FluentValidation` for DTO validation
