@@ -1,4 +1,4 @@
-# RPG Api
+# RPGApi
 The api is the implementation of a typical RPG game. Data operations are performed via Dtos and custom mapping. JWT-token authorization is present. Data operations are documented by NLog.
 
 * Authentication and authorization
