@@ -18,7 +18,8 @@ The api is the implementation of a typical RPG game. Data operations are perform
 * `AutoFixture` for test fixtures
 * `FluentAssertions` for assertions
 
-## Ednpoints
+## Endpoints
+# Players
 * `GET api/players`
 * `GET api/players/{id}`
 * `POST api/players/register`
@@ -28,6 +29,7 @@ The api is the implementation of a typical RPG game. Data operations are perform
 * `PUT api/players/{id}/changeRole`
 * `DELETE api/players/{id}`
 
+# Characters
 * `GET api/characters`
 * `GET api/characters/{id}`
 * `POST api/characters`
@@ -41,6 +43,7 @@ The api is the implementation of a typical RPG game. Data operations are perform
 * `PATCH api/characters/{id}`
 * `DELETE api/characters/{id}`
 
+# Weapons
 * `GET api/weapons`
 * `GET api/weapons/{id}`
 * `POST api/weapons`
@@ -49,6 +52,7 @@ The api is the implementation of a typical RPG game. Data operations are perform
 * `PATCH api/weapons/{id}`
 * `DELETE api/weapons/{id}`
 
+# Spells
 * `GET api/spells`
 * `GET api/spells/{id}`
 * `POST api/spells`
@@ -57,6 +61,7 @@ The api is the implementation of a typical RPG game. Data operations are perform
 * `PATCH api/spells/{id}`
 * `DELETE api/spells/{id}`
 
+# Mounts
 * `GET api/mounts`
 * `GET api/mounts/{id}`
 * `POST api/mounts`
