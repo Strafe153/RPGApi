@@ -70,7 +70,8 @@ The api is the implementation of a typical RPG game. Data operations are perform
 * `DELETE api/mounts/{id}`
 
 ## How To Use?
-1. Create new account
+1. Register as a new player
 2. Log in
+3. Create a character
 
 **NOTE!** To see advanced features, log in with "admin" as username and "qwerty" as password.
