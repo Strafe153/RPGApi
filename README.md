@@ -69,7 +69,7 @@ The api is the implementation of a typical RPG game. Data operations are perform
 * `PATCH api/mounts/{id}`
 * `DELETE api/mounts/{id}`
 
-### How To Use?
+## How To Use?
 1. Create new account
 2. Log in
 
