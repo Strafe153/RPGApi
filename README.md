@@ -1,6 +1,6 @@
 # RPGApi
 
-### The api is the implementation of a typical RPG game with player accounts, characters, items such as weapons, spells and mounts.
+### The API is the implementation of a typical RPG game with player accounts, characters, items such as weapons, spells and mounts.
 
 ## What Can It Do?
 * Authentication and authorization
