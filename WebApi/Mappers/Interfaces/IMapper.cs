@@ -1,7 +1,6 @@
-﻿namespace WebApi.Mappers.Interfaces
+﻿namespace WebApi.Mappers.Interfaces;
+
+public interface IMapper<TSource, TDestination>
 {
-    public interface IMapper<TSource, TDestination>
-    {
-        TDestination Map(TSource source);
-    }
+    TDestination Map(TSource source);
 }

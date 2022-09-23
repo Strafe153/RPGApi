@@ -8,93 +8,92 @@ using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.Extensions.Logging;
 
-namespace Application.Tests.Fixtures
+namespace Application.Tests.Fixtures;
+
+public class SpellServiceFixture
 {
-    public class SpellServiceFixture
+    public SpellServiceFixture()
     {
-        public SpellServiceFixture()
+        var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+
+        SpellRepository = fixture.Freeze<IRepository<Spell>>();
+        Logger = fixture.Freeze<ILogger<SpellService>>();
+
+        SpellService = new SpellService(
+            SpellRepository,
+            Logger);
+
+        Id = 1;
+        Name = "StringPlaceholder";
+        Spell = GetSpell(Id);
+        Character = GetCharacter();
+        PaginatedList = GetPaginatedList();
+    }
+
+    public IItemService<Spell> SpellService { get; }
+    public IRepository<Spell> SpellRepository { get; }
+    public ILogger<SpellService> Logger { get; set; }
+
+    public int Id { get; }
+    public string? Name { get; }
+    public Spell Spell { get; }
+    public Character Character { get; }
+    public PaginatedList<Spell> PaginatedList { get; }
+
+    private Character GetCharacter()
+    {
+        return new Character()
         {
-            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+            Id = Id,
+            Name = Name,
+            Race = CharacterRace.Human,
+            Health = 100,
+            CharacterSpells = GetCharacterSpells()
+        };
+    }
 
-            SpellRepository = fixture.Freeze<IRepository<Spell>>();
-            Logger = fixture.Freeze<ILogger<SpellService>>();
-
-            SpellService = new SpellService(
-                SpellRepository,
-                Logger);
-
-            Id = 1;
-            Name = "StringPlaceholder";
-            Spell = GetSpell(Id);
-            Character = GetCharacter();
-            PaginatedList = GetPaginatedList();
-        }
-
-        public IItemService<Spell> SpellService { get; }
-        public IRepository<Spell> SpellRepository { get; }
-        public ILogger<SpellService> Logger { get; set; }
-
-        public int Id { get; }
-        public string? Name { get; }
-        public Spell Spell { get; }
-        public Character Character { get; }
-        public PaginatedList<Spell> PaginatedList { get; }
-
-        private Character GetCharacter()
+    private CharacterSpell GetCharacterSpell(int characterId, int spellId)
+    {
+        return new CharacterSpell()
         {
-            return new Character()
-            {
-                Id = Id,
-                Name = Name,
-                Race = CharacterRace.Human,
-                Health = 100,
-                CharacterSpells = GetCharacterSpells()
-            };
-        }
+            CharacterId = characterId,
+            Character = Character,
+            SpellId = spellId,
+            Spell = GetSpell(spellId)
+        };
+    }
 
-        private CharacterSpell GetCharacterSpell(int characterId, int spellId)
+    private ICollection<CharacterSpell> GetCharacterSpells()
+    {
+        return new List<CharacterSpell>()
         {
-            return new CharacterSpell()
-            {
-                CharacterId = characterId,
-                Character = Character,
-                SpellId = spellId,
-                Spell = GetSpell(spellId)
-            };
-        }
+            GetCharacterSpell(Id, 2),
+            GetCharacterSpell(Id, 3)
+        };
+    }
 
-        private ICollection<CharacterSpell> GetCharacterSpells()
+    private Spell GetSpell(int id)
+    {
+        return new Spell()
         {
-            return new List<CharacterSpell>()
-            {
-                GetCharacterSpell(Id, 2),
-                GetCharacterSpell(Id, 3)
-            };
-        }
+            Id = id,
+            Name = Name,
+            Damage = 5,
+            Type = SpellType.Fire
+        };
+    }
 
-        private Spell GetSpell(int id)
+    private List<Spell> GetSpells()
+    {
+        return new List<Spell>()
         {
-            return new Spell()
-            {
-                Id = id,
-                Name = Name,
-                Damage = 5,
-                Type = SpellType.Fire
-            };
-        }
+            Spell,
+            Spell
+        };
+    }
 
-        private List<Spell> GetSpells()
-        {
-            return new List<Spell>()
-            {
-                Spell,
-                Spell
-            };
-        }
-
-        private PaginatedList<Spell> GetPaginatedList()
-        {
-            return new PaginatedList<Spell>(GetSpells(), 6, 1, 5);
-        }
+    private PaginatedList<Spell> GetPaginatedList()
+    {
+        return new PaginatedList<Spell>(GetSpells(), 6, 1, 5);
     }
 }

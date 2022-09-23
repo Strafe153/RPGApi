@@ -1,8 +1,7 @@
-﻿namespace WebApi.Mappers.Interfaces
+﻿namespace WebApi.Mappers.Interfaces;
+
+public interface IUpdateMapper<TFirst, TSecond>
 {
-    public interface IUpdateMapper<TFirst, TSecond>
-    {
-        void Map(TFirst first, TSecond second);
-        TFirst Map(TSecond second);
-    }
+    void Map(TFirst first, TSecond second);
+    TFirst Map(TSecond second);
 }

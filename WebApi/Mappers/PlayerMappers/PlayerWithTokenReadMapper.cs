@@ -2,18 +2,17 @@
 using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Mappers.PlayerMappers
+namespace WebApi.Mappers.PlayerMappers;
+
+public class PlayerWithTokenReadMapper : IMapper<Player, PlayerWithTokenReadDto>
 {
-    public class PlayerWithTokenReadMapper : IMapper<Player, PlayerWithTokenReadDto>
+    public PlayerWithTokenReadDto Map(Player source)
     {
-        public PlayerWithTokenReadDto Map(Player source)
+        return new PlayerWithTokenReadDto()
         {
-            return new PlayerWithTokenReadDto()
-            {
-                Id = source.Id,
-                Name = source.Name,
-                Role = source.Role
-            };
-        }
+            Id = source.Id,
+            Name = source.Name,
+            Role = source.Role
+        };
     }
 }

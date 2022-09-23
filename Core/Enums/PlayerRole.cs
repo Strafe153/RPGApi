@@ -1,8 +1,7 @@
-﻿namespace Core.Enums
+﻿namespace Core.Enums;
+
+public enum PlayerRole
 {
-    public enum PlayerRole
-    {
-        Admin,
-        Player
-    }
+    Admin,
+    Player
 }

@@ -1,7 +1,6 @@
-﻿namespace Core.Dtos.PlayerDtos
+﻿namespace Core.Dtos.PlayerDtos;
+
+public record PlayerAuthorizeDto : PlayerBaseDto
 {
-    public record PlayerAuthorizeDto : PlayerBaseDto
-    {
-        public string? Password { get; init; }
-    }
+    public string? Password { get; init; }
 }

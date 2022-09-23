@@ -8,125 +8,124 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Controllers
+namespace WebApi.Controllers;
+
+[Route("api/weapons")]
+[ApiController]
+[Authorize]
+public class WeaponsController : ControllerBase
 {
-    [Route("api/weapons")]
-    [ApiController]
-    [Authorize]
-    public class WeaponsController : ControllerBase
+    private readonly IItemService<Weapon> _weaponService;
+    private readonly ICharacterService _characterService;
+    private readonly IPlayerService _playerService;
+    private readonly IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> _paginatedMapper;
+    private readonly IMapper<Weapon, WeaponReadDto> _readMapper;
+    private readonly IMapper<WeaponBaseDto, Weapon> _createMapper;
+    private readonly IUpdateMapper<WeaponBaseDto, Weapon> _updateMapper;
+
+    public WeaponsController(
+        IItemService<Weapon> weaponService,
+        ICharacterService characterService,
+        IPlayerService playerService,
+        IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> paginatedMapper,
+        IMapper<Weapon, WeaponReadDto> readMapper,
+        IMapper<WeaponBaseDto, Weapon> createMapper,
+        IUpdateMapper<WeaponBaseDto, Weapon> updateMapper)
     {
-        private readonly IItemService<Weapon> _weaponService;
-        private readonly ICharacterService _characterService;
-        private readonly IPlayerService _playerService;
-        private readonly IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> _paginatedMapper;
-        private readonly IMapper<Weapon, WeaponReadDto> _readMapper;
-        private readonly IMapper<WeaponBaseDto, Weapon> _createMapper;
-        private readonly IUpdateMapper<WeaponBaseDto, Weapon> _updateMapper;
+        _weaponService = weaponService;
+        _characterService = characterService;
+        _playerService = playerService;
+        _paginatedMapper = paginatedMapper;
+        _readMapper = readMapper;
+        _createMapper = createMapper;
+        _updateMapper = updateMapper;
+    }
 
-        public WeaponsController(
-            IItemService<Weapon> weaponService,
-            ICharacterService characterService,
-            IPlayerService playerService,
-            IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> paginatedMapper,
-            IMapper<Weapon, WeaponReadDto> readMapper,
-            IMapper<WeaponBaseDto, Weapon> createMapper,
-            IUpdateMapper<WeaponBaseDto, Weapon> updateMapper)
+    [HttpGet]
+    public async Task<ActionResult<PageDto<WeaponReadDto>>> GetAsync([FromQuery] PageParameters pageParams)
+    {
+        var weapons = await _weaponService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
+        var pageDto = _paginatedMapper.Map(weapons);
+
+        return Ok(pageDto);
+    }
+
+    [HttpGet("{id:int:min(1)}")]
+    public async Task<ActionResult<WeaponReadDto>> GetAsync([FromRoute] int id)
+    {
+        var weapon = await _weaponService.GetByIdAsync(id);
+        var readDto = _readMapper.Map(weapon);
+
+        return Ok(readDto);
+    }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<WeaponReadDto>> CreateAsync([FromBody] WeaponBaseDto createDto)
+    {
+        var weapon = _createMapper.Map(createDto);
+        await _weaponService.AddAsync(weapon);
+
+        var readDto = _readMapper.Map(weapon);
+
+        return CreatedAtAction(nameof(GetAsync), new { Id = readDto.Id }, readDto);
+    }
+
+    [HttpPut("{id:int:min(1)}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] WeaponBaseDto updateDto)
+    {
+        var weapon = await _weaponService.GetByIdAsync(id);
+
+        _updateMapper.Map(updateDto, weapon);
+        await _weaponService.UpdateAsync(weapon);
+
+        return NoContent();
+    }
+
+    [HttpPatch("{id:int:min(1)}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> UpdateAsync(
+        [FromRoute] int id,
+        [FromBody] JsonPatchDocument<WeaponBaseDto> patchDocument)
+    {
+        var weapon = await _weaponService.GetByIdAsync(id);
+        var updateDto = _updateMapper.Map(weapon);
+
+        patchDocument.ApplyTo(updateDto, ModelState);
+
+        if (!TryValidateModel(updateDto))
         {
-            _weaponService = weaponService;
-            _characterService = characterService;
-            _playerService = playerService;
-            _paginatedMapper = paginatedMapper;
-            _readMapper = readMapper;
-            _createMapper = createMapper;
-            _updateMapper = updateMapper;
+            return ValidationProblem(ModelState);
         }
 
-        [HttpGet]
-        public async Task<ActionResult<PageDto<WeaponReadDto>>> GetAsync([FromQuery] PageParameters pageParams)
-        {
-            var weapons = await _weaponService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
-            var pageDto = _paginatedMapper.Map(weapons);
+        _updateMapper.Map(updateDto, weapon);
+        await _weaponService.UpdateAsync(weapon);
 
-            return Ok(pageDto);
-        }
+        return NoContent();
+    }
 
-        [HttpGet("{id:int:min(1)}")]
-        public async Task<ActionResult<WeaponReadDto>> GetAsync([FromRoute] int id)
-        {
-            var weapon = await _weaponService.GetByIdAsync(id);
-            var readDto = _readMapper.Map(weapon);
+    [HttpDelete("{id:int:min(1)}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult> DeleteAsync([FromRoute] int id)
+    {
+        var weapon = await _weaponService.GetByIdAsync(id);
+        await _weaponService.DeleteAsync(weapon);
 
-            return Ok(readDto);
-        }
+        return NoContent();
+    }
 
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<WeaponReadDto>> CreateAsync([FromBody] WeaponBaseDto createDto)
-        {
-            var weapon = _createMapper.Map(createDto);
-            await _weaponService.AddAsync(weapon);
+    [HttpPut("hit")]
+    public async Task<ActionResult> HitAsync([FromBody] HitDto hitDto)
+    {
+        var dealer = await _characterService.GetByIdAsync(hitDto.DealerId);
+        var weapon = _characterService.GetWeapon(dealer, hitDto.ItemId);
+        var receiver = await _characterService.GetByIdAsync(hitDto.ReceiverId);
 
-            var readDto = _readMapper.Map(weapon);
+        _playerService.VerifyPlayerAccessRights(dealer.Player!, User.Identity!, User.Claims!);
+        _characterService.CalculateHealth(receiver, weapon.Damage);
+        await _characterService.UpdateAsync(receiver);
 
-            return CreatedAtAction(nameof(GetAsync), new { Id = readDto.Id }, readDto);
-        }
-
-        [HttpPut("{id:int:min(1)}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] WeaponBaseDto updateDto)
-        {
-            var weapon = await _weaponService.GetByIdAsync(id);
-
-            _updateMapper.Map(updateDto, weapon);
-            await _weaponService.UpdateAsync(weapon);
-
-            return NoContent();
-        }
-
-        [HttpPatch("{id:int:min(1)}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> UpdateAsync(
-            [FromRoute] int id,
-            [FromBody] JsonPatchDocument<WeaponBaseDto> patchDocument)
-        {
-            var weapon = await _weaponService.GetByIdAsync(id);
-            var updateDto = _updateMapper.Map(weapon);
-
-            patchDocument.ApplyTo(updateDto, ModelState);
-
-            if (!TryValidateModel(updateDto))
-            {
-                return ValidationProblem(ModelState);
-            }
-
-            _updateMapper.Map(updateDto, weapon);
-            await _weaponService.UpdateAsync(weapon);
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id:int:min(1)}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> DeleteAsync([FromRoute] int id)
-        {
-            var weapon = await _weaponService.GetByIdAsync(id);
-            await _weaponService.DeleteAsync(weapon);
-
-            return NoContent();
-        }
-
-        [HttpPut("hit")]
-        public async Task<ActionResult> HitAsync([FromBody] HitDto hitDto)
-        {
-            var dealer = await _characterService.GetByIdAsync(hitDto.DealerId);
-            var weapon = _characterService.GetWeapon(dealer, hitDto.ItemId);
-            var receiver = await _characterService.GetByIdAsync(hitDto.ReceiverId);
-
-            _playerService.VerifyPlayerAccessRights(dealer.Player!, User.Identity!, User.Claims!);
-            _characterService.CalculateHealth(receiver, weapon.Damage);
-            await _characterService.UpdateAsync(receiver);
-
-            return NoContent();
-        }
+        return NoContent();
     }
 }

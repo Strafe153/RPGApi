@@ -1,7 +1,6 @@
-﻿namespace Core.Dtos.CharacterDtos
+﻿namespace Core.Dtos.CharacterDtos;
+
+public record CharacterCreateDto : CharacterBaseDto
 {
-    public record CharacterCreateDto : CharacterBaseDto
-    {
-        public int PlayerId { get; init; }
-    }
+    public int PlayerId { get; init; }
 }

@@ -8,178 +8,177 @@ using NSubstitute;
 using NUnit.Framework;
 using WebApi.Tests.Fixtures;
 
-namespace WebApi.Tests
+namespace WebApi.Tests;
+
+[TestFixture]
+public class SpellsControllerTests
 {
-    [TestFixture]
-    public class SpellsControllerTests
+    private SpellsControllerFixture _fixture = default!;
+
+    [OneTimeSetUp]
+    public void SetUp()
     {
-        private SpellsControllerFixture _fixture = default!;
+        _fixture = new SpellsControllerFixture();
 
-        [OneTimeSetUp]
-        public void SetUp()
-        {
-            _fixture = new SpellsControllerFixture();
+        _fixture.MockControllerBaseUser();
+        _fixture.MockObjectModelValidator(_fixture.SpellsController);
+    }
 
-            _fixture.MockControllerBaseUser();
-            _fixture.MockObjectModelValidator(_fixture.SpellsController);
-        }
+    [TearDown]
+    public void TearDown()
+    {
+        _fixture.SpellsController.ControllerContext = _fixture.MockControllerContext();
+    }
 
-        [TearDown]
-        public void TearDown()
-        {
-            _fixture.SpellsController.ControllerContext = _fixture.MockControllerContext();
-        }
+    [Test]
+    public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageDtoOfSpellReadDto()
+    {
+        // Arrange
+        _fixture.SpellService
+            .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
+            .Returns(_fixture.PaginatedList);
 
-        [Test]
-        public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageDtoOfSpellReadDto()
-        {
-            // Arrange
-            _fixture.SpellService
-                .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
-                .Returns(_fixture.PaginatedList);
+        _fixture.PaginatedMapper
+            .Map(Arg.Any<PaginatedList<Spell>>())
+            .Returns(_fixture.PageDto);
 
-            _fixture.PaginatedMapper
-                .Map(Arg.Any<PaginatedList<Spell>>())
-                .Returns(_fixture.PageDto);
+        // Act
+        var result = await _fixture.SpellsController.GetAsync(_fixture.PageParameters);
+        var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<SpellReadDto>>();
 
-            // Act
-            var result = await _fixture.SpellsController.GetAsync(_fixture.PageParameters);
-            var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<SpellReadDto>>();
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<SpellReadDto>>>();
+        pageDto.Entities.Should().NotBeEmpty();
+    }
 
-            // Assert
-            result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<SpellReadDto>>>();
-            pageDto.Entities.Should().NotBeEmpty();
-        }
+    [Test]
+    public async Task GetAsync_ExistingSpell_ReturnsActionResultOfSpellReadDto()
+    {
+        // Arrange
+        _fixture.SpellService
+            .GetByIdAsync(Arg.Any<int>())
+            .Returns(_fixture.Spell);
 
-        [Test]
-        public async Task GetAsync_ExistingSpell_ReturnsActionResultOfSpellReadDto()
-        {
-            // Arrange
-            _fixture.SpellService
-                .GetByIdAsync(Arg.Any<int>())
-                .Returns(_fixture.Spell);
+        _fixture.ReadMapper
+            .Map(Arg.Any<Spell>())
+            .Returns(_fixture.SpellReadDto);
 
-            _fixture.ReadMapper
-                .Map(Arg.Any<Spell>())
-                .Returns(_fixture.SpellReadDto);
+        // Act
+        var result = await _fixture.SpellsController.GetAsync(_fixture.Id);
+        var readDto = result.Result.As<OkObjectResult>().Value.As<SpellReadDto>();
 
-            // Act
-            var result = await _fixture.SpellsController.GetAsync(_fixture.Id);
-            var readDto = result.Result.As<OkObjectResult>().Value.As<SpellReadDto>();
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
+        readDto.Should().NotBeNull();
+    }
 
-            // Assert
-            result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
-            readDto.Should().NotBeNull();
-        }
+    [Test]
+    public async Task CreateAsync_ValidDto_ReturnsActionResultOfSpellReadDto()
+    {
+        // Arrange
+        _fixture.CreateMapper
+            .Map(Arg.Any<SpellBaseDto>())
+            .Returns(_fixture.Spell);
 
-        [Test]
-        public async Task CreateAsync_ValidDto_ReturnsActionResultOfSpellReadDto()
-        {
-            // Arrange
-            _fixture.CreateMapper
-                .Map(Arg.Any<SpellBaseDto>())
-                .Returns(_fixture.Spell);
+        _fixture.ReadMapper
+            .Map(Arg.Any<Spell>())
+            .Returns(_fixture.SpellReadDto);
 
-            _fixture.ReadMapper
-                .Map(Arg.Any<Spell>())
-                .Returns(_fixture.SpellReadDto);
+        // Act
+        var result = await _fixture.SpellsController.CreateAsync(_fixture.SpellBaseDto);
+        var readDto = result.Result.As<CreatedAtActionResult>().Value.As<SpellReadDto>();
 
-            // Act
-            var result = await _fixture.SpellsController.CreateAsync(_fixture.SpellBaseDto);
-            var readDto = result.Result.As<CreatedAtActionResult>().Value.As<SpellReadDto>();
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
+        readDto.Should().NotBeNull();
+    }
 
-            // Assert
-            result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
-            readDto.Should().NotBeNull();
-        }
+    [Test]
+    public async Task UpdateAsync_ExistingSpellValidDto_ReturnsNoContentResult()
+    {
+        // Arrange
+        _fixture.SpellService
+            .GetByIdAsync(Arg.Any<int>())
+            .Returns(_fixture.Spell);
 
-        [Test]
-        public async Task UpdateAsync_ExistingSpellValidDto_ReturnsNoContentResult()
-        {
-            // Arrange
-            _fixture.SpellService
-                .GetByIdAsync(Arg.Any<int>())
-                .Returns(_fixture.Spell);
+        // Act
+        var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.SpellBaseDto);
 
-            // Act
-            var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.SpellBaseDto);
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+    }
 
-            // Assert
-            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        }
+    [Test]
+    public async Task UpdateAsync_ExistingSpellValidPatchDocument_ReturnsNoContentResult()
+    {
+        // Arrange
+        _fixture.SpellService
+            .GetByIdAsync(Arg.Any<int>())
+            .Returns(_fixture.Spell);
 
-        [Test]
-        public async Task UpdateAsync_ExistingSpellValidPatchDocument_ReturnsNoContentResult()
-        {
-            // Arrange
-            _fixture.SpellService
-                .GetByIdAsync(Arg.Any<int>())
-                .Returns(_fixture.Spell);
+        _fixture.UpdateMapper
+            .Map(Arg.Any<Spell>())
+            .Returns(_fixture.SpellBaseDto);
 
-            _fixture.UpdateMapper
-                .Map(Arg.Any<Spell>())
-                .Returns(_fixture.SpellBaseDto);
+        // Act
+        var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
-            // Act
-            var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+    }
 
-            // Assert
-            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        }
+    [Test]
+    public async Task UpdateAsync_ExistingSpellInvalidPatchDocument_ReturnsObjectResult()
+    {
+        // Arrange
+        _fixture.SpellService
+            .GetByIdAsync(Arg.Any<int>())
+            .Returns(_fixture.Spell);
 
-        [Test]
-        public async Task UpdateAsync_ExistingSpellInvalidPatchDocument_ReturnsObjectResult()
-        {
-            // Arrange
-            _fixture.SpellService
-                .GetByIdAsync(Arg.Any<int>())
-                .Returns(_fixture.Spell);
+        _fixture.UpdateMapper
+            .Map(Arg.Any<Spell>())
+            .Returns(_fixture.SpellBaseDto);
 
-            _fixture.UpdateMapper
-                .Map(Arg.Any<Spell>())
-                .Returns(_fixture.SpellBaseDto);
+        _fixture.MockModelError(_fixture.SpellsController);
 
-            _fixture.MockModelError(_fixture.SpellsController);
+        // Act
+        var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
 
-            // Act
-            var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<ObjectResult>();
+    }
 
-            // Assert
-            result.Should().NotBeNull().And.BeOfType<ObjectResult>();
-        }
+    [Test]
+    public async Task DeleteAsync_ExistingSpell_ReturnsNoContentResult()
+    {
+        // Arrange
+        _fixture.SpellService
+            .GetByIdAsync(Arg.Any<int>())
+            .Returns(_fixture.Spell);
 
-        [Test]
-        public async Task DeleteAsync_ExistingSpell_ReturnsNoContentResult()
-        {
-            // Arrange
-            _fixture.SpellService
-                .GetByIdAsync(Arg.Any<int>())
-                .Returns(_fixture.Spell);
+        // Act
+        var result = await _fixture.SpellsController.DeleteAsync(_fixture.Id);
 
-            // Act
-            var result = await _fixture.SpellsController.DeleteAsync(_fixture.Id);
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+    }
 
-            // Assert
-            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        }
+    [Test]
+    public async Task HitAsync_ValidDto_ReturnsNoContentResult()
+    {
+        // Arrange
+        _fixture.CharacterService
+            .GetByIdAsync(Arg.Any<int>())
+            .Returns(_fixture.Character);
 
-        [Test]
-        public async Task HitAsync_ValidDto_ReturnsNoContentResult()
-        {
-            // Arrange
-            _fixture.CharacterService
-                .GetByIdAsync(Arg.Any<int>())
-                .Returns(_fixture.Character);
+        _fixture.CharacterService
+            .GetSpell(Arg.Any<Character>(), Arg.Any<int>())
+            .Returns(_fixture.Spell);
 
-            _fixture.CharacterService
-                .GetSpell(Arg.Any<Character>(), Arg.Any<int>())
-                .Returns(_fixture.Spell);
+        // Act
+        var result = await _fixture.SpellsController.HitAsync(_fixture.HitDto);
 
-            // Act
-            var result = await _fixture.SpellsController.HitAsync(_fixture.HitDto);
-
-            // Assert
-            result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        }
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
     }
 }

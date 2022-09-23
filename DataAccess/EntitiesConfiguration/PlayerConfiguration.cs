@@ -3,27 +3,26 @@ using Core.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DataAccess.EntitiesConfiguration
+namespace DataAccess.EntitiesConfiguration;
+
+public class PlayerConfiguration : IEntityTypeConfiguration<Player>
 {
-    public class PlayerConfiguration : IEntityTypeConfiguration<Player>
+    public void Configure(EntityTypeBuilder<Player> builder)
     {
-        public void Configure(EntityTypeBuilder<Player> builder)
-        {
-            builder
-                .HasKey(p => p.Id);
+        builder
+            .HasKey(p => p.Id);
 
-            builder
-                .HasIndex(p => p.Name)
-                .IsUnique();
+        builder
+            .HasIndex(p => p.Name)
+            .IsUnique();
 
-            builder
-                .Property(p => p.Name)
-                .HasMaxLength(30)
-                .IsRequired();
+        builder
+            .Property(p => p.Name)
+            .HasMaxLength(30)
+            .IsRequired();
 
-            builder
-                .Property(p => p.Role)
-                .HasDefaultValue(PlayerRole.Player);
-        }
+        builder
+            .Property(p => p.Role)
+            .HasDefaultValue(PlayerRole.Player);
     }
 }

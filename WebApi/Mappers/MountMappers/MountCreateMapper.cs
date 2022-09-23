@@ -2,18 +2,17 @@
 using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Mappers.MountMappers
+namespace WebApi.Mappers.MountMappers;
+
+public class MountCreateMapper : IMapper<MountBaseDto, Mount>
 {
-    public class MountCreateMapper : IMapper<MountBaseDto, Mount>
+    public Mount Map(MountBaseDto source)
     {
-        public Mount Map(MountBaseDto source)
+        return new Mount()
         {
-            return new Mount()
-            {
-                Name = source.Name,
-                Type = source.Type,
-                Speed = source.Speed
-            };
-        }
+            Name = source.Name,
+            Type = source.Type,
+            Speed = source.Speed
+        };
     }
 }

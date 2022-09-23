@@ -17,211 +17,210 @@ using System.Security.Claims;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Tests.Fixtures
+namespace WebApi.Tests.Fixtures;
+
+public class SpellsControllerFixture
 {
-    public class SpellsControllerFixture
+    public SpellsControllerFixture()
     {
-        public SpellsControllerFixture()
+        var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+
+        SpellService = fixture.Freeze<IItemService<Spell>>();
+        CharacterService = fixture.Freeze<ICharacterService>();
+        PlayerService = fixture.Freeze<IPlayerService>();
+        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>>>();
+        ReadMapper = fixture.Freeze<IMapper<Spell, SpellReadDto>>();
+        CreateMapper = fixture.Freeze<IMapper<SpellBaseDto, Spell>>();
+        UpdateMapper = fixture.Freeze<IUpdateMapper<SpellBaseDto, Spell>>();
+
+        SpellsController = new(
+            SpellService,
+            CharacterService,
+            PlayerService,
+            PaginatedMapper,
+            ReadMapper,
+            CreateMapper,
+            UpdateMapper);
+
+        Id = 1;
+        Name = "Name";
+        Character = GetCharacter();
+        Spell = GetSpell();
+        SpellReadDto = GetSpellReadDto();
+        SpellBaseDto = GetSpellBaseViewModel();
+        HitDto = GetHitDto();
+        PageParameters = GetPageParameters();
+        PaginatedList = GetPaginatedList();
+        PageDto = GetPageDto();
+        PatchDocument = GetPatchDocument();
+    }
+
+    public SpellsController SpellsController { get; }
+    public IItemService<Spell> SpellService { get; }
+    public ICharacterService CharacterService { get; }
+    public IPlayerService PlayerService { get; }
+    public IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>> PaginatedMapper { get; }
+    public IMapper<Spell, SpellReadDto> ReadMapper { get; }
+    public IMapper<SpellBaseDto, Spell> CreateMapper { get; }
+    public IUpdateMapper<SpellBaseDto, Spell> UpdateMapper { get; }
+
+    public int Id { get; }
+    public string? Name { get; }
+    public Character Character { get; }
+    public Spell Spell { get; }
+    public SpellReadDto SpellReadDto { get; }
+    public SpellBaseDto SpellBaseDto { get; }
+    public HitDto HitDto { get; }
+    public PageParameters PageParameters { get; }
+    public PaginatedList<Spell> PaginatedList { get; }
+    public PageDto<SpellReadDto> PageDto { get; }
+    public JsonPatchDocument<SpellBaseDto> PatchDocument { get; }
+
+    public void MockControllerBaseUser()
+    {
+        var user = new ClaimsPrincipal(new ClaimsIdentity());
+
+        SpellsController.ControllerContext = new ControllerContext();
+        SpellsController.ControllerContext.HttpContext = new DefaultHttpContext()
         {
-            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+            User = user
+        };
+    }
 
-            SpellService = fixture.Freeze<IItemService<Spell>>();
-            CharacterService = fixture.Freeze<ICharacterService>();
-            PlayerService = fixture.Freeze<IPlayerService>();
-            PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>>>();
-            ReadMapper = fixture.Freeze<IMapper<Spell, SpellReadDto>>();
-            CreateMapper = fixture.Freeze<IMapper<SpellBaseDto, Spell>>();
-            UpdateMapper = fixture.Freeze<IUpdateMapper<SpellBaseDto, Spell>>();
+    public void MockObjectModelValidator(ControllerBase controller)
+    {
+        var objectValidator = Substitute.For<IObjectModelValidator>();
 
-            SpellsController = new(
-                SpellService,
-                CharacterService,
-                PlayerService,
-                PaginatedMapper,
-                ReadMapper,
-                CreateMapper,
-                UpdateMapper);
+        objectValidator.Validate(
+            Arg.Any<ActionContext>(),
+            Arg.Any<ValidationStateDictionary>(),
+            Arg.Any<string>(),
+            Arg.Any<object>());
 
-            Id = 1;
-            Name = "Name";
-            Character = GetCharacter();
-            Spell = GetSpell();
-            SpellReadDto = GetSpellReadDto();
-            SpellBaseDto = GetSpellBaseViewModel();
-            HitDto = GetHitDto();
-            PageParameters = GetPageParameters();
-            PaginatedList = GetPaginatedList();
-            PageDto = GetPageDto();
-            PatchDocument = GetPatchDocument();
-        }
+        controller.ObjectValidator = objectValidator;
+    }
 
-        public SpellsController SpellsController { get; }
-        public IItemService<Spell> SpellService { get; }
-        public ICharacterService CharacterService { get; }
-        public IPlayerService PlayerService { get; }
-        public IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>> PaginatedMapper { get; }
-        public IMapper<Spell, SpellReadDto> ReadMapper { get; }
-        public IMapper<SpellBaseDto, Spell> CreateMapper { get; }
-        public IUpdateMapper<SpellBaseDto, Spell> UpdateMapper { get; }
+    public ControllerContext MockControllerContext()
+    {
+        var context = new ControllerContext(
+            new ActionContext(
+                new DefaultHttpContext() { TraceIdentifier = "trace" },
+                new RouteData(),
+                new ControllerActionDescriptor()));
 
-        public int Id { get; }
-        public string? Name { get; }
-        public Character Character { get; }
-        public Spell Spell { get; }
-        public SpellReadDto SpellReadDto { get; }
-        public SpellBaseDto SpellBaseDto { get; }
-        public HitDto HitDto { get; }
-        public PageParameters PageParameters { get; }
-        public PaginatedList<Spell> PaginatedList { get; }
-        public PageDto<SpellReadDto> PageDto { get; }
-        public JsonPatchDocument<SpellBaseDto> PatchDocument { get; }
+        return context;
+    }
 
-        public void MockControllerBaseUser()
+    public void MockModelError(ControllerBase controller)
+    {
+        var context = MockControllerContext();
+
+        context.ModelState.AddModelError("key", "error");
+        controller.ControllerContext = context;
+    }
+
+    private Character GetCharacter()
+    {
+        return new Character()
         {
-            var user = new ClaimsPrincipal(new ClaimsIdentity());
+            Id = Id,
+            Name = Name,
+            Race = CharacterRace.Human,
+            Health = 100,
+            PlayerId = Id
+        };
+    }
 
-            SpellsController.ControllerContext = new ControllerContext();
-            SpellsController.ControllerContext.HttpContext = new DefaultHttpContext()
-            {
-                User = user
-            };
-        }
-
-        public void MockObjectModelValidator(ControllerBase controller)
+    private Spell GetSpell()
+    {
+        return new Spell()
         {
-            var objectValidator = Substitute.For<IObjectModelValidator>();
+            Id = Id,
+            Name = Name,
+            Type = SpellType.Fire,
+            Damage = 20
+        };
+    }
 
-            objectValidator.Validate(
-                Arg.Any<ActionContext>(),
-                Arg.Any<ValidationStateDictionary>(),
-                Arg.Any<string>(),
-                Arg.Any<object>());
-
-            controller.ObjectValidator = objectValidator;
-        }
-
-        public ControllerContext MockControllerContext()
+    private List<Spell> GetSpells()
+    {
+        return new List<Spell>()
         {
-            var context = new ControllerContext(
-                new ActionContext(
-                    new DefaultHttpContext() { TraceIdentifier = "trace" },
-                    new RouteData(),
-                    new ControllerActionDescriptor()));
+            Spell,
+            Spell
+        };
+    }
 
-            return context;
-        }
-
-        public void MockModelError(ControllerBase controller)
+    private PageParameters GetPageParameters()
+    {
+        return new PageParameters()
         {
-            var context = MockControllerContext();
+            PageNumber = 1,
+            PageSize = 5
+        };
+    }
 
-            context.ModelState.AddModelError("key", "error");
-            controller.ControllerContext = context;
-        }
+    private PaginatedList<Spell> GetPaginatedList()
+    {
+        return new PaginatedList<Spell>(GetSpells(), 6, 1, 5);
+    }
 
-        private Character GetCharacter()
+    private SpellBaseDto GetSpellBaseViewModel()
+    {
+        return new SpellBaseDto()
         {
-            return new Character()
-            {
-                Id = Id,
-                Name = Name,
-                Race = CharacterRace.Human,
-                Health = 100,
-                PlayerId = Id
-            };
-        }
+            Name = Name,
+            Type = SpellType.Fire,
+            Damage = 20
+        };
+    }
 
-        private Spell GetSpell()
+    private SpellReadDto GetSpellReadDto()
+    {
+        return new SpellReadDto()
         {
-            return new Spell()
-            {
-                Id = Id,
-                Name = Name,
-                Type = SpellType.Fire,
-                Damage = 20
-            };
-        }
+            Id = Id,
+            Name = Name,
+            Type = SpellType.Fire,
+            Damage = 20
+        };
+    }
 
-        private List<Spell> GetSpells()
+    private List<SpellReadDto> GetSpellReadDtos()
+    {
+        return new List<SpellReadDto>()
         {
-            return new List<Spell>()
-            {
-                Spell,
-                Spell
-            };
-        }
+            SpellReadDto,
+            SpellReadDto
+        };
+    }
 
-        private PageParameters GetPageParameters()
+    private HitDto GetHitDto()
+    {
+        return new HitDto()
         {
-            return new PageParameters()
-            {
-                PageNumber = 1,
-                PageSize = 5
-            };
-        }
+            DealerId = Id,
+            ItemId = Id,
+            ReceiverId = Id
+        };
+    }
 
-        private PaginatedList<Spell> GetPaginatedList()
+    private PageDto<SpellReadDto> GetPageDto()
+    {
+        return new PageDto<SpellReadDto>()
         {
-            return new PaginatedList<Spell>(GetSpells(), 6, 1, 5);
-        }
+            CurrentPage = 1,
+            TotalPages = 2,
+            PageSize = 5,
+            TotalItems = 6,
+            HasPrevious = false,
+            HasNext = true,
+            Entities = GetSpellReadDtos()
+        };
+    }
 
-        private SpellBaseDto GetSpellBaseViewModel()
-        {
-            return new SpellBaseDto()
-            {
-                Name = Name,
-                Type = SpellType.Fire,
-                Damage = 20
-            };
-        }
-
-        private SpellReadDto GetSpellReadDto()
-        {
-            return new SpellReadDto()
-            {
-                Id = Id,
-                Name = Name,
-                Type = SpellType.Fire,
-                Damage = 20
-            };
-        }
-
-        private List<SpellReadDto> GetSpellReadDtos()
-        {
-            return new List<SpellReadDto>()
-            {
-                SpellReadDto,
-                SpellReadDto
-            };
-        }
-
-        private HitDto GetHitDto()
-        {
-            return new HitDto()
-            {
-                DealerId = Id,
-                ItemId = Id,
-                ReceiverId = Id
-            };
-        }
-
-        private PageDto<SpellReadDto> GetPageDto()
-        {
-            return new PageDto<SpellReadDto>()
-            {
-                CurrentPage = 1,
-                TotalPages = 2,
-                PageSize = 5,
-                TotalItems = 6,
-                HasPrevious = false,
-                HasNext = true,
-                Entities = GetSpellReadDtos()
-            };
-        }
-
-        private JsonPatchDocument<SpellBaseDto> GetPatchDocument()
-        {
-            return new JsonPatchDocument<SpellBaseDto>();
-        }
+    private JsonPatchDocument<SpellBaseDto> GetPatchDocument()
+    {
+        return new JsonPatchDocument<SpellBaseDto>();
     }
 }

@@ -1,10 +1,9 @@
 ﻿using Core.Entities;
 
-namespace Core.Dtos.MountDtos
+namespace Core.Dtos.MountDtos;
+
+public record MountReadDto : MountBaseDto
 {
-    public record MountReadDto : MountBaseDto
-    {
-        public int Id { get; init; }
-        public IEnumerable<Character>? Characters { get; init; }
-    }
+    public int Id { get; init; }
+    public IEnumerable<Character>? Characters { get; init; }
 }

@@ -1,17 +1,16 @@
 ﻿using Core.Dtos.SpellDtos;
 using FluentValidation;
 
-namespace WebApi.Validators.SpellValidators
+namespace WebApi.Validators.SpellValidators;
+
+public class SpellCreateUpdateValidator : SpellBaseValidator<SpellBaseDto>
 {
-    public class SpellCreateUpdateValidator : SpellBaseValidator<SpellBaseDto>
+    public SpellCreateUpdateValidator()
     {
-        public SpellCreateUpdateValidator()
-        {
-            RuleFor(w => w.Damage)
-                .GreaterThan(0)
-                .WithMessage("Damage must be greater than 0")
-                .LessThan(101)
-                .WithMessage("Damage must not be greater than 100");
-        }
+        RuleFor(w => w.Damage)
+            .GreaterThan(0)
+            .WithMessage("Damage must be greater than 0")
+            .LessThan(101)
+            .WithMessage("Damage must not be greater than 100");
     }
 }

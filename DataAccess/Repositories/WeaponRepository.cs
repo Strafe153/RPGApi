@@ -4,55 +4,54 @@ using Core.Models;
 using DataAccess.Extensions;
 using Microsoft.EntityFrameworkCore;
 
-namespace DataAccess.Repositories
+namespace DataAccess.Repositories;
+
+public class WeaponRepository : IRepository<Weapon>
 {
-    public class WeaponRepository : IRepository<Weapon>
+    private readonly RPGContext _context;
+
+    public WeaponRepository(RPGContext context)
     {
-        private readonly RPGContext _context;
+        _context = context;
+    }
 
-        public WeaponRepository(RPGContext context)
-        {
-            _context = context;
-        }
+    public void Add(Weapon entity)
+    {
+        _context.Weapons.Add(entity);
+    }
 
-        public void Add(Weapon entity)
-        {
-            _context.Weapons.Add(entity);
-        }
+    public void Delete(Weapon entity)
+    {
+        _context.Weapons.Remove(entity);
+    }
 
-        public void Delete(Weapon entity)
-        {
-            _context.Weapons.Remove(entity);
-        }
+    public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize)
+    {
+        var weapons = await _context.Weapons
+            .Include(w => w.CharacterWeapons)
+                .ThenInclude(cw => cw.Character)
+            .ToPaginatedListAsync(pageNumber, pageSize);
 
-        public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize)
-        {
-            var weapons = await _context.Weapons
-                .Include(w => w.CharacterWeapons)
-                    .ThenInclude(cw => cw.Character)
-                .ToPaginatedListAsync(pageNumber, pageSize);
+        return weapons;
+    }
 
-            return weapons;
-        }
+    public async Task<Weapon?> GetByIdAsync(int id)
+    {
+        var weapon = await _context.Weapons
+            .Include(w => w.CharacterWeapons)
+                .ThenInclude(cw => cw.Character)
+            .SingleOrDefaultAsync(w => w.Id == id);
 
-        public async Task<Weapon?> GetByIdAsync(int id)
-        {
-            var weapon = await _context.Weapons
-                .Include(w => w.CharacterWeapons)
-                    .ThenInclude(cw => cw.Character)
-                .SingleOrDefaultAsync(w => w.Id == id);
+        return weapon;
+    }
 
-            return weapon;
-        }
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-
-        public void Update(Weapon entity)
-        {
-            _context.Weapons.Update(entity);
-        }
+    public void Update(Weapon entity)
+    {
+        _context.Weapons.Update(entity);
     }
 }

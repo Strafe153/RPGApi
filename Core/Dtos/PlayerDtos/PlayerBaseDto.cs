@@ -1,7 +1,6 @@
-﻿namespace Core.Dtos.PlayerDtos
+﻿namespace Core.Dtos.PlayerDtos;
+
+public record PlayerBaseDto
 {
-    public record PlayerBaseDto
-    {
-        public string? Name { get; init; }
-    }
+    public string? Name { get; init; }
 }

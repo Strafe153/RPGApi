@@ -1,19 +1,18 @@
 ﻿using Core.Dtos.PlayerDtos;
 using FluentValidation;
 
-namespace WebApi.Validators.PlayerValidators
+namespace WebApi.Validators.PlayerValidators;
+
+public class PlayerChangePasswordValidator : AbstractValidator<PlayerChangePasswordDto>
 {
-    public class PlayerChangePasswordValidator : AbstractValidator<PlayerChangePasswordDto>
+    public PlayerChangePasswordValidator()
     {
-        public PlayerChangePasswordValidator()
-        {
-            RuleFor(u => u.Password)
-                .NotEmpty()
-                .WithMessage("Password is required")
-                .MinimumLength(6)
-                .WithMessage("Password must be at least 6 characters long")
-                .MaximumLength(50)
-                .WithMessage("Password must not be longer than 50 characters");
-        }
+        RuleFor(u => u.Password)
+            .NotEmpty()
+            .WithMessage("Password is required")
+            .MinimumLength(6)
+            .WithMessage("Password must be at least 6 characters long")
+            .MaximumLength(50)
+            .WithMessage("Password must not be longer than 50 characters");
     }
 }
