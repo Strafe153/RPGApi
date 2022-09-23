@@ -17,211 +17,210 @@ using System.Security.Claims;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Tests.Fixtures
+namespace WebApi.Tests.Fixtures;
+
+public class WeaponsControllerFixture
 {
-    public class WeaponsControllerFixture
+    public WeaponsControllerFixture()
     {
-        public WeaponsControllerFixture()
+        var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+
+        WeaponService = fixture.Freeze<IItemService<Weapon>>();
+        CharacterService = fixture.Freeze<ICharacterService>();
+        PlayerService = fixture.Freeze<IPlayerService>();
+        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>>();
+        ReadMapper = fixture.Freeze<IMapper<Weapon, WeaponReadDto>>();
+        CreateMapper = fixture.Freeze<IMapper<WeaponBaseDto, Weapon>>();
+        UpdateMapper = fixture.Freeze<IUpdateMapper<WeaponBaseDto, Weapon>>();
+
+        WeaponsController = new(
+            WeaponService,
+            CharacterService,
+            PlayerService,
+            PaginatedMapper,
+            ReadMapper,
+            CreateMapper,
+            UpdateMapper);
+
+        Id = 1;
+        Name = "Name";
+        Character = GetCharacter();
+        Weapon = GetWeapon();
+        WeaponReadDto = GetWeaponReadDto();
+        WeaponBaseDto = GetWeaponBaseDto();
+        HitDto = GetHitDto();
+        PageParameters = GetPageParameters();
+        PaginatedList = GetPaginatedList();
+        PageDto = GetPageDto();
+        PatchDocument = GetPatchDocument();
+    }
+
+    public WeaponsController WeaponsController { get; }
+    public IItemService<Weapon> WeaponService { get; }
+    public ICharacterService CharacterService { get; }
+    public IPlayerService PlayerService { get; }
+    public IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> PaginatedMapper { get; }
+    public IMapper<Weapon, WeaponReadDto> ReadMapper { get; }
+    public IMapper<WeaponBaseDto, Weapon> CreateMapper { get; }
+    public IUpdateMapper<WeaponBaseDto, Weapon> UpdateMapper { get; }
+
+    public int Id { get; }
+    public string? Name { get; }
+    public Character Character { get; }
+    public Weapon Weapon { get; }
+    public WeaponReadDto WeaponReadDto { get; }
+    public WeaponBaseDto WeaponBaseDto { get; }
+    public HitDto HitDto { get; }
+    public PageParameters PageParameters { get; }
+    public PaginatedList<Weapon> PaginatedList { get; }
+    public PageDto<WeaponReadDto> PageDto { get; }
+    public JsonPatchDocument<WeaponBaseDto> PatchDocument { get; }
+
+    public void MockControllerBaseUser()
+    {
+        var user = new ClaimsPrincipal(new ClaimsIdentity());
+
+        WeaponsController.ControllerContext = new ControllerContext();
+        WeaponsController.ControllerContext.HttpContext = new DefaultHttpContext()
         {
-            var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+            User = user
+        };
+    }
 
-            WeaponService = fixture.Freeze<IItemService<Weapon>>();
-            CharacterService = fixture.Freeze<ICharacterService>();
-            PlayerService = fixture.Freeze<IPlayerService>();
-            PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>>();
-            ReadMapper = fixture.Freeze<IMapper<Weapon, WeaponReadDto>>();
-            CreateMapper = fixture.Freeze<IMapper<WeaponBaseDto, Weapon>>();
-            UpdateMapper = fixture.Freeze<IUpdateMapper<WeaponBaseDto, Weapon>>();
+    public void MockObjectModelValidator(ControllerBase controller)
+    {
+        var objectValidator = Substitute.For<IObjectModelValidator>();
 
-            WeaponsController = new(
-                WeaponService,
-                CharacterService,
-                PlayerService,
-                PaginatedMapper,
-                ReadMapper,
-                CreateMapper,
-                UpdateMapper);
+        objectValidator.Validate(
+            Arg.Any<ActionContext>(),
+            Arg.Any<ValidationStateDictionary>(),
+            Arg.Any<string>(),
+            Arg.Any<object>());
 
-            Id = 1;
-            Name = "Name";
-            Character = GetCharacter();
-            Weapon = GetWeapon();
-            WeaponReadDto = GetWeaponReadDto();
-            WeaponBaseDto = GetWeaponBaseDto();
-            HitDto = GetHitDto();
-            PageParameters = GetPageParameters();
-            PaginatedList = GetPaginatedList();
-            PageDto = GetPageDto();
-            PatchDocument = GetPatchDocument();
-        }
+        controller.ObjectValidator = objectValidator;
+    }
 
-        public WeaponsController WeaponsController { get; }
-        public IItemService<Weapon> WeaponService { get; }
-        public ICharacterService CharacterService { get; }
-        public IPlayerService PlayerService { get; }
-        public IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> PaginatedMapper { get; }
-        public IMapper<Weapon, WeaponReadDto> ReadMapper { get; }
-        public IMapper<WeaponBaseDto, Weapon> CreateMapper { get; }
-        public IUpdateMapper<WeaponBaseDto, Weapon> UpdateMapper { get; }
+    public ControllerContext MockControllerContext()
+    {
+        var context = new ControllerContext(
+            new ActionContext(
+                new DefaultHttpContext() { TraceIdentifier = "trace" },
+                new RouteData(),
+                new ControllerActionDescriptor()));
 
-        public int Id { get; }
-        public string? Name { get; }
-        public Character Character { get; }
-        public Weapon Weapon { get; }
-        public WeaponReadDto WeaponReadDto { get; }
-        public WeaponBaseDto WeaponBaseDto { get; }
-        public HitDto HitDto { get; }
-        public PageParameters PageParameters { get; }
-        public PaginatedList<Weapon> PaginatedList { get; }
-        public PageDto<WeaponReadDto> PageDto { get; }
-        public JsonPatchDocument<WeaponBaseDto> PatchDocument { get; }
+        return context;
+    }
 
-        public void MockControllerBaseUser()
+    public void MockModelError(ControllerBase controller)
+    {
+        var context = MockControllerContext();
+
+        context.ModelState.AddModelError("key", "error");
+        controller.ControllerContext = context;
+    }
+
+    private Character GetCharacter()
+    {
+        return new Character()
         {
-            var user = new ClaimsPrincipal(new ClaimsIdentity());
+            Id = Id,
+            Name = Name,
+            Race = CharacterRace.Human,
+            Health = 100,
+            PlayerId = Id
+        };
+    }
 
-            WeaponsController.ControllerContext = new ControllerContext();
-            WeaponsController.ControllerContext.HttpContext = new DefaultHttpContext()
-            {
-                User = user
-            };
-        }
-
-        public void MockObjectModelValidator(ControllerBase controller)
+    private Weapon GetWeapon()
+    {
+        return new Weapon()
         {
-            var objectValidator = Substitute.For<IObjectModelValidator>();
+            Id = Id,
+            Name = Name,
+            Type = WeaponType.Sword,
+            Damage = 20
+        };
+    }
 
-            objectValidator.Validate(
-                Arg.Any<ActionContext>(),
-                Arg.Any<ValidationStateDictionary>(),
-                Arg.Any<string>(),
-                Arg.Any<object>());
-
-            controller.ObjectValidator = objectValidator;
-        }
-
-        public ControllerContext MockControllerContext()
+    private List<Weapon> GetWeapons()
+    {
+        return new List<Weapon>()
         {
-            var context = new ControllerContext(
-                new ActionContext(
-                    new DefaultHttpContext() { TraceIdentifier = "trace" },
-                    new RouteData(),
-                    new ControllerActionDescriptor()));
+            Weapon,
+            Weapon
+        };
+    }
 
-            return context;
-        }
-
-        public void MockModelError(ControllerBase controller)
+    private PageParameters GetPageParameters()
+    {
+        return new PageParameters()
         {
-            var context = MockControllerContext();
+            PageNumber = 1,
+            PageSize = 5
+        };
+    }
 
-            context.ModelState.AddModelError("key", "error");
-            controller.ControllerContext = context;
-        }
+    private PaginatedList<Weapon> GetPaginatedList()
+    {
+        return new PaginatedList<Weapon>(GetWeapons(), 6, 1, 5);
+    }
 
-        private Character GetCharacter()
+    private WeaponBaseDto GetWeaponBaseDto()
+    {
+        return new WeaponBaseDto()
         {
-            return new Character()
-            {
-                Id = Id,
-                Name = Name,
-                Race = CharacterRace.Human,
-                Health = 100,
-                PlayerId = Id
-            };
-        }
+            Name = Name,
+            Type = WeaponType.Sword,
+            Damage = 20
+        };
+    }
 
-        private Weapon GetWeapon()
+    private WeaponReadDto GetWeaponReadDto()
+    {
+        return new WeaponReadDto()
         {
-            return new Weapon()
-            {
-                Id = Id,
-                Name = Name,
-                Type = WeaponType.Sword,
-                Damage = 20
-            };
-        }
+            Id = Id,
+            Name = Name,
+            Type = WeaponType.Sword,
+            Damage = 20
+        };
+    }
 
-        private List<Weapon> GetWeapons()
+    private List<WeaponReadDto> GetWeaponReadDtos()
+    {
+        return new List<WeaponReadDto>()
         {
-            return new List<Weapon>()
-            {
-                Weapon,
-                Weapon
-            };
-        }
+            WeaponReadDto,
+            WeaponReadDto
+        };
+    }
 
-        private PageParameters GetPageParameters()
+    private HitDto GetHitDto()
+    {
+        return new HitDto()
         {
-            return new PageParameters()
-            {
-                PageNumber = 1,
-                PageSize = 5
-            };
-        }
+            DealerId = Id,
+            ItemId = Id,
+            ReceiverId = Id
+        };
+    }
 
-        private PaginatedList<Weapon> GetPaginatedList()
+    private PageDto<WeaponReadDto> GetPageDto()
+    {
+        return new PageDto<WeaponReadDto>()
         {
-            return new PaginatedList<Weapon>(GetWeapons(), 6, 1, 5);
-        }
+            CurrentPage = 1,
+            TotalPages = 2,
+            PageSize = 5,
+            TotalItems = 6,
+            HasPrevious = false,
+            HasNext = true,
+            Entities = GetWeaponReadDtos()
+        };
+    }
 
-        private WeaponBaseDto GetWeaponBaseDto()
-        {
-            return new WeaponBaseDto()
-            {
-                Name = Name,
-                Type = WeaponType.Sword,
-                Damage = 20
-            };
-        }
-
-        private WeaponReadDto GetWeaponReadDto()
-        {
-            return new WeaponReadDto()
-            {
-                Id = Id,
-                Name = Name,
-                Type = WeaponType.Sword,
-                Damage = 20
-            };
-        }
-
-        private List<WeaponReadDto> GetWeaponReadDtos()
-        {
-            return new List<WeaponReadDto>()
-            {
-                WeaponReadDto,
-                WeaponReadDto
-            };
-        }
-
-        private HitDto GetHitDto()
-        {
-            return new HitDto()
-            {
-                DealerId = Id,
-                ItemId = Id,
-                ReceiverId = Id
-            };
-        }
-
-        private PageDto<WeaponReadDto> GetPageDto()
-        {
-            return new PageDto<WeaponReadDto>()
-            {
-                CurrentPage = 1,
-                TotalPages = 2,
-                PageSize = 5,
-                TotalItems = 6,
-                HasPrevious = false,
-                HasNext = true,
-                Entities = GetWeaponReadDtos()
-            };
-        }
-
-        private JsonPatchDocument<WeaponBaseDto> GetPatchDocument()
-        {
-            return new JsonPatchDocument<WeaponBaseDto>();
-        }
+    private JsonPatchDocument<WeaponBaseDto> GetPatchDocument()
+    {
+        return new JsonPatchDocument<WeaponBaseDto>();
     }
 }

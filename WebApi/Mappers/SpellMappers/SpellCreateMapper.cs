@@ -2,18 +2,17 @@
 using Core.Entities;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Mappers.SpellMappers
+namespace WebApi.Mappers.SpellMappers;
+
+public class SpellCreateMapper : IMapper<SpellBaseDto, Spell>
 {
-    public class SpellCreateMapper : IMapper<SpellBaseDto, Spell>
+    public Spell Map(SpellBaseDto source)
     {
-        public Spell Map(SpellBaseDto source)
+        return new Spell()
         {
-            return new Spell()
-            {
-                Name = source.Name,
-                Type = source.Type,
-                Damage = source.Damage
-            };
-        }
+            Name = source.Name,
+            Type = source.Type,
+            Damage = source.Damage
+        };
     }
 }

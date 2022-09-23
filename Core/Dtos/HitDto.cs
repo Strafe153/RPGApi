@@ -1,9 +1,8 @@
-﻿namespace Core.Dtos
+﻿namespace Core.Dtos;
+
+public record HitDto
 {
-    public record HitDto
-    {
-        public int DealerId { get; init; }
-        public int ReceiverId { get; init; }
-        public int ItemId { get; init; }
-    }
+    public int DealerId { get; init; }
+    public int ReceiverId { get; init; }
+    public int ItemId { get; init; }
 }

@@ -4,29 +4,28 @@ using Core.Entities;
 using Core.Models;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Mappers.PlayerMappers
+namespace WebApi.Mappers.PlayerMappers;
+
+public class PlayerPaginatedMapper : IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>
 {
-    public class PlayerPaginatedMapper : IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>
+    private readonly IMapper<Player, PlayerReadDto> _readMapper;
+
+    public PlayerPaginatedMapper(IMapper<Player, PlayerReadDto> readMapper)
     {
-        private readonly IMapper<Player, PlayerReadDto> _readMapper;
+        _readMapper = readMapper;
+    }
 
-        public PlayerPaginatedMapper(IMapper<Player, PlayerReadDto> readMapper)
+    public PageDto<PlayerReadDto> Map(PaginatedList<Player> source)
+    {
+        return new PageDto<PlayerReadDto>()
         {
-            _readMapper = readMapper;
-        }
-
-        public PageDto<PlayerReadDto> Map(PaginatedList<Player> source)
-        {
-            return new PageDto<PlayerReadDto>()
-            {
-                CurrentPage = source.CurrentPage,
-                TotalPages = source.TotalPages,
-                PageSize = source.PageSize,
-                TotalItems = source.TotalItems,
-                HasPrevious = source.HasPrevious,
-                HasNext = source.HasNext,
-                Entities = source.Select(p => _readMapper.Map(p))
-            };
-        }
+            CurrentPage = source.CurrentPage,
+            TotalPages = source.TotalPages,
+            PageSize = source.PageSize,
+            TotalItems = source.TotalItems,
+            HasPrevious = source.HasPrevious,
+            HasNext = source.HasNext,
+            Entities = source.Select(p => _readMapper.Map(p))
+        };
     }
 }

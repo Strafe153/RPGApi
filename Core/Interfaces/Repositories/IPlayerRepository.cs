@@ -1,9 +1,8 @@
 ﻿using Core.Entities;
 
-namespace Core.Interfaces.Repositories
+namespace Core.Interfaces.Repositories;
+
+public interface IPlayerRepository : IRepository<Player>
 {
-    public interface IPlayerRepository : IRepository<Player>
-    {
-        Task<Player?> GetByNameAsync(string name);
-    }
+    Task<Player?> GetByNameAsync(string name);
 }

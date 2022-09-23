@@ -1,15 +1,14 @@
 ﻿using Core.Dtos.CharacterDtos;
 using FluentValidation;
 
-namespace WebApi.Validators.CharacterValidators
+namespace WebApi.Validators.CharacterValidators;
+
+public class CharacterCreateValidator : CharacterBaseValidator<CharacterCreateDto>
 {
-    public class CharacterCreateValidator : CharacterBaseValidator<CharacterCreateDto>
+    public CharacterCreateValidator()
     {
-        public CharacterCreateValidator()
-        {
-            RuleFor(c => c.PlayerId)
-                .NotEmpty()
-                .WithMessage("PlayerId is required");
-        }
+        RuleFor(c => c.PlayerId)
+            .NotEmpty()
+            .WithMessage("PlayerId is required");
     }
 }

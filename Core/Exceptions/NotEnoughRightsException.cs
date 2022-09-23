@@ -1,10 +1,9 @@
-﻿namespace Core.Exceptions
+﻿namespace Core.Exceptions;
+
+public class NotEnoughRightsException : ApplicationException
 {
-    public class NotEnoughRightsException : ApplicationException
+    public NotEnoughRightsException(string message)
+        : base(message)
     {
-        public NotEnoughRightsException(string message)
-            : base(message)
-        {
-        }
     }
 }
