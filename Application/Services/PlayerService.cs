@@ -14,13 +14,16 @@ namespace Application.Services;
 public class PlayerService : IPlayerService
 {
     private readonly IPlayerRepository _repository;
+    private readonly ICacheService _cacheService;
     private readonly ILogger<PlayerService> _logger;
 
     public PlayerService(
         IPlayerRepository repository,
+        ICacheService cacheService,
         ILogger<PlayerService> logger)
     {
         _repository = repository;
+        _cacheService = cacheService;
         _logger = logger;
     }
 
@@ -35,7 +38,7 @@ public class PlayerService : IPlayerService
         }
         catch (DbUpdateException)
         {
-            _logger.LogWarning($"Failed to register a player. The name '{entity.Name}' is already taken");
+            _logger.LogWarning("Failed to register a player. The name '{Name}' is already taken", entity.Name);
             throw new NameNotUniqueException($"Name '{entity.Name}' is already taken");
         }
     }
@@ -45,12 +48,25 @@ public class PlayerService : IPlayerService
         _repository.Delete(entity);
         await _repository.SaveChangesAsync();
 
-        _logger.LogInformation($"Succesfully deleted a player with id {entity.Id}");
+        _logger.LogInformation("Succesfully deleted a player with id {Id}", entity.Id);
     }
 
     public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize)
     {
-        var players = await _repository.GetAllAsync(pageNumber, pageSize);
+        string key = "players";
+        var cachedPlayers = await _cacheService.GetAsync<List<Player>>(key);
+        PaginatedList<Player> players;
+
+        if (cachedPlayers is null)
+        {
+            players = await _repository.GetAllAsync(pageNumber, pageSize);
+            await _cacheService.SetAsync(key, players);
+        }
+        else
+        {
+            players = new(cachedPlayers, cachedPlayers.Count, pageNumber, pageSize);
+        }
+
         _logger.LogInformation("Successfully retrieved all players");
 
         return players;
@@ -58,15 +74,23 @@ public class PlayerService : IPlayerService
 
     public async Task<Player> GetByIdAsync(int id)
     {
-        var player = await _repository.GetByIdAsync(id);
+        string key = $"players:{id}";
+        var player = await _cacheService.GetAsync<Player>(key);
 
         if (player is null)
         {
-            _logger.LogWarning($"Failed to retrieve a player with id {id}");
-            throw new NullReferenceException("Player not found");
+            player = await _repository.GetByIdAsync(id);
+
+            if (player is null)
+            {
+                _logger.LogWarning("Failed to retrieve a player with id {Id}", id);
+                throw new NullReferenceException($"Player with id {id} not found");
+            }
+
+            await _cacheService.SetAsync(key, player);
         }
 
-        _logger.LogInformation($"Successfully retrieved a player with id {id}");
+        _logger.LogInformation("Successfully retrieved a player with id {Id}", id);
 
         return player;
     }
@@ -77,11 +101,11 @@ public class PlayerService : IPlayerService
 
         if (player is null)
         {
-            _logger.LogWarning($"Failed to retrieve a player with name '{name}'");
-            throw new NullReferenceException("Player not found");
+            _logger.LogWarning("Failed to retrieve a player with name '{Name}'", name);
+            throw new NullReferenceException($"Player with name {name} not found");
         }
 
-        _logger.LogInformation($"Successfully retrieved a player with name '{name}'");
+        _logger.LogInformation("Successfully retrieved a player with name '{Name}'", name);
 
         return player;
     }
@@ -93,11 +117,11 @@ public class PlayerService : IPlayerService
             _repository.Update(entity);
             await _repository.SaveChangesAsync();
 
-            _logger.LogInformation($"Successfully updated a player with id {entity.Id}");
+            _logger.LogInformation("Successfully updated a player with id {Id}", entity.Id);
         }
         catch (DbUpdateException)
         {
-            _logger.LogWarning($"Failed to update a player. The name '{entity.Name}' is already taken");
+            _logger.LogWarning("Failed to update a player. The name '{Name}' is already taken", entity.Name);
             throw new NameNotUniqueException($"Name '{entity.Name}' is already taken");
         }
     }

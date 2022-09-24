@@ -17,10 +17,12 @@ public class MountServiceFixture
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
         MountRepository = fixture.Freeze<IRepository<Mount>>();
+        CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<MountService>>();
 
         MountService = new MountService(
             MountRepository,
+            CacheService,
             Logger);
 
         Id = 1;
@@ -33,6 +35,7 @@ public class MountServiceFixture
 
     public IItemService<Mount> MountService { get; }
     public IRepository<Mount> MountRepository { get; }
+    public ICacheService CacheService { get; }
     public ILogger<MountService> Logger { get; }
 
     public int Id { get; }

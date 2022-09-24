@@ -17,27 +17,32 @@ public class SpellServiceFixture
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
         SpellRepository = fixture.Freeze<IRepository<Spell>>();
+        CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<SpellService>>();
 
         SpellService = new SpellService(
             SpellRepository,
+            CacheService,
             Logger);
 
         Id = 1;
         Name = "StringPlaceholder";
         Spell = GetSpell(Id);
         Character = GetCharacter();
+        Spells = GetSpells();
         PaginatedList = GetPaginatedList();
     }
 
     public IItemService<Spell> SpellService { get; }
     public IRepository<Spell> SpellRepository { get; }
+    public ICacheService CacheService { get; }
     public ILogger<SpellService> Logger { get; set; }
 
     public int Id { get; }
     public string? Name { get; }
     public Spell Spell { get; }
     public Character Character { get; }
+    public List<Spell> Spells { get; }
     public PaginatedList<Spell> PaginatedList { get; }
 
     private Character GetCharacter()

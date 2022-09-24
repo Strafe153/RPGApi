@@ -10,13 +10,16 @@ namespace Application.Services;
 public class CharacterService : ICharacterService
 {
     private readonly IRepository<Character> _characterRepository;
+    private readonly ICacheService _cacheService;
     private readonly ILogger<CharacterService> _logger;
 
     public CharacterService(
         IRepository<Character> repository,
+        ICacheService cacheService,
         ILogger<CharacterService> logger)
     {
         _characterRepository = repository;
+        _cacheService = cacheService;
         _logger = logger;
     }
 
@@ -33,12 +36,25 @@ public class CharacterService : ICharacterService
         _characterRepository.Delete(entity);
         await _characterRepository.SaveChangesAsync();
 
-        _logger.LogInformation($"Succesfully deleted a character with id {entity.Id}");
+        _logger.LogInformation("Succesfully deleted a character with id {Id}", entity.Id);
     }
 
     public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize)
     {
-        var characters = await _characterRepository.GetAllAsync(pageNumber, pageSize);
+        string key = "characters";
+        var cachedCharacters = await _cacheService.GetAsync<List<Character>>(key);
+        PaginatedList<Character> characters;
+
+        if (cachedCharacters is null)
+        {
+            characters = await _characterRepository.GetAllAsync(pageNumber, pageSize);
+            await _cacheService.SetAsync(key, characters);
+        }
+        else
+        {
+            characters = new(cachedCharacters, cachedCharacters.Count, pageNumber, pageSize);
+        }
+
         _logger.LogInformation("Successfully retrieved all characters");
 
         return characters;
@@ -46,15 +62,23 @@ public class CharacterService : ICharacterService
 
     public async Task<Character> GetByIdAsync(int id)
     {
-        var character = await _characterRepository.GetByIdAsync(id);
+        string key = $"characters:{id}";
+        var character = await _cacheService.GetAsync<Character>(key);
 
         if (character is null)
         {
-            _logger.LogWarning($"Failed to retrieve a character with id {id}");
-            throw new NullReferenceException("Character not found");
+            character = await _characterRepository.GetByIdAsync(id);
+
+            if (character is null)
+            {
+                _logger.LogWarning("Failed to retrieve a character with id {Id}", id);
+                throw new NullReferenceException($"Character with id {id} not found");
+            }
+
+            await _cacheService.SetAsync(key, character);
         }
 
-        _logger.LogInformation($"Successfully retrieved a character with id {id}");
+        _logger.LogInformation("Successfully retrieved a character with id {Id}", id);
 
         return character;
     }
@@ -64,7 +88,7 @@ public class CharacterService : ICharacterService
         _characterRepository.Update(entity);
         await _characterRepository.SaveChangesAsync();
 
-        _logger.LogInformation($"Successfully updated a character with id {entity.Id}");
+        _logger.LogInformation("Successfully updated a character with id {Id}", entity.Id);
     }
 
     public Weapon GetWeapon(Character entity, int weaponId)
@@ -75,11 +99,11 @@ public class CharacterService : ICharacterService
 
         if (weapon is null)
         {
-            _logger.LogWarning($"Failed to retrieve a spell with id {weaponId} from the user's inventory");
-            throw new ItemNotFoundException("Weapon not found in the character's inventory");
+            _logger.LogWarning("Failed to retrieve a weapon with id {Id} from the user's inventory", weaponId);
+            throw new ItemNotFoundException($"Weapon with id {weaponId} not found in the character's with id {entity.Id} inventory");
         }
 
-        _logger.LogInformation($"Successfully retrieved a spell with id {weaponId} from the character's inventory");
+        _logger.LogInformation("Successfully retrieved a spell with id {Id} from the character's inventory", weaponId);
 
         return weapon;
     }
@@ -108,11 +132,11 @@ public class CharacterService : ICharacterService
 
         if (spell is null)
         {
-            _logger.LogWarning($"Failed to retrieve a spell with id {spellId} from the user's inventory");
-            throw new ItemNotFoundException("Spell not found in the character's inventory");
+            _logger.LogWarning("Failed to retrieve a spell with id {Id} from the user's inventory", spellId);
+            throw new ItemNotFoundException($"Spell with id {spellId} not found in the character's with id {entity.Id} inventory");
         }
 
-        _logger.LogInformation($"Successfully retrieved a spell with id {spellId} from the character's inventory");
+        _logger.LogInformation("Successfully retrieved a spell with id {Id} from the character's inventory", spellId);
 
         return spell;
     }

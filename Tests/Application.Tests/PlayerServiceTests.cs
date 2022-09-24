@@ -17,11 +17,11 @@ public class PlayerServiceTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new PlayerServiceFixture();
+        _fixture = new();
     }
 
     [Test]
-    public async Task GetAllAsync_ValidParameters_ReturnsPaginatedListOfPlayer()
+    public async Task GetAllAsync_ValidParametersDataFromRepository_ReturnsPaginatedListOfPlayer()
     {
         // Arrange
         _fixture.PlayerRepository
@@ -36,7 +36,22 @@ public class PlayerServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_ExistingPlayer_ReturnsPlayer()
+    public async Task GetAllAsync_ValidParametersDataFromCache_ReturnsPaginatedListOfPlayer()
+    {
+        // Arrange
+        _fixture.CacheService
+            .GetAsync<List<Player>>(Arg.Any<string>())
+            .Returns(_fixture.Players);
+
+        // Act
+        var result = await _fixture.PlayerService.GetAllAsync(_fixture.Id, _fixture.Id);
+
+        // Assert
+        result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Player>>();
+    }
+
+    [Test]
+    public async Task GetByIdAsync_ExistingPlayerInRepository_ReturnsPlayer()
     {
         // Arrange
         _fixture.PlayerRepository
@@ -51,9 +66,28 @@ public class PlayerServiceTests
     }
 
     [Test]
+    public async Task GetByIdAsync_ExistingPlayerInCache_ReturnsPlayer()
+    {
+        // Arrange
+        _fixture.CacheService
+            .GetAsync<Player>(Arg.Any<string>())
+            .Returns(_fixture.Player);
+
+        // Act
+        var result = await _fixture.PlayerService.GetByIdAsync(_fixture.Id);
+
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<Player>();
+    }
+
+    [Test]
     public async Task GetByIdAsync_NonexistingPlayer_ThrowsNullReferenceException()
     {
         // Arrange
+        _fixture.CacheService
+            .GetAsync<Player>(Arg.Any<string>())
+            .ReturnsNull();
+
         _fixture.PlayerRepository
             .GetByIdAsync(Arg.Any<int>())
             .ReturnsNull();

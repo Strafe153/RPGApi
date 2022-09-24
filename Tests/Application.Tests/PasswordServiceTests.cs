@@ -14,7 +14,7 @@ public class PasswordServiceTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new PasswordServiceFixture();
+        _fixture = new();
     }
 
     [Test]

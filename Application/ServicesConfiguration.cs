@@ -15,5 +15,6 @@ public static class ServicesConfiguration
         services.AddScoped<IItemService<Weapon>, WeaponService>();
         services.AddScoped<IItemService<Spell>, SpellService>();
         services.AddScoped<IItemService<Mount>, MountService>();
+        services.AddSingleton<ICacheService, CacheService>();
     }
 }
