@@ -43,9 +43,11 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.GetAsync(_fixture.PageParameters);
-        var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<CharacterReadDto>>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var pageDto = objectResult.Value.As<PageDto<CharacterReadDto>>();
 
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<CharacterReadDto>>>();
+        objectResult.StatusCode.Should().Be(200);
         pageDto.Entities.Should().NotBeEmpty();
     }
 
@@ -63,10 +65,12 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.GetAsync(_fixture.Id);
-        var readDto = result.Result.As<OkObjectResult>().Value.As<CharacterReadDto>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var readDto = objectResult.Value.As<CharacterReadDto>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<CharacterReadDto>>();
+        objectResult.StatusCode.Should().Be(200);
         readDto.Should().NotBeNull();
     }
     
@@ -84,10 +88,12 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.CreateAsync(_fixture.CharacterCreateDto);
-        var readDto = result.Result.As<CreatedAtActionResult>().Value.As<CharacterReadDto>();
+        var objectResult = result.Result.As<CreatedAtActionResult>();
+        var readDto = objectResult.Value.As<CharacterReadDto>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<CharacterReadDto>>();
+        objectResult.StatusCode.Should().Be(201);
         readDto.Should().NotBeNull();
     }
 
@@ -101,9 +107,11 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.UpdateAsync(_fixture.Id, _fixture.CharacterUpdateDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -120,9 +128,11 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -156,9 +166,11 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.DeleteAsync(_fixture.Id);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -175,9 +187,11 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.AddWeaponAsync(_fixture.ItemDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -194,9 +208,11 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.RemoveWeaponAsync(_fixture.ItemDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -213,9 +229,11 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.AddSpellAsync(_fixture.ItemDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -232,9 +250,11 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.RemoveSpellAsync(_fixture.ItemDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -251,9 +271,11 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.AddMountAsync(_fixture.ItemDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -270,8 +292,10 @@ public class CharactersControllerTests
 
         // Act
         var result = await _fixture.CharactersController.RemoveMountAsync(_fixture.ItemDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 }

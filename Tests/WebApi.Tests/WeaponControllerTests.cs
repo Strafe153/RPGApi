@@ -44,10 +44,12 @@ public class WeaponControllerTests
 
         // Act
         var result = await _fixture.WeaponsController.GetAsync(_fixture.PageParameters);
-        var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<WeaponReadDto>>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var pageDto = objectResult.Value.As<PageDto<WeaponReadDto>>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<WeaponReadDto>>>();
+        objectResult.StatusCode.Should().Be(200);
         pageDto.Entities.Should().NotBeEmpty();
     }
 
@@ -65,10 +67,12 @@ public class WeaponControllerTests
 
         // Act
         var result = await _fixture.WeaponsController.GetAsync(_fixture.Id);
-        var readDto = result.Result.As<OkObjectResult>().Value.As<WeaponReadDto>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var readDto = objectResult.Value.As<WeaponReadDto>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<WeaponReadDto>>();
+        objectResult.StatusCode.Should().Be(200);
         readDto.Should().NotBeNull();
     }
 
@@ -86,10 +90,12 @@ public class WeaponControllerTests
 
         // Act
         var result = await _fixture.WeaponsController.CreateAsync(_fixture.WeaponBaseDto);
-        var readDto = result.Result.As<CreatedAtActionResult>().Value.As<WeaponReadDto>();
+        var objectResult = result.Result.As<CreatedAtActionResult>();
+        var readDto = objectResult.Value.As<WeaponReadDto>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<WeaponReadDto>>();
+        objectResult.StatusCode.Should().Be(201);
         readDto.Should().NotBeNull();
     }
 
@@ -103,9 +109,11 @@ public class WeaponControllerTests
 
         // Act
         var result = await _fixture.WeaponsController.UpdateAsync(_fixture.Id, _fixture.WeaponBaseDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -122,9 +130,11 @@ public class WeaponControllerTests
 
         // Act
         var result = await _fixture.WeaponsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -158,9 +168,11 @@ public class WeaponControllerTests
 
         // Act
         var result = await _fixture.WeaponsController.DeleteAsync(_fixture.Id);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -177,8 +189,10 @@ public class WeaponControllerTests
 
         // Act
         var result = await _fixture.WeaponsController.HitAsync(_fixture.HitDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 }

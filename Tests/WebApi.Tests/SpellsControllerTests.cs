@@ -44,10 +44,12 @@ public class SpellsControllerTests
 
         // Act
         var result = await _fixture.SpellsController.GetAsync(_fixture.PageParameters);
-        var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<SpellReadDto>>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var pageDto = objectResult.Value.As<PageDto<SpellReadDto>>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<SpellReadDto>>>();
+        objectResult.StatusCode.Should().Be(200);
         pageDto.Entities.Should().NotBeEmpty();
     }
 
@@ -65,10 +67,12 @@ public class SpellsControllerTests
 
         // Act
         var result = await _fixture.SpellsController.GetAsync(_fixture.Id);
-        var readDto = result.Result.As<OkObjectResult>().Value.As<SpellReadDto>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var readDto = objectResult.Value.As<SpellReadDto>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
+        objectResult.StatusCode.Should().Be(200);
         readDto.Should().NotBeNull();
     }
 
@@ -86,10 +90,12 @@ public class SpellsControllerTests
 
         // Act
         var result = await _fixture.SpellsController.CreateAsync(_fixture.SpellBaseDto);
-        var readDto = result.Result.As<CreatedAtActionResult>().Value.As<SpellReadDto>();
+        var objectResult = result.Result.As<CreatedAtActionResult>();
+        var readDto = objectResult.Value.As<SpellReadDto>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
+        objectResult.StatusCode.Should().Be(201);
         readDto.Should().NotBeNull();
     }
 
@@ -103,9 +109,11 @@ public class SpellsControllerTests
 
         // Act
         var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.SpellBaseDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -122,9 +130,11 @@ public class SpellsControllerTests
 
         // Act
         var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -158,9 +168,11 @@ public class SpellsControllerTests
 
         // Act
         var result = await _fixture.SpellsController.DeleteAsync(_fixture.Id);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -177,8 +189,10 @@ public class SpellsControllerTests
 
         // Act
         var result = await _fixture.SpellsController.HitAsync(_fixture.HitDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 }

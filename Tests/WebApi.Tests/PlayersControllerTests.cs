@@ -35,10 +35,12 @@ public class PlayersControllerTests
 
         // Act
         var result = await _fixture.PlayerContainer.GetAsync(_fixture.PageParameters);
-        var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<PlayerReadDto>>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var pageDto = objectResult.Value.As<PageDto<PlayerReadDto>>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<PlayerReadDto>>>();
+        objectResult.StatusCode.Should().Be(200);
         pageDto.Entities.Should().NotBeEmpty();
     }
 
@@ -56,10 +58,12 @@ public class PlayersControllerTests
 
         // Act
         var result = await _fixture.PlayerContainer.GetAsync(_fixture.Id);
-        var readDto = result.Result.As<OkObjectResult>().Value.As<PlayerReadDto>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var readDto = objectResult.Value.As<PlayerReadDto>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PlayerReadDto>>();
+        objectResult.StatusCode.Should().Be(200);
         readDto.Should().NotBeNull();
     }
 
@@ -73,10 +77,12 @@ public class PlayersControllerTests
 
         // Act
         var result = await _fixture.PlayerContainer.RegisterAsync(_fixture.PlayerAuthorizeDto);
-        var readDto = result.Result.As<CreatedAtActionResult>().Value.As<PlayerReadDto>();
+        var objectResult = result.Result.As<CreatedAtActionResult>();
+        var readDto = objectResult.Value.As<PlayerReadDto>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PlayerReadDto>>();
+        objectResult.StatusCode.Should().Be(201);
         readDto.Should().NotBeNull();
     }
 
@@ -94,10 +100,12 @@ public class PlayersControllerTests
 
         // Act
         var result = await _fixture.PlayerContainer.LoginAsync(_fixture.PlayerAuthorizeDto);
-        var readWithTokenDto = result.Result.As<OkObjectResult>().Value.As<PlayerWithTokenReadDto>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var readWithTokenDto = objectResult.Value.As<PlayerWithTokenReadDto>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PlayerWithTokenReadDto>>();
+        objectResult.StatusCode.Should().Be(200);
         readWithTokenDto.Should().NotBeNull();
     }
 
@@ -111,9 +119,11 @@ public class PlayersControllerTests
 
         // Act
         var result = await _fixture.PlayerContainer.UpdateAsync(_fixture.Id, _fixture.PlayerUpdateDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -126,24 +136,11 @@ public class PlayersControllerTests
 
         // Act
         var result = await _fixture.PlayerContainer.ChangePasswordAsync(_fixture.Id, _fixture.PlayerChangePasswordDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-    }
-
-    [Test]
-    public async Task DeleteAsync_ExistingPlayer_ReturnsNoContentResult()
-    {
-        // Arrange
-        _fixture.PlayerService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Player);
-
-        // Act
-        var result = await _fixture.PlayerContainer.DeleteAsync(_fixture.Id);
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -156,8 +153,27 @@ public class PlayersControllerTests
 
         // Act
         var result = await _fixture.PlayerContainer.ChangeRoleAsync(_fixture.Id, _fixture.PlayerChangeRoleDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
+    }
+
+    [Test]
+    public async Task DeleteAsync_ExistingPlayer_ReturnsNoContentResult()
+    {
+        // Arrange
+        _fixture.PlayerService
+            .GetByIdAsync(Arg.Any<int>())
+            .Returns(_fixture.Player);
+
+        // Act
+        var result = await _fixture.PlayerContainer.DeleteAsync(_fixture.Id);
+        var objectResult = result.As<NoContentResult>();
+
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 }

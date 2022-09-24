@@ -44,10 +44,12 @@ public class MountsControllerTests
 
         // Act
         var result = await _fixture.MountsController.GetAsync(_fixture.PageParameters);
-        var pageDto = result.Result.As<OkObjectResult>().Value.As<PageDto<MountReadDto>>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var pageDto = objectResult.Value.As<PageDto<MountReadDto>>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<MountReadDto>>>();
+        objectResult.StatusCode.Should().Be(200);
         pageDto.Entities.Should().NotBeEmpty();
     }
 
@@ -65,10 +67,12 @@ public class MountsControllerTests
 
         // Act
         var result = await _fixture.MountsController.GetAsync(_fixture.Id);
-        var readDto = result.Result.As<OkObjectResult>().Value.As<MountReadDto>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var readDto = objectResult.Value.As<MountReadDto>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<MountReadDto>>();
+        objectResult.StatusCode.Should().Be(200);
         readDto.Should().NotBeNull();
     }
 
@@ -86,10 +90,12 @@ public class MountsControllerTests
 
         // Act
         var result = await _fixture.MountsController.CreateAsync(_fixture.MountBaseDto);
-        var readDto = result.Result.As<CreatedAtActionResult>().Value.As<MountReadDto>();
+        var objectResult = result.Result.As<CreatedAtActionResult>();
+        var readDto = objectResult.Value.As<MountReadDto>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<MountReadDto>>();
+        objectResult.StatusCode.Should().Be(201);
         readDto.Should().NotBeNull();
     }
 
@@ -103,9 +109,11 @@ public class MountsControllerTests
 
         // Act
         var result = await _fixture.MountsController.UpdateAsync(_fixture.Id, _fixture.MountBaseDto);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -122,9 +130,11 @@ public class MountsControllerTests
 
         // Act
         var result = await _fixture.MountsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 
     [Test]
@@ -158,8 +168,10 @@ public class MountsControllerTests
 
         // Act
         var result = await _fixture.MountsController.DeleteAsync(_fixture.Id);
+        var objectResult = result.As<NoContentResult>();
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+        objectResult.StatusCode.Should().Be(204);
     }
 }
