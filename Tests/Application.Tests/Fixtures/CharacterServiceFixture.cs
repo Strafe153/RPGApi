@@ -17,10 +17,12 @@ public class CharacterServiceFixture
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
         CharacterRepository = fixture.Freeze<IRepository<Character>>();
+        CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<CharacterService>>();
 
         CharacterService = new CharacterService(
             CharacterRepository,
+            CacheService,
             Logger);
 
         Id = 1;
@@ -32,6 +34,7 @@ public class CharacterServiceFixture
 
     public ICharacterService CharacterService { get; }
     public IRepository<Character> CharacterRepository { get; set; }
+    public ICacheService CacheService { get; }
     public ILogger<CharacterService> Logger { get; set; }
 
     public int Id { get; }

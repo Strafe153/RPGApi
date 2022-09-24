@@ -17,27 +17,32 @@ public class WeaponServiceFixture
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
         WeaponRepository = fixture.Freeze<IRepository<Weapon>>();
+        CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<WeaponService>>();
 
         WeaponService = new WeaponService(
             WeaponRepository,
+            CacheService,
             Logger);
 
         Id = 1;
         Name = "StringPlaceholder";
         Weapon = GetWeapon(Id);
         Character = GetCharacter();
+        Weapons = GetWeapons();
         PaginatedList = GetPaginatedList();
     }
 
     public IItemService<Weapon> WeaponService { get; }
     public IRepository<Weapon> WeaponRepository { get; }
+    public ICacheService CacheService { get; }
     public ILogger<WeaponService> Logger { get; set; }
 
     public int Id { get; }
     public string? Name { get; }
     public Weapon Weapon { get; }
     public Character Character { get; }
+    public List<Weapon> Weapons { get; }
     public PaginatedList<Weapon> PaginatedList { get; }
 
     private Character GetCharacter()

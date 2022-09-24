@@ -17,7 +17,7 @@ public class CharacterServiceTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new CharacterServiceFixture();
+        _fixture = new();
     }
 
     [TearDown]
@@ -27,7 +27,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_ValidParameters_ReturnsPaginatedListOfCharacter()
+    public async Task GetAllAsync_ValidParametersDataFromRepository_ReturnsPaginatedListOfCharacter()
     {
         // Arrange
         _fixture.CharacterRepository
@@ -42,7 +42,22 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_ExistingCharacter_ReturnsCharacter()
+    public async Task GetAllAsync_ValidParametersDataFromCache_ReturnsPaginatedListOfCharacter()
+    {
+        // Arrange
+        _fixture.CacheService
+            .GetAsync<List<Character>>(Arg.Any<string>())
+            .Returns(_fixture.Characters);
+
+        // Act
+        var result = await _fixture.CharacterService.GetAllAsync(_fixture.Id, _fixture.Id);
+
+        // Assert
+        result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Character>>();
+    }
+
+    [Test]
+    public async Task GetByIdAsync_ExistingCharacterInRepository_ReturnsCharacter()
     {
         // Arrange
         _fixture.CharacterRepository
@@ -57,9 +72,28 @@ public class CharacterServiceTests
     }
 
     [Test]
+    public async Task GetByIdAsync_ExistingCharacterInCache_ReturnsCharacter()
+    {
+        // Arrange
+        _fixture.CacheService
+            .GetAsync<Character>(Arg.Any<string>())
+            .Returns(_fixture.Character);
+
+        // Act
+        var result = await _fixture.CharacterService.GetByIdAsync(_fixture.Id);
+
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<Character>();
+    }
+
+    [Test]
     public async Task GetByIdAsync_NonexistingCharacter_ThrowsNullReferenceException()
     {
         // Arrange
+        _fixture.CacheService
+            .GetAsync<Character>(Arg.Any<string>())
+            .ReturnsNull();
+
         _fixture.CharacterRepository
             .GetByIdAsync(Arg.Any<int>())
             .ReturnsNull();

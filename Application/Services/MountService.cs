@@ -10,13 +10,16 @@ namespace Application.Services;
 public class MountService : IItemService<Mount>
 {
     private readonly IRepository<Mount> _repository;
+    private readonly ICacheService _cacheService;
     private readonly ILogger<MountService> _logger;
 
     public MountService(
-        IRepository<Mount> repository, 
+        IRepository<Mount> repository,
+        ICacheService cacheService,
         ILogger<MountService> logger)
     {
         _repository = repository;
+        _cacheService = cacheService;
         _logger = logger;
     }
 
@@ -37,7 +40,8 @@ public class MountService : IItemService<Mount>
         };
 
         character.CharacterMounts.Add(characterWeapon);
-        _logger.LogInformation($"Successfully added the mount with id {item.Id} to the character with id {character.Id}");
+        _logger.LogInformation("Successfully added the mount with id {ItemId} to the character with id {CharacterId}", 
+            item.Id, character.Id);
     }
 
     public async Task DeleteAsync(Mount entity)
@@ -45,12 +49,25 @@ public class MountService : IItemService<Mount>
         _repository.Delete(entity);
         await _repository.SaveChangesAsync();
 
-        _logger.LogInformation($"Succesfully deleted a mount with id {entity.Id}");
+        _logger.LogInformation("Succesfully deleted a mount with id {Id}", entity.Id);
     }
 
     public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize)
     {
-        var mounts = await _repository.GetAllAsync(pageNumber, pageSize);
+        string key = "mounts";
+        var cachedMounts = await _cacheService.GetAsync<List<Mount>>(key);
+        PaginatedList<Mount> mounts;
+
+        if (cachedMounts is null)
+        {
+            mounts = await _repository.GetAllAsync(pageNumber, pageSize);
+            await _cacheService.SetAsync(key, mounts);
+        }
+        else
+        {
+            mounts = new(cachedMounts, cachedMounts.Count, pageNumber, pageSize);
+        }
+
         _logger.LogInformation("Successfully retrieved all mounts");
 
         return mounts;
@@ -58,15 +75,23 @@ public class MountService : IItemService<Mount>
 
     public async Task<Mount> GetByIdAsync(int id)
     {
-        var mount = await _repository.GetByIdAsync(id);
+        string key = $"mounts:{id}";
+        var mount = await _cacheService.GetAsync<Mount>(key);
 
         if (mount is null)
         {
-            _logger.LogWarning($"Failed to retrieve a mount with id {id}");
-            throw new NullReferenceException("Mount not found");
+            mount = await _repository.GetByIdAsync(id);
+
+            if (mount is null)
+            {
+                _logger.LogWarning("Failed to retrieve a mount with id {Id}", id);
+                throw new NullReferenceException($"Mount with id {id} not found");
+            }
+
+            await _cacheService.SetAsync(key, mount);
         }
 
-        _logger.LogInformation($"Successfully retrieved a mount with id {id}");
+        _logger.LogInformation("Successfully retrieved a mount with id {Id}", id);
 
         return mount;
     }
@@ -77,15 +102,13 @@ public class MountService : IItemService<Mount>
 
         if (characterMount is null)
         {
-            _logger.LogWarning($"Failed to remove the mount with id {item.Id} from " +
-                $"the character with id {character.Id}");
-            throw new ItemNotFoundException($"Character with id {character.Id} does " +
-                $"not possess the mount with the id {item.Id}");
+            _logger.LogWarning("Failed to remove the mount with id {ItemId} from the character with id {CharacterId}", 
+                item.Id, character.Id);
+            throw new ItemNotFoundException($"Character with id {character.Id} does not possess the mount with the id {item.Id}");
         }
 
         character.CharacterMounts.Remove(characterMount);
-        _logger.LogInformation($"Successfully removed the mount with id {item.Id} " +
-            $"from the character with id {character.Id}");
+        _logger.LogInformation($"Successfully removed the mount with id {item.Id} from the character with id {character.Id}");
     }
 
     public async Task UpdateAsync(Mount entity)

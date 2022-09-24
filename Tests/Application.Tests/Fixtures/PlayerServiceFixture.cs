@@ -19,10 +19,12 @@ public class PlayerServiceFixture
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
         PlayerRepository = fixture.Freeze<IPlayerRepository>();
+        CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<PlayerService>>();
 
         PlayerService = new PlayerService(
             PlayerRepository,
+            CacheService,
             Logger);
 
         Id = 1;
@@ -39,6 +41,7 @@ public class PlayerServiceFixture
 
     public IPlayerService PlayerService { get; }
     public IPlayerRepository PlayerRepository { get; }
+    public ICacheService CacheService { get; }
     public ILogger<PlayerService> Logger { get; }
 
     public int Id { get; }
