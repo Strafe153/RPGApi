@@ -24,12 +24,14 @@ public class PasswordService : IPasswordService
         _logger = logger;
     }
 
-    public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+    public (byte[], byte[]) CreatePasswordHash(string password)
     {
         using (HMACSHA512 hmac = new())
         {
-            passwordSalt = hmac.Key;
-            passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+            byte[] passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+            byte[] passwordSalt = hmac.Key;
+
+            return (passwordHash, passwordSalt);
         }
     }
 

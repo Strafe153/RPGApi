@@ -52,8 +52,8 @@ public class CacheService : ICacheService
 
         await _cache.SetAsync(key, dataAsBytes, new DistributedCacheEntryOptions()
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2),
-            SlidingExpiration = TimeSpan.FromMinutes(3)
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2),
+            SlidingExpiration = TimeSpan.FromSeconds(10)
         });
 
         _logger.LogInformation("Successfully cached data of type '{Type}'", typeof(T));

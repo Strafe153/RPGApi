@@ -57,7 +57,7 @@ public class PlayersController : ControllerBase
     public async Task<ActionResult<PlayerReadDto>> RegisterAsync(
         [FromBody] PlayerAuthorizeDto authorizeModel)
     {
-        _passwordService.CreatePasswordHash(authorizeModel.Password!, out byte[] hash, out byte[] salt);
+        (byte[] hash, byte[] salt) = _passwordService.CreatePasswordHash(authorizeModel.Password!);
 
         Player player = _playerService.CreatePlayer(authorizeModel.Name!, hash, salt);
         await _playerService.AddAsync(player);
@@ -93,18 +93,21 @@ public class PlayersController : ControllerBase
     }
 
     [HttpPut("{id:int:min(1)}/changePassword")]
-    public async Task<ActionResult> ChangePasswordAsync(
+    public async Task<ActionResult<string>> ChangePasswordAsync(
         [FromRoute] int id, 
         [FromBody] PlayerChangePasswordDto changePasswordDto)
     {
         var player = await _playerService.GetByIdAsync(id);
 
         _playerService.VerifyPlayerAccessRights(player, User?.Identity!, User?.Claims!);
-        _passwordService.CreatePasswordHash(changePasswordDto.Password!, out byte[] hash, out byte[] salt);
+
+        (byte[] hash, byte[] salt) = _passwordService.CreatePasswordHash(changePasswordDto.Password!);
         _playerService.ChangePasswordData(player, hash, salt);
         await _playerService.UpdateAsync(player);
 
-        return NoContent();
+        string token = _passwordService.CreateToken(player);
+
+        return Ok(token);
     }
 
     [HttpPut("{id:int:min(1)}/changeRole")]

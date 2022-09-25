@@ -127,7 +127,7 @@ public class PlayersControllerTests
     }
 
     [Test]
-    public async Task ChangePasswordAsync_ValidDto_ReturnsNoContentResult()
+    public async Task ChangePasswordAsync_ValidDto_ReturnsOkObjectResultOfString()
     {
         // Arrange
         _fixture.PlayerService
@@ -136,11 +136,13 @@ public class PlayersControllerTests
 
         // Act
         var result = await _fixture.PlayerContainer.ChangePasswordAsync(_fixture.Id, _fixture.PlayerChangePasswordDto);
-        var objectResult = result.As<NoContentResult>();
+        var objectResult = result.Result.As<OkObjectResult>();
+        var token = objectResult.Value.As<string>();
 
         // Assert
-        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        result.Should().NotBeNull().And.BeOfType<ActionResult<string>>();
+        objectResult.StatusCode.Should().Be(200);
+        token.Should().NotBeNull();
     }
 
     [Test]
