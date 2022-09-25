@@ -21,8 +21,7 @@ public class PasswordServiceTests
     public void CreatePasswordHash_ValidPassword_ReturnsVoid()
     {
         // Act
-        var result = () => _fixture.PasswordService
-            .CreatePasswordHash(_fixture.StringPlaceholder!, out byte[] hash, out byte[] salt);
+        var result = () => _fixture.PasswordService.CreatePasswordHash(_fixture.StringPlaceholder!);
 
         // Assert
         result.Should().NotBeNull();
