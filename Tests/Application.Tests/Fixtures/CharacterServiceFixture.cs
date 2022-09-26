@@ -7,6 +7,7 @@ using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.Extensions.Logging;
+using NSubstitute;
 
 namespace Application.Tests.Fixtures;
 
@@ -16,9 +17,9 @@ public class CharacterServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        CharacterRepository = fixture.Freeze<IRepository<Character>>();
-        CacheService = fixture.Freeze<ICacheService>();
-        Logger = fixture.Freeze<ILogger<CharacterService>>();
+        CharacterRepository = Substitute.For<IRepository<Character>>();
+        CacheService = Substitute.For<ICacheService>();
+        Logger = Substitute.For<ILogger<CharacterService>>();
 
         CharacterService = new CharacterService(
             CharacterRepository,

@@ -7,6 +7,7 @@ using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.Extensions.Logging;
+using NSubstitute;
 
 namespace Application.Tests.Fixtures;
 
@@ -16,9 +17,9 @@ public class WeaponServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        WeaponRepository = fixture.Freeze<IRepository<Weapon>>();
-        CacheService = fixture.Freeze<ICacheService>();
-        Logger = fixture.Freeze<ILogger<WeaponService>>();
+        WeaponRepository = Substitute.For<IRepository<Weapon>>();
+        CacheService = Substitute.For<ICacheService>();
+        Logger = Substitute.For<ILogger<WeaponService>>();
 
         WeaponService = new WeaponService(
             WeaponRepository,

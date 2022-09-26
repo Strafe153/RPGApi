@@ -5,6 +5,7 @@ using Core.Entities;
 using Core.Enums;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NSubstitute;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -16,9 +17,9 @@ public class PasswordServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        Configuration = fixture.Freeze<IConfiguration>();
-        Logger = fixture.Freeze<ILogger<PasswordService>>();
-        ConfigurationSection = fixture.Freeze<IConfigurationSection>();
+        Configuration = Substitute.For<IConfiguration>();
+        Logger = Substitute.For<ILogger<PasswordService>>();
+        ConfigurationSection = Substitute.For<IConfigurationSection>();
 
         PasswordService = new(
             Configuration,

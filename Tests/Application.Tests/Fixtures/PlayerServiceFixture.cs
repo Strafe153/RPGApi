@@ -7,6 +7,7 @@ using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.Extensions.Logging;
+using NSubstitute;
 using System.Security.Claims;
 using System.Security.Principal;
 
@@ -18,9 +19,9 @@ public class PlayerServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        PlayerRepository = fixture.Freeze<IPlayerRepository>();
-        CacheService = fixture.Freeze<ICacheService>();
-        Logger = fixture.Freeze<ILogger<PlayerService>>();
+        PlayerRepository = Substitute.For<IPlayerRepository>();
+        CacheService = Substitute.For<ICacheService>();
+        Logger = Substitute.For<ILogger<PlayerService>>();
 
         PlayerService = new PlayerService(
             PlayerRepository,

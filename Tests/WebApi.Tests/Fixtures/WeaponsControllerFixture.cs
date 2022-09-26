@@ -25,13 +25,13 @@ public class WeaponsControllerFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        WeaponService = fixture.Freeze<IItemService<Weapon>>();
-        CharacterService = fixture.Freeze<ICharacterService>();
-        PlayerService = fixture.Freeze<IPlayerService>();
-        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>>();
-        ReadMapper = fixture.Freeze<IMapper<Weapon, WeaponReadDto>>();
-        CreateMapper = fixture.Freeze<IMapper<WeaponBaseDto, Weapon>>();
-        UpdateMapper = fixture.Freeze<IUpdateMapper<WeaponBaseDto, Weapon>>();
+        WeaponService = Substitute.For<IItemService<Weapon>>();
+        CharacterService = Substitute.For<ICharacterService>();
+        PlayerService = Substitute.For<IPlayerService>();
+        PaginatedMapper = Substitute.For<IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>>();
+        ReadMapper = Substitute.For<IMapper<Weapon, WeaponReadDto>>();
+        CreateMapper = Substitute.For<IMapper<WeaponBaseDto, Weapon>>();
+        UpdateMapper = Substitute.For<IUpdateMapper<WeaponBaseDto, Weapon>>();
 
         WeaponsController = new(
             WeaponService,

@@ -5,6 +5,7 @@ using Core.Entities;
 using Core.Enums;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using NSubstitute;
 
 namespace Application.Tests.Fixtures;
 
@@ -14,8 +15,8 @@ public class CacheServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        DistributedCache = fixture.Freeze<IDistributedCache>();
-        Logger = fixture.Freeze<ILogger<CacheService>>();
+        DistributedCache = Substitute.For<IDistributedCache>();
+        Logger = Substitute.For<ILogger<CacheService>>();
 
         CacheService = new(
             DistributedCache,
