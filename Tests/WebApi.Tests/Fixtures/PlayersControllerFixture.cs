@@ -6,6 +6,7 @@ using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Services;
 using Core.Models;
+using NSubstitute;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
 
@@ -17,11 +18,11 @@ public class PlayersControllerFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        PlayerService = fixture.Freeze<IPlayerService>();
-        PasswordService = fixture.Freeze<IPasswordService>();
-        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>>();
-        ReadMapper = fixture.Freeze<IMapper<Player, PlayerReadDto>>();
-        ReadWithTokenMapper = fixture.Freeze<IMapper<Player, PlayerWithTokenReadDto>>();
+        PlayerService = Substitute.For<IPlayerService>();
+        PasswordService = Substitute.For<IPasswordService>();
+        PaginatedMapper = Substitute.For<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>>();
+        ReadMapper = Substitute.For<IMapper<Player, PlayerReadDto>>();
+        ReadWithTokenMapper = Substitute.For<IMapper<Player, PlayerWithTokenReadDto>>();
 
         PlayerContainer = new(
             PlayerService,

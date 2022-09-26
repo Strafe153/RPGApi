@@ -25,13 +25,13 @@ public class SpellsControllerFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        SpellService = fixture.Freeze<IItemService<Spell>>();
-        CharacterService = fixture.Freeze<ICharacterService>();
-        PlayerService = fixture.Freeze<IPlayerService>();
-        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>>>();
-        ReadMapper = fixture.Freeze<IMapper<Spell, SpellReadDto>>();
-        CreateMapper = fixture.Freeze<IMapper<SpellBaseDto, Spell>>();
-        UpdateMapper = fixture.Freeze<IUpdateMapper<SpellBaseDto, Spell>>();
+        SpellService = Substitute.For<IItemService<Spell>>();
+        CharacterService = Substitute.For<ICharacterService>();
+        PlayerService = Substitute.For<IPlayerService>();
+        PaginatedMapper = Substitute.For<IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>>>();
+        ReadMapper = Substitute.For<IMapper<Spell, SpellReadDto>>();
+        CreateMapper = Substitute.For<IMapper<SpellBaseDto, Spell>>();
+        UpdateMapper = Substitute.For<IUpdateMapper<SpellBaseDto, Spell>>();
 
         SpellsController = new(
             SpellService,
