@@ -181,22 +181,30 @@ public class PlayerServiceTests
     }
 
     [Test]
-    public void VerifyPlayerAccessRights_SufficientRights_ReturnsVoid()
+    public void VerifyPlayerAccessRights_SufficientClaims_ReturnsVoid()
     {
+        // Arrange
+        _fixture.HttpContextAccessor
+            .HttpContext.User.Claims
+            .Returns(_fixture.SufficientClaims);
+
         // Act
-        var result = () => _fixture.PlayerService
-            .VerifyPlayerAccessRights(_fixture.Player, _fixture.IIdentity, _fixture.SufficientClaims);
+        var result = () => _fixture.PlayerService.VerifyPlayerAccessRights(_fixture.Player);
 
         // Assert
         result.Should().NotBeNull();
     }
 
     [Test]
-    public void VerifyPlayerAccessRights_InsufficientRights_ReturnsVoid()
+    public void VerifyPlayerAccessRights_InsufficientClaims_ReturnsVoid()
     {
+        // Arrange
+        _fixture.HttpContextAccessor
+            .HttpContext.User.Claims
+            .Returns(_fixture.InsufficientClaims);
+            
         // Act
-        var result = () => _fixture.PlayerService
-            .VerifyPlayerAccessRights(_fixture.Player, _fixture.IIdentity, _fixture.InsufficientClaims);
+        var result = () => _fixture.PlayerService.VerifyPlayerAccessRights(_fixture.Player);
 
         // Assert
         result.Should().Throw<NotEnoughRightsException>();

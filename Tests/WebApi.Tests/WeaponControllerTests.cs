@@ -18,9 +18,7 @@ public class WeaponControllerTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new WeaponsControllerFixture();
-
-        _fixture.MockControllerBaseUser();
+        _fixture = new();
         _fixture.MockObjectModelValidator(_fixture.WeaponsController);
     }
 

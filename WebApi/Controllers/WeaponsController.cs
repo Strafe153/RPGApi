@@ -122,7 +122,7 @@ public class WeaponsController : ControllerBase
         var weapon = _characterService.GetWeapon(dealer, hitDto.ItemId);
         var receiver = await _characterService.GetByIdAsync(hitDto.ReceiverId);
 
-        _playerService.VerifyPlayerAccessRights(dealer.Player!, User.Identity!, User.Claims!);
+        _playerService.VerifyPlayerAccessRights(dealer.Player!);
         _characterService.CalculateHealth(receiver, weapon.Damage);
         await _characterService.UpdateAsync(receiver);
 

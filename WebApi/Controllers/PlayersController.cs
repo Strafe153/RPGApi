@@ -85,7 +85,7 @@ public class PlayersController : ControllerBase
     {
         var player = await _playerService.GetByIdAsync(id);
 
-        _playerService.VerifyPlayerAccessRights(player, User?.Identity!, User?.Claims!);
+        _playerService.VerifyPlayerAccessRights(player);
         player.Name = updateDto.Name;
         await _playerService.UpdateAsync(player);
 
@@ -99,7 +99,7 @@ public class PlayersController : ControllerBase
     {
         var player = await _playerService.GetByIdAsync(id);
 
-        _playerService.VerifyPlayerAccessRights(player, User?.Identity!, User?.Claims!);
+        _playerService.VerifyPlayerAccessRights(player);
 
         (byte[] hash, byte[] salt) = _passwordService.CreatePasswordHash(changePasswordDto.Password!);
         _playerService.ChangePasswordData(player, hash, salt);
@@ -127,7 +127,7 @@ public class PlayersController : ControllerBase
     {
         var player = await _playerService.GetByIdAsync(id);
 
-        _playerService.VerifyPlayerAccessRights(player, User?.Identity!, User?.Claims!);
+        _playerService.VerifyPlayerAccessRights(player);
         await _playerService.DeleteAsync(player);
 
         return NoContent();

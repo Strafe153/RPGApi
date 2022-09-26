@@ -71,7 +71,7 @@ public class CharactersController : ControllerBase
         var player = await _playerService.GetByIdAsync(createDto.PlayerId);
         var character = _createMapper.Map(createDto);
 
-        _playerService.VerifyPlayerAccessRights(player, User.Identity!, User.Claims!);
+        _playerService.VerifyPlayerAccessRights(player);
         await _characterService.AddAsync(character);
 
         var readDto = _readMapper.Map(character);
@@ -84,7 +84,7 @@ public class CharactersController : ControllerBase
     {
         var character = await _characterService.GetByIdAsync(id);
 
-        _playerService.VerifyPlayerAccessRights(character.Player!, User.Identity!, User.Claims!);
+        _playerService.VerifyPlayerAccessRights(character.Player!);
         _updateMapper.Map(updateDto, character);
         await _characterService.UpdateAsync(character);
 
@@ -99,7 +99,7 @@ public class CharactersController : ControllerBase
         var character = await _characterService.GetByIdAsync(id);
         var updateDto = _updateMapper.Map(character);
 
-        _playerService.VerifyPlayerAccessRights(character.Player!, User.Identity!, User.Claims!);
+        _playerService.VerifyPlayerAccessRights(character.Player!);
         patchDocument.ApplyTo(updateDto, ModelState);
 
         if (!TryValidateModel(updateDto))
@@ -118,7 +118,7 @@ public class CharactersController : ControllerBase
     {
         var character = await _characterService.GetByIdAsync(id);
 
-        _playerService.VerifyPlayerAccessRights(character.Player!, User.Identity!, User.Claims!);
+        _playerService.VerifyPlayerAccessRights(character.Player!);
         await _characterService.DeleteAsync(character);
 
         return NoContent();
@@ -130,7 +130,7 @@ public class CharactersController : ControllerBase
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         var weapon = await _weaponService.GetByIdAsync(itemDto.ItemId);
 
-        _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
+        _playerService.VerifyPlayerAccessRights(character.Player!);
         _weaponService.AddToCharacter(character, weapon);
         await _characterService.UpdateAsync(character);
 
@@ -143,7 +143,7 @@ public class CharactersController : ControllerBase
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         var weapon = await _weaponService.GetByIdAsync(itemDto.ItemId);
 
-        _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
+        _playerService.VerifyPlayerAccessRights(character.Player!);
         _weaponService.RemoveFromCharacter(character, weapon);
         await _characterService.UpdateAsync(character);
 
@@ -156,7 +156,7 @@ public class CharactersController : ControllerBase
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         var spell = await _spellService.GetByIdAsync(itemDto.ItemId);
 
-        _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
+        _playerService.VerifyPlayerAccessRights(character.Player!);
         _spellService.AddToCharacter(character, spell);
         await _characterService.UpdateAsync(character);
 
@@ -169,7 +169,7 @@ public class CharactersController : ControllerBase
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         var spell = await _spellService.GetByIdAsync(itemDto.ItemId);
 
-        _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
+        _playerService.VerifyPlayerAccessRights(character.Player!);
         _spellService.RemoveFromCharacter(character, spell);
         await _characterService.UpdateAsync(character);
 
@@ -182,7 +182,7 @@ public class CharactersController : ControllerBase
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         var mount = await _mountService.GetByIdAsync(itemDto.ItemId);
 
-        _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
+        _playerService.VerifyPlayerAccessRights(character.Player!);
         _mountService.AddToCharacter(character, mount);
         await _characterService.UpdateAsync(character);
 
@@ -195,7 +195,7 @@ public class CharactersController : ControllerBase
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         var mount = await _mountService.GetByIdAsync(itemDto.ItemId);
 
-        _playerService.VerifyPlayerAccessRights(character.Player!, User?.Identity!, User?.Claims!);
+        _playerService.VerifyPlayerAccessRights(character.Player!);
         _mountService.RemoveFromCharacter(character, mount);
         await _characterService.UpdateAsync(character);
 

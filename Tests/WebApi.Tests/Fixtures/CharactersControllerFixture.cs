@@ -88,17 +88,6 @@ public class CharactersControllerFixture
     public PaginatedList<Character> PaginatedList { get; }
     public PageDto<CharacterReadDto> PageDto { get; }
 
-    public void MockControllerBaseUser()
-    {
-        var user = new ClaimsPrincipal(new ClaimsIdentity());
-
-        CharactersController.ControllerContext = new ControllerContext();
-        CharactersController.ControllerContext.HttpContext = new DefaultHttpContext() 
-        { 
-            User = user 
-        };
-    }
-
     public void MockObjectModelValidator(ControllerBase controller)
     {
         var objectValidator = Substitute.For<IObjectModelValidator>();

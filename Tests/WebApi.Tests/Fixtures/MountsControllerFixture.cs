@@ -70,17 +70,6 @@ public class MountsControllerFixture
     public PageDto<MountReadDto> PageDto { get; }
     public JsonPatchDocument<MountBaseDto> PatchDocument { get; }
 
-    public void MockControllerBaseUser()
-    {
-        var user = new ClaimsPrincipal(new ClaimsIdentity());
-
-        MountsController.ControllerContext = new ControllerContext();
-        MountsController.ControllerContext.HttpContext = new DefaultHttpContext()
-        {
-            User = user
-        };
-    }
-
     public void MockObjectModelValidator(ControllerBase controller)
     {
         var objectValidator = Substitute.For<IObjectModelValidator>();

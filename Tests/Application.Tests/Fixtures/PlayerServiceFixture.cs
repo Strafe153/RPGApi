@@ -6,10 +6,10 @@ using Core.Enums;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System.Security.Claims;
-using System.Security.Principal;
 
 namespace Application.Tests.Fixtures;
 
@@ -21,11 +21,13 @@ public class PlayerServiceFixture
 
         PlayerRepository = Substitute.For<IPlayerRepository>();
         CacheService = Substitute.For<ICacheService>();
+        HttpContextAccessor = Substitute.For<IHttpContextAccessor>();
         Logger = Substitute.For<ILogger<PlayerService>>();
 
         PlayerService = new PlayerService(
             PlayerRepository,
             CacheService,
+            HttpContextAccessor,
             Logger);
 
         Id = 1;
@@ -35,7 +37,6 @@ public class PlayerServiceFixture
         Player = GetPlayer();
         Players = GetPlayers();
         PaginatedList = GetPaginatedList();
-        IIdentity = GetClaimsIdentity();
         SufficientClaims = GetSufficientClaims();
         InsufficientClaims = GetInsufficientClaims();
     }
@@ -43,6 +44,7 @@ public class PlayerServiceFixture
     public IPlayerService PlayerService { get; }
     public IPlayerRepository PlayerRepository { get; }
     public ICacheService CacheService { get; }
+    public IHttpContextAccessor HttpContextAccessor { get; }
     public ILogger<PlayerService> Logger { get; }
 
     public int Id { get; }
@@ -52,7 +54,6 @@ public class PlayerServiceFixture
     public Player Player { get; }
     public List<Player> Players { get; }
     public PaginatedList<Player> PaginatedList { get; }
-    public IIdentity IIdentity { get; }
     public IEnumerable<Claim> SufficientClaims { get; }
     public IEnumerable<Claim> InsufficientClaims { get; }
 
@@ -104,17 +105,12 @@ public class PlayerServiceFixture
         return new PaginatedList<Player>(Players, 6, 1, 5);
     }
 
-    private IIdentity GetClaimsIdentity()
-    {
-        return new ClaimsIdentity(Name, Name, Name);
-    }
-
     private IEnumerable<Claim> GetInsufficientClaims()
     {
         return new List<Claim>()
         {
-            new Claim(ClaimTypes.Name, Name!),
-            new Claim(ClaimTypes.Role, Name!)
+            new Claim(ClaimTypes.Name, string.Empty),
+            new Claim(ClaimTypes.Role, string.Empty)
         };
     }
 
@@ -122,7 +118,7 @@ public class PlayerServiceFixture
     {
         return new List<Claim>()
         {
-            new Claim(ClaimTypes.Name, string.Empty),
+            new Claim(ClaimTypes.Name, Name!),
             new Claim(ClaimTypes.Role, PlayerRole.Admin.ToString())
         };
     }
