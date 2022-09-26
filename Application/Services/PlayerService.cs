@@ -53,7 +53,7 @@ public class PlayerService : IPlayerService
 
     public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize)
     {
-        string key = "players";
+        string key = $"players:{pageNumber}:{pageSize}";
         var cachedPlayers = await _cacheService.GetAsync<List<Player>>(key);
         PaginatedList<Player> players;
 

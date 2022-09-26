@@ -41,7 +41,7 @@ public class CharacterService : ICharacterService
 
     public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize)
     {
-        string key = "characters";
+        string key = $"characters:{pageNumber}:{pageSize}";
         var cachedCharacters = await _cacheService.GetAsync<List<Character>>(key);
         PaginatedList<Character> characters;
 

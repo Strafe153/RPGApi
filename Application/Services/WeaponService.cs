@@ -54,7 +54,7 @@ public class WeaponService : IItemService<Weapon>
 
     public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize)
     {
-        string key = "weapons";
+        string key = $"weapons:{pageNumber}:{pageSize}";
         var cachedWeapons = await _cacheService.GetAsync<List<Weapon>>(key);
         PaginatedList<Weapon> weapons;
 

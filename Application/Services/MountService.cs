@@ -54,7 +54,7 @@ public class MountService : IItemService<Mount>
 
     public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize)
     {
-        string key = "mounts";
+        string key = $"mounts:{pageNumber}:{pageSize}";
         var cachedMounts = await _cacheService.GetAsync<List<Mount>>(key);
         PaginatedList<Mount> mounts;
 
