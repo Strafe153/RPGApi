@@ -76,17 +76,6 @@ public class SpellsControllerFixture
     public PageDto<SpellReadDto> PageDto { get; }
     public JsonPatchDocument<SpellBaseDto> PatchDocument { get; }
 
-    public void MockControllerBaseUser()
-    {
-        var user = new ClaimsPrincipal(new ClaimsIdentity());
-
-        SpellsController.ControllerContext = new ControllerContext();
-        SpellsController.ControllerContext.HttpContext = new DefaultHttpContext()
-        {
-            User = user
-        };
-    }
-
     public void MockObjectModelValidator(ControllerBase controller)
     {
         var objectValidator = Substitute.For<IObjectModelValidator>();

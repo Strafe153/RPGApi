@@ -18,7 +18,7 @@ public class PlayersControllerTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new PlayersControllerFixture();
+        _fixture = new();
     }
 
     [Test]

@@ -122,7 +122,7 @@ public class SpellsController : ControllerBase
         var spell = _characterService.GetSpell(dealer, hitDto.ItemId);
         var receiver = await _characterService.GetByIdAsync(hitDto.ReceiverId);
 
-        _playerService.VerifyPlayerAccessRights(dealer.Player!, User.Identity!, User.Claims!);
+        _playerService.VerifyPlayerAccessRights(dealer.Player!);
         _characterService.CalculateHealth(receiver, spell.Damage);
         await _characterService.UpdateAsync(receiver);
 

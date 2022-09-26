@@ -4,6 +4,7 @@ using Core.Exceptions;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
@@ -15,15 +16,18 @@ public class PlayerService : IPlayerService
 {
     private readonly IPlayerRepository _repository;
     private readonly ICacheService _cacheService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<PlayerService> _logger;
 
     public PlayerService(
         IPlayerRepository repository,
         ICacheService cacheService,
+        IHttpContextAccessor httpContextAccessor,
         ILogger<PlayerService> logger)
     {
         _repository = repository;
         _cacheService = cacheService;
+        _httpContextAccessor = httpContextAccessor;
         _logger = logger;
     }
 
@@ -145,10 +149,14 @@ public class PlayerService : IPlayerService
         player.PasswordSalt = passwordSalt;
     }
 
-    public void VerifyPlayerAccessRights(Player performedOn, IIdentity performer, IEnumerable<Claim> claims)
+    public void VerifyPlayerAccessRights(Player performedOn)
     {
-        if (performedOn.Name != performer.Name 
-            && !claims.Any(c => c.Value == PlayerRole.Admin.ToString()))
+        var context = _httpContextAccessor.HttpContext;
+        var claims = context.User.Claims;
+        string performerName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)!.Value;
+        string performerRole = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)!.Value;
+
+        if ((performedOn.Name != performerName) && (performerRole != PlayerRole.Admin.ToString()))
         {
             throw new NotEnoughRightsException("Not enough rights to perform the operation");
         }

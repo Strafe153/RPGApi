@@ -76,17 +76,6 @@ public class WeaponsControllerFixture
     public PageDto<WeaponReadDto> PageDto { get; }
     public JsonPatchDocument<WeaponBaseDto> PatchDocument { get; }
 
-    public void MockControllerBaseUser()
-    {
-        var user = new ClaimsPrincipal(new ClaimsIdentity());
-
-        WeaponsController.ControllerContext = new ControllerContext();
-        WeaponsController.ControllerContext.HttpContext = new DefaultHttpContext()
-        {
-            User = user
-        };
-    }
-
     public void MockObjectModelValidator(ControllerBase controller)
     {
         var objectValidator = Substitute.For<IObjectModelValidator>();
