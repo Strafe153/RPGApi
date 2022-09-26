@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -13,11 +14,11 @@ namespace DataAccess.Migrations
                 name: "Mounts",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    Speed = table.Column<int>(type: "int", nullable: false, defaultValue: 10)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    Speed = table.Column<int>(type: "integer", nullable: false, defaultValue: 10)
                 },
                 constraints: table =>
                 {
@@ -28,12 +29,12 @@ namespace DataAccess.Migrations
                 name: "Players",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Role = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                    PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Role = table.Column<int>(type: "integer", nullable: false, defaultValue: 1),
+                    PasswordHash = table.Column<byte[]>(type: "bytea", nullable: true),
+                    PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -44,11 +45,11 @@ namespace DataAccess.Migrations
                 name: "Spells",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    Damage = table.Column<int>(type: "int", nullable: false, defaultValue: 15)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    Damage = table.Column<int>(type: "integer", nullable: false, defaultValue: 15)
                 },
                 constraints: table =>
                 {
@@ -59,11 +60,11 @@ namespace DataAccess.Migrations
                 name: "Weapons",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    Damage = table.Column<int>(type: "int", nullable: false, defaultValue: 30)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Type = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    Damage = table.Column<int>(type: "integer", nullable: false, defaultValue: 30)
                 },
                 constraints: table =>
                 {
@@ -74,12 +75,12 @@ namespace DataAccess.Migrations
                 name: "Characters",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Race = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    Health = table.Column<int>(type: "int", nullable: false, defaultValue: 100),
-                    PlayerId = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Race = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    Health = table.Column<int>(type: "integer", nullable: false, defaultValue: 100),
+                    PlayerId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -96,8 +97,8 @@ namespace DataAccess.Migrations
                 name: "CharacterMounts",
                 columns: table => new
                 {
-                    CharacterId = table.Column<int>(type: "int", nullable: false),
-                    MountId = table.Column<int>(type: "int", nullable: false)
+                    CharacterId = table.Column<int>(type: "integer", nullable: false),
+                    MountId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -120,8 +121,8 @@ namespace DataAccess.Migrations
                 name: "CharacterSpells",
                 columns: table => new
                 {
-                    CharacterId = table.Column<int>(type: "int", nullable: false),
-                    SpellId = table.Column<int>(type: "int", nullable: false)
+                    CharacterId = table.Column<int>(type: "integer", nullable: false),
+                    SpellId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -144,8 +145,8 @@ namespace DataAccess.Migrations
                 name: "CharacterWeapons",
                 columns: table => new
                 {
-                    CharacterId = table.Column<int>(type: "int", nullable: false),
-                    WeaponId = table.Column<int>(type: "int", nullable: false)
+                    CharacterId = table.Column<int>(type: "integer", nullable: false),
+                    WeaponId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -167,7 +168,7 @@ namespace DataAccess.Migrations
             migrationBuilder.InsertData(
                 table: "Players",
                 columns: new[] { "Id", "Name", "Role", "PasswordHash", "PasswordSalt" },
-                values: new object[] { 1, "Admin", 0, new byte[] { 85, 231, 233, 62, 74, 123, 216, 86, 236, 143, 206, 171, 38, 166, 172, 188, 140, 4, 18, 183, 101, 135, 207, 17, 121, 243, 150, 75, 100, 91, 103, 147, 46, 13, 72, 170, 115, 104, 182, 74, 122, 3, 73, 98, 137, 41, 10, 143, 166, 201, 156, 20, 164, 246, 119, 91, 126, 6, 163, 185, 51, 70, 252, 95 }, new byte[] { 213, 144, 108, 126, 63, 226, 53, 28, 69, 97, 132, 35, 230, 149, 184, 102, 185, 103, 146, 148, 35, 216, 144, 10, 206, 153, 168, 152, 11, 157, 102, 157, 46, 239, 139, 62, 182, 80, 13, 152, 130, 248, 43, 25, 131, 103, 86, 186, 27, 96, 194, 44, 5, 219, 158, 21, 115, 135, 190, 116, 234, 146, 99, 84, 250, 185, 69, 178, 37, 161, 159, 146, 127, 10, 118, 63, 74, 167, 106, 193, 203, 174, 145, 49, 208, 100, 141, 185, 23, 6, 236, 216, 252, 12, 112, 192, 40, 58, 74, 222, 21, 236, 14, 135, 212, 242, 35, 251, 143, 55, 86, 117, 200, 206, 182, 217, 245, 9, 54, 60, 2, 133, 18, 33, 109, 18, 154, 249 } });
+                values: new object[] { 1, "Admin", 0, new byte[] { 9, 120, 127, 51, 27, 108, 190, 9, 20, 179, 239, 173, 120, 56, 255, 157, 255, 2, 224, 17, 136, 60, 71, 53, 225, 87, 158, 28, 140, 146, 177, 32, 13, 14, 9, 163, 213, 161, 126, 162, 86, 90, 92, 173, 222, 88, 217, 73, 116, 242, 253, 172, 53, 137, 210, 55, 139, 55, 151, 187, 204, 190, 171, 254 }, new byte[] { 77, 193, 173, 203, 172, 178, 13, 242, 10, 121, 20, 158, 230, 208, 201, 248, 29, 131, 135, 220, 6, 121, 191, 175, 114, 230, 103, 173, 10, 30, 41, 161, 154, 28, 45, 118, 164, 213, 146, 107, 14, 130, 167, 143, 74, 40, 174, 47, 75, 110, 163, 31, 25, 74, 72, 39, 122, 70, 24, 190, 11, 21, 17, 28, 132, 77, 19, 62, 150, 86, 121, 32, 169, 51, 251, 249, 129, 237, 56, 11, 153, 161, 176, 65, 10, 112, 226, 5, 109, 32, 167, 249, 10, 226, 216, 251, 38, 25, 105, 45, 103, 215, 57, 13, 220, 123, 198, 215, 54, 197, 204, 186, 246, 233, 235, 158, 199, 85, 136, 240, 92, 43, 74, 185, 116, 191, 97, 44 } });
 
             migrationBuilder.CreateIndex(
                 name: "IX_CharacterMounts_MountId",
@@ -188,6 +189,12 @@ namespace DataAccess.Migrations
                 name: "IX_CharacterWeapons_WeaponId",
                 table: "CharacterWeapons",
                 column: "WeaponId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Players_Name",
+                table: "Players",
+                column: "Name",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

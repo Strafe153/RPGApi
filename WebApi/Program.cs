@@ -40,7 +40,7 @@ builder.Services
 // Add database connection.
 builder.Services.AddDbContext<RPGContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DatabaseConnection"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection"));
 });
 
 // Add distributed Redis cache.

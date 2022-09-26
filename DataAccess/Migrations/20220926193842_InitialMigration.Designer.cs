@@ -3,16 +3,16 @@ using System;
 using DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace DataAccess.Migrations
 {
     [DbContext(typeof(RPGContext))]
-    [Migration("20220816102211_InitialMigration")]
+    [Migration("20220926193842_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -20,34 +20,34 @@ namespace DataAccess.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "6.0.8")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Core.Entities.Character", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Health")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(100);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("character varying(30)");
 
                     b.Property<int>("PlayerId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Race")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(0);
 
                     b.HasKey("Id");
@@ -60,10 +60,10 @@ namespace DataAccess.Migrations
             modelBuilder.Entity("Core.Entities.CharacterMount", b =>
                 {
                     b.Property<int>("CharacterId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("MountId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("CharacterId", "MountId");
 
@@ -75,10 +75,10 @@ namespace DataAccess.Migrations
             modelBuilder.Entity("Core.Entities.CharacterSpell", b =>
                 {
                     b.Property<int>("CharacterId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("SpellId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("CharacterId", "SpellId");
 
@@ -90,10 +90,10 @@ namespace DataAccess.Migrations
             modelBuilder.Entity("Core.Entities.CharacterWeapon", b =>
                 {
                     b.Property<int>("CharacterId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("WeaponId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("CharacterId", "WeaponId");
 
@@ -106,23 +106,23 @@ namespace DataAccess.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("character varying(30)");
 
                     b.Property<int>("Speed")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(10);
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(0);
 
                     b.HasKey("Id");
@@ -134,27 +134,30 @@ namespace DataAccess.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("character varying(30)");
 
                     b.Property<byte[]>("PasswordHash")
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("bytea");
 
                     b.Property<byte[]>("PasswordSalt")
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("bytea");
 
                     b.Property<int>("Role")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(1);
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.ToTable("Players");
 
@@ -163,8 +166,8 @@ namespace DataAccess.Migrations
                         {
                             Id = 1,
                             Name = "Admin",
-                            PasswordHash = new byte[] { 85, 231, 233, 62, 74, 123, 216, 86, 236, 143, 206, 171, 38, 166, 172, 188, 140, 4, 18, 183, 101, 135, 207, 17, 121, 243, 150, 75, 100, 91, 103, 147, 46, 13, 72, 170, 115, 104, 182, 74, 122, 3, 73, 98, 137, 41, 10, 143, 166, 201, 156, 20, 164, 246, 119, 91, 126, 6, 163, 185, 51, 70, 252, 95 },
-                            PasswordSalt = new byte[] { 213, 144, 108, 126, 63, 226, 53, 28, 69, 97, 132, 35, 230, 149, 184, 102, 185, 103, 146, 148, 35, 216, 144, 10, 206, 153, 168, 152, 11, 157, 102, 157, 46, 239, 139, 62, 182, 80, 13, 152, 130, 248, 43, 25, 131, 103, 86, 186, 27, 96, 194, 44, 5, 219, 158, 21, 115, 135, 190, 116, 234, 146, 99, 84, 250, 185, 69, 178, 37, 161, 159, 146, 127, 10, 118, 63, 74, 167, 106, 193, 203, 174, 145, 49, 208, 100, 141, 185, 23, 6, 236, 216, 252, 12, 112, 192, 40, 58, 74, 222, 21, 236, 14, 135, 212, 242, 35, 251, 143, 55, 86, 117, 200, 206, 182, 217, 245, 9, 54, 60, 2, 133, 18, 33, 109, 18, 154, 249 },
+                            PasswordHash = new byte[] { 9, 120, 127, 51, 27, 108, 190, 9, 20, 179, 239, 173, 120, 56, 255, 157, 255, 2, 224, 17, 136, 60, 71, 53, 225, 87, 158, 28, 140, 146, 177, 32, 13, 14, 9, 163, 213, 161, 126, 162, 86, 90, 92, 173, 222, 88, 217, 73, 116, 242, 253, 172, 53, 137, 210, 55, 139, 55, 151, 187, 204, 190, 171, 254 },
+                            PasswordSalt = new byte[] { 77, 193, 173, 203, 172, 178, 13, 242, 10, 121, 20, 158, 230, 208, 201, 248, 29, 131, 135, 220, 6, 121, 191, 175, 114, 230, 103, 173, 10, 30, 41, 161, 154, 28, 45, 118, 164, 213, 146, 107, 14, 130, 167, 143, 74, 40, 174, 47, 75, 110, 163, 31, 25, 74, 72, 39, 122, 70, 24, 190, 11, 21, 17, 28, 132, 77, 19, 62, 150, 86, 121, 32, 169, 51, 251, 249, 129, 237, 56, 11, 153, 161, 176, 65, 10, 112, 226, 5, 109, 32, 167, 249, 10, 226, 216, 251, 38, 25, 105, 45, 103, 215, 57, 13, 220, 123, 198, 215, 54, 197, 204, 186, 246, 233, 235, 158, 199, 85, 136, 240, 92, 43, 74, 185, 116, 191, 97, 44 },
                             Role = 0
                         });
                 });
@@ -173,23 +176,23 @@ namespace DataAccess.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Damage")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(15);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("character varying(30)");
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(0);
 
                     b.HasKey("Id");
@@ -201,23 +204,23 @@ namespace DataAccess.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("Damage")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(30);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("character varying(30)");
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("integer")
                         .HasDefaultValue(0);
 
                     b.HasKey("Id");
