@@ -54,7 +54,7 @@ public class SpellService : IItemService<Spell>
 
     public async Task<PaginatedList<Spell>> GetAllAsync(int pageNumber, int pageSize)
     {
-        string key = "spells";
+        string key = $"spells:{pageNumber}:{pageSize}";
         var cachedSpells = await _cacheService.GetAsync<List<Spell>>(key);
         PaginatedList<Spell> spells;
 

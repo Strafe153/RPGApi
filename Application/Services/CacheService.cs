@@ -52,7 +52,7 @@ public class CacheService : ICacheService
 
         await _cache.SetAsync(key, dataAsBytes, new DistributedCacheEntryOptions()
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2),
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1),
             SlidingExpiration = TimeSpan.FromSeconds(10)
         });
 
