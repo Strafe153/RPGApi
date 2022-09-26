@@ -181,7 +181,7 @@ public class PlayerServiceTests
     }
 
     [Test]
-    public void VerifyPlayerAccessRights_SufficientRights_ReturnsVoid()
+    public void VerifyPlayerAccessRights_SufficientClaims_ReturnsVoid()
     {
         // Arrange
         _fixture.HttpContextAccessor
@@ -196,7 +196,7 @@ public class PlayerServiceTests
     }
 
     [Test]
-    public void VerifyPlayerAccessRights_InsufficientRights_ReturnsVoid()
+    public void VerifyPlayerAccessRights_InsufficientClaims_ReturnsVoid()
     {
         // Arrange
         _fixture.HttpContextAccessor
