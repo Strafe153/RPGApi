@@ -11,6 +11,7 @@
 * Mounts creation, editing and deletion
 
 ## Dependencies
+* `Npgsql.EntityFrameworkCore.PostgreSQL` for PostgreSQL
 * `FluentValidation` for DTO validation
 * `NLog` for logging
 * `NUnit` for unit-tests
