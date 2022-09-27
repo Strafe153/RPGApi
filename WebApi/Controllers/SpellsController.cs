@@ -119,10 +119,11 @@ public class SpellsController : ControllerBase
     public async Task<ActionResult> HitAsync([FromBody] HitDto hitDto)
     {
         var dealer = await _characterService.GetByIdAsync(hitDto.DealerId);
+        _playerService.VerifyPlayerAccessRights(dealer.Player!);
+
         var spell = _characterService.GetSpell(dealer, hitDto.ItemId);
         var receiver = await _characterService.GetByIdAsync(hitDto.ReceiverId);
 
-        _playerService.VerifyPlayerAccessRights(dealer.Player!);
         _characterService.CalculateHealth(receiver, spell.Damage);
         await _characterService.UpdateAsync(receiver);
 
