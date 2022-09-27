@@ -25,11 +25,11 @@ public class MountsControllerFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        MountService = Substitute.For<IItemService<Mount>>();
-        PaginatedMapper = Substitute.For<IMapper<PaginatedList<Mount>, PageDto<MountReadDto>>>();
-        ReadMapper = Substitute.For<IMapper<Mount, MountReadDto>>();
-        CreateMapper = Substitute.For<IMapper<MountBaseDto, Mount>>();
-        UpdateMapper = Substitute.For<IUpdateMapper<MountBaseDto, Mount>>();
+        MountService = fixture.Freeze<IItemService<Mount>>();
+        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Mount>, PageDto<MountReadDto>>>();
+        ReadMapper = fixture.Freeze<IMapper<Mount, MountReadDto>>();
+        CreateMapper = fixture.Freeze<IMapper<MountBaseDto, Mount>>();
+        UpdateMapper = fixture.Freeze<IUpdateMapper<MountBaseDto, Mount>>();
 
         MountsController = new(
             MountService,
@@ -69,6 +69,7 @@ public class MountsControllerFixture
     public PaginatedList<Mount> PaginatedList { get; }
     public PageDto<MountReadDto> PageDto { get; }
     public JsonPatchDocument<MountBaseDto> PatchDocument { get; }
+    public CancellationToken CancellationToken { get; }
 
     public void MockObjectModelValidator(ControllerBase controller)
     {

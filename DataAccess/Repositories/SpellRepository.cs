@@ -25,22 +25,22 @@ public class SpellRepository : IRepository<Spell>
         _context.Spells.Remove(entity);
     }
 
-    public async Task<PaginatedList<Spell>> GetAllAsync(int pageNumber, int pageSize)
+    public async Task<PaginatedList<Spell>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
         var spells = await _context.Spells
             .Include(s => s.CharacterSpells)
                 .ThenInclude(cs => cs.Character)
-            .ToPaginatedListAsync(pageNumber, pageSize);
+            .ToPaginatedListAsync(pageNumber, pageSize, token);
 
         return spells;
     }
 
-    public async Task<Spell?> GetByIdAsync(int id)
+    public async Task<Spell?> GetByIdAsync(int id, CancellationToken token = default)
     {
         var spell = await _context.Spells
             .Include(s => s.CharacterSpells)
                 .ThenInclude(cs => cs.Character)
-            .SingleOrDefaultAsync(s => s.Id == id);
+            .SingleOrDefaultAsync(s => s.Id == id, token);
 
         return spell;
     }

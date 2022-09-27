@@ -18,11 +18,11 @@ public class PlayersControllerFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        PlayerService = Substitute.For<IPlayerService>();
-        PasswordService = Substitute.For<IPasswordService>();
-        PaginatedMapper = Substitute.For<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>>();
-        ReadMapper = Substitute.For<IMapper<Player, PlayerReadDto>>();
-        ReadWithTokenMapper = Substitute.For<IMapper<Player, PlayerWithTokenReadDto>>();
+        PlayerService = fixture.Freeze<IPlayerService>();
+        PasswordService = fixture.Freeze<IPasswordService>();
+        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>>();
+        ReadMapper = fixture.Freeze<IMapper<Player, PlayerReadDto>>();
+        ReadWithTokenMapper = fixture.Freeze<IMapper<Player, PlayerWithTokenReadDto>>();
 
         PlayerContainer = new(
             PlayerService,
@@ -66,6 +66,7 @@ public class PlayersControllerFixture
     public PageParameters PageParameters { get; }
     public PaginatedList<Player> PaginatedList { get; }
     public PageDto<PlayerReadDto> PageDto { get; }
+    public CancellationToken CancellationToken { get; }
 
     private Player GetPlayer()
     {

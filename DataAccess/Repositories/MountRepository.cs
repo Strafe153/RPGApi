@@ -25,22 +25,22 @@ public class MountRepository : IRepository<Mount>
         _context.Mounts.Remove(entity);
     }
 
-    public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize)
+    public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
         var mounts = await _context.Mounts
             .Include(m => m.CharacterMounts)
                 .ThenInclude(cm => cm.Character)
-            .ToPaginatedListAsync(pageNumber, pageSize);
+            .ToPaginatedListAsync(pageNumber, pageSize, token);
 
         return mounts;
     }
 
-    public async Task<Mount?> GetByIdAsync(int id)
+    public async Task<Mount?> GetByIdAsync(int id, CancellationToken token = default)
     {
         var mount = await _context.Mounts
             .Include(m => m.CharacterMounts)
                 .ThenInclude(cm => cm.Character)
-            .SingleOrDefaultAsync(m => m.Id == id);
+            .SingleOrDefaultAsync(m => m.Id == id, token);
 
         return mount;
     }

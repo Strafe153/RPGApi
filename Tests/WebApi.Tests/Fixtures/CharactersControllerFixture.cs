@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
 using NSubstitute;
-using System.Security.Claims;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
 
@@ -25,15 +24,15 @@ public class CharactersControllerFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        CharacterService = Substitute.For<ICharacterService>();
-        PlayerService = Substitute.For<IPlayerService>();
-        WeaponService = Substitute.For<IItemService<Weapon>>();
-        SpellService = Substitute.For<IItemService<Spell>>();
-        MountService = Substitute.For<IItemService<Mount>>();
-        PaginatedMapper = Substitute.For<IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>>();
-        ReadMapper = Substitute.For<IMapper<Character, CharacterReadDto>>();
-        CreateMapper = Substitute.For<IMapper<CharacterCreateDto, Character>>();
-        UpdateMapper = Substitute.For<IUpdateMapper<CharacterBaseDto, Character>>();
+        CharacterService = fixture.Freeze<ICharacterService>();
+        PlayerService = fixture.Freeze<IPlayerService>();
+        WeaponService = fixture.Freeze<IItemService<Weapon>>();
+        SpellService = fixture.Freeze<IItemService<Spell>>();
+        MountService = fixture.Freeze<IItemService<Mount>>();
+        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>>();
+        ReadMapper = fixture.Freeze<IMapper<Character, CharacterReadDto>>();
+        CreateMapper = fixture.Freeze<IMapper<CharacterCreateDto, Character>>();
+        UpdateMapper = fixture.Freeze<IUpdateMapper<CharacterBaseDto, Character>>();
 
         CharactersController = new(
             CharacterService,
@@ -87,6 +86,7 @@ public class CharactersControllerFixture
     public PageParameters PageParameters { get; }
     public PaginatedList<Character> PaginatedList { get; }
     public PageDto<CharacterReadDto> PageDto { get; }
+    public CancellationToken CancellationToken { get; }
 
     public void MockObjectModelValidator(ControllerBase controller)
     {

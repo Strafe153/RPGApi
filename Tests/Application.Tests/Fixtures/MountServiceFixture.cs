@@ -17,9 +17,9 @@ public class MountServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        MountRepository = Substitute.For<IRepository<Mount>>();
-        CacheService = Substitute.For<ICacheService>();
-        Logger = Substitute.For<ILogger<MountService>>();
+        MountRepository = fixture.Freeze<IRepository<Mount>>();
+        CacheService = fixture.Freeze<ICacheService>();
+        Logger = fixture.Freeze<ILogger<MountService>>();
 
         MountService = new MountService(
             MountRepository,

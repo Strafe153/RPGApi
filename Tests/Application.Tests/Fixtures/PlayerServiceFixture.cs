@@ -19,10 +19,10 @@ public class PlayerServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        PlayerRepository = Substitute.For<IPlayerRepository>();
-        CacheService = Substitute.For<ICacheService>();
-        HttpContextAccessor = Substitute.For<IHttpContextAccessor>();
-        Logger = Substitute.For<ILogger<PlayerService>>();
+        PlayerRepository = fixture.Freeze<IPlayerRepository>();
+        CacheService = fixture.Freeze<ICacheService>();
+        HttpContextAccessor = fixture.Freeze<IHttpContextAccessor>();
+        Logger = fixture.Freeze<ILogger<PlayerService>>();
 
         PlayerService = new PlayerService(
             PlayerRepository,

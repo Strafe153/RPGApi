@@ -17,9 +17,9 @@ public class PasswordServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        Configuration = Substitute.For<IConfiguration>();
-        Logger = Substitute.For<ILogger<PasswordService>>();
-        ConfigurationSection = Substitute.For<IConfigurationSection>();
+        Configuration = fixture.Freeze<IConfiguration>();
+        Logger = fixture.Freeze<ILogger<PasswordService>>();
+        ConfigurationSection = fixture.Freeze<IConfigurationSection>();
 
         PasswordService = new(
             Configuration,

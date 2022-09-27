@@ -52,7 +52,7 @@ public class SpellService : IItemService<Spell>
         _logger.LogInformation("Succesfully deleted a spell with id {Id}", entity.Id);
     }
 
-    public async Task<PaginatedList<Spell>> GetAllAsync(int pageNumber, int pageSize)
+    public async Task<PaginatedList<Spell>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
         string key = $"spells:{pageNumber}:{pageSize}";
         var cachedSpells = await _cacheService.GetAsync<List<Spell>>(key);
@@ -60,7 +60,7 @@ public class SpellService : IItemService<Spell>
 
         if (cachedSpells is null)
         {
-            spells = await _repository.GetAllAsync(pageNumber, pageSize);
+            spells = await _repository.GetAllAsync(pageNumber, pageSize, token);
             await _cacheService.SetAsync(key, spells);
         }
         else
@@ -73,14 +73,14 @@ public class SpellService : IItemService<Spell>
         return spells;
     }
 
-    public async Task<Spell> GetByIdAsync(int id)
+    public async Task<Spell> GetByIdAsync(int id, CancellationToken token = default)
     {
         string key = $"spells:{id}";
         var spell = await _cacheService.GetAsync<Spell>(key);
 
         if (spell is null)
         {
-            spell = await _repository.GetByIdAsync(id);
+            spell = await _repository.GetByIdAsync(id, token);
 
             if (spell is null)
             {

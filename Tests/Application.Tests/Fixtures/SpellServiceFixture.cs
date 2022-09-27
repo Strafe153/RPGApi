@@ -17,9 +17,9 @@ public class SpellServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        SpellRepository = Substitute.For<IRepository<Spell>>();
-        CacheService = Substitute.For<ICacheService>();
-        Logger = Substitute.For<ILogger<SpellService>>();
+        SpellRepository = fixture.Freeze<IRepository<Spell>>();
+        CacheService = fixture.Freeze<ICacheService>();
+        Logger = fixture.Freeze<ILogger<SpellService>>();
 
         SpellService = new SpellService(
             SpellRepository,

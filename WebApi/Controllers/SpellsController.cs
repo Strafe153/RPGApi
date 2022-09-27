@@ -42,18 +42,18 @@ public class SpellsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PageDto<SpellReadDto>>> GetAsync([FromQuery] PageParameters pageParams)
+    public async Task<ActionResult<PageDto<SpellReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
     {
-        var spells = await _spellService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
+        var spells = await _spellService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
         var pageDto = _paginatedMapper.Map(spells);
 
         return Ok(pageDto);
     }
 
     [HttpGet("{id:int:min(1)}")]
-    public async Task<ActionResult<SpellReadDto>> GetAsync([FromRoute] int id)
+    public async Task<ActionResult<SpellReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
     {
-        var spell = await _spellService.GetByIdAsync(id);
+        var spell = await _spellService.GetByIdAsync(id, token);
         var readDto = _readMapper.Map(spell);
 
         return Ok(readDto);

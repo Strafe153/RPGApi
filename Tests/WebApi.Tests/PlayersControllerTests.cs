@@ -34,7 +34,7 @@ public class PlayersControllerTests
             .Returns(_fixture.PageDto);
 
         // Act
-        var result = await _fixture.PlayerContainer.GetAsync(_fixture.PageParameters);
+        var result = await _fixture.PlayerContainer.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var pageDto = objectResult.Value.As<PageDto<PlayerReadDto>>();
 
@@ -57,7 +57,7 @@ public class PlayersControllerTests
             .Returns(_fixture.PlayerReadDto);
 
         // Act
-        var result = await _fixture.PlayerContainer.GetAsync(_fixture.Id);
+        var result = await _fixture.PlayerContainer.GetAsync(_fixture.Id, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var readDto = objectResult.Value.As<PlayerReadDto>();
 

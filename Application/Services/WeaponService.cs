@@ -52,7 +52,7 @@ public class WeaponService : IItemService<Weapon>
         _logger.LogInformation("Succesfully deleted a weapon with id {Id}", entity.Id);
     }
 
-    public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize)
+    public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
         string key = $"weapons:{pageNumber}:{pageSize}";
         var cachedWeapons = await _cacheService.GetAsync<List<Weapon>>(key);
@@ -60,7 +60,7 @@ public class WeaponService : IItemService<Weapon>
 
         if (cachedWeapons is null)
         {
-            weapons = await _repository.GetAllAsync(pageNumber, pageSize);
+            weapons = await _repository.GetAllAsync(pageNumber, pageSize, token);
             await _cacheService.SetAsync(key, weapons);
         }
         else
@@ -73,14 +73,14 @@ public class WeaponService : IItemService<Weapon>
         return weapons;
     }
 
-    public async Task<Weapon> GetByIdAsync(int id)
+    public async Task<Weapon> GetByIdAsync(int id, CancellationToken token = default)
     {
         string key = $"weapons:{id}";
         var weapon = await _cacheService.GetAsync<Weapon>(key);
 
         if (weapon is null)
         {
-            weapon = await _repository.GetByIdAsync(id);
+            weapon = await _repository.GetByIdAsync(id, token);
 
             if (weapon is null)
             {

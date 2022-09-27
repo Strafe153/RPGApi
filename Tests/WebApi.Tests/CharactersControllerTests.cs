@@ -40,7 +40,7 @@ public class CharactersControllerTests
             .Returns(_fixture.PageDto);
 
         // Act
-        var result = await _fixture.CharactersController.GetAsync(_fixture.PageParameters);
+        var result = await _fixture.CharactersController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var pageDto = objectResult.Value.As<PageDto<CharacterReadDto>>();
 
@@ -62,7 +62,7 @@ public class CharactersControllerTests
             .Returns(_fixture.CharacterReadDto);
 
         // Act
-        var result = await _fixture.CharactersController.GetAsync(_fixture.Id);
+        var result = await _fixture.CharactersController.GetAsync(_fixture.Id, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var readDto = objectResult.Value.As<CharacterReadDto>();
 

@@ -41,7 +41,7 @@ public class MountsControllerTests
             .Returns(_fixture.PageDto);
 
         // Act
-        var result = await _fixture.MountsController.GetAsync(_fixture.PageParameters);
+        var result = await _fixture.MountsController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var pageDto = objectResult.Value.As<PageDto<MountReadDto>>();
 
@@ -64,7 +64,7 @@ public class MountsControllerTests
             .Returns(_fixture.MountReadDto);
 
         // Act
-        var result = await _fixture.MountsController.GetAsync(_fixture.Id);
+        var result = await _fixture.MountsController.GetAsync(_fixture.Id, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var readDto = objectResult.Value.As<MountReadDto>();
 

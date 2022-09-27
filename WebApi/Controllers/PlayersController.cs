@@ -35,18 +35,18 @@ public class PlayersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PageDto<PlayerReadDto>>> GetAsync([FromQuery] PageParameters pageParams)
+    public async Task<ActionResult<PageDto<PlayerReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
     {
-        var players = await _playerService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
+        var players = await _playerService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
         var pageDto = _paginatedMapper.Map(players);
 
         return Ok(pageDto);
     }
 
     [HttpGet("{id:int:min(1)}")]
-    public async Task<ActionResult<PlayerReadDto>> GetAsync([FromRoute] int id)
+    public async Task<ActionResult<PlayerReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
     {
-        var player = await _playerService.GetByIdAsync(id);
+        var player = await _playerService.GetByIdAsync(id, token);
         var readDto = _readMapper.Map(player);
 
         return Ok(readDto);
