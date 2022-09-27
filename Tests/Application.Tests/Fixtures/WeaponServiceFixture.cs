@@ -17,9 +17,9 @@ public class WeaponServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        WeaponRepository = Substitute.For<IRepository<Weapon>>();
-        CacheService = Substitute.For<ICacheService>();
-        Logger = Substitute.For<ILogger<WeaponService>>();
+        WeaponRepository = fixture.Freeze<IRepository<Weapon>>();
+        CacheService = fixture.Freeze<ICacheService>();
+        Logger = fixture.Freeze<ILogger<WeaponService>>();
 
         WeaponService = new WeaponService(
             WeaponRepository,

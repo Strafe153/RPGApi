@@ -25,27 +25,27 @@ public class PlayerRepository : IPlayerRepository
         _context.Players.Remove(entity);
     }
 
-    public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize)
+    public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
         var players = await _context.Players
             .Include(p => p.Characters)
-            .ToPaginatedListAsync(pageNumber, pageSize);
+            .ToPaginatedListAsync(pageNumber, pageSize, token);
 
         return players;
     }
 
-    public async Task<Player?> GetByIdAsync(int id)
+    public async Task<Player?> GetByIdAsync(int id, CancellationToken token = default)
     {
         var player = await _context.Players
             .Include(p => p.Characters)
-            .SingleOrDefaultAsync(p => p.Id == id);
+            .SingleOrDefaultAsync(p => p.Id == id, token);
 
         return player;
     }
 
-    public async Task<Player?> GetByNameAsync(string name)
+    public async Task<Player?> GetByNameAsync(string name, CancellationToken token = default)
     {
-        var player = await _context.Players.SingleOrDefaultAsync(p => p.Name == name);
+        var player = await _context.Players.SingleOrDefaultAsync(p => p.Name == name, token);
         return player;
     }
 

@@ -15,8 +15,8 @@ public class CacheServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        DistributedCache = Substitute.For<IDistributedCache>();
-        Logger = Substitute.For<ILogger<CacheService>>();
+        DistributedCache = fixture.Freeze<IDistributedCache>();
+        Logger = fixture.Freeze<ILogger<CacheService>>();
 
         CacheService = new(
             DistributedCache,

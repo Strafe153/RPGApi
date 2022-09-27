@@ -52,7 +52,7 @@ public class MountService : IItemService<Mount>
         _logger.LogInformation("Succesfully deleted a mount with id {Id}", entity.Id);
     }
 
-    public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize)
+    public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
         string key = $"mounts:{pageNumber}:{pageSize}";
         var cachedMounts = await _cacheService.GetAsync<List<Mount>>(key);
@@ -60,7 +60,7 @@ public class MountService : IItemService<Mount>
 
         if (cachedMounts is null)
         {
-            mounts = await _repository.GetAllAsync(pageNumber, pageSize);
+            mounts = await _repository.GetAllAsync(pageNumber, pageSize, token);
             await _cacheService.SetAsync(key, mounts);
         }
         else
@@ -73,14 +73,14 @@ public class MountService : IItemService<Mount>
         return mounts;
     }
 
-    public async Task<Mount> GetByIdAsync(int id)
+    public async Task<Mount> GetByIdAsync(int id, CancellationToken token = default)
     {
         string key = $"mounts:{id}";
         var mount = await _cacheService.GetAsync<Mount>(key);
 
         if (mount is null)
         {
-            mount = await _repository.GetByIdAsync(id);
+            mount = await _repository.GetByIdAsync(id, token);
 
             if (mount is null)
             {

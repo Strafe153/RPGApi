@@ -36,18 +36,18 @@ public class MountsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PageDto<MountReadDto>>> GetAsync([FromQuery] PageParameters pageParams)
+    public async Task<ActionResult<PageDto<MountReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
     {
-        var mounts = await _mountService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
+        var mounts = await _mountService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
         var pageDto = _paginatedMapper.Map(mounts);
 
         return Ok(pageDto);
     }
 
     [HttpGet("{id:int:min(1)}")]
-    public async Task<ActionResult<MountReadDto>> GetAsync([FromRoute] int id)
+    public async Task<ActionResult<MountReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
     {
-        var mount = await _mountService.GetByIdAsync(id);
+        var mount = await _mountService.GetByIdAsync(id, token);
         var readDto = _readMapper.Map(mount);
 
         return Ok(readDto);

@@ -25,7 +25,7 @@ public class CharacterRepository : IRepository<Character>
         _context.Characters.Remove(entity);
     }
 
-    public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize)
+    public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
         var characters = await _context.Characters
             .Include(c => c.CharacterWeapons)
@@ -34,21 +34,22 @@ public class CharacterRepository : IRepository<Character>
                 .ThenInclude(cs => cs.Spell)
             .Include(c => c.CharacterMounts)
                 .ThenInclude(cm => cm.Mount)
-            .ToPaginatedListAsync(pageNumber, pageSize);
+            .ToPaginatedListAsync(pageNumber, pageSize, token);
 
         return characters;
     }
 
-    public async Task<Character?> GetByIdAsync(int id)
+    public async Task<Character?> GetByIdAsync(int id, CancellationToken token = default)
     {
         var character = await _context.Characters
+            .Include(c => c.Player)
             .Include(c => c.CharacterWeapons)
                 .ThenInclude(cw => cw.Weapon)
             .Include(c => c.CharacterSpells)
                 .ThenInclude(cs => cs.Spell)
             .Include(c => c.CharacterMounts)
                 .ThenInclude(cm => cm.Mount)
-            .SingleOrDefaultAsync(c => c.Id == id);
+            .SingleOrDefaultAsync(c => c.Id == id, token);
 
         return character;
     }

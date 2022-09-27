@@ -44,6 +44,11 @@ public class ExceptionsMiddleware
             await HandleExceptionAsync(context, HttpStatusCode.Forbidden,
                 $"{ex.Message}. Path:{context.Request.Path}.");
         }
+        catch (OperationCanceledException ex)
+        {
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest,
+                $"{ex.Message}. Path:{context.Request.Path}.");
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(context, HttpStatusCode.InternalServerError,

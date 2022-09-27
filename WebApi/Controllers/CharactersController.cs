@@ -48,18 +48,18 @@ public class CharactersController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PageDto<CharacterReadDto>>> GetAsync([FromQuery] PageParameters pageParams)
+    public async Task<ActionResult<PageDto<CharacterReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
     {
-        var characters = await _characterService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize);
+        var characters = await _characterService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
         var pageDto = _paginatedMapper.Map(characters);
 
         return Ok(pageDto);
     }
 
     [HttpGet("{id:int:min(1)}")]
-    public async Task<ActionResult<CharacterReadDto>> GetAsync([FromRoute] int id)
+    public async Task<ActionResult<CharacterReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
     {
-        var character = await _characterService.GetByIdAsync(id);
+        var character = await _characterService.GetByIdAsync(id, token);
         var readDto = _readMapper.Map(character);
 
         return Ok(readDto);

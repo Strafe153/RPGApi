@@ -17,9 +17,9 @@ public class CharacterServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        CharacterRepository = Substitute.For<IRepository<Character>>();
-        CacheService = Substitute.For<ICacheService>();
-        Logger = Substitute.For<ILogger<CharacterService>>();
+        CharacterRepository = fixture.Freeze<IRepository<Character>>();
+        CacheService = fixture.Freeze<ICacheService>();
+        Logger = fixture.Freeze<ILogger<CharacterService>>();
 
         CharacterService = new CharacterService(
             CharacterRepository,

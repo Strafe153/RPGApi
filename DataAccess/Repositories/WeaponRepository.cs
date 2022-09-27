@@ -25,22 +25,22 @@ public class WeaponRepository : IRepository<Weapon>
         _context.Weapons.Remove(entity);
     }
 
-    public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize)
+    public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
         var weapons = await _context.Weapons
             .Include(w => w.CharacterWeapons)
                 .ThenInclude(cw => cw.Character)
-            .ToPaginatedListAsync(pageNumber, pageSize);
+            .ToPaginatedListAsync(pageNumber, pageSize, token);
 
         return weapons;
     }
 
-    public async Task<Weapon?> GetByIdAsync(int id)
+    public async Task<Weapon?> GetByIdAsync(int id, CancellationToken token = default)
     {
         var weapon = await _context.Weapons
             .Include(w => w.CharacterWeapons)
                 .ThenInclude(cw => cw.Character)
-            .SingleOrDefaultAsync(w => w.Id == id);
+            .SingleOrDefaultAsync(w => w.Id == id, token);
 
         return weapon;
     }
