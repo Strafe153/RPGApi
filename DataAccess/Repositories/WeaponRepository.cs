@@ -30,6 +30,7 @@ public class WeaponRepository : IRepository<Weapon>
         var weapons = await _context.Weapons
             .Include(w => w.CharacterWeapons)
                 .ThenInclude(cw => cw.Character)
+            .OrderBy(c => c.Id)
             .ToPaginatedListAsync(pageNumber, pageSize, token);
 
         return weapons;

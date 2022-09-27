@@ -30,6 +30,7 @@ public class MountRepository : IRepository<Mount>
         var mounts = await _context.Mounts
             .Include(m => m.CharacterMounts)
                 .ThenInclude(cm => cm.Character)
+            .OrderBy(c => c.Id)
             .ToPaginatedListAsync(pageNumber, pageSize, token);
 
         return mounts;
