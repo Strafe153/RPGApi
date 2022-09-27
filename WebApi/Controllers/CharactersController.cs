@@ -69,9 +69,9 @@ public class CharactersController : ControllerBase
     public async Task<ActionResult<CharacterReadDto>> CreateAsync([FromBody] CharacterCreateDto createDto)
     {
         var player = await _playerService.GetByIdAsync(createDto.PlayerId);
-        var character = _createMapper.Map(createDto);
-
         _playerService.VerifyPlayerAccessRights(player);
+
+        var character = _createMapper.Map(createDto);
         await _characterService.AddAsync(character);
 
         var readDto = _readMapper.Map(character);
@@ -83,8 +83,8 @@ public class CharactersController : ControllerBase
     public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] CharacterBaseDto updateDto)
     {
         var character = await _characterService.GetByIdAsync(id);
-
         _playerService.VerifyPlayerAccessRights(character.Player!);
+
         _updateMapper.Map(updateDto, character);
         await _characterService.UpdateAsync(character);
 
@@ -97,9 +97,9 @@ public class CharactersController : ControllerBase
         [FromBody] JsonPatchDocument<CharacterBaseDto> patchDocument)
     {
         var character = await _characterService.GetByIdAsync(id);
-        var updateDto = _updateMapper.Map(character);
-
         _playerService.VerifyPlayerAccessRights(character.Player!);
+
+        var updateDto = _updateMapper.Map(character);
         patchDocument.ApplyTo(updateDto, ModelState);
 
         if (!TryValidateModel(updateDto))
@@ -128,10 +128,11 @@ public class CharactersController : ControllerBase
     public async Task<ActionResult> AddWeaponAsync([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
-        var weapon = await _weaponService.GetByIdAsync(itemDto.ItemId);
-
         _playerService.VerifyPlayerAccessRights(character.Player!);
+
+        var weapon = await _weaponService.GetByIdAsync(itemDto.ItemId);
         _weaponService.AddToCharacter(character, weapon);
+
         await _characterService.UpdateAsync(character);
 
         return NoContent();
@@ -141,10 +142,11 @@ public class CharactersController : ControllerBase
     public async Task<ActionResult> RemoveWeaponAsync([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
-        var weapon = await _weaponService.GetByIdAsync(itemDto.ItemId);
-
         _playerService.VerifyPlayerAccessRights(character.Player!);
+
+        var weapon = await _weaponService.GetByIdAsync(itemDto.ItemId);
         _weaponService.RemoveFromCharacter(character, weapon);
+
         await _characterService.UpdateAsync(character);
 
         return NoContent();
@@ -154,10 +156,11 @@ public class CharactersController : ControllerBase
     public async Task<ActionResult> AddSpellAsync([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
-        var spell = await _spellService.GetByIdAsync(itemDto.ItemId);
-
         _playerService.VerifyPlayerAccessRights(character.Player!);
+
+        var spell = await _spellService.GetByIdAsync(itemDto.ItemId);
         _spellService.AddToCharacter(character, spell);
+
         await _characterService.UpdateAsync(character);
 
         return NoContent();
@@ -167,10 +170,11 @@ public class CharactersController : ControllerBase
     public async Task<ActionResult> RemoveSpellAsync([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
-        var spell = await _spellService.GetByIdAsync(itemDto.ItemId);
-
         _playerService.VerifyPlayerAccessRights(character.Player!);
+
+        var spell = await _spellService.GetByIdAsync(itemDto.ItemId);
         _spellService.RemoveFromCharacter(character, spell);
+
         await _characterService.UpdateAsync(character);
 
         return NoContent();
@@ -180,10 +184,11 @@ public class CharactersController : ControllerBase
     public async Task<ActionResult> AddMountAsync([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
-        var mount = await _mountService.GetByIdAsync(itemDto.ItemId);
-
         _playerService.VerifyPlayerAccessRights(character.Player!);
+
+        var mount = await _mountService.GetByIdAsync(itemDto.ItemId);
         _mountService.AddToCharacter(character, mount);
+
         await _characterService.UpdateAsync(character);
 
         return NoContent();
@@ -193,10 +198,11 @@ public class CharactersController : ControllerBase
     public async Task<ActionResult> RemoveMountAsync([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
-        var mount = await _mountService.GetByIdAsync(itemDto.ItemId);
-
         _playerService.VerifyPlayerAccessRights(character.Player!);
+
+        var mount = await _mountService.GetByIdAsync(itemDto.ItemId);
         _mountService.RemoveFromCharacter(character, mount);
+
         await _characterService.UpdateAsync(character);
 
         return NoContent();

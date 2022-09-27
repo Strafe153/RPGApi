@@ -84,8 +84,8 @@ public class PlayersController : ControllerBase
     public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] PlayerBaseDto updateDto)
     {
         var player = await _playerService.GetByIdAsync(id);
-
         _playerService.VerifyPlayerAccessRights(player);
+
         player.Name = updateDto.Name;
         await _playerService.UpdateAsync(player);
 
@@ -98,7 +98,6 @@ public class PlayersController : ControllerBase
         [FromBody] PlayerChangePasswordDto changePasswordDto)
     {
         var player = await _playerService.GetByIdAsync(id);
-
         _playerService.VerifyPlayerAccessRights(player);
 
         (byte[] hash, byte[] salt) = _passwordService.CreatePasswordHash(changePasswordDto.Password!);
