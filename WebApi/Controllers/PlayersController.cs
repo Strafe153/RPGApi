@@ -69,13 +69,14 @@ public class PlayersController : ControllerBase
 
     [HttpPost("login")]
     [AllowAnonymous]
-    public async Task<ActionResult<PlayerWithTokenReadDto>> LoginAsync([FromBody] PlayerAuthorizeDto authorizeDto)
+    public async Task<ActionResult<PlayerWithTokenReadDto>> LoginAsync(
+        [FromBody] PlayerAuthorizeDto authorizeDto, CancellationToken token)
     {
-        var player = await _playerService.GetByNameAsync(authorizeDto.Name!);
+        var player = await _playerService.GetByNameAsync(authorizeDto.Name!, token);
         _passwordService.VerifyPasswordHash(authorizeDto.Password!, player.PasswordHash!, player.PasswordSalt!);
 
-        string token = _passwordService.CreateToken(player);
-        var readDto = _readWithTokenMapper.Map(player) with { Token = token };
+        string jwtToken = _passwordService.CreateToken(player);
+        var readDto = _readWithTokenMapper.Map(player) with { Token = jwtToken };
 
         return Ok(readDto);
     }

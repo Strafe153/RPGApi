@@ -42,8 +42,7 @@ public class WeaponsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<PageDto<WeaponReadDto>>> GetAsync([FromQuery] PageParameters pageParams, 
-        CancellationToken token)
+    public async Task<ActionResult<PageDto<WeaponReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
     {
         var weapons = await _weaponService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
         var pageDto = _paginatedMapper.Map(weapons);

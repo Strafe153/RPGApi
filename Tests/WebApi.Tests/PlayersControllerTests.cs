@@ -99,7 +99,7 @@ public class PlayersControllerTests
             .Returns(_fixture.PlayerWithTokenReadDto);
 
         // Act
-        var result = await _fixture.PlayerContainer.LoginAsync(_fixture.PlayerAuthorizeDto);
+        var result = await _fixture.PlayerContainer.LoginAsync(_fixture.PlayerAuthorizeDto, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var readWithTokenDto = objectResult.Value.As<PlayerWithTokenReadDto>();
 

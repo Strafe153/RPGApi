@@ -100,11 +100,30 @@ public class PlayerServiceTests
     }
 
     [Test]
-    public async Task GetByNameAsync_ExistingPlayer_ReturnsPlayer()
+    public async Task GetByNameAsync_ExistingPlayerInRepository_ReturnsPlayer()
     {
         // Arrange
+        _fixture.CacheService
+            .GetAsync<Player>(Arg.Any<string>())
+            .ReturnsNull();
+
         _fixture.PlayerRepository
             .GetByNameAsync(Arg.Any<string>())
+            .Returns(_fixture.Player);
+
+        // Act
+        var result = await _fixture.PlayerService.GetByNameAsync(_fixture.Name!);
+
+        // Assert
+        result.Should().NotBeNull().And.BeOfType<Player>();
+    }
+
+    [Test]
+    public async Task GetByNameAsync_ExistingPlayerInCache_ReturnsPlayer()
+    {
+        // Arrange
+        _fixture.CacheService
+            .GetAsync<Player>(Arg.Any<string>())
             .Returns(_fixture.Player);
 
         // Act
@@ -118,6 +137,10 @@ public class PlayerServiceTests
     public async Task GetByNameAsync_NonexistingPlayer_ThrowsNullReferenceException()
     {
         // Arrange
+        _fixture.CacheService
+            .GetAsync<Player>(Arg.Any<string>())
+            .ReturnsNull();
+
         _fixture.PlayerRepository
             .GetByNameAsync(Arg.Any<string>())
             .ReturnsNull();

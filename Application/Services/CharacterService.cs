@@ -39,7 +39,7 @@ public class CharacterService : ICharacterService
         _logger.LogInformation("Succesfully deleted a character with id {Id}", entity.Id);
     }
 
-    public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token)
+    public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
         string key = $"characters:{pageNumber}:{pageSize}";
         var cachedCharacters = await _cacheService.GetAsync<List<Character>>(key);
@@ -60,7 +60,7 @@ public class CharacterService : ICharacterService
         return characters;
     }
 
-    public async Task<Character> GetByIdAsync(int id, CancellationToken token)
+    public async Task<Character> GetByIdAsync(int id, CancellationToken token = default)
     {
         string key = $"characters:{id}";
         var character = await _cacheService.GetAsync<Character>(key);
