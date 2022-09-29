@@ -41,7 +41,7 @@ public class WeaponRepository : IRepository<Weapon>
         var weapon = await _context.Weapons
             .Include(w => w.CharacterWeapons)
                 .ThenInclude(cw => cw.Character)
-            .SingleOrDefaultAsync(w => w.Id == id, token);
+            .FirstOrDefaultAsync(w => w.Id == id, token);
 
         return weapon;
     }
