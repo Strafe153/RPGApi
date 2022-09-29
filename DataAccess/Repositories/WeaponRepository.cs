@@ -31,6 +31,7 @@ public class WeaponRepository : IRepository<Weapon>
             .Include(w => w.CharacterWeapons)
                 .ThenInclude(cw => cw.Character)
             .OrderBy(c => c.Id)
+            .AsNoTracking()
             .ToPaginatedListAsync(pageNumber, pageSize, token);
 
         return weapons;

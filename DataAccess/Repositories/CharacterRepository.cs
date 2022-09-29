@@ -35,6 +35,7 @@ public class CharacterRepository : IRepository<Character>
             .Include(c => c.CharacterMounts)
                 .ThenInclude(cm => cm.Mount)
             .OrderBy(c => c.Id)
+            .AsNoTracking()
             .ToPaginatedListAsync(pageNumber, pageSize, token);
 
         return characters;

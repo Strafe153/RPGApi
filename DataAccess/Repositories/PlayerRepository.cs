@@ -30,6 +30,7 @@ public class PlayerRepository : IPlayerRepository
         var players = await _context.Players
             .Include(p => p.Characters)
             .OrderBy(c => c.Id)
+            .AsNoTracking()
             .ToPaginatedListAsync(pageNumber, pageSize, token);
 
         return players;

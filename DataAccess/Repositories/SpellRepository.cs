@@ -31,6 +31,7 @@ public class SpellRepository : IRepository<Spell>
             .Include(s => s.CharacterSpells)
                 .ThenInclude(cs => cs.Character)
             .OrderBy(c => c.Id)
+            .AsNoTracking()
             .ToPaginatedListAsync(pageNumber, pageSize, token);
 
         return spells;
