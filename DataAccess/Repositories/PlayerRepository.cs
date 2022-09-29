@@ -39,14 +39,14 @@ public class PlayerRepository : IPlayerRepository
     {
         var player = await _context.Players
             .Include(p => p.Characters)
-            .SingleOrDefaultAsync(p => p.Id == id, token);
+            .FirstOrDefaultAsync(p => p.Id == id, token);
 
         return player;
     }
 
     public async Task<Player?> GetByNameAsync(string name, CancellationToken token = default)
     {
-        var player = await _context.Players.SingleOrDefaultAsync(p => p.Name == name, token);
+        var player = await _context.Players.FirstOrDefaultAsync(p => p.Name == name, token);
         return player;
     }
 

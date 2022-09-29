@@ -41,7 +41,7 @@ public class MountRepository : IRepository<Mount>
         var mount = await _context.Mounts
             .Include(m => m.CharacterMounts)
                 .ThenInclude(cm => cm.Character)
-            .SingleOrDefaultAsync(m => m.Id == id, token);
+            .FirstOrDefaultAsync(m => m.Id == id, token);
 
         return mount;
     }

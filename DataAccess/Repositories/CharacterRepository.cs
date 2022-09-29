@@ -50,7 +50,7 @@ public class CharacterRepository : IRepository<Character>
                 .ThenInclude(cs => cs.Spell)
             .Include(c => c.CharacterMounts)
                 .ThenInclude(cm => cm.Mount)
-            .SingleOrDefaultAsync(c => c.Id == id, token);
+            .FirstOrDefaultAsync(c => c.Id == id, token);
 
         return character;
     }

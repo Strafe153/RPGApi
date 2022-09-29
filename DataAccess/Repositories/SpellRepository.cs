@@ -41,7 +41,7 @@ public class SpellRepository : IRepository<Spell>
         var spell = await _context.Spells
             .Include(s => s.CharacterSpells)
                 .ThenInclude(cs => cs.Character)
-            .SingleOrDefaultAsync(s => s.Id == id, token);
+            .FirstOrDefaultAsync(s => s.Id == id, token);
 
         return spell;
     }
