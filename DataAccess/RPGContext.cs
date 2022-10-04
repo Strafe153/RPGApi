@@ -1,27 +1,54 @@
-﻿using Core.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Dapper;
+using FluentMigrator.Runner;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
+using System.Data;
 
 namespace DataAccess;
 
-public class RPGContext : DbContext
+public class RPGContext
 {
-    public DbSet<Player> Players => Set<Player>();
-    public DbSet<Character> Characters => Set<Character>();
-    public DbSet<Weapon> Weapons => Set<Weapon>();
-    public DbSet<Spell> Spells => Set<Spell>();
-    public DbSet<Mount> Mounts => Set<Mount>();
-    public DbSet<CharacterWeapon> CharacterWeapons => Set<CharacterWeapon>();
-    public DbSet<CharacterSpell> CharacterSpells => Set<CharacterSpell>();
-    public DbSet<CharacterMount> CharacterMounts => Set<CharacterMount>();
+    private readonly IConfiguration _configuration;
+    private readonly IMigrationRunner _migrationRunner;
+    private readonly string _databaseConnection;
 
-    public RPGContext(DbContextOptions<RPGContext> options)
-        : base(options)
+    public RPGContext(
+        IConfiguration configuration,
+        IMigrationRunner migrationRunner)
     {
+        _configuration = configuration;
+        _migrationRunner = migrationRunner;
+        _databaseConnection = _configuration.GetConnectionString("DatabaseConnection");
+
+        EnsureDatabase();
     }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    public IDbConnection CreateConnection()
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
-        modelBuilder.SeedAdmin();
+        var connection = new NpgsqlConnection(_databaseConnection);
+        return connection;
+    }
+
+    private void EnsureDatabase()
+    {
+        using var connection = new NpgsqlConnection(_configuration.GetConnectionString("GlobalPostgresConnection"));
+        string query = @"SELECT datname FROM pg_catalog.pg_database 
+                         WHERE datname = @DBName";
+        var queryParams = new { DBName = "rpg_api_db" };
+        string queryResult = connection.QueryFirstOrDefault<string>(query, queryParams);
+
+        if (string.IsNullOrEmpty(queryResult))
+        {
+            InitializeDatabase();
+            _migrationRunner.MigrateUp();
+        }
+    }
+
+    private void InitializeDatabase()
+    {
+        using var connection = new NpgsqlConnection(_configuration.GetConnectionString("GlobalPostgresConnection"));
+        string query = "CREATE DATABASE rpg_api_db";
+
+        connection.Execute(query);
     }
 }

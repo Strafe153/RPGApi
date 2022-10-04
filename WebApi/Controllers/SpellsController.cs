@@ -64,7 +64,7 @@ public class SpellsController : ControllerBase
     public async Task<ActionResult<SpellReadDto>> CreateAsync([FromBody] SpellBaseDto createDto)
     {
         var spell = _createMapper.Map(createDto);
-        await _spellService.AddAsync(spell);
+        spell.Id = await _spellService.AddAsync(spell);
 
         var readDto = _readMapper.Map(spell);
 
@@ -109,9 +109,7 @@ public class SpellsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> DeleteAsync([FromRoute] int id)
     {
-        var spell = await _spellService.GetByIdAsync(id);
-        await _spellService.DeleteAsync(spell);
-
+        await _spellService.DeleteAsync(id);
         return NoContent();
     }
 

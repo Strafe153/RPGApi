@@ -64,7 +64,7 @@ public class WeaponsController : ControllerBase
     public async Task<ActionResult<WeaponReadDto>> CreateAsync([FromBody] WeaponBaseDto createDto)
     {
         var weapon = _createMapper.Map(createDto);
-        await _weaponService.AddAsync(weapon);
+        weapon.Id = await _weaponService.AddAsync(weapon);
 
         var readDto = _readMapper.Map(weapon);
 
@@ -109,9 +109,7 @@ public class WeaponsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> DeleteAsync([FromRoute] int id)
     {
-        var weapon = await _weaponService.GetByIdAsync(id);
-        await _weaponService.DeleteAsync(weapon);
-
+        await _weaponService.DeleteAsync(id);
         return NoContent();
     }
 

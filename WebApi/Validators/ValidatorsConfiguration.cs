@@ -14,7 +14,7 @@ namespace WebApi.Validators;
 
 public static class ValidatorsConfiguration
 {
-    public static void AddApplicationValidators(this IServiceCollection services)
+    public static IServiceCollection AddApplicationValidators(this IServiceCollection services)
     {
         // Player validators
         services.AddScoped<IValidator<PlayerBaseDto>, PlayerBaseValidator<PlayerBaseDto>>();
@@ -37,5 +37,7 @@ public static class ValidatorsConfiguration
         // Mount validators
         services.AddScoped<IValidator<MountBaseDto>, MountBaseValidator<MountBaseDto>>();
         services.AddScoped<IValidator<MountBaseDto>, MountCreateUpdateValidator>();
+
+        return services;
     }
 }

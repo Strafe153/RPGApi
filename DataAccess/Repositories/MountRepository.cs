@@ -1,12 +1,14 @@
 ﻿using Core.Entities;
 using Core.Interfaces.Repositories;
 using Core.Models;
+using Dapper;
 using DataAccess.Extensions;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing;
 
 namespace DataAccess.Repositories;
 
-public class MountRepository : IRepository<Mount>
+public class MountRepository : IItemRepository<Mount>
 {
     private readonly RPGContext _context;
 
@@ -15,44 +17,142 @@ public class MountRepository : IRepository<Mount>
         _context = context;
     }
 
-    public void Add(Mount entity)
+    public async Task<int> AddAsync(Mount entity)
     {
-        _context.Mounts.Add(entity);
+        using var connection = _context.CreateConnection();
+        string query = @"INSERT INTO ""Mounts"" (""Name"", ""Type"", ""Speed"") 
+                         VALUES (@Name, @Type, @Speed)
+                         RETURNING ""Id""";
+        var queryParams = new
+        {
+            Name = entity.Name,
+            Type = entity.Type,
+            Speed = entity.Speed
+        };
+        int id = await connection.ExecuteScalarAsync<int>(query, queryParams);
+
+        return id;
     }
 
-    public void Delete(Mount entity)
+    public async Task DeleteAsync(int id)
     {
-        _context.Mounts.Remove(entity);
+        using var connection = _context.CreateConnection();
+        string query = @"DELETE FROM ""Mounts"" 
+                         WHERE ""Id"" = @Id";
+        var queryParams = new { Id = id };
+
+        await connection.ExecuteAsync(query, queryParams);
     }
 
     public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        var mounts = await _context.Mounts
-            .Include(m => m.CharacterMounts)
-                .ThenInclude(cm => cm.Character)
-            .OrderBy(c => c.Id)
-            .ToPaginatedListAsync(pageNumber, pageSize, token);
+        using var connection = _context.CreateConnection();
+        string mountsQuery = @"SELECT * FROM ""Mounts""
+                         ORDER BY ""Id"" ASC";
+        string characterMountsQuery = @"SELECT * FROM ""CharacterMounts"" cm
+                                   LEFT OUTER JOIN ""Characters"" c on cm.""CharacterId"" = c.""Id""";
 
-        return mounts;
+        var queryResult = await connection.QueryAsync<Mount>(new CommandDefinition(mountsQuery, cancellationToken: token));
+        var characterMounts = await GetCharacterMountsAsync(characterMountsQuery, token);
+
+        var paginatedList = queryResult
+            .GroupBy(m => m.Id)
+            .Select(g =>
+            {
+                var m = g.First();
+                m.CharacterMounts = characterMounts.Where(cm => cm.MountId == m.Id).ToList();
+
+                return m;
+            })
+            .ToPaginatedList(pageNumber, pageSize);
+
+        return paginatedList;
     }
 
     public async Task<Mount?> GetByIdAsync(int id, CancellationToken token = default)
     {
-        var mount = await _context.Mounts
-            .Include(m => m.CharacterMounts)
-                .ThenInclude(cm => cm.Character)
-            .FirstOrDefaultAsync(m => m.Id == id, token);
+        using var connection = _context.CreateConnection();
+        var queryParams = new { Id = id };
+        string mountsQuery = @"SELECT * FROM ""Mounts""
+                               WHERE ""Id"" = @Id";
+        string characterMountsQuery = @$"SELECT * FROM ""CharacterMounts"" cm
+                                        LEFT OUTER JOIN ""Characters"" c on cm.""CharacterId"" = c.""Id""
+                                        WHERE cm.""MountId"" = {id}";
+
+        var queryResult = await connection.QueryAsync<Mount>(
+            new CommandDefinition(mountsQuery, queryParams, cancellationToken: token));
+        var characterMounts = await GetCharacterMountsAsync(characterMountsQuery, token);
+
+        var mount = queryResult
+            .GroupBy(m => m.Id)
+            .Select(g =>
+            {
+                var m = g.First();
+                m.CharacterMounts = characterMounts.ToList();
+
+                return m;
+            })
+            .FirstOrDefault();
 
         return mount;
     }
 
-    public async Task SaveChangesAsync()
+    public async Task UpdateAsync(Mount entity)
     {
-        await _context.SaveChangesAsync();
+        using var connection = _context.CreateConnection();
+        string query = @"UPDATE ""Mounts"" 
+                         SET ""Name"" = @Name, ""Type"" = @Type, ""Speed"" = @Speed
+                         WHERE ""Id"" = @Id";
+        var queryParams = new
+        {
+            Name = entity.Name,
+            Type = entity.Type,
+            Speed = entity.Speed,
+            Id = entity.Id
+        };
+
+        await connection.ExecuteAsync(query, queryParams);
     }
 
-    public void Update(Mount entity)
+    public async Task AddToCharacterAsync(Character character, Mount item)
     {
-        _context.Mounts.Update(entity);
+        using var connection = _context.CreateConnection();
+        string query = @"INSERT INTO ""CharacterMounts"" (""CharacterId"", ""MountId"")
+                         VALUES (@CharacterId, @MountId)";
+        var queryParams = new
+        {
+            CharacterId = character.Id,
+            MountId = item.Id
+        };
+
+        await connection.ExecuteAsync(query, queryParams);
+    }
+
+    public async Task RemoveFromCharacterAsync(Character character, Mount item)
+    {
+        using var connection = _context.CreateConnection();
+        string query = @"DELETE FROM ""CharacterMounts""
+                         WHERE ""CharacterId"" = @CharacterId AND ""MountId"" = @MountId";
+        var queryParams = new
+        {
+            CharacterId = character.Id,
+            MountId = item.Id
+        };
+
+        await connection.ExecuteAsync(query, queryParams);
+    }
+
+    private async Task<IEnumerable<CharacterMount>> GetCharacterMountsAsync(string query, CancellationToken token)
+    {
+        using var connection = _context.CreateConnection();
+        var characterMounts = await connection.QueryAsync<CharacterMount, Character, CharacterMount>(
+            new CommandDefinition(query, cancellationToken: token),
+            (characterMount, character) =>
+            {
+                characterMount.Character = character;
+                return characterMount;
+            });
+
+        return characterMounts;
     }
 }

@@ -10,7 +10,7 @@ public class PaginatedList<T> : List<T>
     public bool HasPrevious => CurrentPage > 1;
     public bool HasNext => CurrentPage < TotalPages;
 
-    public PaginatedList(List<T> items, int totalItems, int pageNumber, int pageSize)
+    public PaginatedList(IEnumerable<T> items, int totalItems, int pageNumber, int pageSize)
     {
         TotalItems = totalItems;
         CurrentPage = pageNumber;

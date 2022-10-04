@@ -129,7 +129,7 @@ public class CharacterServiceTests
     public void DeleteAsync_ValidCharacter_ReturnsTask()
     {
         // Act
-        var result = _fixture.CharacterService.DeleteAsync(_fixture.Character);
+        var result = _fixture.CharacterService.DeleteAsync(_fixture.Id);
 
         // Assert
         result.Should().NotBeNull();

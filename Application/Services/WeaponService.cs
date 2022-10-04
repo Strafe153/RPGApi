@@ -9,12 +9,12 @@ namespace Application.Services;
 
 public class WeaponService : IItemService<Weapon>
 {
-    private readonly IRepository<Weapon> _repository;
+    private readonly IItemRepository<Weapon> _repository;
     private readonly ICacheService _cacheService;
     private readonly ILogger<WeaponService> _logger;
 
     public WeaponService(
-        IRepository<Weapon> repository,
+        IItemRepository<Weapon> repository,
         ICacheService cacheService,
         ILogger<WeaponService> logger)
     {
@@ -23,33 +23,25 @@ public class WeaponService : IItemService<Weapon>
         _logger = logger;
     }
 
-    public async Task AddAsync(Weapon entity)
+    public async Task<int> AddAsync(Weapon entity)
     {
-        _repository.Add(entity);
-        await _repository.SaveChangesAsync();
-
+        int id = await _repository.AddAsync(entity);
         _logger.LogInformation("Succesfully created a weapon");
+
+        return id;
     }
 
-    public void AddToCharacter(Character character, Weapon item)
+    public async Task AddToCharacterAsync(Character character, Weapon item)
     {
-        CharacterWeapon characterWeapon = new()
-        {
-            CharacterId = character.Id,
-            WeaponId = item.Id
-        };
-
-        character.CharacterWeapons.Add(characterWeapon);
+        await _repository.AddToCharacterAsync(character, item);
         _logger.LogInformation("Successfully added the weapon with id {ItemId} to the character with id {CharacterId}",
             item.Id, character.Id);
     }
 
-    public async Task DeleteAsync(Weapon entity)
+    public async Task DeleteAsync(int id)
     {
-        _repository.Delete(entity);
-        await _repository.SaveChangesAsync();
-
-        _logger.LogInformation("Succesfully deleted a weapon with id {Id}", entity.Id);
+        await _repository.DeleteAsync(id);
+        _logger.LogInformation("Succesfully deleted a weapon with id {Id}", id);
     }
 
     public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
@@ -96,27 +88,16 @@ public class WeaponService : IItemService<Weapon>
         return weapon;
     }
 
-    public void RemoveFromCharacter(Character character, Weapon item)
+    public async Task RemoveFromCharacterAsync(Character character, Weapon item)
     {
-        var characterWeapon = character.CharacterWeapons.SingleOrDefault(cw => cw.WeaponId == item.Id);
-
-        if (characterWeapon is null)
-        {
-            _logger.LogWarning("Failed to remove the weapon with id {ItemId} from the character with id {CharacterId}", 
-                item.Id, character.Id);
-            throw new ItemNotFoundException($"Character with id {character.Id} does not possess the weapon with the id {item.Id}");
-        }
-
-        character.CharacterWeapons.Remove(characterWeapon);
+        await _repository.RemoveFromCharacterAsync(character, item);
         _logger.LogInformation("Successfully removed the weapon with id {ItemId} from the character with id {CharacterId}",
             item.Id, character.Id);
     }
 
     public async Task UpdateAsync(Weapon entity)
     {
-        _repository.Update(entity);
-        await _repository.SaveChangesAsync();
-
+        await _repository.UpdateAsync(entity);
         _logger.LogInformation("Successfully updated a weapon with id {Id}", entity.Id);
     }
 }

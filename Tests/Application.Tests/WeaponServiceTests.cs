@@ -123,7 +123,7 @@ public class WeaponServiceTests
     public void DeleteAsync_ValidWeapon_ReturnsTask()
     {
         // Act
-        var result = _fixture.WeaponService.DeleteAsync(_fixture.Weapon);
+        var result = _fixture.WeaponService.DeleteAsync(_fixture.Id);
 
         // Assert
         result.Should().NotBeNull();
@@ -133,7 +133,7 @@ public class WeaponServiceTests
     public void AddToCharacter_ValidData_ReturnsVoid()
     {
         // Act
-        var result = () => _fixture.WeaponService.AddToCharacter(_fixture.Character, _fixture.Weapon);
+        var result = () => _fixture.WeaponService.AddToCharacterAsync(_fixture.Character, _fixture.Weapon);
 
         // Assert
         result.Should().NotBeNull();
@@ -143,7 +143,7 @@ public class WeaponServiceTests
     public void RemoveFromCharacter_ExistingWeapon_ReturnsVoid()
     {
         // Act
-        var result = () => _fixture.WeaponService.RemoveFromCharacter(_fixture.Character, _fixture.Weapon);
+        var result = () => _fixture.WeaponService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Weapon);
 
         // Assert
         result.Should().NotBeNull();
@@ -153,9 +153,9 @@ public class WeaponServiceTests
     public void RemoveFromCharacter_NonexistingWeapon_ThrowsItemNotFoundException()
     {
         // Act
-        var result = () => _fixture.WeaponService.RemoveFromCharacter(_fixture.Character, _fixture.Weapon);
+        var result = async() => await _fixture.WeaponService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Weapon);
 
         // Assert
-        result.Should().Throw<ItemNotFoundException>();
+        result.Should().ThrowAsync<ItemNotFoundException>();
     }
 }

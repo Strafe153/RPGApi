@@ -123,7 +123,7 @@ public class SpellServiceTests
     public void DeleteAsync_ValidSpell_ReturnsTask()
     {
         // Act
-        var result = _fixture.SpellService.DeleteAsync(_fixture.Spell);
+        var result = _fixture.SpellService.DeleteAsync(_fixture.Id);
 
         // Assert
         result.Should().NotBeNull();
@@ -133,7 +133,7 @@ public class SpellServiceTests
     public void AddToCharacter_ValidData_ReturnsVoid()
     {
         // Act
-        var result = () => _fixture.SpellService.AddToCharacter(_fixture.Character, _fixture.Spell);
+        var result = () => _fixture.SpellService.AddToCharacterAsync(_fixture.Character, _fixture.Spell);
 
         // Assert
         result.Should().NotBeNull();
@@ -143,7 +143,7 @@ public class SpellServiceTests
     public void RemoveFromCharacter_ExistingSpell_ReturnsVoid()
     {
         // Act
-        var result = () => _fixture.SpellService.RemoveFromCharacter(_fixture.Character, _fixture.Spell);
+        var result = async () => await _fixture.SpellService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Spell);
 
         // Assert
         result.Should().NotBeNull();
@@ -153,9 +153,9 @@ public class SpellServiceTests
     public void RemoveFromCharacter_NonexistingSpell_ThrowsItemNotFoundException()
     {
         // Act
-        var result = () => _fixture.SpellService.RemoveFromCharacter(_fixture.Character, _fixture.Spell);
+        var result = async () => await _fixture.SpellService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Spell);
 
         // Assert
-        result.Should().Throw<ItemNotFoundException>();
+        result.Should().ThrowAsync<ItemNotFoundException>();
     }
 }

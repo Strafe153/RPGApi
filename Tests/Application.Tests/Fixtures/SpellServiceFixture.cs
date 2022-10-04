@@ -17,7 +17,7 @@ public class SpellServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        SpellRepository = fixture.Freeze<IRepository<Spell>>();
+        SpellRepository = fixture.Freeze<IItemRepository<Spell>>();
         CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<SpellService>>();
 
@@ -35,7 +35,7 @@ public class SpellServiceFixture
     }
 
     public IItemService<Spell> SpellService { get; }
-    public IRepository<Spell> SpellRepository { get; }
+    public IItemRepository<Spell> SpellRepository { get; }
     public ICacheService CacheService { get; }
     public ILogger<SpellService> Logger { get; set; }
 
