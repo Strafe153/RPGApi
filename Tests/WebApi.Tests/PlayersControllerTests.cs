@@ -71,6 +71,13 @@ public class PlayersControllerTests
     public async Task RegisterAsync_ValidDto_ReturnsActionResultOfPlayerReadDto()
     {
         // Arrange
+        _fixture.PlayerService
+            .CreatePlayer(
+                Arg.Any<string>(), 
+                Arg.Any<byte[]>(), 
+                Arg.Any<byte[]>())
+            .Returns(_fixture.Player);
+
         _fixture.ReadMapper
             .Map(Arg.Any<Player>())
             .Returns(_fixture.PlayerReadDto);

@@ -5,10 +5,8 @@ using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
-using System.Security.Principal;
 
 namespace Application.Services;
 
@@ -31,28 +29,18 @@ public class PlayerService : IPlayerService
         _logger = logger;
     }
 
-    public async Task AddAsync(Player entity)
+    public async Task<int> AddAsync(Player entity)
     {
-        try
-        {
-            _repository.Add(entity);
-            await _repository.SaveChangesAsync();
+        int id = await _repository.AddAsync(entity);
+        _logger.LogInformation("Succesfully registered a player");
 
-            _logger.LogInformation("Succesfully registered a player");
-        }
-        catch (DbUpdateException)
-        {
-            _logger.LogWarning("Failed to register a player. The name '{Name}' is already taken", entity.Name);
-            throw new NameNotUniqueException($"Name '{entity.Name}' is already taken");
-        }
+        return id;
     }
 
-    public async Task DeleteAsync(Player entity)
+    public async Task DeleteAsync(int id)
     {
-        _repository.Delete(entity);
-        await _repository.SaveChangesAsync();
-
-        _logger.LogInformation("Succesfully deleted a player with id {Id}", entity.Id);
+        await _repository.DeleteAsync(id);
+        _logger.LogInformation("Succesfully deleted a player with id {Id}", id);
     }
 
     public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
@@ -124,18 +112,8 @@ public class PlayerService : IPlayerService
 
     public async Task UpdateAsync(Player entity)
     {
-        try
-        {
-            _repository.Update(entity);
-            await _repository.SaveChangesAsync();
-
-            _logger.LogInformation("Successfully updated a player with id {Id}", entity.Id);
-        }
-        catch (DbUpdateException)
-        {
-            _logger.LogWarning("Failed to update a player. The name '{Name}' is already taken", entity.Name);
-            throw new NameNotUniqueException($"Name '{entity.Name}' is already taken");
-        }
+        await _repository.UpdateAsync(entity);
+        _logger.LogInformation("Successfully updated a player with id {Id}", entity.Id);
     }
 
     public Player CreatePlayer(string name, byte[] passwordHash, byte[] passwordSalt)

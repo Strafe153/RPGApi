@@ -17,7 +17,7 @@ namespace WebApi.Mappers;
 
 public static class MappersConfiguration
 {
-    public static void AddApplicationMappers(this IServiceCollection services)
+    public static IServiceCollection AddApplicationMappers(this IServiceCollection services)
     {
         // Player mappers
         services.AddScoped<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>, PlayerPaginatedMapper>();
@@ -47,5 +47,7 @@ public static class MappersConfiguration
         services.AddScoped<IMapper<Mount, MountReadDto>, MountReadMapper>();
         services.AddScoped<IMapper<MountBaseDto, Mount>, MountCreateMapper>();
         services.AddScoped<IUpdateMapper<MountBaseDto, Mount>, MountUpdateMapper>();
+
+        return services;
     }
 }

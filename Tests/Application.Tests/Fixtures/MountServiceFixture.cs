@@ -17,7 +17,7 @@ public class MountServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        MountRepository = fixture.Freeze<IRepository<Mount>>();
+        MountRepository = fixture.Freeze<IItemRepository<Mount>>();
         CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<MountService>>();
 
@@ -35,7 +35,7 @@ public class MountServiceFixture
 }
 
     public IItemService<Mount> MountService { get; }
-    public IRepository<Mount> MountRepository { get; }
+    public IItemRepository<Mount> MountRepository { get; }
     public ICacheService CacheService { get; }
     public ILogger<MountService> Logger { get; }
 

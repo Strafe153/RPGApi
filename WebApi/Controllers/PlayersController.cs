@@ -60,7 +60,7 @@ public class PlayersController : ControllerBase
         (byte[] hash, byte[] salt) = _passwordService.CreatePasswordHash(authorizeModel.Password!);
 
         Player player = _playerService.CreatePlayer(authorizeModel.Name!, hash, salt);
-        await _playerService.AddAsync(player);
+        player.Id = await _playerService.AddAsync(player);
 
         var readDto = _readMapper.Map(player);
 
@@ -128,7 +128,7 @@ public class PlayersController : ControllerBase
         var player = await _playerService.GetByIdAsync(id);
 
         _playerService.VerifyPlayerAccessRights(player);
-        await _playerService.DeleteAsync(player);
+        await _playerService.DeleteAsync(id);
 
         return NoContent();
     }

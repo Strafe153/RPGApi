@@ -17,7 +17,7 @@ public class WeaponServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        WeaponRepository = fixture.Freeze<IRepository<Weapon>>();
+        WeaponRepository = fixture.Freeze<IItemRepository<Weapon>>();
         CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<WeaponService>>();
 
@@ -35,7 +35,7 @@ public class WeaponServiceFixture
     }
 
     public IItemService<Weapon> WeaponService { get; }
-    public IRepository<Weapon> WeaponRepository { get; }
+    public IItemRepository<Weapon> WeaponRepository { get; }
     public ICacheService CacheService { get; }
     public ILogger<WeaponService> Logger { get; set; }
 

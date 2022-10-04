@@ -123,7 +123,7 @@ public class MountServiceTests
     public void DeleteAsync_ValidMount_ReturnsTask()
     {
         // Act
-        var result = _fixture.MountService.DeleteAsync(_fixture.Mount);
+        var result = _fixture.MountService.DeleteAsync(_fixture.Id);
 
         // Assert
         result.Should().NotBeNull();
@@ -133,7 +133,7 @@ public class MountServiceTests
     public void AddToCharacter_ValidData_ReturnsVoid()
     {
         // Act
-        var result = () => _fixture.MountService.AddToCharacter(_fixture.Character, _fixture.Mount);
+        var result = () => _fixture.MountService.AddToCharacterAsync(_fixture.Character, _fixture.Mount);
 
         // Assert
         result.Should().NotBeNull();
@@ -143,7 +143,7 @@ public class MountServiceTests
     public void RemoveFromCharacter_ExistingCharacterMount_ReturnsVoid()
     {
         // Act
-        var result = () => _fixture.MountService.RemoveFromCharacter(_fixture.Character, _fixture.Mount);
+        var result = async () => await _fixture.MountService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Mount);
 
         // Assert
         result.Should().NotBeNull();
@@ -153,9 +153,9 @@ public class MountServiceTests
     public void RemoveFromCharacter_NonexistingCharacterMount_ThrowsItemNotFoundException()
     {
         // Act
-        var result = () => _fixture.MountService.RemoveFromCharacter(_fixture.Character, _fixture.Mount);
+        var result = async () => await _fixture.MountService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Mount);
 
         // Assert
-        result.Should().Throw<ItemNotFoundException>();
+        result.Should().ThrowAsync<ItemNotFoundException>();
     }
 }

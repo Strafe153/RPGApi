@@ -23,20 +23,18 @@ public class CharacterService : ICharacterService
         _logger = logger;
     }
 
-    public async Task AddAsync(Character entity)
+    public async Task<int> AddAsync(Character entity)
     {
-        _characterRepository.Add(entity);
-        await _characterRepository.SaveChangesAsync();
-
+        int id = await _characterRepository.AddAsync(entity);
         _logger.LogInformation("Succesfully created a character");
+
+        return id;
     }
 
-    public async Task DeleteAsync(Character entity)
+    public async Task DeleteAsync(int id)
     {
-        _characterRepository.Delete(entity);
-        await _characterRepository.SaveChangesAsync();
-
-        _logger.LogInformation("Succesfully deleted a character with id {Id}", entity.Id);
+        await _characterRepository.DeleteAsync(id);
+        _logger.LogInformation("Succesfully deleted a character with id {Id}", id);
     }
 
     public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
@@ -85,9 +83,7 @@ public class CharacterService : ICharacterService
 
     public async Task UpdateAsync(Character entity)
     {
-        _characterRepository.Update(entity);
-        await _characterRepository.SaveChangesAsync();
-
+        await _characterRepository.UpdateAsync(entity);
         _logger.LogInformation("Successfully updated a character with id {Id}", entity.Id);
     }
 

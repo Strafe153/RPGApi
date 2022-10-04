@@ -1,5 +1,4 @@
 ﻿using Core.Entities;
-using Core.Exceptions;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
@@ -9,12 +8,12 @@ namespace Application.Services;
 
 public class MountService : IItemService<Mount>
 {
-    private readonly IRepository<Mount> _repository;
+    private readonly IItemRepository<Mount> _repository;
     private readonly ICacheService _cacheService;
     private readonly ILogger<MountService> _logger;
 
     public MountService(
-        IRepository<Mount> repository,
+        IItemRepository<Mount> repository,
         ICacheService cacheService,
         ILogger<MountService> logger)
     {
@@ -23,33 +22,25 @@ public class MountService : IItemService<Mount>
         _logger = logger;
     }
 
-    public async Task AddAsync(Mount entity)
+    public async Task<int> AddAsync(Mount entity)
     {
-        _repository.Add(entity);
-        await _repository.SaveChangesAsync();
-
+        int id = await _repository.AddAsync(entity);
         _logger.LogInformation("Succesfully created a mount");
+
+        return id;
     }
 
-    public void AddToCharacter(Character character, Mount item)
+    public async Task AddToCharacterAsync(Character character, Mount item)
     {
-        CharacterMount characterWeapon = new()
-        {
-            CharacterId = character.Id,
-            MountId = item.Id
-        };
-
-        character.CharacterMounts.Add(characterWeapon);
+        await _repository.AddToCharacterAsync(character, item);
         _logger.LogInformation("Successfully added the mount with id {ItemId} to the character with id {CharacterId}", 
             item.Id, character.Id);
     }
 
-    public async Task DeleteAsync(Mount entity)
+    public async Task DeleteAsync(int id)
     {
-        _repository.Delete(entity);
-        await _repository.SaveChangesAsync();
-
-        _logger.LogInformation("Succesfully deleted a mount with id {Id}", entity.Id);
+        await _repository.DeleteAsync(id);
+        _logger.LogInformation("Succesfully deleted a mount with id {Id}", id);
     }
 
     public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
@@ -96,26 +87,16 @@ public class MountService : IItemService<Mount>
         return mount;
     }
 
-    public void RemoveFromCharacter(Character character, Mount item)
+    public async Task RemoveFromCharacterAsync(Character character, Mount item)
     {
-        var characterMount = character.CharacterMounts.SingleOrDefault(cw => cw.MountId == item.Id);
-
-        if (characterMount is null)
-        {
-            _logger.LogWarning("Failed to remove the mount with id {ItemId} from the character with id {CharacterId}", 
-                item.Id, character.Id);
-            throw new ItemNotFoundException($"Character with id {character.Id} does not possess the mount with the id {item.Id}");
-        }
-
-        character.CharacterMounts.Remove(characterMount);
-        _logger.LogInformation($"Successfully removed the mount with id {item.Id} from the character with id {character.Id}");
+        await _repository.RemoveFromCharacterAsync(character, item);
+        _logger.LogInformation("Successfully removed the mount with id {ItemId} from the character with id {CharacterId}",
+            item.Id, character.Id);
     }
 
     public async Task UpdateAsync(Mount entity)
     {
-        _repository.Update(entity);
-        await _repository.SaveChangesAsync();
-
-        _logger.LogInformation($"Successfully updated a mount with id {entity.Id}");
+        await _repository.UpdateAsync(entity);
+        _logger.LogInformation("Successfully updated a mount with id {Id}", entity.Id);
     }
 }

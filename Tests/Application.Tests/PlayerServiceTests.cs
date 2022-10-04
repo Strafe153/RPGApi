@@ -176,7 +176,7 @@ public class PlayerServiceTests
     public void DeleteAsync_ValidPlayer_ReturnsTask()
     {
         // Act
-        var result = _fixture.PlayerService.DeleteAsync(_fixture.Player);
+        var result = _fixture.PlayerService.DeleteAsync(_fixture.Id);
 
         // Assert
         result.Should().NotBeNull();

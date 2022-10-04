@@ -58,7 +58,7 @@ public class MountsController : ControllerBase
     public async Task<ActionResult<MountReadDto>> CreateAsync([FromBody] MountBaseDto createDto)
     {
         var mount = _createMapper.Map(createDto);
-        await _mountService.AddAsync(mount);
+        mount.Id = await _mountService.AddAsync(mount);
 
         var readDto = _readMapper.Map(mount);
 
@@ -103,9 +103,7 @@ public class MountsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> DeleteAsync([FromRoute] int id)
     {
-        var mount = await _mountService.GetByIdAsync(id);
-        await _mountService.DeleteAsync(mount);
-
+        await _mountService.DeleteAsync(id);
         return NoContent();
     }
 }
