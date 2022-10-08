@@ -37,7 +37,7 @@ public class InitialMigration : Migration
             .WithOptions()
             .NonClustered();
 
-        (byte[] hash, byte[] salt) = _passwordService.CreatePasswordHash(_configuration.GetSection("AppSettings:AdminPassword").Value);
+        (byte[] hash, byte[] salt) = _passwordService.CreatePasswordHash(_configuration.GetSection("AdminSettings:AdminPassword").Value);
 
         Insert.IntoTable("Players")
             .Row(new
