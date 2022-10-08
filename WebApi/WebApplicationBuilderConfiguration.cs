@@ -58,12 +58,14 @@ public static class WebApplicationBuilderConfiguration
             {
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
-                    ValidateIssuerSigningKey = true,
+                    ValidateActor = true,
+                    ValidateAudience = true,
                     ValidateLifetime = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                        builder.Configuration.GetSection("AppSettings:Token").Value)),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration.GetSection("JwtSettings:Issuer").Value,
+                    ValidAudience = builder.Configuration.GetSection("JwtSettings:Audience").Value,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(builder.Configuration.GetSection("JwtSettings:Secret").Value))
                 };
             });
 

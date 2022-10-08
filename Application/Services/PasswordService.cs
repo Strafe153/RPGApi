@@ -44,13 +44,16 @@ public class PasswordService : IPasswordService
         };
 
         SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(
-            _configuration.GetSection("AppSettings:Token").Value));
+            _configuration.GetSection("JwtSettings:Secret").Value));
 
-        SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha512Signature);
+        SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha256Signature);
 
         JwtSecurityToken token = new(
+            issuer: _configuration.GetSection("JwtSettings:Issuer").Value,
+            audience: _configuration.GetSection("JwtSettings:Audience").Value,
             claims: claims,
-            expires: DateTime.Now.AddHours(1),
+            expires: DateTime.UtcNow.AddMinutes(10),
+            notBefore: DateTime.UtcNow,
             signingCredentials: credentials);
 
         string jwt = new JwtSecurityTokenHandler().WriteToken(token);
