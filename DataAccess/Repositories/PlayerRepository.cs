@@ -19,7 +19,6 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task<int> AddAsync(Player entity)
     {
-        using var connection = _context.CreateConnection();
         string query = @"INSERT INTO ""Players"" (""Name"", ""Role"", ""PasswordHash"", ""PasswordSalt"")
                          VALUES (@Name, @Role, @PasswordHash, @PasswordSalt)
                          RETURNING ""Id""";
@@ -30,6 +29,8 @@ public class PlayerRepository : IPlayerRepository
             PasswordHash = entity.PasswordHash,
             PasswordSalt = entity.PasswordSalt
         };
+
+        using var connection = _context.CreateConnection();
         int id = await connection.ExecuteScalarAsync<int>(query, queryParams);
 
         return id;
@@ -37,21 +38,21 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task DeleteAsync(int id)
     {
-        using var connection = _context.CreateConnection();
         string query = @"DELETE FROM ""Players"" 
                          WHERE ""Id"" = @Id";
         var queryParams = new { Id = id };
 
+        using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
     }
 
     public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        using var connection = _context.CreateConnection();
         string query = @"SELECT * FROM ""Players"" p
                          LEFT OUTER JOIN ""Characters"" c on p.""Id"" = c.""PlayerId""
                          ORDER BY p.""Id"" ASC";
 
+        using var connection = _context.CreateConnection();
         var queryResult = await connection.QueryAsync<Player, Character, Player>(
             new CommandDefinition(query, cancellationToken: token), 
             (player, character) =>
@@ -76,12 +77,12 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task<Player?> GetByIdAsync(int id, CancellationToken token = default)
     {
-        using var connection = _context.CreateConnection();
         string query = @"SELECT * FROM ""Players"" p
                          LEFT OUTER JOIN ""Characters"" c on p.""Id"" = c.""PlayerId""
                          WHERE p.""Id"" = @Id";
         var queryParams = new { Id = id };
 
+        using var connection = _context.CreateConnection();
         var queryResult = await connection.QueryAsync<Player, Character, Player>(
             new CommandDefinition(query, queryParams, cancellationToken: token), 
             (player, character) =>
@@ -106,11 +107,11 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task<Player?> GetByNameAsync(string name, CancellationToken token = default)
     {
-        using var connection = _context.CreateConnection();
         string query = @"SELECT * FROM ""Players""
                          WHERE ""Name"" = @Name";
         var queryParams = new { Name = name };
 
+        using var connection = _context.CreateConnection();
         var player = await connection.QueryFirstOrDefaultAsync<Player>(
             new CommandDefinition(query, queryParams, cancellationToken: token));
 
@@ -119,7 +120,6 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task UpdateAsync(Player entity)
     {
-        using var connection = _context.CreateConnection();
         string query = @"UPDATE ""Players"" 
                          SET ""Name"" = @Name, ""Role"" = @Role, ""PasswordHash"" = @PasswordHash, ""PasswordSalt"" = @PasswordSalt
                          WHERE ""Id"" = @Id";
@@ -132,6 +132,7 @@ public class PlayerRepository : IPlayerRepository
             Id = entity.Id
         };
 
+        using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
     }
 }

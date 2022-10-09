@@ -19,7 +19,6 @@ public class MountRepository : IItemRepository<Mount>
 
     public async Task<int> AddAsync(Mount entity)
     {
-        using var connection = _context.CreateConnection();
         string query = @"INSERT INTO ""Mounts"" (""Name"", ""Type"", ""Speed"") 
                          VALUES (@Name, @Type, @Speed)
                          RETURNING ""Id""";
@@ -29,6 +28,8 @@ public class MountRepository : IItemRepository<Mount>
             Type = entity.Type,
             Speed = entity.Speed
         };
+
+        using var connection = _context.CreateConnection();
         int id = await connection.ExecuteScalarAsync<int>(query, queryParams);
 
         return id;
@@ -36,22 +37,22 @@ public class MountRepository : IItemRepository<Mount>
 
     public async Task DeleteAsync(int id)
     {
-        using var connection = _context.CreateConnection();
         string query = @"DELETE FROM ""Mounts"" 
                          WHERE ""Id"" = @Id";
         var queryParams = new { Id = id };
 
+        using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
     }
 
     public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        using var connection = _context.CreateConnection();
         string mountsQuery = @"SELECT * FROM ""Mounts""
                          ORDER BY ""Id"" ASC";
         string characterMountsQuery = @"SELECT * FROM ""CharacterMounts"" cm
                                    LEFT OUTER JOIN ""Characters"" c on cm.""CharacterId"" = c.""Id""";
 
+        using var connection = _context.CreateConnection();
         var queryResult = await connection.QueryAsync<Mount>(new CommandDefinition(mountsQuery, cancellationToken: token));
         var characterMounts = await GetCharacterMountsAsync(characterMountsQuery, token);
 
@@ -71,7 +72,6 @@ public class MountRepository : IItemRepository<Mount>
 
     public async Task<Mount?> GetByIdAsync(int id, CancellationToken token = default)
     {
-        using var connection = _context.CreateConnection();
         var queryParams = new { Id = id };
         string mountsQuery = @"SELECT * FROM ""Mounts""
                                WHERE ""Id"" = @Id";
@@ -79,6 +79,7 @@ public class MountRepository : IItemRepository<Mount>
                                         LEFT OUTER JOIN ""Characters"" c on cm.""CharacterId"" = c.""Id""
                                         WHERE cm.""MountId"" = {id}";
 
+        using var connection = _context.CreateConnection();
         var queryResult = await connection.QueryAsync<Mount>(
             new CommandDefinition(mountsQuery, queryParams, cancellationToken: token));
         var characterMounts = await GetCharacterMountsAsync(characterMountsQuery, token);
@@ -99,7 +100,6 @@ public class MountRepository : IItemRepository<Mount>
 
     public async Task UpdateAsync(Mount entity)
     {
-        using var connection = _context.CreateConnection();
         string query = @"UPDATE ""Mounts"" 
                          SET ""Name"" = @Name, ""Type"" = @Type, ""Speed"" = @Speed
                          WHERE ""Id"" = @Id";
@@ -111,12 +111,12 @@ public class MountRepository : IItemRepository<Mount>
             Id = entity.Id
         };
 
+        using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
     }
 
     public async Task AddToCharacterAsync(Character character, Mount item)
     {
-        using var connection = _context.CreateConnection();
         string query = @"INSERT INTO ""CharacterMounts"" (""CharacterId"", ""MountId"")
                          VALUES (@CharacterId, @MountId)";
         var queryParams = new
@@ -125,12 +125,12 @@ public class MountRepository : IItemRepository<Mount>
             MountId = item.Id
         };
 
+        using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
     }
 
     public async Task RemoveFromCharacterAsync(Character character, Mount item)
     {
-        using var connection = _context.CreateConnection();
         string query = @"DELETE FROM ""CharacterMounts""
                          WHERE ""CharacterId"" = @CharacterId AND ""MountId"" = @MountId";
         var queryParams = new
@@ -139,6 +139,7 @@ public class MountRepository : IItemRepository<Mount>
             MountId = item.Id
         };
 
+        using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
     }
 
