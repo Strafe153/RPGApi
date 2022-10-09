@@ -1,8 +1,6 @@
 ﻿using Application.Services;
 using DataAccess;
-using DataAccess.Migrations;
 using DataAccess.Repositories;
-using FluentMigrator.Runner;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -25,26 +23,24 @@ public static class WebApplicationBuilderConfiguration
         builder.Host.UseNLog();
 
         // Configure Database
-        builder.Services.AddScoped<RPGContext>();
+        builder.Services.AddSingleton<RPGContext>();
 
         // Add custom validators, repositories, services, mappers.
-        builder.Services
-            .AddApplicationValidators()
+        builder.Services.AddApplicationValidators()
             .AddApplicationRepositories()
             .AddApplicationServices()
             .AddApplicationMappers();
 
         // AddAsync, configure services for controllers.
-        builder.Services
-            .AddControllers(options =>
-            {
-                options.SuppressAsyncSuffixInActionNames = false;
-            })
-            .AddNewtonsoftJson(options =>
-            {
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            });
+        builder.Services.AddControllers(options =>
+        {
+            options.SuppressAsyncSuffixInActionNames = false;
+        })
+        .AddNewtonsoftJson(options =>
+        {
+            options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        });
 
         // Add distributed Redis cache.
         builder.Services.AddStackExchangeRedisCache(options =>
@@ -70,20 +66,8 @@ public static class WebApplicationBuilderConfiguration
             });
 
         // Add fluent validation
-        builder.Services
-            .AddFluentValidationAutoValidation()
+        builder.Services.AddFluentValidationAutoValidation()
             .AddFluentValidationClientsideAdapters();
-
-        // Add FluentMigrator
-        builder.Services
-            .AddFluentMigratorCore()
-            .ConfigureRunner(options =>
-            {
-                options
-                    .AddPostgres()
-                    .WithGlobalConnectionString(builder.Configuration.GetConnectionString("DatabaseConnection"))
-                    .ScanIn(typeof(InitialMigration).Assembly).For.Migrations();
-            });
 
         // Add and configure Swagger.
         builder.Services.AddEndpointsApiExplorer();

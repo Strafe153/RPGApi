@@ -40,7 +40,8 @@ public class PasswordService : IPasswordService
         List<Claim> claims = new()
         {
             new Claim(ClaimTypes.Name, player.Name!),
-            new Claim(ClaimTypes.Role, player.Role.ToString())
+            new Claim(ClaimTypes.Role, player.Role.ToString()),
+            new Claim("id", player.Id.ToString())
         };
 
         SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(

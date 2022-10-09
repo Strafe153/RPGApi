@@ -18,7 +18,6 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task<int> AddAsync(Weapon entity)
     {
-        using var connection = _context.CreateConnection();
         string query = @"INSERT INTO ""Weapons"" (""Name"", ""Type"", ""Damage"") 
                          VALUES (@Name, @Type, @Damage)
                          RETURNING ""Id""";
@@ -28,6 +27,8 @@ public class WeaponRepository : IItemRepository<Weapon>
             Type = entity.Type,
             Damage = entity.Damage
         };
+
+        using var connection = _context.CreateConnection();
         int id = await connection.ExecuteScalarAsync<int>(query, queryParams);
 
         return id;
@@ -35,22 +36,22 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task DeleteAsync(int id)
     {
-        using var connection = _context.CreateConnection();
         string query = @"DELETE FROM ""Weapons"" 
                          WHERE ""Id"" = @Id";
         var queryParams = new { Id = id };
 
+        using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
     }
 
     public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        using var connection = _context.CreateConnection();
         string weaponsQuery = @"SELECT * FROM ""Weapons""
                                 ORDER BY ""Id"" ASC";
         string characterWeaponsQuery = @"SELECT * FROM ""CharacterWeapons"" cw
                                          LEFT OUTER JOIN ""Characters"" c on cw.""CharacterId"" = c.""Id""";
 
+        using var connection = _context.CreateConnection();
         var weapons = await connection.QueryAsync<Weapon>(new CommandDefinition(weaponsQuery, cancellationToken: token));
         var characterWeapons = await GetCharacterWeaponsAsync(characterWeaponsQuery, token);
 
@@ -70,7 +71,6 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task<Weapon?> GetByIdAsync(int id, CancellationToken token = default)
     {
-        using var connection = _context.CreateConnection();
         var queryParams = new { Id = id };
         string weaponQuery = @"SELECT * FROM ""Weapons""
                           WHERE ""Id"" = @Id";
@@ -78,6 +78,7 @@ public class WeaponRepository : IItemRepository<Weapon>
                                          LEFT OUTER JOIN ""Characters"" c on cw.""CharacterId"" = c.""Id""
                                          WHERE cw.""WeaponId"" = {id}";
 
+        using var connection = _context.CreateConnection();
         var weapons = await connection.QueryAsync<Weapon>(
             new CommandDefinition(weaponQuery, queryParams, cancellationToken: token));
         var characterWeapons = await GetCharacterWeaponsAsync(characterWeaponsQuery, token);
@@ -98,7 +99,6 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task UpdateAsync(Weapon entity)
     {
-        using var connection = _context.CreateConnection();
         string query = @"UPDATE ""Weapons"" 
                          SET ""Name"" = @Name, ""Type"" = @Type, ""Damage"" = @Damage
                          WHERE ""Id"" = @Id";
@@ -110,12 +110,12 @@ public class WeaponRepository : IItemRepository<Weapon>
             Id = entity.Id
         };
 
+        using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
     }
 
     public async Task AddToCharacterAsync(Character character, Weapon item)
     {
-        using var connection = _context.CreateConnection();
         string query = @"INSERT INTO ""CharacterWeapons"" (""CharacterId"", ""WeaponId"")
                          VALUES (@CharacterId, @WeaponId)";
         var queryParams = new
@@ -124,12 +124,12 @@ public class WeaponRepository : IItemRepository<Weapon>
             WeaponId = item.Id
         };
 
+        using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
     }
 
     public async Task RemoveFromCharacterAsync(Character character, Weapon item)
     {
-        using var connection = _context.CreateConnection();
         string query = @"DELETE FROM ""CharacterWeapons""
                          WHERE ""CharacterId"" = @CharacterId AND ""WeaponId"" = @WeaponId";
         var queryParams = new
@@ -138,6 +138,7 @@ public class WeaponRepository : IItemRepository<Weapon>
             WeaponId = item.Id
         };
 
+        using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
     }
 
