@@ -5,7 +5,6 @@ using Core.Entities;
 using Core.Enums;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
 
 namespace Application.Tests.Fixtures;
 
@@ -18,7 +17,7 @@ public class CacheServiceFixture
         DistributedCache = fixture.Freeze<IDistributedCache>();
         Logger = fixture.Freeze<ILogger<CacheService>>();
 
-        CacheService = new(
+        CacheService = new CacheService(
             DistributedCache,
             Logger);
 
@@ -37,7 +36,7 @@ public class CacheServiceFixture
 
     private Player GetPlayer()
     {
-        return new()
+        return new Player()
         {
             Id = 1,
             Name = Key,

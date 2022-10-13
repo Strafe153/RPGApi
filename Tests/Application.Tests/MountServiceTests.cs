@@ -17,7 +17,7 @@ public class MountServiceTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new();
+        _fixture = new MountServiceFixture();
     }
 
     [Test]

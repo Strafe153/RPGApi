@@ -1,11 +1,6 @@
-﻿using Core.Entities;
-using Core.Exceptions;
+﻿using Core.Exceptions;
 using Core.Interfaces.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -13,68 +8,33 @@ namespace Application.Services;
 
 public class PasswordService : IPasswordService
 {
-    private readonly IConfiguration _configuration;
     private readonly ILogger<PasswordService> _logger;
 
-    public PasswordService(
-        IConfiguration configuration, 
-        ILogger<PasswordService> logger)
+    public PasswordService(ILogger<PasswordService> logger)
     {
-        _configuration = configuration;
         _logger = logger;
     }
 
-    public (byte[], byte[]) CreatePasswordHash(string password)
+    public (byte[], byte[]) GeneratePasswordHashAndSalt(string password)
     {
-        using (HMACSHA512 hmac = new())
-        {
-            byte[] passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            byte[] passwordSalt = hmac.Key;
+        using var hmac = new HMACSHA256();
+        byte[] passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        byte[] passwordSalt = hmac.Key;
 
-            return (passwordHash, passwordSalt);
-        }
-    }
-
-    public string CreateToken(Player player)
-    {
-        List<Claim> claims = new()
-        {
-            new Claim(ClaimTypes.Name, player.Name!),
-            new Claim(ClaimTypes.Role, player.Role.ToString()),
-            new Claim("id", player.Id.ToString())
-        };
-
-        SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(
-            _configuration.GetSection("JwtSettings:Secret").Value));
-
-        SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha256Signature);
-
-        JwtSecurityToken token = new(
-            issuer: _configuration.GetSection("JwtSettings:Issuer").Value,
-            audience: _configuration.GetSection("JwtSettings:Audience").Value,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(10),
-            notBefore: DateTime.UtcNow,
-            signingCredentials: credentials);
-
-        string jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-        return jwt;
+        return (passwordHash, passwordSalt);
     }
 
     public void VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
     {
-        using (HMACSHA512 hmac = new(passwordSalt))
+        using var hmac = new HMACSHA256(passwordSalt);
+        byte[] computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+
+        if (!computedHash.SequenceEqual(passwordHash))
         {
-            byte[] computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-
-            if (!computedHash.SequenceEqual(passwordHash))
-            {
-                _logger.LogWarning("Player failed to log in due to providing an incorrect password");
-                throw new IncorrectPasswordException("Incorrect password");
-            }
-
-            _logger.LogInformation("Player successfully logged in");
+            _logger.LogWarning("Player failed to log in due to providing an incorrect password");
+            throw new IncorrectPasswordException("Incorrect password");
         }
+
+        _logger.LogInformation("Player successfully logged in");
     }
 }

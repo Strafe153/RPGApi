@@ -2,11 +2,11 @@
 using AutoFixture.AutoNSubstitute;
 using Core.Dtos;
 using Core.Dtos.PlayerDtos;
+using Core.Dtos.TokensDtos;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Services;
 using Core.Models;
-using NSubstitute;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
 
@@ -20,45 +20,47 @@ public class PlayersControllerFixture
 
         PlayerService = fixture.Freeze<IPlayerService>();
         PasswordService = fixture.Freeze<IPasswordService>();
+        TokenService = fixture.Freeze<ITokenService>();
         PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>>();
         ReadMapper = fixture.Freeze<IMapper<Player, PlayerReadDto>>();
-        ReadWithTokenMapper = fixture.Freeze<IMapper<Player, PlayerWithTokenReadDto>>();
 
-        PlayerContainer = new(
+        PlayersController = new PlayersController(
             PlayerService,
             PasswordService,
+            TokenService,
             PaginatedMapper,
-            ReadMapper,
-            ReadWithTokenMapper);
+            ReadMapper);
 
         Id = 1;
         Name = "Name";
         Bytes = new byte[0];
         Player = GetPlayer();
         PlayerReadDto = GetPlayerReadDto();
-        PlayerWithTokenReadDto = GetPlayerWithTokenReadDto();
         PlayerAuthorizeDto = GetPlayerAuthorizeDto();
         PlayerUpdateDto = GetPlayerUpdateDto();
         PlayerChangePasswordDto = GetPlayerChangePasswordDto();
         PlayerChangeRoleDto = GetPlayerChangeRoleDto();
+        TokensReadDto = GetTokensReadDto();
+        TokensRefreshDto = GetTokensRefreshDto();
         PageParameters = GetPageParameters();
         PaginatedList = GetPaginatedList();
         PageDto = GetPageDto();
     }
 
-    public PlayersController PlayerContainer { get; }
+    public PlayersController PlayersController { get; }
     public IPlayerService PlayerService { get; }
     public IPasswordService PasswordService { get; }
+    public ITokenService TokenService { get; }
     public IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>> PaginatedMapper { get; }
     public IMapper<Player, PlayerReadDto> ReadMapper { get; }
-    public IMapper<Player, PlayerWithTokenReadDto> ReadWithTokenMapper { get; }
 
     public int Id { get; }
     public string? Name { get; }
     public byte[] Bytes { get; }
     public Player Player { get; }
     public PlayerReadDto PlayerReadDto { get; }
-    public PlayerWithTokenReadDto PlayerWithTokenReadDto { get; }
+    public TokensReadDto TokensReadDto { get; }
+    public TokensRefreshDto TokensRefreshDto { get; }
     public PlayerAuthorizeDto PlayerAuthorizeDto { get; }
     public PlayerBaseDto PlayerUpdateDto { get; }
     public PlayerChangePasswordDto PlayerChangePasswordDto { get; }
@@ -117,14 +119,20 @@ public class PlayersControllerFixture
         };
     }
 
-    private PlayerWithTokenReadDto GetPlayerWithTokenReadDto()
+    private TokensReadDto GetTokensReadDto()
     {
-        return new PlayerWithTokenReadDto()
+        return new TokensReadDto()
         {
-            Id = Id,
-            Name = Name,
-            Role = PlayerRole.Player,
-            Token = Name
+            AccessToken = Name,
+            RefreshToken = Name
+        };
+    }
+
+    private TokensRefreshDto GetTokensRefreshDto()
+    {
+        return new TokensRefreshDto()
+        {
+            RefreshToken = Name
         };
     }
 

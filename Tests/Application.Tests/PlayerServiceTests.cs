@@ -17,7 +17,7 @@ public class PlayerServiceTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new();
+        _fixture = new PlayerServiceFixture();
     }
 
     [Test]

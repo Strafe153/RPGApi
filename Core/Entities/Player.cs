@@ -9,6 +9,8 @@ public class Player
     public PlayerRole Role { get; set; }
     public byte[]? PasswordHash { get; set; }
     public byte[]? PasswordSalt { get; set; }
+    public string? RefreshToken { get; set; }
+    public DateTime RefreshTokenExpiryDate { get; set; }
 
     public ICollection<Character> Characters { get; set; } = new List<Character>();
 }

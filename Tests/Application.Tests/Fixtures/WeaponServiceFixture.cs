@@ -7,7 +7,6 @@ using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
 
 namespace Application.Tests.Fixtures;
 
@@ -27,7 +26,7 @@ public class WeaponServiceFixture
             Logger);
 
         Id = 1;
-        Name = "StringPlaceholder";
+        Name = "ValidToken";
         Weapon = GetWeapon(Id);
         Character = GetCharacter();
         Weapons = GetWeapons();

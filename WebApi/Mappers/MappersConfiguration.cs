@@ -22,7 +22,6 @@ public static class MappersConfiguration
         // Player mappers
         services.AddScoped<IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>, PlayerPaginatedMapper>();
         services.AddScoped<IMapper<Player, PlayerReadDto>, PlayerReadMapper>();
-        services.AddScoped<IMapper<Player, PlayerWithTokenReadDto>, PlayerWithTokenReadMapper>();
 
         // Character mappers
         services.AddScoped<IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>, CharacterPaginatedMapper>();

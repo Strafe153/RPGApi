@@ -7,7 +7,6 @@ using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
 
 namespace Application.Tests.Fixtures;
 
@@ -27,7 +26,7 @@ public class MountServiceFixture
             Logger);
 
         Id = 1;
-        Name = "StringPlaceholder";
+        Name = "ValidToken";
         Mount = GetMount(Id);
         Character = GetCharacter();
         Mounts = GetMounts();

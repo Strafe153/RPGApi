@@ -71,7 +71,7 @@ public class RPGContext
 
     private void InitializePlayers(IDbTransaction transaction)
     {
-        (byte[] hash, byte[] salt) = _passwordService.CreatePasswordHash(_configuration.GetSection("AdminSettings:Password").Value);
+        (byte[] hash, byte[] salt) = _passwordService.GeneratePasswordHashAndSalt(_configuration.GetSection("AdminSettings:Password").Value);
         string tableQuery = @"CREATE TABLE IF NOT EXISTS public.""Players""
                               (
                                   ""Id"" serial NOT NULL,
@@ -79,6 +79,8 @@ public class RPGContext
                                   ""Role"" integer NOT NULL DEFAULT 1,
                                   ""PasswordHash"" bytea NOT NULL,
                                   ""PasswordSalt"" bytea NOT NULL,
+                                  ""RefreshToken"" character varying(128) COLLATE pg_catalog.""default"",
+                                  ""RefreshTokenExpiryDate"" timestamp without time zone,
                                   CONSTRAINT ""PK_Players"" PRIMARY KEY (""Id"")
                               )";
         string indexQuery = @"CREATE INDEX IF NOT EXISTS ""IX_Players_Name""

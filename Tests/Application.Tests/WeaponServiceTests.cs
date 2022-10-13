@@ -17,7 +17,7 @@ public class WeaponServiceTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new();
+        _fixture = new WeaponServiceFixture();
     }
 
     [Test]
