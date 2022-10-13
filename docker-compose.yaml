@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   web_api:
-    build: .
+    build:
+      context: .
+      dockerfile: ./WebApi/Dockerfile
     container_name: web_api
     ports:
       - 8080:80
