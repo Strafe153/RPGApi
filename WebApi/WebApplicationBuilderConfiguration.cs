@@ -100,7 +100,7 @@ public static class WebApplicationBuilderConfiguration
                             Id = "Bearer"
                         }
                     },
-                    new string[] { }
+                    Array.Empty<string>()
                 }
             });
         });

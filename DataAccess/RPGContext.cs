@@ -36,28 +36,26 @@ public class RPGContext
                          WHERE datname = @DBName";
         var queryParams = new { DBName = "rpg_api_db" };
 
-        using (var connection = new NpgsqlConnection(_configuration.GetConnectionString("GlobalPostgresConnection")))
+        using var connection = new NpgsqlConnection(_configuration.GetConnectionString("GlobalPostgresConnection"));
+        connection.Open();
+
+        string queryResult = connection.QueryFirstOrDefault<string>(query, queryParams);
+
+        if (string.IsNullOrEmpty(queryResult))
         {
-            connection.Open();
-            string queryResult = connection.QueryFirstOrDefault<string>(query, queryParams);
+            using var transaction = connection.BeginTransaction();
 
-            if (string.IsNullOrEmpty(queryResult))
-            {
-                using (var transaction = connection.BeginTransaction())
-                {
-                    InitializeDatabase();
-                    InitializePlayers(transaction: transaction);
-                    InitializeCharacters(transaction: transaction);
-                    InitializeWeapons(transaction: transaction);
-                    InitializeCharacterWeapons(transaction: transaction);
-                    InitializeSpells(transaction: transaction);
-                    InitializeCharacterSpells(transaction: transaction);
-                    InitializeMounts(transaction: transaction);
-                    InitializeCharacterMounts(transaction: transaction);
+            InitializeDatabase();
+            InitializePlayers(transaction: transaction);
+            InitializeCharacters(transaction: transaction);
+            InitializeWeapons(transaction: transaction);
+            InitializeCharacterWeapons(transaction: transaction);
+            InitializeSpells(transaction: transaction);
+            InitializeCharacterSpells(transaction: transaction);
+            InitializeMounts(transaction: transaction);
+            InitializeCharacterMounts(transaction: transaction);
 
-                    transaction.Commit();
-                }
-            }
+            transaction.Commit();
         }
     }
 
@@ -98,7 +96,6 @@ public class RPGContext
         };
 
         using var connection = CreateConnection();
-
         connection.Execute(tableQuery, transaction: transaction);
         connection.Execute(indexQuery, transaction: transaction);
         connection.Execute(adminQuery, adminQueryParams, transaction: transaction);
@@ -125,7 +122,6 @@ public class RPGContext
                               TABLESPACE pg_default;";
 
         using var connection = CreateConnection();
-
         connection.Execute(tableQuery, transaction: transaction);
         connection.Execute(indexQuery, transaction: transaction);
     }
@@ -142,7 +138,6 @@ public class RPGContext
                               )";
 
         using var connection = CreateConnection();
-
         connection.Execute(tableQuery, transaction: transaction);
     }
 
@@ -168,7 +163,6 @@ public class RPGContext
                               TABLESPACE pg_default;";
 
         using var connection = CreateConnection();
-
         connection.Execute(tableQuery, transaction: transaction);
         connection.Execute(indexQuery, transaction: transaction);
     }
@@ -185,7 +179,6 @@ public class RPGContext
                               )";
 
         using var connection = CreateConnection();
-
         connection.Execute(tableQuery, transaction: transaction);
     }
 
@@ -211,7 +204,6 @@ public class RPGContext
                               TABLESPACE pg_default;";
 
         using var connection = CreateConnection();
-
         connection.Execute(tableQuery, transaction: transaction);
         connection.Execute(indexQuery, transaction: transaction);
     }
@@ -228,7 +220,6 @@ public class RPGContext
                               )";
 
         using var connection = CreateConnection();
-
         connection.Execute(tableQuery, transaction: transaction);
     }
 
@@ -254,7 +245,6 @@ public class RPGContext
                               TABLESPACE pg_default;";
 
         using var connection = CreateConnection();
-
         connection.Execute(tableQuery, transaction: transaction);
         connection.Execute(indexQuery, transaction: transaction);
     }

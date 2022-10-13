@@ -20,7 +20,7 @@ public class CacheService : ICacheService
         _cache = cache;
         _logger = logger;
 
-        _serializerOptions = new()
+        _serializerOptions = new JsonSerializerOptions()
         {
             ReferenceHandler = ReferenceHandler.IgnoreCycles
         };
