@@ -21,38 +21,35 @@ public class ExceptionsMiddleware
         }
         catch (NullReferenceException ex)
         {
-            await HandleExceptionAsync(context, HttpStatusCode.NotFound,
-                $"{ex.Message}. Path:{context.Request.Path}.");
+            await HandleExceptionAsync(context, HttpStatusCode.NotFound, $"{ex.Message}. Path:{context.Request.Path}.");
         }
         catch (ItemNotFoundException ex)
         {
-            await HandleExceptionAsync(context, HttpStatusCode.NotFound,
-                $"{ex.Message}. Path:{context.Request.Path}.");
+            await HandleExceptionAsync(context, HttpStatusCode.NotFound, $"{ex.Message}. Path:{context.Request.Path}.");
         }
         catch (IncorrectPasswordException ex)
         {
-            await HandleExceptionAsync(context, HttpStatusCode.BadRequest,
-                $"{ex.Message}. Path:{context.Request.Path}.");
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, $"{ex.Message}. Path:{context.Request.Path}.");
         }
         catch (NameNotUniqueException ex)
         {
-            await HandleExceptionAsync(context, HttpStatusCode.BadRequest,
-                $"{ex.Message}. Path:{context.Request.Path}.");
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, $"{ex.Message}. Path:{context.Request.Path}.");
         }
         catch (NotEnoughRightsException ex)
         {
-            await HandleExceptionAsync(context, HttpStatusCode.Forbidden,
-                $"{ex.Message}. Path:{context.Request.Path}.");
+            await HandleExceptionAsync(context, HttpStatusCode.Forbidden, $"{ex.Message}. Path:{context.Request.Path}.");
         }
         catch (OperationCanceledException ex)
         {
-            await HandleExceptionAsync(context, HttpStatusCode.BadRequest,
-                $"{ex.Message}. Path:{context.Request.Path}.");
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, $"{ex.Message}. Path:{context.Request.Path}.");
+        }
+        catch (InvalidTokenException ex)
+        {
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, $"{ex.Message}. Path:{context.Request.Path}.");
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, HttpStatusCode.InternalServerError,
-               $"{ex.Message}. Path:{context.Request.Path}.");
+            await HandleExceptionAsync(context, HttpStatusCode.InternalServerError, $"{ex.Message}. Path:{context.Request.Path}.");
         }
     }
 

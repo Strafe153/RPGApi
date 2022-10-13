@@ -17,7 +17,7 @@ public class SpellServiceTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new();
+        _fixture = new SpellServiceFixture();
     }
 
     [Test]

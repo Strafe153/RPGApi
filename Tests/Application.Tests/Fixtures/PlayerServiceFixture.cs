@@ -8,7 +8,6 @@ using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
 using System.Security.Claims;
 
 namespace Application.Tests.Fixtures;
@@ -31,8 +30,8 @@ public class PlayerServiceFixture
             Logger);
 
         Id = 1;
-        Name = "StringPlaceholder";
-        Bytes = new byte[0];
+        Name = "ValidToken";
+        Bytes = Array.Empty<byte>();
         Race = CharacterRace.Human;
         Player = GetPlayer();
         Players = GetPlayers();

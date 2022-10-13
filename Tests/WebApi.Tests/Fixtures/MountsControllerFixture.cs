@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
 using NSubstitute;
-using System.Security.Claims;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
 
@@ -31,7 +30,7 @@ public class MountsControllerFixture
         CreateMapper = fixture.Freeze<IMapper<MountBaseDto, Mount>>();
         UpdateMapper = fixture.Freeze<IUpdateMapper<MountBaseDto, Mount>>();
 
-        MountsController = new(
+        MountsController = new MountsController(
             MountService,
             PaginatedMapper,
             ReadMapper,

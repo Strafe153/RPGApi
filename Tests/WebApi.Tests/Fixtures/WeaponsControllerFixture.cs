@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
 using NSubstitute;
-using System.Security.Claims;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
 
@@ -33,7 +32,7 @@ public class WeaponsControllerFixture
         CreateMapper = fixture.Freeze<IMapper<WeaponBaseDto, Weapon>>();
         UpdateMapper = fixture.Freeze<IUpdateMapper<WeaponBaseDto, Weapon>>();
 
-        WeaponsController = new(
+        WeaponsController = new WeaponsController(
             WeaponService,
             CharacterService,
             PlayerService,

@@ -17,7 +17,7 @@ public class CharacterServiceTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new();
+        _fixture = new CharacterServiceFixture();
     }
 
     [TearDown]

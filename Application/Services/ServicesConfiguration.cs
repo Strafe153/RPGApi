@@ -14,6 +14,7 @@ public static class ServicesConfiguration
         services.AddScoped<IItemService<Spell>, SpellService>();
         services.AddScoped<IItemService<Mount>, MountService>();
         services.AddSingleton<IPasswordService, PasswordService>();
+        services.AddSingleton<ITokenService, TokenService>();
         services.AddSingleton<ICacheService, CacheService>();
 
         return services;

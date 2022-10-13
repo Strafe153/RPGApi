@@ -34,7 +34,7 @@ public class CharactersControllerFixture
         CreateMapper = fixture.Freeze<IMapper<CharacterCreateDto, Character>>();
         UpdateMapper = fixture.Freeze<IUpdateMapper<CharacterBaseDto, Character>>();
 
-        CharactersController = new(
+        CharactersController = new CharactersController(
             CharacterService,
             PlayerService,
             WeaponService,

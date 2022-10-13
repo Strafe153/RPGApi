@@ -18,7 +18,7 @@ public class MountsControllerTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new();
+        _fixture = new MountsControllerFixture();
         _fixture.MockObjectModelValidator(_fixture.MountsController);
     }
 

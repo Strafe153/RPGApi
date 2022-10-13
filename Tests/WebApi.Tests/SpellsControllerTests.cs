@@ -18,7 +18,7 @@ public class SpellsControllerTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new();
+        _fixture = new SpellsControllerFixture();
         _fixture.MockObjectModelValidator(_fixture.SpellsController);
     }
 

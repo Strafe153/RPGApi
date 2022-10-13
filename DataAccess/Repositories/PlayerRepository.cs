@@ -121,7 +121,8 @@ public class PlayerRepository : IPlayerRepository
     public async Task UpdateAsync(Player entity)
     {
         string query = @"UPDATE ""Players"" 
-                         SET ""Name"" = @Name, ""Role"" = @Role, ""PasswordHash"" = @PasswordHash, ""PasswordSalt"" = @PasswordSalt
+                         SET ""Name"" = @Name, ""Role"" = @Role, ""PasswordHash"" = @PasswordHash, ""PasswordSalt"" = @PasswordSalt,
+                             ""RefreshToken"" = @RefreshToken, ""RefreshTokenExpiryDate"" = @RefreshTokenExpiryDate
                          WHERE ""Id"" = @Id";
         var queryParams = new 
         {
@@ -129,6 +130,8 @@ public class PlayerRepository : IPlayerRepository
             Role = entity.Role,
             PasswordHash = entity.PasswordHash,
             PasswordSalt = entity.PasswordSalt,
+            RefreshToken = entity.RefreshToken,
+            RefreshTokenExpiryDate = entity.RefreshTokenExpiryDate,
             Id = entity.Id
         };
 

@@ -1,7 +1,6 @@
 ﻿using Application.Tests.Fixtures;
 using Core.Exceptions;
 using FluentAssertions;
-using NSubstitute;
 using NUnit.Framework;
 
 namespace Application.Tests;
@@ -14,34 +13,17 @@ public class PasswordServiceTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new();
+        _fixture = new PasswordServiceFixture();
     }
 
     [Test]
-    public void CreatePasswordHash_ValidPassword_ReturnsVoid()
+    public void GeneratePasswordHashAndSalt_ValidPassword_ReturnsTupleOfByteArrays()
     {
         // Act
-        var result = () => _fixture.PasswordService.CreatePasswordHash(_fixture.StringPlaceholder!);
+        var result = _fixture.PasswordService.GeneratePasswordHashAndSalt(_fixture.StringPlaceholder!);
 
         // Assert
-        result.Should().NotBeNull();
-    }
-
-    [Test]
-    public void CreateToken_ValidPlayer_ReturnsString()
-    {
-        // Arrange
-        _fixture.ConfigurationSection.Value
-            .Returns(_fixture.StringPlaceholder!);
-
-        _fixture.Configuration.GetSection(Arg.Any<string>())
-            .Returns(_fixture.ConfigurationSection);
-
-        // Act
-        var result = _fixture.PasswordService.CreateToken(_fixture.Player);
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<string>();
+        result.Should().NotBeNull().And.BeOfType<(byte[], byte[])>();
     }
 
     [Test]

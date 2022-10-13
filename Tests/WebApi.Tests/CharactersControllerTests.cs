@@ -18,7 +18,7 @@ public class CharactersControllerTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new();
+        _fixture = new CharactersControllerFixture();
         _fixture.MockObjectModelValidator(_fixture.CharactersController);
     }
 

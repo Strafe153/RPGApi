@@ -14,7 +14,7 @@ public class CacheServiceTests
     [OneTimeSetUp]
     public void SetUp()
     {
-        _fixture = new();
+        _fixture = new CacheServiceFixture();
     }
 
     [Test]

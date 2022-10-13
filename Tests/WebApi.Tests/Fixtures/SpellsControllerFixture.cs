@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
 using NSubstitute;
-using System.Security.Claims;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
 
@@ -33,7 +32,7 @@ public class SpellsControllerFixture
         CreateMapper = fixture.Freeze<IMapper<SpellBaseDto, Spell>>();
         UpdateMapper = fixture.Freeze<IUpdateMapper<SpellBaseDto, Spell>>();
 
-        SpellsController = new(
+        SpellsController = new SpellsController(
             SpellService,
             CharacterService,
             PlayerService,
