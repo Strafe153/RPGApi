@@ -60,7 +60,7 @@ public class TokenService : ITokenService
 
     public void SetRefreshToken(string refreshToken, Player player, HttpResponse response)
     {
-        DateTime expiryDate = DateTime.UtcNow.AddDays(7);
+        var expiryDate = DateTime.UtcNow.AddDays(7);
         var cookieOptions = new CookieOptions()
         {
             HttpOnly = true,

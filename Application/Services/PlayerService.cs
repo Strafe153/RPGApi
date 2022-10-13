@@ -118,7 +118,7 @@ public class PlayerService : IPlayerService
 
     public Player CreatePlayer(string name, byte[] passwordHash, byte[] passwordSalt)
     {
-        Player player = new()
+        var player = new Player()
         {
             Name = name, 
             Role = PlayerRole.Player,
