@@ -1,12 +1,12 @@
-﻿using Core.Entities;
+﻿using Application.Services;
+using Core.Entities;
 using Core.Interfaces.Services;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Application.Services;
+namespace WebApi.Configurations;
 
 public static class ServicesConfiguration
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+    public static void AddCustomServices(this IServiceCollection services)
     {
         services.AddScoped<IPlayerService, PlayerService>();
         services.AddScoped<ICharacterService, CharacterService>();
@@ -16,7 +16,5 @@ public static class ServicesConfiguration
         services.AddSingleton<IPasswordService, PasswordService>();
         services.AddSingleton<ITokenService, TokenService>();
         services.AddSingleton<ICacheService, CacheService>();
-
-        return services;
     }
 }

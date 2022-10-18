@@ -20,10 +20,10 @@ COPY ../Application/ ./Application/
 COPY ../Tests/Application.Tests/ ./Tests/Application.Tests/
 COPY ../Tests/WebApi.Tests/ ./Tests/WebApi.Tests/
 WORKDIR /app/WebApi
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o /app/out
     
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 WORKDIR /app
-COPY --from=build-env /app/WebApi/out .
+COPY --from=build-env /app/out .
 ENTRYPOINT ["dotnet", "WebApi.dll"]

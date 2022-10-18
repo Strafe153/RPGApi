@@ -4,17 +4,24 @@ using Core.Dtos.PlayerDtos;
 using Core.Dtos.SpellDtos;
 using Core.Dtos.WeaponDtos;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using WebApi.Validators.CharacterValidators;
 using WebApi.Validators.MountValidators;
 using WebApi.Validators.PlayerValidators;
 using WebApi.Validators.SpellValidators;
 using WebApi.Validators.WeaponValidators;
 
-namespace WebApi.Validators;
+namespace WebApi.Configurations;
 
-public static class ValidatorsConfiguration
+public static class FluentValidationConfiguration
 {
-    public static IServiceCollection AddApplicationValidators(this IServiceCollection services)
+    public static void ConfigureFluentValidation(this IServiceCollection services)
+    {
+        services.AddFluentValidationAutoValidation()
+            .AddFluentValidationClientsideAdapters();
+    }
+
+    public static void AddCustomValidators(this IServiceCollection services)
     {
         // Player validators
         services.AddScoped<IValidator<PlayerBaseDto>, PlayerBaseValidator<PlayerBaseDto>>();
@@ -37,7 +44,5 @@ public static class ValidatorsConfiguration
         // Mount validators
         services.AddScoped<IValidator<MountBaseDto>, MountBaseValidator<MountBaseDto>>();
         services.AddScoped<IValidator<MountBaseDto>, MountCreateUpdateValidator>();
-
-        return services;
     }
 }
