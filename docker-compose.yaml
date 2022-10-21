@@ -20,6 +20,8 @@ services:
       - "ConnectionStrings:DatabaseConnection=Host=postgres;Database=rpg_api;Username=postgres;Password=postgres_password"
     volumes:
       - ~/.aspnet/https:/https:ro
+    depends_on:
+      - postgres
 
   postgres:
     image: postgres
