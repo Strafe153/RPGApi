@@ -1,5 +1,4 @@
 using WebApi.Configurations;
-using WebApi.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,15 +20,14 @@ builder.Services.ConfigureSwagger();
 
 var app = builder.Build();
 
+app.AddCustomMiddleware();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// AddAsync custom middleware
-app.AddApplicationMiddleware();
 
 app.UseHttpsRedirection();
 
