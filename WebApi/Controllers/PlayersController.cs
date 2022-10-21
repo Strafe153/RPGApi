@@ -72,7 +72,7 @@ public class PlayersController : ControllerBase
     public async Task<ActionResult<TokensReadDto>> LoginAsync([FromBody] PlayerAuthorizeDto authorizeDto, CancellationToken token)
     {
         var player = await _playerService.GetByNameAsync(authorizeDto.Name!, token);
-        _passwordService.VerifyPasswordHash(authorizeDto.Password!, player.PasswordHash!, player.PasswordSalt!);
+        _passwordService.VerifyPasswordHash(authorizeDto.Password!, player);
 
         string accessToken = _tokenService.GenerateAccessToken(player);
         string refreshToken = _tokenService.GenerateRefreshToken();

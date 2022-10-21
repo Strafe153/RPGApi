@@ -3,7 +3,9 @@ using Core.Entities;
 using Core.Exceptions;
 using Core.Models;
 using FluentAssertions;
+using Npgsql;
 using NSubstitute;
+using NSubstitute.ExceptionExtensions;
 using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
 
@@ -153,7 +155,7 @@ public class PlayerServiceTests
     }
 
     [Test]
-    public void AddAsync_ValidPlayer_ReturnsTask()
+    public void AddAsync_ValidPlayerUniqueName_ReturnsTask()
     {
         // Act
         var result = _fixture.PlayerService.AddAsync(_fixture.Player);
@@ -163,13 +165,43 @@ public class PlayerServiceTests
     }
 
     [Test]
-    public void UpdateAsync_ValidPlayer_ReturnsTask()
+    public async Task AddAsync_ValidPlayerNotUniqueName_ReturnsTask()
+    {
+        // Arrange
+        _fixture.PlayerRepository
+            .AddAsync(_fixture.Player)
+            .ThrowsAsync<NpgsqlException>();
+
+        // Act
+        var result = async () => await _fixture.PlayerService.AddAsync(_fixture.Player);
+
+        // Assert
+        await result.Should().ThrowAsync<NameNotUniqueException>();
+    }
+
+    [Test]
+    public void UpdateAsync_ValidPlayerUniqueName_ReturnsTask()
     {
         // Act
         var result = _fixture.PlayerService.UpdateAsync(_fixture.Player);
 
         // Assert
         result.Should().NotBeNull();
+    }
+
+    [Test]
+    public async Task UpdateAsync_ValidPlayerNotUniqueName_ReturnsTask()
+    {
+        // Arrange
+        _fixture.PlayerRepository
+            .UpdateAsync(_fixture.Player)
+            .ThrowsAsync<NpgsqlException>();
+
+        // Act
+        var result = async () => await _fixture.PlayerService.UpdateAsync(_fixture.Player);
+
+        // Assert
+        await result.Should().ThrowAsync<NameNotUniqueException>();
     }
 
     [Test]

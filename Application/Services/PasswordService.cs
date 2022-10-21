@@ -1,4 +1,5 @@
-﻿using Core.Exceptions;
+﻿using Core.Entities;
+using Core.Exceptions;
 using Core.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
@@ -24,12 +25,12 @@ public class PasswordService : IPasswordService
         return (passwordHash, passwordSalt);
     }
 
-    public void VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+    public void VerifyPasswordHash(string password, Player player)
     {
-        using var hmac = new HMACSHA256(passwordSalt);
+        using var hmac = new HMACSHA256(player.PasswordSalt!);
         byte[] computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
 
-        if (!computedHash.SequenceEqual(passwordHash))
+        if (!computedHash.SequenceEqual(player.PasswordHash!))
         {
             _logger.LogWarning("Player failed to log in due to providing an incorrect password");
             throw new IncorrectPasswordException("Incorrect password");
