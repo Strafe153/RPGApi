@@ -1,7 +1,9 @@
-﻿namespace Core.Interfaces.Services;
+﻿using Core.Entities;
+
+namespace Core.Interfaces.Services;
 
 public interface IPasswordService
 {
     (byte[], byte[]) GeneratePasswordHashAndSalt(string password);
-    void VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
+    void VerifyPasswordHash(string password, Player player);
 }

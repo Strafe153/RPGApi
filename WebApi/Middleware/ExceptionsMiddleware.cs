@@ -1,5 +1,7 @@
 ﻿using Core.Exceptions;
 using Core.Models;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using System.Net;
 
 namespace WebApi.Middleware;
@@ -44,6 +46,10 @@ public class ExceptionsMiddleware
             await HandleExceptionAsync(context, HttpStatusCode.BadRequest, $"{ex.Message}. Path:{context.Request.Path}.");
         }
         catch (InvalidTokenException ex)
+        {
+            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, $"{ex.Message}. Path:{context.Request.Path}.");
+        }
+        catch (PostgresException ex)
         {
             await HandleExceptionAsync(context, HttpStatusCode.BadRequest, $"{ex.Message}. Path:{context.Request.Path}.");
         }

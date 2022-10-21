@@ -6,6 +6,7 @@ using Core.Interfaces.Services;
 using Core.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using System.Security.Claims;
 
 namespace Application.Services;
@@ -31,10 +32,18 @@ public class PlayerService : IPlayerService
 
     public async Task<int> AddAsync(Player entity)
     {
-        int id = await _repository.AddAsync(entity);
-        _logger.LogInformation("Succesfully registered a player");
+        try
+        {
+            int id = await _repository.AddAsync(entity);
+            _logger.LogInformation("Succesfully registered a player");
 
-        return id;
+            return id;
+        }
+        catch (NpgsqlException)
+        {
+            _logger.LogWarning("Failed to create a player. Name '{Name}' is already taken.", entity.Name);
+            throw new NameNotUniqueException($"A player with name '{entity.Name}' already exists");
+        }
     }
 
     public async Task DeleteAsync(int id)
@@ -112,8 +121,16 @@ public class PlayerService : IPlayerService
 
     public async Task UpdateAsync(Player entity)
     {
-        await _repository.UpdateAsync(entity);
-        _logger.LogInformation("Successfully updated a player with id {Id}", entity.Id);
+        try
+        {
+            await _repository.UpdateAsync(entity);
+            _logger.LogInformation("Successfully updated a player with id {Id}", entity.Id);
+        }
+        catch (NpgsqlException)
+        {
+            _logger.LogWarning("Failed to update player with {Id}. Name '{Name}' is already taken.", entity.Id, entity.Name);
+            throw new NameNotUniqueException($"A player with name '{entity.Name}' already exists");
+        }
     }
 
     public Player CreatePlayer(string name, byte[] passwordHash, byte[] passwordSalt)

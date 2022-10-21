@@ -81,7 +81,7 @@ public class RPGContext
                                   ""RefreshTokenExpiryDate"" timestamp without time zone,
                                   CONSTRAINT ""PK_Players"" PRIMARY KEY (""Id"")
                               )";
-        string indexQuery = @"CREATE INDEX IF NOT EXISTS ""IX_Players_Name""
+        string indexQuery = @"CREATE UNIQUE INDEX IF NOT EXISTS ""IX_Players_Name""
                               ON public.""Players"" USING btree
                               (""Name"" COLLATE pg_catalog.""default"" ASC NULLS LAST)
                               TABLESPACE pg_default;";

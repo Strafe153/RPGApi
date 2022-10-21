@@ -30,8 +30,7 @@ public class PasswordServiceTests
     public void VerifyPasswordHash_ValidParameters_ReturnsVoid()
     {
         // Act
-        var result = () => _fixture.PasswordService
-            .VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.PasswordHash, _fixture.Bytes);
+        var result = () => _fixture.PasswordService.VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.Player);
 
         // Assert
         result.Should().NotBeNull();
@@ -41,8 +40,7 @@ public class PasswordServiceTests
     public void VerifyPasswordHash_InvalidParameters_ThrowsIncorrectPasswordException()
     {
         // Act
-        var result = () => _fixture.PasswordService
-            .VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.Bytes, _fixture.Bytes);
+        var result = () => _fixture.PasswordService.VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.Player);
 
         // Assert
         result.Should().Throw<IncorrectPasswordException>();
