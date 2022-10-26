@@ -108,7 +108,7 @@ public class PlayerService : IPlayerService
             if (player is null)
             {
                 _logger.LogWarning("Failed to retrieve a player with name '{Name}'", name);
-                throw new NullReferenceException($"Player with name {name} not found");
+                throw new NullReferenceException($"Player with name '{name}' not found");
             }
 
             await _cacheService.SetAsync(key, player);
