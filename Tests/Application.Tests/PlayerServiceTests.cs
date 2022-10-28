@@ -1,7 +1,7 @@
 ﻿using Application.Tests.Fixtures;
 using Core.Entities;
 using Core.Exceptions;
-using Core.Models;
+using Core.Shared;
 using FluentAssertions;
 using Npgsql;
 using NSubstitute;

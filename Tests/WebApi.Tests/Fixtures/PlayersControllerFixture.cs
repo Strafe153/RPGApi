@@ -6,7 +6,7 @@ using Core.Dtos.TokensDtos;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Services;
-using Core.Models;
+using Core.Shared;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
 

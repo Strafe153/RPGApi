@@ -1,7 +1,7 @@
 ﻿using Core.Dtos;
 using Core.Dtos.MountDtos;
 using Core.Entities;
-using Core.Models;
+using Core.Shared;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;

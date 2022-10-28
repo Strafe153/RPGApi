@@ -1,4 +1,4 @@
-﻿using Core.Models;
+﻿using Core.Shared;
 
 namespace Core.Interfaces.Repositories;
 

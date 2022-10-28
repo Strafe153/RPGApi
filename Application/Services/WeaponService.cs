@@ -2,7 +2,7 @@
 using Core.Exceptions;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using Core.Models;
+using Core.Shared;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services;

@@ -5,7 +5,7 @@ using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using Core.Models;
+using Core.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;

@@ -3,7 +3,7 @@ using Core.Dtos.PlayerDtos;
 using Core.Dtos.TokensDtos;
 using Core.Entities;
 using Core.Interfaces.Services;
-using Core.Models;
+using Core.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Mappers.Interfaces;

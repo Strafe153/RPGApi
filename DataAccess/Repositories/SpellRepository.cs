@@ -1,6 +1,6 @@
 ﻿using Core.Entities;
 using Core.Interfaces.Repositories;
-using Core.Models;
+using Core.Shared;
 using Dapper;
 using DataAccess.Extensions;
 using Microsoft.EntityFrameworkCore;

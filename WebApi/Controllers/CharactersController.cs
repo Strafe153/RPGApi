@@ -2,7 +2,7 @@
 using Core.Dtos.CharacterDtos;
 using Core.Entities;
 using Core.Interfaces.Services;
-using Core.Models;
+using Core.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;

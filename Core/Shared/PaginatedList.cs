@@ -1,4 +1,4 @@
-﻿namespace Core.Models;
+﻿namespace Core.Shared;
 
 public class PaginatedList<T> : List<T>
 {
