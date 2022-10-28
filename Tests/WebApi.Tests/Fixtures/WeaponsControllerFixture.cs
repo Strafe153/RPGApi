@@ -5,7 +5,7 @@ using Core.Dtos.WeaponDtos;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Services;
-using Core.Models;
+using Core.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;

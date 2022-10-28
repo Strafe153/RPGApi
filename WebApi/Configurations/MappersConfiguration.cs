@@ -5,7 +5,7 @@ using Core.Dtos.PlayerDtos;
 using Core.Dtos.SpellDtos;
 using Core.Dtos.WeaponDtos;
 using Core.Entities;
-using Core.Models;
+using Core.Shared;
 using WebApi.Mappers.CharacterMappers;
 using WebApi.Mappers.Interfaces;
 using WebApi.Mappers.MountMappers;

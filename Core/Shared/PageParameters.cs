@@ -1,4 +1,4 @@
-﻿namespace Core.Models;
+﻿namespace Core.Shared;
 
 public class PageParameters
 {

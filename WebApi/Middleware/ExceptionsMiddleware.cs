@@ -22,60 +22,58 @@ public class ExceptionsMiddleware
         {
             await _next(context);
         }
-        catch (NullReferenceException ex)
-        {
-            await HandleExceptionAsync(context, HttpStatusCode.NotFound, ex.Message, RFCType.NotFound);
-        }
-        catch (ItemNotFoundException ex)
-        {
-            await HandleExceptionAsync(context, HttpStatusCode.NotFound, ex.Message, RFCType.NotFound);
-        }
-        catch (IncorrectPasswordException ex)
-        {
-            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message, RFCType.BadRequest);
-        }
-        catch (NameNotUniqueException ex)
-        {
-            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message, RFCType.BadRequest);
-        }
-        catch (NotEnoughRightsException ex)
-        {
-            await HandleExceptionAsync(context, HttpStatusCode.Forbidden, ex.Message, RFCType.Forbidden);
-        }
-        catch (OperationCanceledException ex)
-        {
-            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message, RFCType.BadRequest);
-        }
-        catch (InvalidTokenException ex)
-        {
-            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message, RFCType.BadRequest);
-        }
-        catch (PostgresException ex)
-        {
-            await HandleExceptionAsync(context, HttpStatusCode.BadRequest, ex.Message, RFCType.BadRequest);
-        }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, HttpStatusCode.InternalServerError, ex.Message, RFCType.InternalServerError);
+            await HandleExceptionAsync(context, ex);
         }
     }
 
-    private Task HandleExceptionAsync(HttpContext context, HttpStatusCode statusCode, string message, string rfcType)
+    private Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
+        var statusCode = GetHttpStatusCode(exception);
+        int statusCodeAsInt = (int)statusCode;
+
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)statusCode;
+        context.Response.StatusCode = statusCodeAsInt;
 
         var problemDetails = new ProblemDetails()
         {
-            Type = rfcType,
-            Title = message,
-            Status = (int)statusCode,
-            Detail = message,
+            Type = GetRFCType(statusCode),
+            Title = exception.Message,
+            Status = statusCodeAsInt,
+            Detail = exception.Message,
             Instance = context.Request.Path
         };
 
         var json = JsonSerializer.Serialize(problemDetails);
 
         return context.Response.WriteAsync(json);
+    }
+
+    private static HttpStatusCode GetHttpStatusCode(Exception exception)
+    {
+        return exception switch
+        {
+            NullReferenceException => HttpStatusCode.NotFound,
+            ItemNotFoundException => HttpStatusCode.NotFound,
+            IncorrectPasswordException => HttpStatusCode.BadRequest,
+            NameNotUniqueException => HttpStatusCode.BadRequest,
+            NotEnoughRightsException => HttpStatusCode.Forbidden,
+            OperationCanceledException => HttpStatusCode.BadRequest,
+            InvalidTokenException => HttpStatusCode.Forbidden,
+            PostgresException => HttpStatusCode.BadRequest,
+            _ => HttpStatusCode.InternalServerError
+        };
+    }
+
+    private static string GetRFCType(HttpStatusCode statusCode)
+    {
+        return statusCode switch
+        {
+            HttpStatusCode.BadRequest => RFCType.BadRequest,
+            HttpStatusCode.Forbidden => RFCType.Forbidden,
+            HttpStatusCode.NotFound => RFCType.NotFound,
+            _ => RFCType.InternalServerError
+        };
     }
 }

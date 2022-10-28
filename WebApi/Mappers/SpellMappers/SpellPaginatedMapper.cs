@@ -1,7 +1,7 @@
 ﻿using Core.Dtos;
 using Core.Dtos.SpellDtos;
 using Core.Entities;
-using Core.Models;
+using Core.Shared;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.SpellMappers;
