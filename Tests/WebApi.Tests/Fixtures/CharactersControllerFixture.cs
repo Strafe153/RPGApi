@@ -129,7 +129,7 @@ public class CharactersControllerFixture
         {
             Id = Id,
             Name = Name,
-            Damage = Id,
+            Damage = 15,
             Type = WeaponType.Sword
         };
     }
@@ -140,7 +140,7 @@ public class CharactersControllerFixture
         {
             Id = Id,
             Name = Name,
-            Damage = Id,
+            Damage = 10,
             Type = SpellType.Fire
         };
     }
@@ -151,7 +151,7 @@ public class CharactersControllerFixture
         {
             Id = Id,
             Name = Name,
-            Speed = Id,
+            Speed = 8,
             Type = MountType.Horse
         };
     }
