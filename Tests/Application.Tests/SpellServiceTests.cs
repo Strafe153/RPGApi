@@ -21,7 +21,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_ValidParametersDataFromRepository_ReturnsPaginatedListOfSpell()
+    public async Task GetAllAsync_Should_ReturnPaginatedListOfSpellFromRepository_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.SpellRepository
@@ -36,7 +36,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_ValidParametersDataFromCache_ReturnsPaginatedListOfSpell()
+    public async Task GetAllAsync_Should_ReturnPaginatedListOfSpellFromCache_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.CacheService
@@ -51,7 +51,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_ExistingSpellInRepository_ReturnsSpell()
+    public async Task GetByIdAsync_Should_ReturnSpellFromRepository_WhenSpellExists()
     {
         // Arrange
         _fixture.SpellRepository
@@ -66,7 +66,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_ExistingSpellInCache_ReturnsSpell()
+    public async Task GetByIdAsync_Should_ReturnSpellFromCache_WhenSpellExists()
     {
         // Arrange
         _fixture.CacheService
@@ -81,7 +81,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_NonexistingSpell_ThrowsNullReferenceException()
+    public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
     {
         // Arrange
         _fixture.CacheService
@@ -100,7 +100,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public void AddAsync_ValidSpell_ReturnsTask()
+    public void AddAsync_Should_ReturnTask_WhenSpellIsValid()
     {
         // Act
         var result = _fixture.SpellService.AddAsync(_fixture.Spell);
@@ -110,7 +110,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public void UpdateAsync_ValidSpell_ReturnsTask()
+    public void UpdateAsync_Should_ReturnTask_WhenSpellIsValid()
     {
         // Act
         var result = _fixture.SpellService.UpdateAsync(_fixture.Spell);
@@ -120,7 +120,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public void DeleteAsync_ValidSpell_ReturnsTask()
+    public void DeleteAsync_Should_ReturnTask_WhenSpellIsValid()
     {
         // Act
         var result = _fixture.SpellService.DeleteAsync(_fixture.Id);
@@ -130,7 +130,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public void AddToCharacter_ValidData_ReturnsVoid()
+    public void AddToCharacter_Should_ReturnVoid_WhenDataIsValid()
     {
         // Act
         var result = () => _fixture.SpellService.AddToCharacterAsync(_fixture.Character, _fixture.Spell);
@@ -140,7 +140,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public void RemoveFromCharacter_ExistingSpell_ReturnsVoid()
+    public void RemoveFromCharacter_Should_ReturnVoid_WhenSpellExists()
     {
         // Act
         var result = async () => await _fixture.SpellService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Spell);
@@ -150,7 +150,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public void RemoveFromCharacter_NonexistingSpell_ThrowsItemNotFoundException()
+    public void RemoveFromCharacter_Should_ThrowItemNotFoundException_WhenSpellDoesNotExist()
     {
         // Act
         var result = async () => await _fixture.SpellService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Spell);

@@ -18,7 +18,7 @@ public class CacheServiceTests
     }
 
     [Test]
-    public async Task GetAsync_ExistingData_ReturnsData()
+    public async Task GetAsync_Should_ReturnData_WhenDataExists()
     {
         // Arrange
         _fixture.DistributedCache
@@ -33,7 +33,7 @@ public class CacheServiceTests
     }
 
     [Test]
-    public async Task GetAsync_NonexistingData_ReturnsTask()
+    public async Task GetAsync_Should_ReturnTask_WhenDataDoesNotExist()
     {
         // Arrange
         _fixture.DistributedCache
@@ -48,10 +48,10 @@ public class CacheServiceTests
     }
 
     [Test]
-    public void SetAsync_ValidData_ReturnsData()
+    public void SetAsync_Should_ReturnTask_WhenDataIsValid()
     {
         // Act
-        var result = async () => await _fixture.CacheService.SetAsync<Player>(_fixture.Key, _fixture.Player);
+        var result = async () => await _fixture.CacheService.SetAsync(_fixture.Key, _fixture.Player);
 
         // Assert
         result.Should().NotBeNull();

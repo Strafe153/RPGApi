@@ -27,7 +27,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_ValidParametersDataFromRepository_ReturnsPaginatedListOfCharacter()
+    public async Task GetAllAsync_Should_ReturnPaginatedListOfCharacterFromRepository_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.CharacterRepository
@@ -42,7 +42,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_ValidParametersDataFromCache_ReturnsPaginatedListOfCharacter()
+    public async Task GetAllAsync_Should_ReturnPaginatedListOfCharacterFromCache_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.CacheService
@@ -57,7 +57,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_ExistingCharacterInRepository_ReturnsCharacter()
+    public async Task GetByIdAsync_Should_ReturnCharacterFromRepository_WhenCharacterExists()
     {
         // Arrange
         _fixture.CharacterRepository
@@ -72,7 +72,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_ExistingCharacterInCache_ReturnsCharacter()
+    public async Task GetByIdAsync_Should_ReturnCharacterFromCache_WhenCharacterExists()
     {
         // Arrange
         _fixture.CacheService
@@ -87,7 +87,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_NonexistingCharacter_ThrowsNullReferenceException()
+    public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist()
     {
         // Arrange
         _fixture.CacheService
@@ -106,7 +106,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public void AddAsync_ValidCharacter_ReturnsTask()
+    public void AddAsync_Should_ReturnTask_WhenCharacterIsValid()
     {
         // Act
         var result = _fixture.CharacterService.AddAsync(_fixture.Character);
@@ -116,7 +116,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public void UpdateAsync_ValidCharacter_ReturnsTask()
+    public void UpdateAsync_Should_ReturnTAsk_WhenCharacterIsValid()
     {
         // Act
         var result = _fixture.CharacterService.UpdateAsync(_fixture.Character);
@@ -126,7 +126,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public void DeleteAsync_ValidCharacter_ReturnsTask()
+    public void DeleteAsync_Should_ReturnTask_WhenCharacterIsValid()
     {
         // Act
         var result = _fixture.CharacterService.DeleteAsync(_fixture.Id);
@@ -136,7 +136,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public void GetWeapon_ExistingWeapon_ReturnsWeapon()
+    public void GetWeapon_Should_ReturnWeapon_WhenWeaponExists()
     {
         // Act
         var result = _fixture.CharacterService.GetWeapon(_fixture.Character, _fixture.Id);
@@ -146,7 +146,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public void GetWeapon_NonexistingWeapon_ThrowsItemNotFoundException()
+    public void GetWeapon_Should_ThrowItemNotFoundException_WhenWeaponDoesNotExist()
     {
         // Act
         var result = () => _fixture.CharacterService.GetWeapon(_fixture.Character, 3);
@@ -156,7 +156,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public void GetSpell_ExistingSpell_ReturnsSpell()
+    public void GetSpell_Should_ReturnSpell_WhenSpellExists()
     {
         // Act
         var result = _fixture.CharacterService.GetSpell(_fixture.Character, _fixture.Id);
@@ -166,7 +166,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public void GetSpell_NonexistingSpell_ThrowsItemNotFoundException()
+    public void GetSpell_Should_ThrowItemNotFoundException_WhenSpellDoesNotExist()
     {
         // Act
         var result = () => _fixture.CharacterService.GetSpell(_fixture.Character, 3);
@@ -178,7 +178,7 @@ public class CharacterServiceTests
     [TestCase(20, 80)]
     [TestCase(100, 0)]
     [TestCase(-25, 100)]
-    public void CalculateHealth_VariousDamage_ReturnsRemainingHealth(int damage, int resultingHealth)
+    public void CalculateHealth_Should_ReturnRemainingHealth_WhenDamaged(int damage, int resultingHealth)
     {
         // Act
         _fixture.CharacterService.CalculateHealth(_fixture.Character, damage);

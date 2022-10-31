@@ -29,7 +29,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageDtoOfSpellReadDto()
+    public async Task GetAsync_Should_ReturnActionResultOfPageDtoOfSpellReadDto_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.SpellService
@@ -52,7 +52,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task GetAsync_ExistingSpell_ReturnsActionResultOfSpellReadDto()
+    public async Task GetAsync_Should_ReturnActionResultOfSpellReadDto_WhenSpellExists()
     {
         // Arrange
         _fixture.SpellService
@@ -75,7 +75,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task CreateAsync_ValidDto_ReturnsActionResultOfSpellReadDto()
+    public async Task CreateAsync_Should_ReturnActionResultOfSpellReadDto_WhenSpellBaseDtoIsValid()
     {
         // Arrange
         _fixture.CreateMapper
@@ -98,7 +98,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_ExistingSpellValidDto_ReturnsNoContentResult()
+    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenSpellExistsAndSpellBaseDtoIsValid()
     {
         // Arrange
         _fixture.SpellService
@@ -115,7 +115,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_ExistingSpellValidPatchDocument_ReturnsNoContentResult()
+    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenSpellExistsAndPatchDocumentIsValid()
     {
         // Arrange
         _fixture.SpellService
@@ -136,7 +136,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_ExistingSpellInvalidPatchDocument_ReturnsObjectResult()
+    public async Task UpdateAsync_Should_ReturnObjectResult_WhenSpellExistsAndPatchDocumentIsInvalid()
     {
         // Arrange
         _fixture.SpellService
@@ -157,7 +157,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task DeleteAsync_ExistingSpell_ReturnsNoContentResult()
+    public async Task DeleteAsync_Should_ReturnNoContentResult_WhenSpellExists()
     {
         // Arrange
         _fixture.SpellService
@@ -174,7 +174,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task HitAsync_ValidDto_ReturnsNoContentResult()
+    public async Task HitAsync_Should_ReturnNoContentResult_WhenHitDtoIsValid()
     {
         // Arrange
         _fixture.CharacterService
