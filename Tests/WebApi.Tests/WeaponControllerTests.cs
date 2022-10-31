@@ -29,7 +29,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task GetAsync_ValidPageParameters_ReturnsActionResultOfPageDtoOfWeaponReadDto()
+    public async Task GetAsync_Should_ReturnActionResultOfPageDtoOfWeaponReadDto_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.WeaponService
@@ -52,7 +52,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task GetAsync_ExistingWeapon_ReturnsActionResultOfWeaponReadDto()
+    public async Task GetAsync_Should_ReturnActionResultOfWeaponReadDto_WhenWeaponExists()
     {
         // Arrange
         _fixture.WeaponService
@@ -75,7 +75,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task CreateAsync_ValidDto_ReturnsActionResultOfWeaponReadDto()
+    public async Task CreateAsync_Should_ReturnActionResultOfWeaponReadDto_WhenWeaponBaseDtoIsValid()
     {
         // Arrange
         _fixture.CreateMapper
@@ -98,7 +98,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_ExistingWeaponValidDto_ReturnsNoContentResult()
+    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenWeaponBaseDtoIsValid()
     {
         // Arrange
         _fixture.WeaponService
@@ -115,7 +115,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_ExistingWeaponValidPatchDocument_ReturnsNoContentResult()
+    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenWeaponExistsAndPatchDocumentIsValid()
     {
         // Arrange
         _fixture.WeaponService
@@ -136,7 +136,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_ExistingWeaponInvalidPatchDocument_ReturnsObjectResult()
+    public async Task UpdateAsync_Should_ReturnObjectResult_WhenWeaponExistsAndPatchDocumentIsInvalid()
     {
         // Arrange
         _fixture.WeaponService
@@ -157,7 +157,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task DeleteAsync_ExistingWeapon_ReturnsNoContentResult()
+    public async Task DeleteAsync_Should_ReturnNoContentResult_WhenWeaponExists()
     {
         // Arrange
         _fixture.WeaponService
@@ -174,7 +174,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task HitAsync_ValidDto_ReturnsNoContentResult()
+    public async Task HitAsync_Should_ReturnNoContentResult_WhenHitDtoIsValid()
     {
         // Arrange
         _fixture.CharacterService

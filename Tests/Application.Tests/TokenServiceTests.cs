@@ -18,7 +18,7 @@ public class TokenServiceTests
     }
 
     [Test]
-    public void GenerateAccessToken_ValidData_ReturnsString()
+    public void GenerateAccessToken_Should_ReturnString_WhenDataIsValid()
     {
         // Arrange
         _fixture.ConfigurationSection.Value
@@ -36,7 +36,7 @@ public class TokenServiceTests
     }
 
     [Test]
-    public void GenerateRefreshToken_ValidData_ReturnsString()
+    public void GenerateRefreshToken_Should_ReturnString_WhenDataIsValid()
     {
         // Act
         var result = _fixture.TokenService.GenerateRefreshToken();
@@ -46,7 +46,7 @@ public class TokenServiceTests
     }
 
     [Test]
-    public void SetRefreshToken_ValidData_ReturnsVoid()
+    public void SetRefreshToken_Should_ReturnVoid_WhenDataIsValid()
     {
         // Act
         var result = () => _fixture.TokenService.SetRefreshToken(
@@ -57,7 +57,7 @@ public class TokenServiceTests
     }
 
     [Test]
-    public void ValidateRefreshToken_ValidToken_ReturnsVoid()
+    public void ValidateRefreshToken_Should_ReturnVoid_WhenTokenIsValid()
     {
         // Act
         var result = () => _fixture.TokenService.ValidateRefreshToken(_fixture.PlayerWithValidToken, _fixture.ValidToken);
@@ -67,7 +67,7 @@ public class TokenServiceTests
     }
 
     [Test]
-    public void ValidateRefreshToken_InvalidToken_ThrowsInvalidTokenException()
+    public void ValidateRefreshToken_Should_ThrowInvalidTokenException_WhenTokenIsInvalid()
     {
         // Act
         var result = () => _fixture.TokenService.ValidateRefreshToken(_fixture.PlayerWithValidToken, _fixture.InvalidToken);
@@ -77,7 +77,7 @@ public class TokenServiceTests
     }
 
     [Test]
-    public void ValidateRefreshToken_ExpiredToken_ThrowsInvalidTokenException()
+    public void ValidateRefreshToken_Should_ThrowInvalidTokenException_WhenTokenIsExpired()
     {
         // Act
         var result = () => _fixture.TokenService.ValidateRefreshToken(_fixture.PlayerWithExpiredToken, _fixture.ValidToken);

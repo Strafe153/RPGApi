@@ -17,7 +17,7 @@ public class PasswordServiceTests
     }
 
     [Test]
-    public void GeneratePasswordHashAndSalt_ValidPassword_ReturnsTupleOfByteArrays()
+    public void GeneratePasswordHashAndSalt_Should_ReturnTupleOfByteArrays_WhenPasswordIsValid()
     {
         // Act
         var result = _fixture.PasswordService.GeneratePasswordHashAndSalt(_fixture.StringPlaceholder!);
@@ -27,7 +27,7 @@ public class PasswordServiceTests
     }
 
     [Test]
-    public void VerifyPasswordHash_ValidParameters_ReturnsVoid()
+    public void VerifyPasswordHash_Should_ReturnVoid_WhenParametersAreValid()
     {
         // Act
         var result = () => _fixture.PasswordService.VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.Player);
@@ -37,7 +37,7 @@ public class PasswordServiceTests
     }
 
     [Test]
-    public void VerifyPasswordHash_InvalidParameters_ThrowsIncorrectPasswordException()
+    public void VerifyPasswordHash_Should_ThrowIncorrectPasswordException_WhenParametersAreInvalid()
     {
         // Act
         var result = () => _fixture.PasswordService.VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.Player);
