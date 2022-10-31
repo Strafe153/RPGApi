@@ -54,14 +54,14 @@ public class ExceptionsMiddleware
     {
         return exception switch
         {
-            NullReferenceException => HttpStatusCode.NotFound,
-            ItemNotFoundException => HttpStatusCode.NotFound,
-            IncorrectPasswordException => HttpStatusCode.BadRequest,
-            NameNotUniqueException => HttpStatusCode.BadRequest,
-            NotEnoughRightsException => HttpStatusCode.Forbidden,
-            OperationCanceledException => HttpStatusCode.BadRequest,
-            InvalidTokenException => HttpStatusCode.Forbidden,
-            PostgresException => HttpStatusCode.BadRequest,
+            NullReferenceException
+                or ItemNotFoundException => HttpStatusCode.NotFound,
+            NotEnoughRightsException
+                or InvalidTokenException => HttpStatusCode.Forbidden,
+            IncorrectPasswordException
+                or NameNotUniqueException
+                or OperationCanceledException
+                or PostgresException => HttpStatusCode.BadRequest,
             _ => HttpStatusCode.InternalServerError
         };
     }
