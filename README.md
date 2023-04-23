@@ -13,7 +13,6 @@
 ## Dependencies
 * `Npgsql.EntityFrameworkCore.PostgreSQL` for PostgreSQL
 * `Dapper` for object-relational mapping
-* `FluentMigrator` for database migrations
 * `FluentValidation` for DTO validation
 * `NLog` for logging
 * `NUnit` for unit-tests
