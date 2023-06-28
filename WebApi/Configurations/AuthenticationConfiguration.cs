@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Core.Shared;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -17,10 +18,10 @@ public static class AuthenticationConfiguration
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration.GetSection("JwtSettings:Issuer").Value,
-                    ValidAudience = configuration.GetSection("JwtSettings:Audience").Value,
+                    ValidIssuer = configuration.GetSection(JwtSettingsConstants.JWT_ISSUER).Value,
+                    ValidAudience = configuration.GetSection(JwtSettingsConstants.JWT_AUDIENCE).Value,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration.GetSection("JwtSettings:Secret").Value))
+                        Encoding.UTF8.GetBytes(configuration.GetSection(JwtSettingsConstants.JWT_SECRET).Value))
                 };
             });
     }

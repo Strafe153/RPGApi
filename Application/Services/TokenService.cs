@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using Core.Exceptions;
 using Core.Interfaces.Services;
+using Core.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -34,12 +35,12 @@ public class TokenService : ITokenService
             new Claim("id", player.Id.ToString())
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("JwtSettings:Secret").Value));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection(JwtSettingsConstants.JWT_SECRET).Value));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
 
         var token = new JwtSecurityToken(
-            issuer: _configuration.GetSection("JwtSettings:Issuer").Value,
-            audience: _configuration.GetSection("JwtSettings:Audience").Value,
+            issuer: _configuration.GetSection(JwtSettingsConstants.JWT_ISSUER).Value,
+            audience: _configuration.GetSection(JwtSettingsConstants.JWT_AUDIENCE).Value,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(10),
             notBefore: DateTime.UtcNow,
