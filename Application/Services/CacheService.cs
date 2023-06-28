@@ -28,11 +28,11 @@ public class CacheService : ICacheService
 
     public async Task<T?> GetAsync<T>(string key)
     {
-        byte[] cachedData = await _cache.GetAsync(key);
+        var cachedData = await _cache.GetAsync(key);
 
         if (cachedData is not null)
         {
-            string serializedData = Encoding.UTF8.GetString(cachedData);
+            var serializedData = Encoding.UTF8.GetString(cachedData);
             var result = JsonSerializer.Deserialize<T>(serializedData)!;
 
             _logger.LogInformation("Successfully retrieved cached data of type '{Type}'", typeof(T));
@@ -47,8 +47,8 @@ public class CacheService : ICacheService
 
     public async Task SetAsync<T>(string key, T data)
     {
-        string serializedData = JsonSerializer.Serialize(data, _serializerOptions);
-        byte[] dataAsBytes = Encoding.UTF8.GetBytes(serializedData);
+        var serializedData = JsonSerializer.Serialize(data, _serializerOptions);
+        var dataAsBytes = Encoding.UTF8.GetBytes(serializedData);
 
         await _cache.SetAsync(key, dataAsBytes, new DistributedCacheEntryOptions()
         {

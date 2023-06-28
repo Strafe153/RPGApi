@@ -19,8 +19,8 @@ public class PasswordService : IPasswordService
     public (byte[], byte[]) GeneratePasswordHashAndSalt(string password)
     {
         using var hmac = new HMACSHA256();
-        byte[] passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-        byte[] passwordSalt = hmac.Key;
+        var passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        var passwordSalt = hmac.Key;
 
         return (passwordHash, passwordSalt);
     }
@@ -28,7 +28,7 @@ public class PasswordService : IPasswordService
     public void VerifyPasswordHash(string password, Player player)
     {
         using var hmac = new HMACSHA256(player.PasswordSalt!);
-        byte[] computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
 
         if (!computedHash.SequenceEqual(player.PasswordHash!))
         {

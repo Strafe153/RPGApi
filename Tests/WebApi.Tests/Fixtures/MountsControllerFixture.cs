@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoNSubstitute;
+using Bogus;
 using Core.Dtos;
 using Core.Dtos.MountDtos;
 using Core.Entities;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Routing;
 using NSubstitute;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
+using WebApi.Mappers.MountMappers;
 
 namespace WebApi.Tests.Fixtures;
 
@@ -24,11 +26,36 @@ public class MountsControllerFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
+        Id = Random.Shared.Next();
+        MountsCount = Random.Shared.Next(1, 20);
+
+        var mountFaker = new Faker<Mount>()
+            .RuleFor(m => m.Id, f => f.Random.Int())
+            .RuleFor(m => m.Name, f => f.Name.FirstName())
+            .RuleFor(m => m.Speed, f => f.Random.Int(1, 100))
+            .RuleFor(m => m.Type, f => (MountType)f.Random.Int(Enum.GetValues(typeof(MountType)).Length));
+
+        var mountBaseDtoFaker = new Faker<MountBaseDto>()
+            .RuleFor(m => m.Name, f => f.Name.FirstName())
+            .RuleFor(m => m.Speed, f => f.Random.Int(1, 100))
+            .RuleFor(m => m.Type, f => (MountType)f.Random.Int(Enum.GetValues(typeof(MountType)).Length));
+
+        var pageParametersFaker = new Faker<PageParameters>()
+            .RuleFor(p => p.PageNumber, f => f.Random.Int(1, 100))
+            .RuleFor(p => p.PageSize, f => f.Random.Int(1, 100));
+
+        var paginatedListFaker = new Faker<PaginatedList<Mount>>()
+            .CustomInstantiator(f => new(
+                mountFaker.Generate(MountsCount),
+                MountsCount,
+                f.Random.Int(1, 2),
+                f.Random.Int(1, 2)));
+
         MountService = fixture.Freeze<IItemService<Mount>>();
-        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Mount>, PageDto<MountReadDto>>>();
-        ReadMapper = fixture.Freeze<IMapper<Mount, MountReadDto>>();
-        CreateMapper = fixture.Freeze<IMapper<MountBaseDto, Mount>>();
-        UpdateMapper = fixture.Freeze<IUpdateMapper<MountBaseDto, Mount>>();
+        ReadMapper = new MountReadMapper();
+        PaginatedMapper = new MountPaginatedMapper(ReadMapper);
+        CreateMapper = new MountCreateMapper();
+        UpdateMapper = new MountUpdateMapper();
 
         MountsController = new MountsController(
             MountService,
@@ -37,17 +64,11 @@ public class MountsControllerFixture
             CreateMapper,
             UpdateMapper);
 
-        Id = 1;
-        Name = "Name";
-        Character = GetCharacter();
-        Mount = GetMount();
-        MountReadDto = GetMountReadDto();
-        MountBaseDto = GetMountBaseDto();
-        HitDto = GetHitDto();
-        PageParameters = GetPageParameters();
-        PaginatedList = GetPaginatedList();
-        PageDto = GetPageViewModel();
-        PatchDocument = GetPatchDocument();
+        Mount = mountFaker.Generate();
+        MountBaseDto = mountBaseDtoFaker.Generate();
+        PageParameters = pageParametersFaker.Generate();
+        PaginatedList = paginatedListFaker.Generate();
+        PatchDocument = new JsonPatchDocument<MountBaseDto>();
     }
 
     public MountsController MountsController { get; }
@@ -58,15 +79,11 @@ public class MountsControllerFixture
     public IUpdateMapper<MountBaseDto, Mount> UpdateMapper { get; }
 
     public int Id { get; }
-    public string? Name { get; }
-    public Character Character { get; }
+    public int MountsCount { get; }
     public Mount Mount { get; }
-    public MountReadDto MountReadDto { get; }
     public MountBaseDto MountBaseDto { get; }
-    public HitDto HitDto { get; }
     public PageParameters PageParameters { get; }
     public PaginatedList<Mount> PaginatedList { get; }
-    public PageDto<MountReadDto> PageDto { get; }
     public JsonPatchDocument<MountBaseDto> PatchDocument { get; }
     public CancellationToken CancellationToken { get; }
 
@@ -83,16 +100,12 @@ public class MountsControllerFixture
         controller.ObjectValidator = objectValidator;
     }
 
-    public ControllerContext MockControllerContext()
-    {
-        var context = new ControllerContext(
+    public ControllerContext MockControllerContext() =>
+        new ControllerContext(
             new ActionContext(
                 new DefaultHttpContext() { TraceIdentifier = "trace" },
                 new RouteData(),
                 new ControllerActionDescriptor()));
-
-        return context;
-    }
 
     public void MockModelError(ControllerBase controller)
     {
@@ -100,110 +113,5 @@ public class MountsControllerFixture
 
         context.ModelState.AddModelError("key", "error");
         controller.ControllerContext = context;
-    }
-
-    private Character GetCharacter()
-    {
-        return new Character()
-        {
-            Id = Id,
-            Name = Name,
-            Race = CharacterRace.Human,
-            Health = 100,
-            PlayerId = Id
-        };
-    }
-
-    private Mount GetMount()
-    {
-        return new Mount()
-        {
-            Id = Id,
-            Name = Name,
-            Type = MountType.Horse,
-            Speed = 10
-        };
-    }
-
-    private List<Mount> GetMounts()
-    {
-        return new List<Mount>()
-        {
-            Mount,
-            Mount
-        };
-    }
-
-    private PageParameters GetPageParameters()
-    {
-        return new PageParameters()
-        {
-            PageNumber = 1,
-            PageSize = 5
-        };
-    }
-
-    private PaginatedList<Mount> GetPaginatedList()
-    {
-        return new PaginatedList<Mount>(GetMounts(), 6, 1, 5);
-    }
-
-    private MountBaseDto GetMountBaseDto()
-    {
-        return new MountBaseDto()
-        {
-            Name = Name,
-            Type = MountType.Horse,
-            Speed = 10
-        };
-    }
-
-    private MountReadDto GetMountReadDto()
-    {
-        return new MountReadDto()
-        {
-            Id = Id,
-            Name = Name,
-            Type = MountType.Horse,
-            Speed = 10
-        };
-    }
-
-    private List<MountReadDto> GetMountReadDtos()
-    {
-        return new List<MountReadDto>()
-        {
-            MountReadDto,
-            MountReadDto
-        };
-    }
-
-    private HitDto GetHitDto()
-    {
-        return new HitDto()
-        {
-            DealerId = Id,
-            ItemId = Id,
-            ReceiverId = Id
-        };
-    }
-
-    private PageDto<MountReadDto> GetPageViewModel()
-    {
-        return new PageDto<MountReadDto>()
-        {
-            CurrentPage = 1,
-            TotalPages = 2,
-            PageSize = 5,
-            TotalItems = 6,
-            HasPrevious = false,
-            HasNext = true,
-            Entities = GetMountReadDtos()
-        };
-    }
-
-    private JsonPatchDocument<MountBaseDto> GetPatchDocument()
-    {
-        return new JsonPatchDocument<MountBaseDto>();
     }
 }

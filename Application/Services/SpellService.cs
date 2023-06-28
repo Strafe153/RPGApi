@@ -25,7 +25,7 @@ public class SpellService : IItemService<Spell>
 
     public async Task<int> AddAsync(Spell entity)
     {
-        int id = await _repository.AddAsync(entity);
+        var id = await _repository.AddAsync(entity);
         _logger.LogInformation("Succesfully created a spell");
 
         return id;
@@ -46,7 +46,7 @@ public class SpellService : IItemService<Spell>
 
     public async Task<PaginatedList<Spell>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        string key = $"spells:{pageNumber}:{pageSize}";
+        var key = $"spells:{pageNumber}:{pageSize}";
         var cachedSpells = await _cacheService.GetAsync<List<Spell>>(key);
         PaginatedList<Spell> spells;
 
@@ -67,7 +67,7 @@ public class SpellService : IItemService<Spell>
 
     public async Task<Spell> GetByIdAsync(int id, CancellationToken token = default)
     {
-        string key = $"spells:{id}";
+        var key = $"spells:{id}";
         var spell = await _cacheService.GetAsync<Spell>(key);
 
         if (spell is null)

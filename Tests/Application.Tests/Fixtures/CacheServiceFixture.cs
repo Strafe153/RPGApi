@@ -1,6 +1,7 @@
 ﻿using Application.Services;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
+using Bogus;
 using Core.Entities;
 using Core.Enums;
 using Microsoft.Extensions.Caching.Distributed;
@@ -14,6 +15,17 @@ public class CacheServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
+        Key = new Faker().Random.String();
+
+        var playerFaker = new Faker<Player>()
+            .RuleFor(p => p.Id, f => f.Random.Int())
+            .RuleFor(p => p.Name, Key)
+            .RuleFor(p => p.Role, f => (PlayerRole)f.Random.Int(Enum.GetValues(typeof(PlayerRole)).Length))
+            .RuleFor(p => p.PasswordHash, f => f.Random.Bytes(32))
+            .RuleFor(p => p.PasswordSalt, f => f.Random.Bytes(32))
+            .RuleFor(p => p.RefreshToken, f => f.Random.String(64))
+            .RuleFor(p => p.RefreshTokenExpiryDate, f => f.Date.Future());
+
         DistributedCache = fixture.Freeze<IDistributedCache>();
         Logger = fixture.Freeze<ILogger<CacheService>>();
 
@@ -21,9 +33,8 @@ public class CacheServiceFixture
             DistributedCache,
             Logger);
 
-        Key = "key";
         Bytes = new byte[] { 123, 125 };
-        Player = GetPlayer();
+        Player = playerFaker.Generate();
     }
 
     public CacheService CacheService { get; }
@@ -33,16 +44,4 @@ public class CacheServiceFixture
     public byte[] Bytes { get; }
     public string Key { get; }
     public Player Player { get; }
-
-    private Player GetPlayer()
-    {
-        return new Player()
-        {
-            Id = 1,
-            Name = Key,
-            Role = PlayerRole.Player,
-            PasswordHash = Bytes,
-            PasswordSalt = Bytes
-        };
-    }
 }

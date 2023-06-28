@@ -31,7 +31,7 @@ public class PlayerServiceTests
             .Returns(_fixture.PaginatedList);
 
         // Act
-        var result = await _fixture.PlayerService.GetAllAsync(_fixture.Id, _fixture.Id);
+        var result = await _fixture.PlayerService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
 
         // Assert
         result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Player>>();
@@ -46,7 +46,7 @@ public class PlayerServiceTests
             .Returns(_fixture.Players);
 
         // Act
-        var result = await _fixture.PlayerService.GetAllAsync(_fixture.Id, _fixture.Id);
+        var result = await _fixture.PlayerService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
 
         // Assert
         result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Player>>();
@@ -114,7 +114,7 @@ public class PlayerServiceTests
             .Returns(_fixture.Player);
 
         // Act
-        var result = await _fixture.PlayerService.GetByNameAsync(_fixture.Name!);
+        var result = await _fixture.PlayerService.GetByNameAsync(_fixture.Name);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<Player>();
@@ -129,7 +129,7 @@ public class PlayerServiceTests
             .Returns(_fixture.Player);
 
         // Act
-        var result = await _fixture.PlayerService.GetByNameAsync(_fixture.Name!);
+        var result = await _fixture.PlayerService.GetByNameAsync(_fixture.Name);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<Player>();
@@ -148,7 +148,7 @@ public class PlayerServiceTests
             .ReturnsNull();
 
         // Act
-        var result = async () => await _fixture.PlayerService.GetByNameAsync(_fixture.Name!);
+        var result = async () => await _fixture.PlayerService.GetByNameAsync(_fixture.Name);
 
         // Assert
         await result.Should().ThrowAsync<NullReferenceException>();
@@ -218,7 +218,7 @@ public class PlayerServiceTests
     public void CreatePlayer_Should_ReturnPlayer_WhenPlayerIsValid()
     {
         // Act
-        var result = _fixture.PlayerService.CreatePlayer(_fixture.Name!, _fixture.Bytes, _fixture.Bytes);
+        var result = _fixture.PlayerService.CreatePlayer(_fixture.Name, _fixture.Bytes, _fixture.Bytes);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<Player>();

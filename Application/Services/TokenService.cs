@@ -45,15 +45,13 @@ public class TokenService : ITokenService
             notBefore: DateTime.UtcNow,
             signingCredentials: credentials);
 
-        string jwt = new JwtSecurityTokenHandler().WriteToken(token);
-
-        return jwt;
+        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     public string GenerateRefreshToken()
     {
-        byte[] bytesForToken = RandomNumberGenerator.GetBytes(64);
-        string refreshToken = Convert.ToBase64String(bytesForToken);
+        var bytesForToken = RandomNumberGenerator.GetBytes(64);
+        var refreshToken = Convert.ToBase64String(bytesForToken);
 
         return refreshToken;
     }

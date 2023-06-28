@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoNSubstitute;
+using Bogus;
 using Core.Dtos;
 using Core.Dtos.WeaponDtos;
 using Core.Entities;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Routing;
 using NSubstitute;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
+using WebApi.Mappers.WeaponMappers;
 
 namespace WebApi.Tests.Fixtures;
 
@@ -24,13 +26,49 @@ public class WeaponsControllerFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
+        Id = Random.Shared.Next();
+        WeaponsCount = Random.Shared.Next(1, 20);
+
+        var weaponFaker = new Faker<Weapon>()
+            .RuleFor(w => w.Id, f => f.Random.Int())
+            .RuleFor(w => w.Name, f => f.Commerce.ProductName())
+            .RuleFor(w => w.Damage, f => f.Random.Int(1, 100))
+            .RuleFor(w => w.Type, f => (WeaponType)f.Random.Int(Enum.GetValues(typeof(WeaponType)).Length));
+
+        var weaponBaseDtoFaker = new Faker<WeaponBaseDto>()
+            .RuleFor(s => s.Name, f => f.Commerce.ProductName())
+            .RuleFor(s => s.Damage, f => f.Random.Int(1, 100))
+            .RuleFor(s => s.Type, f => (WeaponType)f.Random.Int(Enum.GetValues(typeof(WeaponType)).Length));
+
+        var characterFaker = new Faker<Character>()
+            .RuleFor(c => c.Id, Id)
+            .RuleFor(c => c.Name, f => f.Internet.UserName())
+            .RuleFor(c => c.Health, f => f.Random.Int(1, 100))
+            .RuleFor(c => c.Race, f => (CharacterRace)f.Random.Int(Enum.GetValues(typeof(CharacterRace)).Length));
+
+        var hitDtoFaker = new Faker<HitDto>()
+            .RuleFor(h => h.DealerId, f => f.Random.Int())
+            .RuleFor(h => h.ReceiverId, f => f.Random.Int())
+            .RuleFor(h => h.ItemId, Id);
+
+        var pageParametersFaker = new Faker<PageParameters>()
+            .RuleFor(p => p.PageNumber, f => f.Random.Int(1, 100))
+            .RuleFor(p => p.PageSize, f => f.Random.Int(1, 100));
+
+        var paginatedListFaker = new Faker<PaginatedList<Weapon>>()
+            .CustomInstantiator(f => new(
+                weaponFaker.Generate(WeaponsCount),
+                WeaponsCount,
+                f.Random.Int(1, 2),
+                f.Random.Int(1, 2)));
+
         WeaponService = fixture.Freeze<IItemService<Weapon>>();
         CharacterService = fixture.Freeze<ICharacterService>();
         PlayerService = fixture.Freeze<IPlayerService>();
-        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>>();
-        ReadMapper = fixture.Freeze<IMapper<Weapon, WeaponReadDto>>();
-        CreateMapper = fixture.Freeze<IMapper<WeaponBaseDto, Weapon>>();
-        UpdateMapper = fixture.Freeze<IUpdateMapper<WeaponBaseDto, Weapon>>();
+        ReadMapper = new WeaponReadMapper();
+        PaginatedMapper = new WeaponPaginatedMapper(ReadMapper);
+        CreateMapper = new WeaponCreateMapper();
+        UpdateMapper = new WeaponUpdateMapper();
 
         WeaponsController = new WeaponsController(
             WeaponService,
@@ -41,17 +79,13 @@ public class WeaponsControllerFixture
             CreateMapper,
             UpdateMapper);
 
-        Id = 1;
-        Name = "Name";
-        Character = GetCharacter();
-        Weapon = GetWeapon();
-        WeaponReadDto = GetWeaponReadDto();
-        WeaponBaseDto = GetWeaponBaseDto();
-        HitDto = GetHitDto();
-        PageParameters = GetPageParameters();
-        PaginatedList = GetPaginatedList();
-        PageDto = GetPageDto();
-        PatchDocument = GetPatchDocument();
+        Character = characterFaker.Generate();
+        Weapon = weaponFaker.Generate();
+        WeaponBaseDto = weaponBaseDtoFaker.Generate();
+        HitDto = hitDtoFaker.Generate();
+        PageParameters = pageParametersFaker.Generate();
+        PaginatedList = paginatedListFaker.Generate();
+        PatchDocument = new JsonPatchDocument<WeaponBaseDto>();
     }
 
     public WeaponsController WeaponsController { get; }
@@ -64,15 +98,13 @@ public class WeaponsControllerFixture
     public IUpdateMapper<WeaponBaseDto, Weapon> UpdateMapper { get; }
 
     public int Id { get; }
-    public string? Name { get; }
+    public int WeaponsCount { get; }
     public Character Character { get; }
     public Weapon Weapon { get; }
-    public WeaponReadDto WeaponReadDto { get; }
     public WeaponBaseDto WeaponBaseDto { get; }
     public HitDto HitDto { get; }
     public PageParameters PageParameters { get; }
     public PaginatedList<Weapon> PaginatedList { get; }
-    public PageDto<WeaponReadDto> PageDto { get; }
     public JsonPatchDocument<WeaponBaseDto> PatchDocument { get; }
     public CancellationToken CancellationToken { get; }
 
@@ -89,16 +121,12 @@ public class WeaponsControllerFixture
         controller.ObjectValidator = objectValidator;
     }
 
-    public ControllerContext MockControllerContext()
-    {
-        var context = new ControllerContext(
+    public ControllerContext MockControllerContext() =>
+        new ControllerContext(
             new ActionContext(
                 new DefaultHttpContext() { TraceIdentifier = "trace" },
                 new RouteData(),
                 new ControllerActionDescriptor()));
-
-        return context;
-    }
 
     public void MockModelError(ControllerBase controller)
     {
@@ -106,110 +134,5 @@ public class WeaponsControllerFixture
 
         context.ModelState.AddModelError("key", "error");
         controller.ControllerContext = context;
-    }
-
-    private Character GetCharacter()
-    {
-        return new Character()
-        {
-            Id = Id,
-            Name = Name,
-            Race = CharacterRace.Human,
-            Health = 100,
-            PlayerId = Id
-        };
-    }
-
-    private Weapon GetWeapon()
-    {
-        return new Weapon()
-        {
-            Id = Id,
-            Name = Name,
-            Type = WeaponType.Sword,
-            Damage = 20
-        };
-    }
-
-    private List<Weapon> GetWeapons()
-    {
-        return new List<Weapon>()
-        {
-            Weapon,
-            Weapon
-        };
-    }
-
-    private PageParameters GetPageParameters()
-    {
-        return new PageParameters()
-        {
-            PageNumber = 1,
-            PageSize = 5
-        };
-    }
-
-    private PaginatedList<Weapon> GetPaginatedList()
-    {
-        return new PaginatedList<Weapon>(GetWeapons(), 6, 1, 5);
-    }
-
-    private WeaponBaseDto GetWeaponBaseDto()
-    {
-        return new WeaponBaseDto()
-        {
-            Name = Name,
-            Type = WeaponType.Sword,
-            Damage = 20
-        };
-    }
-
-    private WeaponReadDto GetWeaponReadDto()
-    {
-        return new WeaponReadDto()
-        {
-            Id = Id,
-            Name = Name,
-            Type = WeaponType.Sword,
-            Damage = 20
-        };
-    }
-
-    private List<WeaponReadDto> GetWeaponReadDtos()
-    {
-        return new List<WeaponReadDto>()
-        {
-            WeaponReadDto,
-            WeaponReadDto
-        };
-    }
-
-    private HitDto GetHitDto()
-    {
-        return new HitDto()
-        {
-            DealerId = Id,
-            ItemId = Id,
-            ReceiverId = Id
-        };
-    }
-
-    private PageDto<WeaponReadDto> GetPageDto()
-    {
-        return new PageDto<WeaponReadDto>()
-        {
-            CurrentPage = 1,
-            TotalPages = 2,
-            PageSize = 5,
-            TotalItems = 6,
-            HasPrevious = false,
-            HasNext = true,
-            Entities = GetWeaponReadDtos()
-        };
-    }
-
-    private JsonPatchDocument<WeaponBaseDto> GetPatchDocument()
-    {
-        return new JsonPatchDocument<WeaponBaseDto>();
     }
 }

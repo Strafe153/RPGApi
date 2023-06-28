@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoNSubstitute;
+using Bogus;
 using Core.Dtos;
 using Core.Dtos.SpellDtos;
 using Core.Entities;
@@ -15,6 +16,7 @@ using Microsoft.AspNetCore.Routing;
 using NSubstitute;
 using WebApi.Controllers;
 using WebApi.Mappers.Interfaces;
+using WebApi.Mappers.SpellMappers;
 
 namespace WebApi.Tests.Fixtures;
 
@@ -24,13 +26,49 @@ public class SpellsControllerFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
+        Id = Random.Shared.Next();
+        SpellsCount = Random.Shared.Next(1, 20);
+
+        var characterFaker = new Faker<Character>()
+            .RuleFor(c => c.Id, Id)
+            .RuleFor(c => c.Name, f => f.Internet.UserName())
+            .RuleFor(c => c.Health, f => f.Random.Int(1, 100))
+            .RuleFor(c => c.Race, f => (CharacterRace)f.Random.Int(Enum.GetValues(typeof(CharacterRace)).Length));
+
+        var spellFaker = new Faker<Spell>()
+            .RuleFor(s => s.Id, f => f.Random.Int())
+            .RuleFor(s => s.Name, f => f.Commerce.ProductName())
+            .RuleFor(s => s.Damage, f => f.Random.Int(1, 100))
+            .RuleFor(s => s.Type, f => (SpellType)f.Random.Int(Enum.GetValues(typeof(SpellType)).Length));
+
+        var spellBaseDtoFaker = new Faker<SpellBaseDto>()
+            .RuleFor(s => s.Name, f => f.Commerce.ProductName())
+            .RuleFor(s => s.Damage, f => f.Random.Int(1, 100))
+            .RuleFor(s => s.Type, f => (SpellType)f.Random.Int(Enum.GetValues(typeof(SpellType)).Length));
+
+        var hitDtoFaker = new Faker<HitDto>()
+            .RuleFor(h => h.DealerId, f => f.Random.Int())
+            .RuleFor(h => h.ReceiverId, f => f.Random.Int())
+            .RuleFor(h => h.ItemId, Id);
+
+        var pageParametersFaker = new Faker<PageParameters>()
+            .RuleFor(p => p.PageNumber, f => f.Random.Int(1, 100))
+            .RuleFor(p => p.PageSize, f => f.Random.Int(1, 100));
+
+        var paginatedListFaker = new Faker<PaginatedList<Spell>>()
+            .CustomInstantiator(f => new(
+                spellFaker.Generate(SpellsCount),
+                SpellsCount,
+                f.Random.Int(1, 2),
+                f.Random.Int(1, 2)));
+
         SpellService = fixture.Freeze<IItemService<Spell>>();
         CharacterService = fixture.Freeze<ICharacterService>();
         PlayerService = fixture.Freeze<IPlayerService>();
-        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>>>();
-        ReadMapper = fixture.Freeze<IMapper<Spell, SpellReadDto>>();
-        CreateMapper = fixture.Freeze<IMapper<SpellBaseDto, Spell>>();
-        UpdateMapper = fixture.Freeze<IUpdateMapper<SpellBaseDto, Spell>>();
+        ReadMapper = new SpellReadMapper();
+        PaginatedMapper = new SpellPaginatedMapper(ReadMapper);
+        CreateMapper = new SpellCreateMapper();
+        UpdateMapper = new SpellUpdateMapper();
 
         SpellsController = new SpellsController(
             SpellService,
@@ -41,17 +79,13 @@ public class SpellsControllerFixture
             CreateMapper,
             UpdateMapper);
 
-        Id = 1;
-        Name = "Name";
-        Character = GetCharacter();
-        Spell = GetSpell();
-        SpellReadDto = GetSpellReadDto();
-        SpellBaseDto = GetSpellBaseViewModel();
-        HitDto = GetHitDto();
-        PageParameters = GetPageParameters();
-        PaginatedList = GetPaginatedList();
-        PageDto = GetPageDto();
-        PatchDocument = GetPatchDocument();
+        Character = characterFaker.Generate();
+        Spell = spellFaker.Generate();
+        SpellBaseDto = spellBaseDtoFaker.Generate();
+        HitDto = hitDtoFaker.Generate();
+        PageParameters = pageParametersFaker.Generate();
+        PaginatedList = paginatedListFaker.Generate();
+        PatchDocument = new JsonPatchDocument<SpellBaseDto>(); ;
     }
 
     public SpellsController SpellsController { get; }
@@ -64,15 +98,13 @@ public class SpellsControllerFixture
     public IUpdateMapper<SpellBaseDto, Spell> UpdateMapper { get; }
 
     public int Id { get; }
-    public string? Name { get; }
+    public int SpellsCount { get; }
     public Character Character { get; }
     public Spell Spell { get; }
-    public SpellReadDto SpellReadDto { get; }
     public SpellBaseDto SpellBaseDto { get; }
     public HitDto HitDto { get; }
     public PageParameters PageParameters { get; }
     public PaginatedList<Spell> PaginatedList { get; }
-    public PageDto<SpellReadDto> PageDto { get; }
     public JsonPatchDocument<SpellBaseDto> PatchDocument { get; }
     public CancellationToken CancellationToken { get; }
 
@@ -89,16 +121,12 @@ public class SpellsControllerFixture
         controller.ObjectValidator = objectValidator;
     }
 
-    public ControllerContext MockControllerContext()
-    {
-        var context = new ControllerContext(
+    public ControllerContext MockControllerContext() =>
+        new ControllerContext(
             new ActionContext(
                 new DefaultHttpContext() { TraceIdentifier = "trace" },
                 new RouteData(),
                 new ControllerActionDescriptor()));
-
-        return context;
-    }
 
     public void MockModelError(ControllerBase controller)
     {
@@ -106,110 +134,5 @@ public class SpellsControllerFixture
 
         context.ModelState.AddModelError("key", "error");
         controller.ControllerContext = context;
-    }
-
-    private Character GetCharacter()
-    {
-        return new Character()
-        {
-            Id = Id,
-            Name = Name,
-            Race = CharacterRace.Human,
-            Health = 100,
-            PlayerId = Id
-        };
-    }
-
-    private Spell GetSpell()
-    {
-        return new Spell()
-        {
-            Id = Id,
-            Name = Name,
-            Type = SpellType.Fire,
-            Damage = 20
-        };
-    }
-
-    private List<Spell> GetSpells()
-    {
-        return new List<Spell>()
-        {
-            Spell,
-            Spell
-        };
-    }
-
-    private PageParameters GetPageParameters()
-    {
-        return new PageParameters()
-        {
-            PageNumber = 1,
-            PageSize = 5
-        };
-    }
-
-    private PaginatedList<Spell> GetPaginatedList()
-    {
-        return new PaginatedList<Spell>(GetSpells(), 6, 1, 5);
-    }
-
-    private SpellBaseDto GetSpellBaseViewModel()
-    {
-        return new SpellBaseDto()
-        {
-            Name = Name,
-            Type = SpellType.Fire,
-            Damage = 20
-        };
-    }
-
-    private SpellReadDto GetSpellReadDto()
-    {
-        return new SpellReadDto()
-        {
-            Id = Id,
-            Name = Name,
-            Type = SpellType.Fire,
-            Damage = 20
-        };
-    }
-
-    private List<SpellReadDto> GetSpellReadDtos()
-    {
-        return new List<SpellReadDto>()
-        {
-            SpellReadDto,
-            SpellReadDto
-        };
-    }
-
-    private HitDto GetHitDto()
-    {
-        return new HitDto()
-        {
-            DealerId = Id,
-            ItemId = Id,
-            ReceiverId = Id
-        };
-    }
-
-    private PageDto<SpellReadDto> GetPageDto()
-    {
-        return new PageDto<SpellReadDto>()
-        {
-            CurrentPage = 1,
-            TotalPages = 2,
-            PageSize = 5,
-            TotalItems = 6,
-            HasPrevious = false,
-            HasNext = true,
-            Entities = GetSpellReadDtos()
-        };
-    }
-
-    private JsonPatchDocument<SpellBaseDto> GetPatchDocument()
-    {
-        return new JsonPatchDocument<SpellBaseDto>();
     }
 }

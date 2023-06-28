@@ -29,7 +29,7 @@ public class WeaponServiceTests
             .Returns(_fixture.PaginatedList);
 
         // Act
-        var result = await _fixture.WeaponService.GetAllAsync(_fixture.Id, _fixture.Id);
+        var result = await _fixture.WeaponService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
 
         // Assert
         result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Weapon>>();
@@ -44,7 +44,7 @@ public class WeaponServiceTests
             .Returns(_fixture.Weapons);
 
         // Act
-        var result = await _fixture.WeaponService.GetAllAsync(_fixture.Id, _fixture.Id);
+        var result = await _fixture.WeaponService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
 
         // Assert
         result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Weapon>>();

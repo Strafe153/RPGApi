@@ -57,9 +57,9 @@ public class PlayersController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<PlayerReadDto>> RegisterAsync([FromBody] PlayerAuthorizeDto authorizeModel)
     {
-        (byte[] hash, byte[] salt) = _passwordService.GeneratePasswordHashAndSalt(authorizeModel.Password!);
+        var (hash, salt) = _passwordService.GeneratePasswordHashAndSalt(authorizeModel.Password!);
 
-        Player player = _playerService.CreatePlayer(authorizeModel.Name!, hash, salt);
+        var player = _playerService.CreatePlayer(authorizeModel.Name!, hash, salt);
         player.Id = await _playerService.AddAsync(player);
 
         var readDto = _readMapper.Map(player);
@@ -74,8 +74,8 @@ public class PlayersController : ControllerBase
         var player = await _playerService.GetByNameAsync(authorizeDto.Name!, token);
         _passwordService.VerifyPasswordHash(authorizeDto.Password!, player);
 
-        string accessToken = _tokenService.GenerateAccessToken(player);
-        string refreshToken = _tokenService.GenerateRefreshToken();
+        var accessToken = _tokenService.GenerateAccessToken(player);
+        var refreshToken = _tokenService.GenerateRefreshToken();
 
         _tokenService.SetRefreshToken(refreshToken, player, Response);
         await _playerService.UpdateAsync(player);
@@ -120,7 +120,7 @@ public class PlayersController : ControllerBase
         var player = await _playerService.GetByIdAsync(id);
         _playerService.VerifyPlayerAccessRights(player);
 
-        (byte[] hash, byte[] salt) = _passwordService.GeneratePasswordHashAndSalt(changePasswordDto.Password!);
+        var (hash, salt) = _passwordService.GeneratePasswordHashAndSalt(changePasswordDto.Password!);
         _playerService.ChangePasswordData(player, hash, salt);
 
         string accessToken = _tokenService.GenerateAccessToken(player);
@@ -159,8 +159,8 @@ public class PlayersController : ControllerBase
         _playerService.VerifyPlayerAccessRights(player);
         _tokenService.ValidateRefreshToken(player, refreshDto.RefreshToken!);
 
-        string accessToken = _tokenService.GenerateAccessToken(player);
-        string refreshToken = _tokenService.GenerateRefreshToken();
+        var accessToken = _tokenService.GenerateAccessToken(player);
+        var refreshToken = _tokenService.GenerateRefreshToken();
 
         _tokenService.SetRefreshToken(refreshToken, player, Response);
         await _playerService.UpdateAsync(player);

@@ -20,7 +20,7 @@ public class PasswordServiceTests
     public void GeneratePasswordHashAndSalt_Should_ReturnTupleOfByteArrays_WhenPasswordIsValid()
     {
         // Act
-        var result = _fixture.PasswordService.GeneratePasswordHashAndSalt(_fixture.StringPlaceholder!);
+        var result = _fixture.PasswordService.GeneratePasswordHashAndSalt(_fixture.Password);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<(byte[], byte[])>();
@@ -30,7 +30,7 @@ public class PasswordServiceTests
     public void VerifyPasswordHash_Should_ReturnVoid_WhenParametersAreValid()
     {
         // Act
-        var result = () => _fixture.PasswordService.VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.Player);
+        var result = () => _fixture.PasswordService.VerifyPasswordHash(_fixture.Password, _fixture.Player);
 
         // Assert
         result.Should().NotBeNull();
@@ -40,7 +40,7 @@ public class PasswordServiceTests
     public void VerifyPasswordHash_Should_ThrowIncorrectPasswordException_WhenParametersAreInvalid()
     {
         // Act
-        var result = () => _fixture.PasswordService.VerifyPasswordHash(_fixture.StringPlaceholder!, _fixture.Player);
+        var result = () => _fixture.PasswordService.VerifyPasswordHash(_fixture.Password, _fixture.Player);
 
         // Assert
         result.Should().Throw<IncorrectPasswordException>();

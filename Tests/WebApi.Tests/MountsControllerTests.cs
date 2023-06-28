@@ -1,7 +1,5 @@
 ﻿using Core.Dtos;
 using Core.Dtos.MountDtos;
-using Core.Entities;
-using Core.Shared;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
@@ -36,10 +34,6 @@ public class MountsControllerTests
             .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
             .Returns(_fixture.PaginatedList);
 
-        _fixture.PaginatedMapper
-            .Map(Arg.Any<PaginatedList<Mount>>())
-            .Returns(_fixture.PageDto);
-
         // Act
         var result = await _fixture.MountsController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
@@ -48,7 +42,7 @@ public class MountsControllerTests
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<MountReadDto>>>();
         objectResult.StatusCode.Should().Be(200);
-        pageDto.Entities.Should().NotBeEmpty();
+        pageDto.Entities!.Count().Should().Be(_fixture.MountsCount);
     }
 
     [Test]
@@ -58,10 +52,6 @@ public class MountsControllerTests
         _fixture.MountService
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Mount);
-
-        _fixture.ReadMapper
-            .Map(Arg.Any<Mount>())
-            .Returns(_fixture.MountReadDto);
 
         // Act
         var result = await _fixture.MountsController.GetAsync(_fixture.Id, _fixture.CancellationToken);
@@ -77,15 +67,6 @@ public class MountsControllerTests
     [Test]
     public async Task CreateAsync_Should_ReturnActionResultOfMountReadDto_WhenMountCreateDtoIsValid()
     {
-        // Arrange
-        _fixture.CreateMapper
-            .Map(Arg.Any<MountBaseDto>())
-            .Returns(_fixture.Mount);
-
-        _fixture.ReadMapper
-            .Map(Arg.Any<Mount>())
-            .Returns(_fixture.MountReadDto);
-
         // Act
         var result = await _fixture.MountsController.CreateAsync(_fixture.MountBaseDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
@@ -122,10 +103,6 @@ public class MountsControllerTests
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Mount);
 
-        _fixture.UpdateMapper
-            .Map(Arg.Any<Mount>())
-            .Returns(_fixture.MountBaseDto);
-
         // Act
         var result = await _fixture.MountsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
         var objectResult = result.As<NoContentResult>();
@@ -142,10 +119,6 @@ public class MountsControllerTests
         _fixture.MountService
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Mount);
-
-        _fixture.UpdateMapper
-            .Map(Arg.Any<Mount>())
-            .Returns(_fixture.MountBaseDto);
 
         _fixture.MockModelError(_fixture.MountsController);
 

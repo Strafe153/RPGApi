@@ -34,7 +34,7 @@ public class PlayerService : IPlayerService
     {
         try
         {
-            int id = await _repository.AddAsync(entity);
+            var id = await _repository.AddAsync(entity);
             _logger.LogInformation("Succesfully registered a player");
 
             return id;
@@ -54,7 +54,7 @@ public class PlayerService : IPlayerService
 
     public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        string key = $"players:{pageNumber}:{pageSize}";
+        var key = $"players:{pageNumber}:{pageSize}";
         var cachedPlayers = await _cacheService.GetAsync<List<Player>>(key);
         PaginatedList<Player> players;
 
@@ -75,7 +75,7 @@ public class PlayerService : IPlayerService
 
     public async Task<Player> GetByIdAsync(int id, CancellationToken token = default)
     {
-        string key = $"players:{id}";
+        var key = $"players:{id}";
         var player = await _cacheService.GetAsync<Player>(key);
 
         if (player is null)
@@ -98,7 +98,7 @@ public class PlayerService : IPlayerService
 
     public async Task<Player> GetByNameAsync(string name, CancellationToken token = default)
     {
-        string key = $"players:{name}";
+        var key = $"players:{name}";
         var player = await _cacheService.GetAsync<Player>(key);
         
         if (player is null)
@@ -156,8 +156,8 @@ public class PlayerService : IPlayerService
     {
         var context = _httpContextAccessor.HttpContext;
         var claims = context.User.Claims;
-        string performerName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)!.Value;
-        string performerRole = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)!.Value;
+        var performerName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)!.Value;
+        var performerRole = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)!.Value;
 
         if ((performedOn.Name != performerName) && (performerRole != PlayerRole.Admin.ToString()))
         {

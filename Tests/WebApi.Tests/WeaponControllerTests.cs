@@ -1,7 +1,6 @@
 ﻿using Core.Dtos;
 using Core.Dtos.WeaponDtos;
 using Core.Entities;
-using Core.Shared;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
@@ -36,10 +35,6 @@ public class WeaponControllerTests
             .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
             .Returns(_fixture.PaginatedList);
 
-        _fixture.PaginatedMapper
-            .Map(Arg.Any<PaginatedList<Weapon>>())
-            .Returns(_fixture.PageDto);
-
         // Act
         var result = await _fixture.WeaponsController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
@@ -48,7 +43,7 @@ public class WeaponControllerTests
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<WeaponReadDto>>>();
         objectResult.StatusCode.Should().Be(200);
-        pageDto.Entities.Should().NotBeEmpty();
+        pageDto.Entities!.Count().Should().Be(_fixture.WeaponsCount);
     }
 
     [Test]
@@ -58,10 +53,6 @@ public class WeaponControllerTests
         _fixture.WeaponService
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Weapon);
-
-        _fixture.ReadMapper
-            .Map(Arg.Any<Weapon>())
-            .Returns(_fixture.WeaponReadDto);
 
         // Act
         var result = await _fixture.WeaponsController.GetAsync(_fixture.Id, _fixture.CancellationToken);
@@ -77,15 +68,6 @@ public class WeaponControllerTests
     [Test]
     public async Task CreateAsync_Should_ReturnActionResultOfWeaponReadDto_WhenWeaponBaseDtoIsValid()
     {
-        // Arrange
-        _fixture.CreateMapper
-            .Map(Arg.Any<WeaponBaseDto>())
-            .Returns(_fixture.Weapon);
-
-        _fixture.ReadMapper
-            .Map(Arg.Any<Weapon>())
-            .Returns(_fixture.WeaponReadDto);
-
         // Act
         var result = await _fixture.WeaponsController.CreateAsync(_fixture.WeaponBaseDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
@@ -122,10 +104,6 @@ public class WeaponControllerTests
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Weapon);
 
-        _fixture.UpdateMapper
-            .Map(Arg.Any<Weapon>())
-            .Returns(_fixture.WeaponBaseDto);
-
         // Act
         var result = await _fixture.WeaponsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
         var objectResult = result.As<NoContentResult>();
@@ -142,10 +120,6 @@ public class WeaponControllerTests
         _fixture.WeaponService
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Weapon);
-
-        _fixture.UpdateMapper
-            .Map(Arg.Any<Weapon>())
-            .Returns(_fixture.WeaponBaseDto);
 
         _fixture.MockModelError(_fixture.WeaponsController);
 

@@ -1,6 +1,7 @@
 ﻿using Application.Services;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
+using Bogus;
 using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Repositories;
@@ -16,6 +17,30 @@ public class WeaponServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
+        Id = Random.Shared.Next();
+        PageNumber = Random.Shared.Next(1, 25);
+        PageSize = Random.Shared.Next(1, 100);
+        WeaponsCount = Random.Shared.Next(1, 20);
+        
+        var weaponFaker = new Faker<Weapon>()
+            .RuleFor(w => w.Id, Id)
+            .RuleFor(w => w.Name, f => f.Commerce.ProductName())
+            .RuleFor(w => w.Damage, f => f.Random.Int(1, 100))
+            .RuleFor(w => w.Type, f => (WeaponType)f.Random.Int(Enum.GetValues(typeof(WeaponType)).Length));
+
+        var characterFaker = new Faker<Character>()
+            .RuleFor(c => c.Id, f => f.Random.Int())
+            .RuleFor(c => c.Name, f => f.Internet.UserName())
+            .RuleFor(c => c.Health, f => f.Random.Int(1, 100))
+            .RuleFor(c => c.Race, f => (CharacterRace)f.Random.Int(Enum.GetValues(typeof(CharacterRace)).Length));
+
+        var paginatedListFaker = new Faker<PaginatedList<Weapon>>()
+            .CustomInstantiator(f => new(
+                weaponFaker.Generate(WeaponsCount),
+                WeaponsCount,
+                f.Random.Int(1, 2),
+                f.Random.Int(1, 2)));
+
         WeaponRepository = fixture.Freeze<IItemRepository<Weapon>>();
         CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<WeaponService>>();
@@ -25,13 +50,13 @@ public class WeaponServiceFixture
             CacheService,
             Logger);
 
-        Id = 1;
-        Name = "ValidToken";
-        Weapon = GetWeapon(Id);
-        Character = GetCharacter();
-        Weapons = GetWeapons();
-        PaginatedList = GetPaginatedList();
+        Weapon = weaponFaker.Generate();
+        Character = characterFaker.Generate();
+        Weapons = weaponFaker.Generate(WeaponsCount);
+        PaginatedList = paginatedListFaker.Generate();
     }
+
+    private int WeaponsCount { get; }
 
     public IItemService<Weapon> WeaponService { get; }
     public IItemRepository<Weapon> WeaponRepository { get; }
@@ -39,66 +64,10 @@ public class WeaponServiceFixture
     public ILogger<WeaponService> Logger { get; set; }
 
     public int Id { get; }
-    public string? Name { get; }
+    public int PageNumber { get; }
+    public int PageSize { get; }
     public Weapon Weapon { get; }
     public Character Character { get; }
     public List<Weapon> Weapons { get; }
     public PaginatedList<Weapon> PaginatedList { get; }
-
-    private Character GetCharacter()
-    {
-        return new Character()
-        {
-            Id = Id,
-            Name = Name,
-            Race = CharacterRace.Human,
-            Health = 100,
-            CharacterWeapons = GetCharacterWeapons()
-        };
-    }
-
-    private CharacterWeapon GetCharacterWeapon(int characterId, int weaponId)
-    {
-        return new CharacterWeapon()
-        {
-            CharacterId = characterId,
-            Character = Character,
-            WeaponId = weaponId,
-            Weapon = GetWeapon(weaponId)
-        };
-    }
-
-    private ICollection<CharacterWeapon> GetCharacterWeapons()
-    {
-        return new List<CharacterWeapon>()
-        {
-            GetCharacterWeapon(Id, 2),
-            GetCharacterWeapon(Id, 3)
-        };
-    }
-
-    private Weapon GetWeapon(int id)
-    {
-        return new Weapon()
-        {
-            Id = id,
-            Name = Name,
-            Damage = 5,
-            Type = WeaponType.Sword
-        };
-    }
-
-    private List<Weapon> GetWeapons()
-    {
-        return new List<Weapon>()
-        {
-            Weapon,
-            Weapon
-        };
-    }
-
-    private PaginatedList<Weapon> GetPaginatedList()
-    {
-        return new PaginatedList<Weapon>(GetWeapons(), 6, 1, 5);
-    }
 }

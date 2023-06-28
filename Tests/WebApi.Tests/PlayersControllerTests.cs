@@ -1,8 +1,6 @@
 ﻿using Core.Dtos;
 using Core.Dtos.PlayerDtos;
 using Core.Dtos.TokensDtos;
-using Core.Entities;
-using Core.Shared;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
@@ -30,10 +28,6 @@ public class PlayersControllerTests
             .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
             .Returns(_fixture.PaginatedList);
 
-        _fixture.PaginatedMapper
-            .Map(Arg.Any<PaginatedList<Player>>())
-            .Returns(_fixture.PageDto);
-
         // Act
         var result = await _fixture.PlayersController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
@@ -42,7 +36,7 @@ public class PlayersControllerTests
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<PlayerReadDto>>>();
         objectResult.StatusCode.Should().Be(200);
-        pageDto.Entities.Should().NotBeEmpty();
+        pageDto.Entities!.Count().Should().Be(_fixture.PlayersCount);
     }
 
     [Test]
@@ -52,10 +46,6 @@ public class PlayersControllerTests
         _fixture.PlayerService
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Player);
-
-        _fixture.ReadMapper
-            .Map(Arg.Any<Player>())
-            .Returns(_fixture.PlayerReadDto);
 
         // Act
         var result = await _fixture.PlayersController.GetAsync(_fixture.Id, _fixture.CancellationToken);
@@ -78,10 +68,6 @@ public class PlayersControllerTests
                 Arg.Any<byte[]>(), 
                 Arg.Any<byte[]>())
             .Returns(_fixture.Player);
-
-        _fixture.ReadMapper
-            .Map(Arg.Any<Player>())
-            .Returns(_fixture.PlayerReadDto);
 
         // Act
         var result = await _fixture.PlayersController.RegisterAsync(_fixture.PlayerAuthorizeDto);
@@ -173,10 +159,6 @@ public class PlayersControllerTests
         _fixture.PlayerService
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Player);
-
-        _fixture.ReadMapper
-            .Map(Arg.Any<Player>())
-            .Returns(_fixture.PlayerReadDto);
 
         // Act
         var result = await _fixture.PlayersController.ChangeRoleAsync(_fixture.Id, _fixture.PlayerChangeRoleDto);

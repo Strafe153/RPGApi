@@ -25,7 +25,7 @@ public class WeaponService : IItemService<Weapon>
 
     public async Task<int> AddAsync(Weapon entity)
     {
-        int id = await _repository.AddAsync(entity);
+        var id = await _repository.AddAsync(entity);
         _logger.LogInformation("Succesfully created a weapon");
 
         return id;
@@ -46,7 +46,7 @@ public class WeaponService : IItemService<Weapon>
 
     public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        string key = $"weapons:{pageNumber}:{pageSize}";
+        var key = $"weapons:{pageNumber}:{pageSize}";
         var cachedWeapons = await _cacheService.GetAsync<List<Weapon>>(key);
         PaginatedList<Weapon> weapons;
 
@@ -67,7 +67,7 @@ public class WeaponService : IItemService<Weapon>
 
     public async Task<Weapon> GetByIdAsync(int id, CancellationToken token = default)
     {
-        string key = $"weapons:{id}";
+        var key = $"weapons:{id}";
         var weapon = await _cacheService.GetAsync<Weapon>(key);
 
         if (weapon is null)

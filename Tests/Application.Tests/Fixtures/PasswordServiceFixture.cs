@@ -1,11 +1,10 @@
 ﻿using Application.Services;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
+using Bogus;
 using Core.Entities;
 using Core.Enums;
 using Microsoft.Extensions.Logging;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Application.Tests.Fixtures;
 
@@ -15,43 +14,26 @@ public class PasswordServiceFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
+        var playerFaker = new Faker<Player>()
+            .RuleFor(p => p.Id, f => f.Random.Int())
+            .RuleFor(p => p.Name, f => f.Internet.UserName())
+            .RuleFor(p => p.Role, f => (PlayerRole)f.Random.Int(Enum.GetValues(typeof(PlayerRole)).Length))
+            .RuleFor(p => p.PasswordHash, f => f.Random.Bytes(32))
+            .RuleFor(p => p.PasswordSalt, f => f.Random.Bytes(32))
+            .RuleFor(p => p.RefreshToken, f => f.Random.String(64))
+            .RuleFor(p => p.RefreshTokenExpiryDate, f => f.Date.Future());
+
         Logger = fixture.Freeze<ILogger<PasswordService>>();
 
         PasswordService = new PasswordService(Logger);
 
-        StringPlaceholder = "SymmetricSecurityKey";
-        Bytes = Array.Empty<byte>();
-        PasswordHash = GetPasswordHash();
-        Player = GetPlayer();
+        Password = new Faker().Internet.Password();
+        Player = playerFaker.Generate();
     }
 
     public PasswordService PasswordService { get; }
     public ILogger<PasswordService> Logger { get; }
 
-    public string? StringPlaceholder { get; }
+    public string Password { get; }
     public Player Player { get; }
-    public byte[] Bytes { get; }
-    public byte[] PasswordHash { get; }
-
-    private byte[] GetPasswordHash()
-    {
-        using var hmac = new HMACSHA256(Bytes);
-        var passwordAsByteArray = Encoding.UTF8.GetBytes(StringPlaceholder!);
-
-        return hmac.ComputeHash(passwordAsByteArray);
-    }
-
-    private Player GetPlayer()
-    {
-        return new Player()
-        {
-            Id = 1,
-            Name = StringPlaceholder,
-            Role = PlayerRole.Player,
-            PasswordHash = Bytes,
-            PasswordSalt = Bytes,
-            RefreshTokenExpiryDate = DateTime.Today,
-            RefreshToken = StringPlaceholder
-        };
-    }
 }

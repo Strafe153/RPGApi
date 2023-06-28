@@ -24,7 +24,7 @@ public class MountService : IItemService<Mount>
 
     public async Task<int> AddAsync(Mount entity)
     {
-        int id = await _repository.AddAsync(entity);
+        var id = await _repository.AddAsync(entity);
         _logger.LogInformation("Succesfully created a mount");
 
         return id;
@@ -45,7 +45,7 @@ public class MountService : IItemService<Mount>
 
     public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        string key = $"mounts:{pageNumber}:{pageSize}";
+        var key = $"mounts:{pageNumber}:{pageSize}";
         var cachedMounts = await _cacheService.GetAsync<List<Mount>>(key);
         PaginatedList<Mount> mounts;
 
@@ -66,7 +66,7 @@ public class MountService : IItemService<Mount>
 
     public async Task<Mount> GetByIdAsync(int id, CancellationToken token = default)
     {
-        string key = $"mounts:{id}";
+        var key = $"mounts:{id}";
         var mount = await _cacheService.GetAsync<Mount>(key);
 
         if (mount is null)

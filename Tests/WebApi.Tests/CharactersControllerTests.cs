@@ -1,7 +1,5 @@
 ﻿using Core.Dtos;
 using Core.Dtos.CharacterDtos;
-using Core.Entities;
-using Core.Shared;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
@@ -31,13 +29,10 @@ public class CharactersControllerTests
     [Test]
     public async Task GetAsync_Should_ReturnActionResultOfPageDtoOfCharacterReadDto_WhenPageParametersAreValid()
     {
+        // Arrange
         _fixture.CharacterService
             .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
             .Returns(_fixture.PaginatedList);
-
-        _fixture.PaginatedMapper
-            .Map(Arg.Any<PaginatedList<Character>>())
-            .Returns(_fixture.PageDto);
 
         // Act
         var result = await _fixture.CharactersController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
@@ -46,7 +41,7 @@ public class CharactersControllerTests
 
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<CharacterReadDto>>>();
         objectResult.StatusCode.Should().Be(200);
-        pageDto.Entities.Should().NotBeEmpty();
+        pageDto.Entities!.Count().Should().Be(_fixture.CharactersCount);
     }
 
     [Test]
@@ -56,10 +51,6 @@ public class CharactersControllerTests
         _fixture.CharacterService
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Character);
-
-        _fixture.ReadMapper
-            .Map(Arg.Any<Character>())
-            .Returns(_fixture.CharacterReadDto);
 
         // Act
         var result = await _fixture.CharactersController.GetAsync(_fixture.Id, _fixture.CancellationToken);
@@ -75,15 +66,6 @@ public class CharactersControllerTests
     [Test]
     public async Task CreateAsync_Should_ReturnActionResultOfCharacterReadDto_WhenCharacterCreateDtoIsValid()
     {
-        // Arrange
-        _fixture.CreateMapper
-            .Map(Arg.Any<CharacterCreateDto>())
-            .Returns(_fixture.Character);
-
-        _fixture.ReadMapper
-            .Map(Arg.Any<Character>())
-            .Returns(_fixture.CharacterReadDto);
-
         // Act
         var result = await _fixture.CharactersController.CreateAsync(_fixture.CharacterCreateDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
@@ -120,10 +102,6 @@ public class CharactersControllerTests
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Character);
 
-        _fixture.UpdateMapper
-            .Map(Arg.Any<Character>())
-            .Returns(_fixture.CharacterUpdateDto);
-
         // Act
         var result = await _fixture.CharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
         var objectResult = result.As<NoContentResult>();
@@ -140,10 +118,6 @@ public class CharactersControllerTests
         _fixture.CharacterService
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Character);
-
-        _fixture.UpdateMapper
-            .Map(Arg.Any<Character>())
-            .Returns(_fixture.CharacterUpdateDto); 
         
         _fixture.MockModelError(_fixture.CharactersController);
 

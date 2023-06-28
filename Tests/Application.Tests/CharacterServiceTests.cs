@@ -35,7 +35,7 @@ public class CharacterServiceTests
             .Returns(_fixture.PaginatedList);
 
         // Act
-        var result = await _fixture.CharacterService.GetAllAsync(_fixture.Id, _fixture.Id);
+        var result = await _fixture.CharacterService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
 
         // Assert
         result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Character>>();
@@ -50,7 +50,7 @@ public class CharacterServiceTests
             .Returns(_fixture.Characters);
 
         // Act
-        var result = await _fixture.CharacterService.GetAllAsync(_fixture.Id, _fixture.Id);
+        var result = await _fixture.CharacterService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
 
         // Assert
         result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Character>>();
@@ -65,7 +65,7 @@ public class CharacterServiceTests
             .Returns(_fixture.Character);
 
         // Act
-        var result = await _fixture.CharacterService.GetByIdAsync(_fixture.Id);
+        var result = await _fixture.CharacterService.GetByIdAsync(_fixture.CharacterId);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<Character>();
@@ -80,7 +80,7 @@ public class CharacterServiceTests
             .Returns(_fixture.Character);
 
         // Act
-        var result = await _fixture.CharacterService.GetByIdAsync(_fixture.Id);
+        var result = await _fixture.CharacterService.GetByIdAsync(_fixture.CharacterId);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<Character>();
@@ -99,7 +99,7 @@ public class CharacterServiceTests
             .ReturnsNull();
 
         // Act
-        var result = async () => await _fixture.CharacterService.GetByIdAsync(_fixture.Id);
+        var result = async () => await _fixture.CharacterService.GetByIdAsync(_fixture.CharacterId);
 
         // Assert
         await result.Should().ThrowAsync<NullReferenceException>();
@@ -129,7 +129,7 @@ public class CharacterServiceTests
     public void DeleteAsync_Should_ReturnTask_WhenCharacterIsValid()
     {
         // Act
-        var result = _fixture.CharacterService.DeleteAsync(_fixture.Id);
+        var result = _fixture.CharacterService.DeleteAsync(_fixture.CharacterId);
 
         // Assert
         result.Should().NotBeNull();
@@ -139,7 +139,7 @@ public class CharacterServiceTests
     public void GetWeapon_Should_ReturnWeapon_WhenWeaponExists()
     {
         // Act
-        var result = _fixture.CharacterService.GetWeapon(_fixture.Character, _fixture.Id);
+        var result = _fixture.CharacterService.GetWeapon(_fixture.Character, _fixture.WeaponId);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<Weapon>();
@@ -159,7 +159,7 @@ public class CharacterServiceTests
     public void GetSpell_Should_ReturnSpell_WhenSpellExists()
     {
         // Act
-        var result = _fixture.CharacterService.GetSpell(_fixture.Character, _fixture.Id);
+        var result = _fixture.CharacterService.GetSpell(_fixture.Character, _fixture.SpellId);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<Spell>();

@@ -1,5 +1,6 @@
 ﻿using AutoFixture;
 using AutoFixture.AutoNSubstitute;
+using Bogus;
 using Core.Dtos;
 using Core.Dtos.CharacterDtos;
 using Core.Entities;
@@ -14,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
 using NSubstitute;
 using WebApi.Controllers;
+using WebApi.Mappers.CharacterMappers;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Tests.Fixtures;
@@ -24,15 +26,66 @@ public class CharactersControllerFixture
     {
         var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
+        Id = Random.Shared.Next();
+        CharactersCount = Random.Shared.Next(1, 20);
+
+        var weaponFaker = new Faker<Weapon>()
+            .RuleFor(w => w.Id, f => f.Random.Int())
+            .RuleFor(w => w.Name, f => f.Commerce.ProductName())
+            .RuleFor(w => w.Damage, f => f.Random.Int(1, 100))
+            .RuleFor(w => w.Type, f => (WeaponType)f.Random.Int(Enum.GetValues(typeof(WeaponType)).Length));
+
+        var spellFaker = new Faker<Spell>()
+            .RuleFor(s => s.Id, f => f.Random.Int())
+            .RuleFor(s => s.Name, f => f.Commerce.ProductName())
+            .RuleFor(s => s.Damage, f => f.Random.Int(1, 100))
+            .RuleFor(s => s.Type, f => (SpellType)f.Random.Int(Enum.GetValues(typeof(SpellType)).Length));
+
+        var mountFaker = new Faker<Mount>()
+            .RuleFor(m => m.Id, f => f.Random.Int())
+            .RuleFor(m => m.Name, f => f.Name.FirstName())
+            .RuleFor(m => m.Speed, f => f.Random.Int(1, 100))
+            .RuleFor(m => m.Type, f => (MountType)f.Random.Int(Enum.GetValues(typeof(MountType)).Length));
+
+        var characterFaker = new Faker<Character>()
+            .RuleFor(c => c.Id, Id)
+            .RuleFor(c => c.Name, f => f.Internet.UserName())
+            .RuleFor(c => c.Health, f => f.Random.Int(1, 100))
+            .RuleFor(c => c.Race, f => (CharacterRace)f.Random.Int(Enum.GetValues(typeof(CharacterRace)).Length));
+
+        var characterCreateDtoFaker = new Faker<CharacterCreateDto>()
+            .RuleFor(c => c.Name, f => f.Internet.UserName())
+            .RuleFor(c => c.Race, f => (CharacterRace)f.Random.Int(Enum.GetValues(typeof(CharacterRace)).Length))
+            .RuleFor(c => c.PlayerId, f => f.Random.Int());
+
+        var characterUpdateDtoFaker = new Faker<CharacterBaseDto>()
+            .RuleFor(c => c.Name, f => f.Internet.UserName())
+            .RuleFor(c => c.Race, f => (CharacterRace)f.Random.Int(Enum.GetValues(typeof(CharacterRace)).Length));
+
+        var addRemoveItemDtoFaker = new Faker<AddRemoveItemDto>()
+            .RuleFor(c => c.CharacterId, Id)
+            .RuleFor(c => c.ItemId, f => f.Random.Int());
+
+        var pageParametersFaker = new Faker<PageParameters>()
+            .RuleFor(p => p.PageNumber, f => f.Random.Int(1, 100))
+            .RuleFor(p => p.PageSize, f => f.Random.Int(1, 100));
+
+        var paginatedListFaker = new Faker<PaginatedList<Character>>()
+            .CustomInstantiator(f => new(
+                characterFaker.Generate(CharactersCount),
+                CharactersCount,
+                f.Random.Int(1, 2),
+                f.Random.Int(1, 2)));
+
         CharacterService = fixture.Freeze<ICharacterService>();
         PlayerService = fixture.Freeze<IPlayerService>();
         WeaponService = fixture.Freeze<IItemService<Weapon>>();
         SpellService = fixture.Freeze<IItemService<Spell>>();
         MountService = fixture.Freeze<IItemService<Mount>>();
-        PaginatedMapper = fixture.Freeze<IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>>();
-        ReadMapper = fixture.Freeze<IMapper<Character, CharacterReadDto>>();
-        CreateMapper = fixture.Freeze<IMapper<CharacterCreateDto, Character>>();
-        UpdateMapper = fixture.Freeze<IUpdateMapper<CharacterBaseDto, Character>>();
+        ReadMapper = new CharacterReadMapper();
+        PaginatedMapper = new CharacterPaginatedMapper(ReadMapper);
+        CreateMapper = new CharacterCreateMapper();
+        UpdateMapper = new CharacterUpdateMapper();
 
         CharactersController = new CharactersController(
             CharacterService,
@@ -45,20 +98,16 @@ public class CharactersControllerFixture
             CreateMapper,
             UpdateMapper);
 
-        Id = 1;
-        Name = "Name";
-        Weapon = GetWeapon();
-        Spell = GetSpell();
-        Mount = GetMount();
-        Character = GetCharacter();
-        CharacterReadDto = GetCharacterReadDto();
-        CharacterCreateDto = GetCharacterCreateDto();
-        CharacterUpdateDto = GetCharacterBaseDto();
-        PatchDocument = GetPatchDocument();
-        ItemDto = GetItemDto();
-        PageParameters = GetPageParameters();
-        PaginatedList = GetPaginatedList();
-        PageDto = GetPageDto();
+        Weapon = weaponFaker.Generate();
+        Spell = spellFaker.Generate();
+        Mount = mountFaker.Generate();
+        Character = characterFaker.Generate();
+        CharacterCreateDto = characterCreateDtoFaker.Generate();
+        CharacterUpdateDto = characterUpdateDtoFaker.Generate();
+        PatchDocument = new JsonPatchDocument<CharacterBaseDto>();
+        ItemDto = addRemoveItemDtoFaker.Generate();
+        PageParameters = pageParametersFaker.Generate();
+        PaginatedList = paginatedListFaker.Generate();
     }
 
     public CharactersController CharactersController { get; }
@@ -73,19 +122,17 @@ public class CharactersControllerFixture
     public IUpdateMapper<CharacterBaseDto, Character> UpdateMapper { get; }
 
     public int Id { get; }
-    public string? Name { get; }
+    public int CharactersCount { get; }
     public Weapon Weapon { get; }
     public Spell Spell { get; }
     public Mount Mount { get; }
     public Character Character { get; }
-    public CharacterReadDto CharacterReadDto { get; }
     public CharacterCreateDto CharacterCreateDto { get; }
     public CharacterBaseDto CharacterUpdateDto { get; }
     public JsonPatchDocument<CharacterBaseDto> PatchDocument { get; }
     public AddRemoveItemDto ItemDto { get; }
     public PageParameters PageParameters { get; }
     public PaginatedList<Character> PaginatedList { get; }
-    public PageDto<CharacterReadDto> PageDto { get; }
     public CancellationToken CancellationToken { get; }
 
     public void MockObjectModelValidator(ControllerBase controller)
@@ -101,9 +148,8 @@ public class CharactersControllerFixture
         controller.ObjectValidator = objectValidator;
     }
 
-    public ControllerContext MockControllerContext()
-    {
-        var context = new ControllerContext(
+    public ControllerContext MockControllerContext() =>
+        new ControllerContext(
             new ActionContext(
                 new DefaultHttpContext()
                 {
@@ -112,149 +158,11 @@ public class CharactersControllerFixture
                 new RouteData(),
                 new ControllerActionDescriptor()));
 
-        return context;
-    }
-
     public void MockModelError(ControllerBase controller)
     {
         var context = MockControllerContext();
 
         context.ModelState.AddModelError("key", "error");
         controller.ControllerContext = context;
-    }
-
-    private Weapon GetWeapon()
-    {
-        return new Weapon()
-        {
-            Id = Id,
-            Name = Name,
-            Damage = 15,
-            Type = WeaponType.Sword
-        };
-    }
-
-    private Spell GetSpell()
-    {
-        return new Spell()
-        {
-            Id = Id,
-            Name = Name,
-            Damage = 10,
-            Type = SpellType.Fire
-        };
-    }
-
-    private Mount GetMount()
-    {
-        return new Mount()
-        {
-            Id = Id,
-            Name = Name,
-            Speed = 8,
-            Type = MountType.Horse
-        };
-    }
-
-    private Character GetCharacter()
-    {
-        return new Character()
-        {
-            Id = Id,
-            Name = Name,
-            Health = 100,
-            Race = CharacterRace.Human,
-            PlayerId = Id
-        };
-    }
-
-    private List<Character> GetCharacters()
-    {
-        return new List<Character>()
-        {
-            Character,
-            Character
-        };
-    }
-
-    private CharacterReadDto GetCharacterReadDto()
-    {
-        return new CharacterReadDto()
-        {
-            Id = Id,
-            Name = Name,
-            Health = 100,
-            Race = CharacterRace.Human
-        };
-    }
-
-    private CharacterCreateDto GetCharacterCreateDto()
-    {
-        return new CharacterCreateDto()
-        {
-            Name = Name,
-            Race = CharacterRace.Human,
-            PlayerId = Id
-        };
-    }
-
-    private CharacterBaseDto GetCharacterBaseDto()
-    {
-        return new CharacterBaseDto()
-        {
-            Name = Name,
-            Race = CharacterRace.Human
-        };
-    }
-
-    private JsonPatchDocument<CharacterBaseDto> GetPatchDocument()
-    {
-        return new JsonPatchDocument<CharacterBaseDto>();
-    }
-
-    private AddRemoveItemDto GetItemDto()
-    {
-        return new AddRemoveItemDto()
-        {
-            CharacterId = Id,
-            ItemId = Id
-        };
-    }
-
-    private List<CharacterReadDto> GetCharacterReadDtos()
-    {
-        return new List<CharacterReadDto>()
-        {
-            CharacterReadDto,
-            CharacterReadDto
-        };
-    }
-
-    private PageParameters GetPageParameters()
-    {
-        return new PageParameters()
-        {
-            PageNumber = 1,
-            PageSize = 5
-        };
-    }
-
-    private PaginatedList<Character> GetPaginatedList()
-    {
-        return new PaginatedList<Character>(GetCharacters(), 6, 1, 5);
-    }
-
-    private PageDto<CharacterReadDto> GetPageDto()
-    {
-        return new PageDto<CharacterReadDto>()
-        {
-            CurrentPage = 1,
-            TotalPages = 2,
-            PageSize = 5,
-            TotalItems = 6,
-            HasPrevious = false,
-            HasNext = true,
-            Entities = GetCharacterReadDtos()
-        };
     }
 }

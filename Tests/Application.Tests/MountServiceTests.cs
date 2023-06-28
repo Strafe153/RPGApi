@@ -29,7 +29,7 @@ public class MountServiceTests
             .Returns(_fixture.PaginatedList);
 
         // Act
-        var result = await _fixture.MountService.GetAllAsync(_fixture.Id, _fixture.Id);
+        var result = await _fixture.MountService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
 
         // Assert
         result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Mount>>();
@@ -44,7 +44,7 @@ public class MountServiceTests
             .Returns(_fixture.Mounts);
 
         // Act
-        var result = await _fixture.MountService.GetAllAsync(_fixture.Id, _fixture.Id);
+        var result = await _fixture.MountService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
 
         // Assert
         result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Mount>>();

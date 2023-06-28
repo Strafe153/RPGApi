@@ -36,10 +36,6 @@ public class SpellsControllerTests
             .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
             .Returns(_fixture.PaginatedList);
 
-        _fixture.PaginatedMapper
-            .Map(Arg.Any<PaginatedList<Spell>>())
-            .Returns(_fixture.PageDto);
-
         // Act
         var result = await _fixture.SpellsController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
@@ -48,7 +44,7 @@ public class SpellsControllerTests
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<SpellReadDto>>>();
         objectResult.StatusCode.Should().Be(200);
-        pageDto.Entities.Should().NotBeEmpty();
+        pageDto.Entities!.Count().Should().Be(_fixture.SpellsCount);
     }
 
     [Test]
@@ -58,10 +54,6 @@ public class SpellsControllerTests
         _fixture.SpellService
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Spell);
-
-        _fixture.ReadMapper
-            .Map(Arg.Any<Spell>())
-            .Returns(_fixture.SpellReadDto);
 
         // Act
         var result = await _fixture.SpellsController.GetAsync(_fixture.Id, _fixture.CancellationToken);
@@ -77,15 +69,6 @@ public class SpellsControllerTests
     [Test]
     public async Task CreateAsync_Should_ReturnActionResultOfSpellReadDto_WhenSpellBaseDtoIsValid()
     {
-        // Arrange
-        _fixture.CreateMapper
-            .Map(Arg.Any<SpellBaseDto>())
-            .Returns(_fixture.Spell);
-
-        _fixture.ReadMapper
-            .Map(Arg.Any<Spell>())
-            .Returns(_fixture.SpellReadDto);
-
         // Act
         var result = await _fixture.SpellsController.CreateAsync(_fixture.SpellBaseDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
@@ -122,10 +105,6 @@ public class SpellsControllerTests
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Spell);
 
-        _fixture.UpdateMapper
-            .Map(Arg.Any<Spell>())
-            .Returns(_fixture.SpellBaseDto);
-
         // Act
         var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
         var objectResult = result.As<NoContentResult>();
@@ -142,10 +121,6 @@ public class SpellsControllerTests
         _fixture.SpellService
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Spell);
-
-        _fixture.UpdateMapper
-            .Map(Arg.Any<Spell>())
-            .Returns(_fixture.SpellBaseDto);
 
         _fixture.MockModelError(_fixture.SpellsController);
 

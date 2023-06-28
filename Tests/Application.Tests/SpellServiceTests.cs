@@ -29,7 +29,7 @@ public class SpellServiceTests
             .Returns(_fixture.PaginatedList);
 
         // Act
-        var result = await _fixture.SpellService.GetAllAsync(_fixture.Id, _fixture.Id);
+        var result = await _fixture.SpellService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
 
         // Assert
         result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Spell>>();
@@ -44,7 +44,7 @@ public class SpellServiceTests
             .Returns(_fixture.Spells);
 
         // Act
-        var result = await _fixture.SpellService.GetAllAsync(_fixture.Id, _fixture.Id);
+        var result = await _fixture.SpellService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
 
         // Assert
         result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Spell>>();

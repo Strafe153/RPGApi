@@ -25,7 +25,7 @@ public class CharacterService : ICharacterService
 
     public async Task<int> AddAsync(Character entity)
     {
-        int id = await _characterRepository.AddAsync(entity);
+        var id = await _characterRepository.AddAsync(entity);
         _logger.LogInformation("Succesfully created a character");
 
         return id;
@@ -39,7 +39,7 @@ public class CharacterService : ICharacterService
 
     public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        string key = $"characters:{pageNumber}:{pageSize}";
+        var key = $"characters:{pageNumber}:{pageSize}";
         var cachedCharacters = await _cacheService.GetAsync<List<Character>>(key);
         PaginatedList<Character> characters;
 
@@ -60,7 +60,7 @@ public class CharacterService : ICharacterService
 
     public async Task<Character> GetByIdAsync(int id, CancellationToken token = default)
     {
-        string key = $"characters:{id}";
+        var key = $"characters:{id}";
         var character = await _cacheService.GetAsync<Character>(key);
 
         if (character is null)
