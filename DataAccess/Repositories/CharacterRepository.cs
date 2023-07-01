@@ -18,9 +18,9 @@ public class CharacterRepository : IRepository<Character>
 
     public async Task<int> AddAsync(Character entity)
     {
-        string query = @"INSERT INTO ""Characters"" (""Name"", ""Race"", ""PlayerId"") 
-                         VALUES (@Name, @Race, @PlayerId)
-                         RETURNING ""Id""";
+        var query = @"INSERT INTO ""Characters"" (""Name"", ""Race"", ""PlayerId"") 
+                      VALUES (@Name, @Race, @PlayerId)
+                      RETURNING ""Id""";
         var queryParams = new
         {
             Name = entity.Name,
@@ -29,15 +29,15 @@ public class CharacterRepository : IRepository<Character>
         };
 
         using var connection = _context.CreateConnection();
-        int id = await connection.ExecuteScalarAsync<int>(query, queryParams);
+        var id = await connection.ExecuteScalarAsync<int>(query, queryParams);
 
         return id;
     }
 
     public async Task DeleteAsync(int id)
     {
-        string query = @"DELETE FROM ""Characters""
-                         WHERE ""Id"" = @Id";
+        var query = @"DELETE FROM ""Characters""
+                      WHERE ""Id"" = @Id";
         var queryParams = new { Id = id };
 
         using var connection = _context.CreateConnection();
@@ -46,14 +46,18 @@ public class CharacterRepository : IRepository<Character>
 
     public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        var charactersQuery = @"SELECT * FROM ""Characters""
+        var charactersQuery = @"SELECT *
+                                FROM ""Characters""
                                 ORDER BY ""Id"" ASC";
-        var characterWeaponsQuery = @"SELECT * FROM ""CharacterWeapons"" cw
-                                      LEFT OUTER JOIN ""Weapons"" w on cw.""WeaponId"" = w.""Id""";
-        var characterSpellsQuery = @"SELECT * FROM ""CharacterSpells"" cs
-                                     LEFT OUTER JOIN ""Spells"" s on cs.""SpellId"" = s.""Id""";
-        var characterMountsQuery = @"SELECT * FROM ""CharacterMounts"" cm
-                                     LEFT OUTER JOIN ""Mounts"" m on cm.""MountId"" = m.""Id""";
+        var characterWeaponsQuery = @"SELECT *
+                                      FROM ""CharacterWeapons"" AS cw
+                                      LEFT JOIN ""Weapons"" AS w on cw.""WeaponId"" = w.""Id""";
+        var characterSpellsQuery = @"SELECT *
+                                     FROM ""CharacterSpells"" AS cs
+                                     LEFT JOIN ""Spells"" AS s on cs.""SpellId"" = s.""Id""";
+        var characterMountsQuery = @"SELECT *
+                                     FROM ""CharacterMounts"" AS cm
+                                     LEFT JOIN ""Mounts"" AS m on cm.""MountId"" = m.""Id""";
 
         using var connection = _context.CreateConnection();
         var characters = await connection.QueryAsync<Character>(new CommandDefinition(charactersQuery, cancellationToken: token));
@@ -81,18 +85,22 @@ public class CharacterRepository : IRepository<Character>
     public async Task<Character?> GetByIdAsync(int id, CancellationToken token = default)
     {
         var queryParams = new { Id = id };
-        var charactersQuery = @"SELECT * FROM ""Characters"" c
-                                LEFT OUTER JOIN ""Players"" p on c.""PlayerId"" = p.""Id""
+        var charactersQuery = @"SELECT *
+                                FROM ""Characters"" AS c
+                                LEFT JOIN ""Players"" AS p on c.""PlayerId"" = p.""Id""
                                 WHERE c.""Id"" = @Id";
-        var characterWeaponsQuery = @$"SELECT * FROM ""CharacterWeapons"" cw
-                                      LEFT OUTER JOIN ""Weapons"" w on cw.""WeaponId"" = w.""Id""
-                                      WHERE cw.""CharacterId"" = {id}";
-        var characterSpellsQuery = @$"SELECT * FROM ""CharacterSpells"" cs
-                                     LEFT OUTER JOIN ""Spells"" s on cs.""SpellId"" = s.""Id""
-                                     WHERE cs.""CharacterId"" = {id}";
-        var characterMountsQuery = @$"SELECT * FROM ""CharacterMounts"" cm
-                                     LEFT OUTER JOIN ""Mounts"" m on cm.""MountId"" = m.""Id""
-                                     WHERE cm.""CharacterId"" = {id}";
+        var characterWeaponsQuery = @$"SELECT *
+                                       FROM ""CharacterWeapons"" AS cw
+                                       LEFT JOIN ""Weapons"" AS w on cw.""WeaponId"" = w.""Id""
+                                       WHERE cw.""CharacterId"" = {id}";
+        var characterSpellsQuery = @$"SELECT *
+                                      FROM ""CharacterSpells"" AS cs
+                                      LEFT JOIN ""Spells"" AS s on cs.""SpellId"" = s.""Id""
+                                      WHERE cs.""CharacterId"" = {id}";
+        var characterMountsQuery = @$"SELECT *
+                                      FROM ""CharacterMounts"" AS cm
+                                      LEFT JOIN ""Mounts"" AS m on cm.""MountId"" = m.""Id""
+                                      WHERE cm.""CharacterId"" = {id}";
 
         using var connection = _context.CreateConnection();
         var characters = await connection.QueryAsync<Character, Player, Character>(
@@ -125,9 +133,11 @@ public class CharacterRepository : IRepository<Character>
 
     public async Task UpdateAsync(Character entity)
     {
-        string query = @"UPDATE ""Characters"" 
-                         SET ""Name"" = @Name, ""Race"" = @Race, ""Health"" = @Health
-                         WHERE ""Id"" = @Id";
+        var query = @"UPDATE ""Characters"" 
+                      SET ""Name"" = @Name,
+                          ""Race"" = @Race,
+                          ""Health"" = @Health
+                      WHERE ""Id"" = @Id";
         var queryParams = new
         {
             Name = entity.Name,

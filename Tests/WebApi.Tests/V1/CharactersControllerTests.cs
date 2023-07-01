@@ -4,9 +4,9 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NUnit.Framework;
-using WebApi.Tests.Fixtures;
+using WebApi.Tests.V1.Fixtures;
 
-namespace WebApi.Tests;
+namespace WebApi.Tests.V1;
 
 [TestFixture]
 public class CharactersControllerTests
@@ -62,7 +62,7 @@ public class CharactersControllerTests
         objectResult.StatusCode.Should().Be(200);
         readDto.Should().NotBeNull();
     }
-    
+
     [Test]
     public async Task CreateAsync_Should_ReturnActionResultOfCharacterReadDto_WhenCharacterCreateDtoIsValid()
     {
@@ -118,7 +118,7 @@ public class CharactersControllerTests
         _fixture.CharacterService
             .GetByIdAsync(Arg.Any<int>())
             .Returns(_fixture.Character);
-        
+
         _fixture.MockModelError(_fixture.CharactersController);
 
         // Act

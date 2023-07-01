@@ -14,11 +14,11 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Routing;
 using NSubstitute;
-using WebApi.Controllers;
+using WebApi.Controllers.V1;
 using WebApi.Mappers.CharacterMappers;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Tests.Fixtures;
+namespace WebApi.Tests.V1.Fixtures;
 
 public class CharactersControllerFixture
 {

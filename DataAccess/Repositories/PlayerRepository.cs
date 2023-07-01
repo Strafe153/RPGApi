@@ -19,9 +19,9 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task<int> AddAsync(Player entity)
     {
-        string query = @"INSERT INTO ""Players"" (""Name"", ""Role"", ""PasswordHash"", ""PasswordSalt"")
-                         VALUES (@Name, @Role, @PasswordHash, @PasswordSalt)
-                         RETURNING ""Id""";
+        var query = @"INSERT INTO ""Players"" (""Name"", ""Role"", ""PasswordHash"", ""PasswordSalt"")
+                      VALUES (@Name, @Role, @PasswordHash, @PasswordSalt)
+                      RETURNING ""Id""";
         var queryParams = new
         {
             Name = entity.Name,
@@ -31,15 +31,15 @@ public class PlayerRepository : IPlayerRepository
         };
 
         using var connection = _context.CreateConnection();
-        int id = await connection.ExecuteScalarAsync<int>(query, queryParams);
+        var id = await connection.ExecuteScalarAsync<int>(query, queryParams);
 
         return id;
     }
 
     public async Task DeleteAsync(int id)
     {
-        string query = @"DELETE FROM ""Players"" 
-                         WHERE ""Id"" = @Id";
+        var query = @"DELETE FROM ""Players"" 
+                      WHERE ""Id"" = @Id";
         var queryParams = new { Id = id };
 
         using var connection = _context.CreateConnection();
@@ -48,9 +48,10 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        string query = @"SELECT * FROM ""Players"" p
-                         LEFT OUTER JOIN ""Characters"" c on p.""Id"" = c.""PlayerId""
-                         ORDER BY p.""Id"" ASC";
+        var query = @"SELECT *
+                      FROM ""Players"" AS p
+                      LEFT JOIN ""Characters"" AS c on p.""Id"" = c.""PlayerId""
+                      ORDER BY p.""Id"" ASC";
 
         using var connection = _context.CreateConnection();
         var queryResult = await connection.QueryAsync<Player, Character, Player>(
@@ -77,9 +78,10 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task<Player?> GetByIdAsync(int id, CancellationToken token = default)
     {
-        string query = @"SELECT * FROM ""Players"" p
-                         LEFT OUTER JOIN ""Characters"" c on p.""Id"" = c.""PlayerId""
-                         WHERE p.""Id"" = @Id";
+        var query = @"SELECT *
+                      FROM ""Players"" AS p
+                      LEFT JOIN ""Characters"" AS c on p.""Id"" = c.""PlayerId""
+                      WHERE p.""Id"" = @Id";
         var queryParams = new { Id = id };
 
         using var connection = _context.CreateConnection();
@@ -107,23 +109,26 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task<Player?> GetByNameAsync(string name, CancellationToken token = default)
     {
-        string query = @"SELECT * FROM ""Players""
-                         WHERE ""Name"" = @Name";
+        var query = @"SELECT *
+                      FROM ""Players""
+                      WHERE ""Name"" = @Name";
         var queryParams = new { Name = name };
 
         using var connection = _context.CreateConnection();
-        var player = await connection.QueryFirstOrDefaultAsync<Player>(
-            new CommandDefinition(query, queryParams, cancellationToken: token));
+        var player = await connection.QueryFirstOrDefaultAsync<Player>(new CommandDefinition(query, queryParams, cancellationToken: token));
 
         return player;
     }
 
     public async Task UpdateAsync(Player entity)
     {
-        string query = @"UPDATE ""Players"" 
-                         SET ""Name"" = @Name, ""Role"" = @Role, ""PasswordHash"" = @PasswordHash, ""PasswordSalt"" = @PasswordSalt,
-                             ""RefreshToken"" = @RefreshToken, ""RefreshTokenExpiryDate"" = @RefreshTokenExpiryDate
-                         WHERE ""Id"" = @Id";
+        var query = @"UPDATE ""Players"" 
+                      SET ""Name"" = @Name, ""Role"" = @Role,
+                          ""PasswordHash"" = @PasswordHash,
+                          ""PasswordSalt"" = @PasswordSalt,
+                          ""RefreshToken"" = @RefreshToken,
+                          ""RefreshTokenExpiryDate"" = @RefreshTokenExpiryDate
+                      WHERE ""Id"" = @Id";
         var queryParams = new 
         {
             Name = entity.Name,

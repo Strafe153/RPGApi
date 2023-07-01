@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.OpenApi.Models;
 
 namespace WebApi.Configurations;
 
@@ -7,15 +8,23 @@ public static class SwaggerConfiguration
     public static void ConfigureSwagger(this IServiceCollection services)
     {
         services.AddEndpointsApiExplorer();
+
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo()
-            {
-                Title = "RPGApi",
-                Version = "v1"
-            });
+            var apiVersionDescriptionProvider = services
+                .BuildServiceProvider()
+                .GetRequiredService<IApiVersionDescriptionProvider>();
 
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+            foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+            {
+                options.SwaggerDoc(description.GroupName, new OpenApiInfo
+                {
+                    Title = $"RPGApi {description.ApiVersion}",
+                    Version = description.ApiVersion.ToString()
+                });
+            }
+
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Name = "Authorization",
                 Type = SecuritySchemeType.ApiKey,
@@ -25,12 +34,12 @@ public static class SwaggerConfiguration
                 Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer kl4wof7t3nf\"",
             });
 
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
                 {
-                    new OpenApiSecurityScheme()
+                    new OpenApiSecurityScheme
                     {
-                        Reference = new OpenApiReference()
+                        Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
                             Id = "Bearer"
@@ -39,6 +48,21 @@ public static class SwaggerConfiguration
                     Array.Empty<string>()
                 }
             });
+        });
+    }
+
+    public static void ConfigureSwaggerUI(this WebApplication application)
+    {
+        application.UseSwagger();
+
+        application.UseSwaggerUI(options =>
+        {
+            var provider = application.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+
+            foreach (var description in provider.ApiVersionDescriptions)
+            {
+                options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+            }
         });
     }
 }

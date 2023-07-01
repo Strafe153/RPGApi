@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.V1;
 
 [Route("api/mounts")]
 [ApiController]
 [Authorize]
+[ApiVersion("1.0")]
 public class MountsController : ControllerBase
 {
     private readonly IItemService<Mount> _mountService;
@@ -23,8 +24,8 @@ public class MountsController : ControllerBase
 
     public MountsController(
         IItemService<Mount> mountService,
-        IMapper<PaginatedList<Mount>, PageDto<MountReadDto>> paginatedMapper, 
-        IMapper<Mount, MountReadDto> readMapper, 
+        IMapper<PaginatedList<Mount>, PageDto<MountReadDto>> paginatedMapper,
+        IMapper<Mount, MountReadDto> readMapper,
         IMapper<MountBaseDto, Mount> createMapper,
         IUpdateMapper<MountBaseDto, Mount> updateMapper)
     {
@@ -62,7 +63,7 @@ public class MountsController : ControllerBase
 
         var readDto = _readMapper.Map(mount);
 
-        return CreatedAtAction(nameof(GetAsync), new { Id = readDto.Id }, readDto);
+        return CreatedAtAction(nameof(GetAsync), new { readDto.Id }, readDto);
     }
 
     [HttpPut("{id:int:min(1)}")]

@@ -8,11 +8,11 @@ using Core.Entities;
 using Core.Enums;
 using Core.Interfaces.Services;
 using Core.Shared;
-using WebApi.Controllers;
+using WebApi.Controllers.V1;
 using WebApi.Mappers.Interfaces;
 using WebApi.Mappers.PlayerMappers;
 
-namespace WebApi.Tests.Fixtures;
+namespace WebApi.Tests.V1.Fixtures;
 
 public class PlayersControllerFixture
 {

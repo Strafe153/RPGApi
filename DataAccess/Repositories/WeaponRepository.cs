@@ -18,9 +18,9 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task<int> AddAsync(Weapon entity)
     {
-        string query = @"INSERT INTO ""Weapons"" (""Name"", ""Type"", ""Damage"") 
-                         VALUES (@Name, @Type, @Damage)
-                         RETURNING ""Id""";
+        var query = @"INSERT INTO ""Weapons"" (""Name"", ""Type"", ""Damage"") 
+                      VALUES (@Name, @Type, @Damage)
+                      RETURNING ""Id""";
         var queryParams = new
         {
             Name = entity.Name,
@@ -29,15 +29,15 @@ public class WeaponRepository : IItemRepository<Weapon>
         };
 
         using var connection = _context.CreateConnection();
-        int id = await connection.ExecuteScalarAsync<int>(query, queryParams);
+        var id = await connection.ExecuteScalarAsync<int>(query, queryParams);
 
         return id;
     }
 
     public async Task DeleteAsync(int id)
     {
-        string query = @"DELETE FROM ""Weapons"" 
-                         WHERE ""Id"" = @Id";
+        var query = @"DELETE FROM ""Weapons"" 
+                      WHERE ""Id"" = @Id";
         var queryParams = new { Id = id };
 
         using var connection = _context.CreateConnection();
@@ -46,10 +46,12 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        string weaponsQuery = @"SELECT * FROM ""Weapons""
-                                ORDER BY ""Id"" ASC";
-        string characterWeaponsQuery = @"SELECT * FROM ""CharacterWeapons"" cw
-                                         LEFT OUTER JOIN ""Characters"" c on cw.""CharacterId"" = c.""Id""";
+        var weaponsQuery = @"SELECT *
+                             FROM ""Weapons""
+                             ORDER BY ""Id"" ASC";
+        var characterWeaponsQuery = @"SELECT *
+                                      FROM ""CharacterWeapons"" AS cw
+                                      LEFT JOIN ""Characters"" AS c on cw.""CharacterId"" = c.""Id""";
 
         using var connection = _context.CreateConnection();
         var weapons = await connection.QueryAsync<Weapon>(new CommandDefinition(weaponsQuery, cancellationToken: token));
@@ -72,11 +74,13 @@ public class WeaponRepository : IItemRepository<Weapon>
     public async Task<Weapon?> GetByIdAsync(int id, CancellationToken token = default)
     {
         var queryParams = new { Id = id };
-        string weaponQuery = @"SELECT * FROM ""Weapons""
-                          WHERE ""Id"" = @Id";
-        string characterWeaponsQuery = @$"SELECT * FROM ""CharacterWeapons"" cw
-                                         LEFT OUTER JOIN ""Characters"" c on cw.""CharacterId"" = c.""Id""
-                                         WHERE cw.""WeaponId"" = {id}";
+        var weaponQuery = @"SELECT *
+                            FROM ""Weapons""
+                            WHERE ""Id"" = @Id";
+        var characterWeaponsQuery = @$"SELECT *
+                                       FROM ""CharacterWeapons"" AS cw
+                                       LEFT JOIN ""Characters"" AS c on cw.""CharacterId"" = c.""Id""
+                                       WHERE cw.""WeaponId"" = {id}";
 
         using var connection = _context.CreateConnection();
         var weapons = await connection.QueryAsync<Weapon>(
@@ -99,9 +103,11 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task UpdateAsync(Weapon entity)
     {
-        string query = @"UPDATE ""Weapons"" 
-                         SET ""Name"" = @Name, ""Type"" = @Type, ""Damage"" = @Damage
-                         WHERE ""Id"" = @Id";
+        var query = @"UPDATE ""Weapons"" 
+                      SET ""Name"" = @Name,
+                          ""Type"" = @Type,
+                          ""Damage"" = @Damage
+                      WHERE ""Id"" = @Id";
         var queryParams = new
         {
             Name = entity.Name,
@@ -116,8 +122,8 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task AddToCharacterAsync(Character character, Weapon item)
     {
-        string query = @"INSERT INTO ""CharacterWeapons"" (""CharacterId"", ""WeaponId"")
-                         VALUES (@CharacterId, @WeaponId)";
+        var query = @"INSERT INTO ""CharacterWeapons"" (""CharacterId"", ""WeaponId"")
+                      VALUES (@CharacterId, @WeaponId)";
         var queryParams = new
         {
             CharacterId = character.Id,
@@ -130,8 +136,9 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task RemoveFromCharacterAsync(Character character, Weapon item)
     {
-        string query = @"DELETE FROM ""CharacterWeapons""
-                         WHERE ""CharacterId"" = @CharacterId AND ""WeaponId"" = @WeaponId";
+        var query = @"DELETE FROM ""CharacterWeapons""
+                      WHERE ""CharacterId"" = @CharacterId
+                            AND ""WeaponId"" = @WeaponId";
         var queryParams = new
         {
             CharacterId = character.Id,

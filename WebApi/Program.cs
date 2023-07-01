@@ -9,6 +9,7 @@ builder.Services.AddRepositories();
 builder.Services.AddCustomServices();
 builder.Services.AddMappers();
 
+builder.Services.ConfigureApiVersioning();
 builder.Services.ConfigureControllers();
 builder.Services.ConfigureFluentValidation();
 
@@ -25,8 +26,7 @@ app.AddCustomMiddleware();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.ConfigureSwaggerUI();
 }
 
 app.UseHttpsRedirection();

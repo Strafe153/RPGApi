@@ -5,9 +5,9 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NUnit.Framework;
-using WebApi.Tests.Fixtures;
+using WebApi.Tests.V1.Fixtures;
 
-namespace WebApi.Tests;
+namespace WebApi.Tests.V1;
 
 [TestFixture]
 public class PlayersControllerTests
@@ -64,8 +64,8 @@ public class PlayersControllerTests
         // Arrange
         _fixture.PlayerService
             .CreatePlayer(
-                Arg.Any<string>(), 
-                Arg.Any<byte[]>(), 
+                Arg.Any<string>(),
+                Arg.Any<byte[]>(),
                 Arg.Any<byte[]>())
             .Returns(_fixture.Player);
 

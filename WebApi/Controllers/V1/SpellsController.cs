@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.V1;
 
 [Route("api/spells")]
 [ApiController]
 [Authorize]
+[ApiVersion("1.0")]
 public class SpellsController : ControllerBase
 {
     private readonly IItemService<Spell> _spellService;
@@ -68,7 +69,7 @@ public class SpellsController : ControllerBase
 
         var readDto = _readMapper.Map(spell);
 
-        return CreatedAtAction(nameof(GetAsync), new { Id = readDto.Id }, readDto);
+        return CreatedAtAction(nameof(GetAsync), new { readDto.Id }, readDto);
     }
 
     [HttpPut("{id:int:min(1)}")]

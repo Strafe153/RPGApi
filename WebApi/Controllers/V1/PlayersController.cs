@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.V1;
 
 [Route("api/players")]
 [ApiController]
 [Authorize]
+[ApiVersion("1.0")]
 public class PlayersController : ControllerBase
 {
     private readonly IPlayerService _playerService;
@@ -64,7 +65,7 @@ public class PlayersController : ControllerBase
 
         var readDto = _readMapper.Map(player);
 
-        return CreatedAtAction(nameof(GetAsync), new { Id = readDto.Id }, readDto);
+        return CreatedAtAction(nameof(GetAsync), new { readDto.Id }, readDto);
     }
 
     [HttpPost("login")]
@@ -114,7 +115,7 @@ public class PlayersController : ControllerBase
 
     [HttpPut("{id:int:min(1)}/changePassword")]
     public async Task<ActionResult<TokensReadDto>> ChangePasswordAsync(
-        [FromRoute] int id, 
+        [FromRoute] int id,
         [FromBody] PlayerChangePasswordDto changePasswordDto)
     {
         var player = await _playerService.GetByIdAsync(id);

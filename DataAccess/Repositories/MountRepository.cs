@@ -4,7 +4,6 @@ using Core.Shared;
 using Dapper;
 using DataAccess.Extensions;
 using Microsoft.EntityFrameworkCore;
-using System.Drawing;
 
 namespace DataAccess.Repositories;
 
@@ -19,9 +18,9 @@ public class MountRepository : IItemRepository<Mount>
 
     public async Task<int> AddAsync(Mount entity)
     {
-        string query = @"INSERT INTO ""Mounts"" (""Name"", ""Type"", ""Speed"") 
-                         VALUES (@Name, @Type, @Speed)
-                         RETURNING ""Id""";
+        var query = @"INSERT INTO ""Mounts"" (""Name"", ""Type"", ""Speed"") 
+                      VALUES (@Name, @Type, @Speed)
+                      RETURNING ""Id""";
         var queryParams = new
         {
             Name = entity.Name,
@@ -30,15 +29,15 @@ public class MountRepository : IItemRepository<Mount>
         };
 
         using var connection = _context.CreateConnection();
-        int id = await connection.ExecuteScalarAsync<int>(query, queryParams);
+        var id = await connection.ExecuteScalarAsync<int>(query, queryParams);
 
         return id;
     }
 
     public async Task DeleteAsync(int id)
     {
-        string query = @"DELETE FROM ""Mounts"" 
-                         WHERE ""Id"" = @Id";
+        var query = @"DELETE FROM ""Mounts"" 
+                      WHERE ""Id"" = @Id";
         var queryParams = new { Id = id };
 
         using var connection = _context.CreateConnection();
@@ -47,10 +46,12 @@ public class MountRepository : IItemRepository<Mount>
 
     public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        string mountsQuery = @"SELECT * FROM ""Mounts""
-                         ORDER BY ""Id"" ASC";
-        string characterMountsQuery = @"SELECT * FROM ""CharacterMounts"" cm
-                                   LEFT OUTER JOIN ""Characters"" c on cm.""CharacterId"" = c.""Id""";
+        var mountsQuery = @"SELECT *
+                            FROM ""Mounts""
+                            ORDER BY ""Id"" ASC";
+        var characterMountsQuery = @"SELECT *
+                                     FROM ""CharacterMounts"" AS cm
+                                     LEFT JOIN ""Characters"" AS c on cm.""CharacterId"" = c.""Id""";
 
         using var connection = _context.CreateConnection();
         var queryResult = await connection.QueryAsync<Mount>(new CommandDefinition(mountsQuery, cancellationToken: token));
@@ -73,15 +74,16 @@ public class MountRepository : IItemRepository<Mount>
     public async Task<Mount?> GetByIdAsync(int id, CancellationToken token = default)
     {
         var queryParams = new { Id = id };
-        string mountsQuery = @"SELECT * FROM ""Mounts""
-                               WHERE ""Id"" = @Id";
-        string characterMountsQuery = @$"SELECT * FROM ""CharacterMounts"" cm
-                                        LEFT OUTER JOIN ""Characters"" c on cm.""CharacterId"" = c.""Id""
-                                        WHERE cm.""MountId"" = {id}";
+        var mountsQuery = @"SELECT *
+                            FROM ""Mounts""
+                            WHERE ""Id"" = @Id";
+        var characterMountsQuery = @$"SELECT *
+                                      FROM ""CharacterMounts"" AS cm
+                                      LEFT JOIN ""Characters"" AS c on cm.""CharacterId"" = c.""Id""
+                                      WHERE cm.""MountId"" = {id}";
 
         using var connection = _context.CreateConnection();
-        var queryResult = await connection.QueryAsync<Mount>(
-            new CommandDefinition(mountsQuery, queryParams, cancellationToken: token));
+        var queryResult = await connection.QueryAsync<Mount>(new CommandDefinition(mountsQuery, queryParams, cancellationToken: token));
         var characterMounts = await GetCharacterMountsAsync(characterMountsQuery, token);
 
         var mount = queryResult
@@ -100,9 +102,11 @@ public class MountRepository : IItemRepository<Mount>
 
     public async Task UpdateAsync(Mount entity)
     {
-        string query = @"UPDATE ""Mounts"" 
-                         SET ""Name"" = @Name, ""Type"" = @Type, ""Speed"" = @Speed
-                         WHERE ""Id"" = @Id";
+        var query = @"UPDATE ""Mounts"" 
+                      SET ""Name"" = @Name,
+                          ""Type"" = @Type,
+                          ""Speed"" = @Speed
+                      WHERE ""Id"" = @Id";
         var queryParams = new
         {
             Name = entity.Name,
@@ -117,8 +121,8 @@ public class MountRepository : IItemRepository<Mount>
 
     public async Task AddToCharacterAsync(Character character, Mount item)
     {
-        string query = @"INSERT INTO ""CharacterMounts"" (""CharacterId"", ""MountId"")
-                         VALUES (@CharacterId, @MountId)";
+        var query = @"INSERT INTO ""CharacterMounts"" (""CharacterId"", ""MountId"")
+                      VALUES (@CharacterId, @MountId)";
         var queryParams = new
         {
             CharacterId = character.Id,
@@ -131,8 +135,9 @@ public class MountRepository : IItemRepository<Mount>
 
     public async Task RemoveFromCharacterAsync(Character character, Mount item)
     {
-        string query = @"DELETE FROM ""CharacterMounts""
-                         WHERE ""CharacterId"" = @CharacterId AND ""MountId"" = @MountId";
+        var query = @"DELETE FROM ""CharacterMounts""
+                      WHERE ""CharacterId"" = @CharacterId
+                            AND ""MountId"" = @MountId";
         var queryParams = new
         {
             CharacterId = character.Id,

@@ -8,11 +8,12 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Mappers.Interfaces;
 
-namespace WebApi.Controllers;
+namespace WebApi.Controllers.V1;
 
 [Route("api/characters")]
 [ApiController]
 [Authorize]
+[ApiVersion("1.0")]
 public class CharactersController : ControllerBase
 {
     private readonly ICharacterService _characterService;
