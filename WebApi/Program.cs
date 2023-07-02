@@ -4,6 +4,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.ConfigureLoggers();
 
+builder.Services.ConfigureHealthChecks(builder.Configuration);
+
 builder.Services.AddCustomValidators();
 builder.Services.AddRepositories();
 builder.Services.AddCustomServices();
@@ -30,6 +32,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseHealthChecks();
 
 app.UseAuthentication();
 app.UseAuthorization();
