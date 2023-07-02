@@ -12,6 +12,7 @@
 
 ## Dependencies
 * `Npgsql.EntityFrameworkCore.PostgreSQL` for PostgreSQL
+* `Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer` for API versioning
 * `Dapper` for object-relational mapping
 * `FluentValidation` for DTO validation
 * `NLog` for logging
