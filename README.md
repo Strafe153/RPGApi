@@ -15,6 +15,9 @@
 * `Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer` for API versioning
 * `Dapper` for object-relational mapping
 * `FluentValidation` for DTO validation
+* `AspNetCore.HealthChecks.UI.Client` for detailed health checks information
+* `AspNetCore.HealthChecks.NpgSql` for PostgreSQL health check
+* `AspNetCore.HealthChecks.Redis` for Redis health checks
 * `NLog` for logging
 * `NUnit` for unit-tests
 * `NSubstitute` for mocking
