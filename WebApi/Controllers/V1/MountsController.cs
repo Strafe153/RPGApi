@@ -6,6 +6,7 @@ using Core.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Controllers.V1;
@@ -14,6 +15,7 @@ namespace WebApi.Controllers.V1;
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]
+[EnableRateLimiting("tokenBucket")]
 public class MountsController : ControllerBase
 {
     private readonly IItemService<Mount> _mountService;

@@ -9,8 +9,8 @@ public static class HealthChecksConfiguration
     {
         services
             .AddHealthChecks()
-            .AddNpgSql(configuration.GetConnectionString("DatabaseConnection"))
-            .AddRedis(configuration.GetConnectionString("RedisConnection"));
+            .AddNpgSql(configuration.GetConnectionString("DatabaseConnection")!)
+            .AddRedis(configuration.GetConnectionString("RedisConnection")!);
     }
 
     public static void UseHealthChecks(this WebApplication application)

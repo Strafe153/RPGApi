@@ -6,6 +6,7 @@ using Core.Interfaces.Services;
 using Core.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Controllers.V1;
@@ -14,6 +15,7 @@ namespace WebApi.Controllers.V1;
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]
+[EnableRateLimiting("tokenBucket")]
 public class PlayersController : ControllerBase
 {
     private readonly IPlayerService _playerService;

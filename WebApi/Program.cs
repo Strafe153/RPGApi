@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.ConfigureLoggers();
 
 builder.Services.ConfigureHealthChecks(builder.Configuration);
+builder.Services.ConfigureRateLimiting(builder.Configuration);
 
 builder.Services.AddCustomValidators();
 builder.Services.AddRepositories();
@@ -23,8 +24,6 @@ builder.Services.ConfigureSwagger();
 
 var app = builder.Build();
 
-app.AddCustomMiddleware();
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -37,6 +36,10 @@ app.UseHealthChecks();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseRateLimiter();
+
+app.UseCustomMiddleware();
 
 app.MapControllers();
 

@@ -21,7 +21,7 @@ public static class AuthenticationConfiguration
                     ValidIssuer = configuration.GetSection(JwtSettingsConstants.JWT_ISSUER).Value,
                     ValidAudience = configuration.GetSection(JwtSettingsConstants.JWT_AUDIENCE).Value,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration.GetSection(JwtSettingsConstants.JWT_SECRET).Value))
+                        Encoding.UTF8.GetBytes(configuration.GetSection(JwtSettingsConstants.JWT_SECRET).Value!))
                 };
             });
     }
