@@ -78,6 +78,7 @@ public class CharacterServiceFixture
         Characters = characterFaker.Generate(CharactersCount);
         PaginatedList = paginatedListFaker.Generate();
     }
+    
     private int CharactersCount { get; }
 
     public ICharacterService CharacterService { get; }
