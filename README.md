@@ -38,8 +38,6 @@
 * `Newtonsoft.Json` for JSON serialization
 * `NLog` for logging
 * `NLog.Web.AspNetCore` for ASP.NET Core logging
-* `Npgsql` for PostgreSQL
-* `Npgsql.EntityFrameworkCore.PostgreSQL` for PostgreSQL provider for EF Core
 * `NSubstitute` for mocking
 * `NUnit` for unit-tests
 * `NUnit3TestAdapter` for adapting tests in Visual Studio
