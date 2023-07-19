@@ -1,53 +1,37 @@
 ﻿using Core.Exceptions;
 using Core.Shared;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System.Net;
-using System.Text.Json;
 
-namespace WebApi.Middleware;
+namespace WebApi.Filters;
 
-public class ExceptionsMiddleware
+public class ExceptionHandlingFilter : ExceptionFilterAttribute
 {
-    private readonly RequestDelegate _next;
-
-    public ExceptionsMiddleware(RequestDelegate next)
+    public override void OnException(ExceptionContext context)
     {
-        _next = next;
-    }
-
-    public async Task InvokeAsync(HttpContext context)
-    {
-        try
-        {
-            await _next(context);
-        }
-        catch (Exception ex)
-        {
-            await HandleExceptionAsync(context, ex);
-        }
-    }
-
-    private Task HandleExceptionAsync(HttpContext context, Exception exception)
-    {
-        var statusCode = GetHttpStatusCode(exception);
+        var statusCode = GetHttpStatusCode(context.Exception);
         int statusCodeAsInt = (int)statusCode;
 
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = statusCodeAsInt;
+        context.HttpContext.Response.ContentType = "application/json";
+        context.HttpContext.Response.StatusCode = statusCodeAsInt;
 
-        var problemDetails = new ProblemDetails()
+        var problemDetails = new ProblemDetails
         {
             Type = GetRFCType(statusCode),
-            Title = exception.Message,
+            Title = context.Exception.Message,
             Status = statusCodeAsInt,
-            Detail = exception.Message,
-            Instance = context.Request.Path
+            Detail = context.Exception.Message,
+            Instance = context.HttpContext.Request.Path
         };
 
-        var json = JsonSerializer.Serialize(problemDetails);
+        context.Result = new JsonResult(problemDetails)
+        {
+            StatusCode = statusCodeAsInt
+        };
 
-        return context.Response.WriteAsync(json);
+        base.OnException(context);
     }
 
     private static HttpStatusCode GetHttpStatusCode(Exception exception)
