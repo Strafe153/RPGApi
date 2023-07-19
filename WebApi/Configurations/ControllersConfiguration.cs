@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json.Serialization;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace WebApi.Configurations;
 
@@ -10,6 +10,7 @@ public static class ControllersConfiguration
         services.AddControllers(options =>
         {
             options.SuppressAsyncSuffixInActionNames = false;
+            options.Filters.Add<ExceptionHandlingFilter>();
         })
         .AddNewtonsoftJson(options =>
         {
