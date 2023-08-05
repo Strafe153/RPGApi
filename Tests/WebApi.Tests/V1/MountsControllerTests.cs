@@ -1,6 +1,7 @@
 ﻿using Core.Dtos;
 using Core.Dtos.MountDtos;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NUnit.Framework;
@@ -41,7 +42,7 @@ public class MountsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<MountReadDto>>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         pageDto.Entities!.Count().Should().Be(_fixture.MountsCount);
     }
 
@@ -60,7 +61,7 @@ public class MountsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<MountReadDto>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         readDto.Should().NotBeNull();
     }
 
@@ -74,7 +75,7 @@ public class MountsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<MountReadDto>>();
-        objectResult.StatusCode.Should().Be(201);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status201Created);
         readDto.Should().NotBeNull();
     }
 
@@ -92,7 +93,7 @@ public class MountsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -109,7 +110,7 @@ public class MountsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -143,6 +144,6 @@ public class MountsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 }

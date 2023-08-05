@@ -2,6 +2,7 @@
 using Core.Dtos.PlayerDtos;
 using Core.Dtos.TokensDtos;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NUnit.Framework;
@@ -35,7 +36,7 @@ public class PlayersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<PlayerReadDto>>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         pageDto.Entities!.Count().Should().Be(_fixture.PlayersCount);
     }
 
@@ -54,7 +55,7 @@ public class PlayersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PlayerReadDto>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         readDto.Should().NotBeNull();
     }
 
@@ -76,7 +77,7 @@ public class PlayersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PlayerReadDto>>();
-        objectResult.StatusCode.Should().Be(201);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status201Created);
         readDto.Should().NotBeNull();
     }
 
@@ -95,7 +96,7 @@ public class PlayersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<TokensReadDto>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         readWithTokenDto.Should().NotBeNull();
     }
 
@@ -113,7 +114,7 @@ public class PlayersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -130,7 +131,7 @@ public class PlayersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -148,7 +149,7 @@ public class PlayersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<TokensReadDto>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         tokensReadDto.Should().NotBeNull();
     }
 
@@ -167,7 +168,7 @@ public class PlayersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PlayerReadDto>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         readDto.Should().NotBeNull();
     }
 
@@ -186,7 +187,7 @@ public class PlayersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<TokensReadDto>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         tokensReadDto.Should().NotBeNull();
     }
 }

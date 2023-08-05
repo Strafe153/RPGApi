@@ -1,6 +1,7 @@
 ﻿using Core.Dtos;
 using Core.Dtos.CharacterDtos;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NUnit.Framework;
@@ -40,7 +41,7 @@ public class CharactersControllerTests
         var pageDto = objectResult.Value.As<PageDto<CharacterReadDto>>();
 
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<CharacterReadDto>>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         pageDto.Entities!.Count().Should().Be(_fixture.CharactersCount);
     }
 
@@ -59,7 +60,7 @@ public class CharactersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<CharacterReadDto>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         readDto.Should().NotBeNull();
     }
 
@@ -73,7 +74,7 @@ public class CharactersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<CharacterReadDto>>();
-        objectResult.StatusCode.Should().Be(201);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status201Created);
         readDto.Should().NotBeNull();
     }
 
@@ -91,7 +92,7 @@ public class CharactersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -108,7 +109,7 @@ public class CharactersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -142,7 +143,7 @@ public class CharactersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -163,7 +164,7 @@ public class CharactersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -184,7 +185,7 @@ public class CharactersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -205,7 +206,7 @@ public class CharactersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -226,7 +227,7 @@ public class CharactersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -247,7 +248,7 @@ public class CharactersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -268,6 +269,6 @@ public class CharactersControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 }

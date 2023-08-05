@@ -3,6 +3,7 @@ using Core.Dtos.SpellDtos;
 using Core.Entities;
 using Core.Shared;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NUnit.Framework;
@@ -43,7 +44,7 @@ public class SpellsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<SpellReadDto>>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         pageDto.Entities!.Count().Should().Be(_fixture.SpellsCount);
     }
 
@@ -62,7 +63,7 @@ public class SpellsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         readDto.Should().NotBeNull();
     }
 
@@ -76,7 +77,7 @@ public class SpellsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
-        objectResult.StatusCode.Should().Be(201);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status201Created);
         readDto.Should().NotBeNull();
     }
 
@@ -94,7 +95,7 @@ public class SpellsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -111,7 +112,7 @@ public class SpellsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -145,7 +146,7 @@ public class SpellsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -166,6 +167,6 @@ public class SpellsControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 }

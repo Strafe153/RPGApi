@@ -2,6 +2,7 @@
 using Core.Dtos.WeaponDtos;
 using Core.Entities;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NUnit.Framework;
@@ -42,7 +43,7 @@ public class WeaponControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<WeaponReadDto>>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         pageDto.Entities!.Count().Should().Be(_fixture.WeaponsCount);
     }
 
@@ -61,7 +62,7 @@ public class WeaponControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<WeaponReadDto>>();
-        objectResult.StatusCode.Should().Be(200);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
         readDto.Should().NotBeNull();
     }
 
@@ -75,7 +76,7 @@ public class WeaponControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ActionResult<WeaponReadDto>>();
-        objectResult.StatusCode.Should().Be(201);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status201Created);
         readDto.Should().NotBeNull();
     }
 
@@ -93,7 +94,7 @@ public class WeaponControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -110,7 +111,7 @@ public class WeaponControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -144,7 +145,7 @@ public class WeaponControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 
     [Test]
@@ -165,6 +166,6 @@ public class WeaponControllerTests
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(204);
+        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
     }
 }
