@@ -15,7 +15,7 @@
 * `AspNetCore.HealthChecks.NpgSql` for PostgreSQL health check
 * `AspNetCore.HealthChecks.Redis` for Redis health checks
 * `AutoFixture` for test fixtures
-* `AutoFixture.AutoNSubstitute` for NSubstitute support for AutoFixture
+* `AutoFixture.AutoNSubstitute` for NSubstitute support with AutoFixture
 * `Bogus` for fake data generation
 * `Dapper` for object-relational mapping
 * `FluentAssertions` for assertions
