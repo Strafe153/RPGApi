@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using WebApi.Filters;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Controllers.V1;
@@ -51,6 +52,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpGet]
+    [CacheFilter]
     public async Task<ActionResult<PageDto<CharacterReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
     {
         var characters = await _characterService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
@@ -60,6 +62,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpGet("{id:int:min(1)}")]
+    [CacheFilter]
     public async Task<ActionResult<CharacterReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
     {
         var character = await _characterService.GetByIdAsync(id, token);

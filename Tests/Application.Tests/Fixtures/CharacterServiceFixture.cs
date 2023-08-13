@@ -66,12 +66,10 @@ public class CharacterServiceFixture
                 f.Random.Int(1, 2)));
 
         CharacterRepository = fixture.Freeze<IRepository<Character>>();
-        CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<CharacterService>>();
 
         CharacterService = new CharacterService(
             CharacterRepository,
-            CacheService,
             Logger);
 
         Character = characterFaker.Generate();
@@ -83,7 +81,6 @@ public class CharacterServiceFixture
 
     public ICharacterService CharacterService { get; }
     public IRepository<Character> CharacterRepository { get; set; }
-    public ICacheService CacheService { get; }
     public ILogger<CharacterService> Logger { get; set; }
 
     public int CharacterId { get; }

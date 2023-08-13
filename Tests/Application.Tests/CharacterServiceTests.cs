@@ -27,7 +27,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfCharacterFromRepository_WhenPageParametersAreValid()
+    public async Task GetAllAsync_Should_ReturnPaginatedListOfCharacter_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.CharacterRepository
@@ -42,22 +42,7 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfCharacterFromCache_WhenPageParametersAreValid()
-    {
-        // Arrange
-        _fixture.CacheService
-            .GetAsync<List<Character>>(Arg.Any<string>())
-            .Returns(_fixture.Characters);
-
-        // Act
-        var result = await _fixture.CharacterService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
-
-        // Assert
-        result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Character>>();
-    }
-
-    [Test]
-    public async Task GetByIdAsync_Should_ReturnCharacterFromRepository_WhenCharacterExists()
+    public async Task GetByIdAsync_Should_ReturnCharacter_WhenCharacterExists()
     {
         // Arrange
         _fixture.CharacterRepository
@@ -72,28 +57,9 @@ public class CharacterServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_Should_ReturnCharacterFromCache_WhenCharacterExists()
-    {
-        // Arrange
-        _fixture.CacheService
-            .GetAsync<Character>(Arg.Any<string>())
-            .Returns(_fixture.Character);
-
-        // Act
-        var result = await _fixture.CharacterService.GetByIdAsync(_fixture.CharacterId);
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Character>();
-    }
-
-    [Test]
     public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist()
     {
         // Arrange
-        _fixture.CacheService
-            .GetAsync<Character>(Arg.Any<string>())
-            .ReturnsNull();
-
         _fixture.CharacterRepository
             .GetByIdAsync(Arg.Any<int>())
             .ReturnsNull();

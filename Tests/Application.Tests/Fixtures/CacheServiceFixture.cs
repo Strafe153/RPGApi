@@ -33,7 +33,18 @@ public class CacheServiceFixture
             DistributedCache,
             Logger);
 
-        Bytes = new byte[] { 123, 125 };
+        Bytes = new byte[]
+        { 
+            123, 
+            125 
+        };
+
+        CacheOptions = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60),
+            SlidingExpiration = TimeSpan.FromSeconds(10)
+        };
+
         Player = playerFaker.Generate();
     }
 
@@ -43,5 +54,6 @@ public class CacheServiceFixture
 
     public byte[] Bytes { get; }
     public string Key { get; }
+    public DistributedCacheEntryOptions CacheOptions { get; }
     public Player Player { get; }
 }

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using WebApi.Filters;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Controllers.V1;
@@ -39,6 +40,7 @@ public class MountsController : ControllerBase
     }
 
     [HttpGet]
+    [CacheFilter]
     public async Task<ActionResult<PageDto<MountReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
     {
         var mounts = await _mountService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
@@ -48,6 +50,7 @@ public class MountsController : ControllerBase
     }
 
     [HttpGet("{id:int:min(1)}")]
+    [CacheFilter]
     public async Task<ActionResult<MountReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
     {
         var mount = await _mountService.GetByIdAsync(id, token);

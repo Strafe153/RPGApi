@@ -10,16 +10,13 @@ namespace Application.Services;
 public class CharacterService : ICharacterService
 {
     private readonly IRepository<Character> _characterRepository;
-    private readonly ICacheService _cacheService;
     private readonly ILogger<CharacterService> _logger;
 
     public CharacterService(
         IRepository<Character> repository,
-        ICacheService cacheService,
         ILogger<CharacterService> logger)
     {
         _characterRepository = repository;
-        _cacheService = cacheService;
         _logger = logger;
     }
 
@@ -39,20 +36,7 @@ public class CharacterService : ICharacterService
 
     public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        var key = $"characters:{pageNumber}:{pageSize}";
-        var cachedCharacters = await _cacheService.GetAsync<List<Character>>(key);
-        PaginatedList<Character> characters;
-
-        if (cachedCharacters is null)
-        {
-            characters = await _characterRepository.GetAllAsync(pageNumber, pageSize, token);
-            await _cacheService.SetAsync(key, characters);
-        }
-        else
-        {
-            characters = new(cachedCharacters, cachedCharacters.Count, pageNumber, pageSize);
-        }
-
+        var characters = await _characterRepository.GetAllAsync(pageNumber, pageSize, token);
         _logger.LogInformation("Successfully retrieved all characters");
 
         return characters;
@@ -60,20 +44,12 @@ public class CharacterService : ICharacterService
 
     public async Task<Character> GetByIdAsync(int id, CancellationToken token = default)
     {
-        var key = $"characters:{id}";
-        var character = await _cacheService.GetAsync<Character>(key);
+        var character = await _characterRepository.GetByIdAsync(id, token);
 
         if (character is null)
         {
-            character = await _characterRepository.GetByIdAsync(id, token);
-
-            if (character is null)
-            {
-                _logger.LogWarning("Failed to retrieve a character with id {Id}", id);
-                throw new NullReferenceException($"Character with id {id} not found");
-            }
-
-            await _cacheService.SetAsync(key, character);
+            _logger.LogWarning("Failed to retrieve a character with id {Id}", id);
+            throw new NullReferenceException($"Character with id {id} not found");
         }
 
         _logger.LogInformation("Successfully retrieved a character with id {Id}", id);

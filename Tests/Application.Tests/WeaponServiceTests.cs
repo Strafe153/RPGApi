@@ -21,7 +21,7 @@ public class WeaponServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfWeaponFromRepository_WhenParametersAreValid()
+    public async Task GetAllAsync_Should_ReturnPaginatedListOfWeapon_WhenParametersAreValid()
     {
         // Arrange
         _fixture.WeaponRepository
@@ -36,22 +36,7 @@ public class WeaponServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfWeaponFromCache_WhenParametersAreValid()
-    {
-        // Arrange
-        _fixture.CacheService
-            .GetAsync<List<Weapon>>(Arg.Any<string>())
-            .Returns(_fixture.Weapons);
-
-        // Act
-        var result = await _fixture.WeaponService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
-
-        // Assert
-        result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Weapon>>();
-    }
-
-    [Test]
-    public async Task GetByIdAsync_Should_ReturnWeaponFromRepository_WhenWeaponExists()
+    public async Task GetByIdAsync_Should_ReturnWeapon_WhenWeaponExists()
     {
         // Arrange
         _fixture.WeaponRepository
@@ -66,28 +51,9 @@ public class WeaponServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_Should_ReturnWeaponFromCache_WhenWeaponExists()
-    {
-        // Arrange
-        _fixture.CacheService
-            .GetAsync<Weapon>(Arg.Any<string>())
-            .Returns(_fixture.Weapon);
-
-        // Act
-        var result = await _fixture.WeaponService.GetByIdAsync(_fixture.Id);
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Weapon>();
-    }
-
-    [Test]
     public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
     {
         // Arrange
-        _fixture.CacheService
-            .GetAsync<Weapon>(Arg.Any<string>())
-            .ReturnsNull();
-
         _fixture.WeaponRepository
             .GetByIdAsync(Arg.Any<int>())
             .ReturnsNull();

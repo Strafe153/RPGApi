@@ -10,16 +10,13 @@ namespace Application.Services;
 public class SpellService : IItemService<Spell>
 {
     private readonly IItemRepository<Spell> _repository;
-    private readonly ICacheService _cacheService;
     private readonly ILogger<SpellService> _logger;
 
     public SpellService(
         IItemRepository<Spell> repository,
-        ICacheService cacheService,
         ILogger<SpellService> logger)
     {
         _repository = repository;
-        _cacheService = cacheService;
         _logger = logger;
     }
 
@@ -46,20 +43,7 @@ public class SpellService : IItemService<Spell>
 
     public async Task<PaginatedList<Spell>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        var key = $"spells:{pageNumber}:{pageSize}";
-        var cachedSpells = await _cacheService.GetAsync<List<Spell>>(key);
-        PaginatedList<Spell> spells;
-
-        if (cachedSpells is null)
-        {
-            spells = await _repository.GetAllAsync(pageNumber, pageSize, token);
-            await _cacheService.SetAsync(key, spells);
-        }
-        else
-        {
-            spells = new(cachedSpells, cachedSpells.Count, pageNumber, pageSize);
-        }
-
+        var spells = await _repository.GetAllAsync(pageNumber, pageSize, token);
         _logger.LogInformation("Successfully retrieved all spells");
 
         return spells;
@@ -67,20 +51,12 @@ public class SpellService : IItemService<Spell>
 
     public async Task<Spell> GetByIdAsync(int id, CancellationToken token = default)
     {
-        var key = $"spells:{id}";
-        var spell = await _cacheService.GetAsync<Spell>(key);
+        var spell = await _repository.GetByIdAsync(id, token);
 
         if (spell is null)
         {
-            spell = await _repository.GetByIdAsync(id, token);
-
-            if (spell is null)
-            {
-                _logger.LogWarning("Failed to retrieve a spell with id {Id}", id);
-                throw new NullReferenceException($"Spell with id {id} not found");
-            }
-
-            await _cacheService.SetAsync(key, spell);
+            _logger.LogWarning("Failed to retrieve a spell with id {Id}", id);
+            throw new NullReferenceException($"Spell with id {id} not found");
         }
 
         _logger.LogInformation("Successfully retrieved a spell with id {Id}", id);

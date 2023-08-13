@@ -9,16 +9,13 @@ namespace Application.Services;
 public class MountService : IItemService<Mount>
 {
     private readonly IItemRepository<Mount> _repository;
-    private readonly ICacheService _cacheService;
     private readonly ILogger<MountService> _logger;
 
     public MountService(
         IItemRepository<Mount> repository,
-        ICacheService cacheService,
         ILogger<MountService> logger)
     {
         _repository = repository;
-        _cacheService = cacheService;
         _logger = logger;
     }
 
@@ -45,20 +42,7 @@ public class MountService : IItemService<Mount>
 
     public async Task<PaginatedList<Mount>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        var key = $"mounts:{pageNumber}:{pageSize}";
-        var cachedMounts = await _cacheService.GetAsync<List<Mount>>(key);
-        PaginatedList<Mount> mounts;
-
-        if (cachedMounts is null)
-        {
-            mounts = await _repository.GetAllAsync(pageNumber, pageSize, token);
-            await _cacheService.SetAsync(key, mounts);
-        }
-        else
-        {
-            mounts = new(cachedMounts, cachedMounts.Count, pageNumber, pageSize);
-        }
-
+        var mounts = await _repository.GetAllAsync(pageNumber, pageSize, token);
         _logger.LogInformation("Successfully retrieved all mounts");
 
         return mounts;
@@ -66,20 +50,12 @@ public class MountService : IItemService<Mount>
 
     public async Task<Mount> GetByIdAsync(int id, CancellationToken token = default)
     {
-        var key = $"mounts:{id}";
-        var mount = await _cacheService.GetAsync<Mount>(key);
+        var mount = await _repository.GetByIdAsync(id, token);
 
         if (mount is null)
         {
-            mount = await _repository.GetByIdAsync(id, token);
-
-            if (mount is null)
-            {
-                _logger.LogWarning("Failed to retrieve a mount with id {Id}", id);
-                throw new NullReferenceException($"Mount with id {id} not found");
-            }
-
-            await _cacheService.SetAsync(key, mount);
+            _logger.LogWarning("Failed to retrieve a mount with id {Id}", id);
+            throw new NullReferenceException($"Mount with id {id} not found");
         }
 
         _logger.LogInformation("Successfully retrieved a mount with id {Id}", id);
