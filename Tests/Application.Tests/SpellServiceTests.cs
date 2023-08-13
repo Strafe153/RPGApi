@@ -21,7 +21,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfSpellFromRepository_WhenPageParametersAreValid()
+    public async Task GetAllAsync_Should_ReturnPaginatedListOfSpell_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.SpellRepository
@@ -36,22 +36,7 @@ public class SpellServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfSpellFromCache_WhenPageParametersAreValid()
-    {
-        // Arrange
-        _fixture.CacheService
-            .GetAsync<List<Spell>>(Arg.Any<string>())
-            .Returns(_fixture.Spells);
-
-        // Act
-        var result = await _fixture.SpellService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
-
-        // Assert
-        result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Spell>>();
-    }
-
-    [Test]
-    public async Task GetByIdAsync_Should_ReturnSpellFromRepository_WhenSpellExists()
+    public async Task GetByIdAsync_Should_ReturnSpell_WhenSpellExists()
     {
         // Arrange
         _fixture.SpellRepository
@@ -66,28 +51,9 @@ public class SpellServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_Should_ReturnSpellFromCache_WhenSpellExists()
-    {
-        // Arrange
-        _fixture.CacheService
-            .GetAsync<Spell>(Arg.Any<string>())
-            .Returns(_fixture.Spell);
-
-        // Act
-        var result = await _fixture.SpellService.GetByIdAsync(_fixture.Id);
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Spell>();
-    }
-
-    [Test]
     public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
     {
         // Arrange
-        _fixture.CacheService
-            .GetAsync<Spell>(Arg.Any<string>())
-            .ReturnsNull();
-
         _fixture.SpellRepository
             .GetByIdAsync(Arg.Any<int>())
             .ReturnsNull();

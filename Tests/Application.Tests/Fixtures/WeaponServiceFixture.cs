@@ -42,12 +42,10 @@ public class WeaponServiceFixture
                 f.Random.Int(1, 2)));
 
         WeaponRepository = fixture.Freeze<IItemRepository<Weapon>>();
-        CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<WeaponService>>();
 
         WeaponService = new WeaponService(
             WeaponRepository,
-            CacheService,
             Logger);
 
         Weapon = weaponFaker.Generate();
@@ -60,7 +58,6 @@ public class WeaponServiceFixture
 
     public IItemService<Weapon> WeaponService { get; }
     public IItemRepository<Weapon> WeaponRepository { get; }
-    public ICacheService CacheService { get; }
     public ILogger<WeaponService> Logger { get; set; }
 
     public int Id { get; }

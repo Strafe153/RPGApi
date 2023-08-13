@@ -23,7 +23,7 @@ public class PlayerServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfPlayerFromRepository_WhenParametersAreValid()
+    public async Task GetAllAsync_Should_ReturnPaginatedListOfPlayer_WhenParametersAreValid()
     {
         // Arrange
         _fixture.PlayerRepository
@@ -38,41 +38,11 @@ public class PlayerServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfPlayerFromCache_WhenParametersAreValid()
-    {
-        // Arrange
-        _fixture.CacheService
-            .GetAsync<List<Player>>(Arg.Any<string>())
-            .Returns(_fixture.Players);
-
-        // Act
-        var result = await _fixture.PlayerService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
-
-        // Assert
-        result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Player>>();
-    }
-
-    [Test]
-    public async Task GetByIdAsync_Should_ReturnPlayerFromRepository_WhenPlayerExists()
+    public async Task GetByIdAsync_Should_ReturnPlayer_WhenPlayerExists()
     {
         // Arrange
         _fixture.PlayerRepository
             .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Player);
-
-        // Act
-        var result = await _fixture.PlayerService.GetByIdAsync(_fixture.Id);
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Player>();
-    }
-
-    [Test]
-    public async Task GetByIdAsync_Should_ReturnPlayerFromCache_WhenPlayerExists()
-    {
-        // Arrange
-        _fixture.CacheService
-            .GetAsync<Player>(Arg.Any<string>())
             .Returns(_fixture.Player);
 
         // Act
@@ -86,10 +56,6 @@ public class PlayerServiceTests
     public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
     {
         // Arrange
-        _fixture.CacheService
-            .GetAsync<Player>(Arg.Any<string>())
-            .ReturnsNull();
-
         _fixture.PlayerRepository
             .GetByIdAsync(Arg.Any<int>())
             .ReturnsNull();
@@ -102,30 +68,11 @@ public class PlayerServiceTests
     }
 
     [Test]
-    public async Task GetByNameAsync_Should_ReturnPlayerFromRepository_WhenPlayerExists()
+    public async Task GetByNameAsync_Should_ReturnPlayer_WhenPlayerExists()
     {
         // Arrange
-        _fixture.CacheService
-            .GetAsync<Player>(Arg.Any<string>())
-            .ReturnsNull();
-
         _fixture.PlayerRepository
             .GetByNameAsync(Arg.Any<string>())
-            .Returns(_fixture.Player);
-
-        // Act
-        var result = await _fixture.PlayerService.GetByNameAsync(_fixture.Name);
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Player>();
-    }
-
-    [Test]
-    public async Task GetByNameAsync_Should_ReturnPlayerFromCache_WhenPlayerExists()
-    {
-        // Arrange
-        _fixture.CacheService
-            .GetAsync<Player>(Arg.Any<string>())
             .Returns(_fixture.Player);
 
         // Act
@@ -139,10 +86,6 @@ public class PlayerServiceTests
     public async Task GetByNameAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
     {
         // Arrange
-        _fixture.CacheService
-            .GetAsync<Player>(Arg.Any<string>())
-            .ReturnsNull();
-
         _fixture.PlayerRepository
             .GetByNameAsync(Arg.Any<string>())
             .ReturnsNull();

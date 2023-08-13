@@ -42,12 +42,10 @@ public class SpellServiceFixture
                 PageSize));
 
         SpellRepository = fixture.Freeze<IItemRepository<Spell>>();
-        CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<SpellService>>();
 
         SpellService = new SpellService(
             SpellRepository,
-            CacheService,
             Logger);
 
         Spell = spellFaker.Generate();
@@ -60,7 +58,6 @@ public class SpellServiceFixture
 
     public IItemService<Spell> SpellService { get; }
     public IItemRepository<Spell> SpellRepository { get; }
-    public ICacheService CacheService { get; }
     public ILogger<SpellService> Logger { get; set; }
 
     public int Id { get; }

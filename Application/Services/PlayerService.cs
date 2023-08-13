@@ -14,18 +14,15 @@ namespace Application.Services;
 public class PlayerService : IPlayerService
 {
     private readonly IPlayerRepository _repository;
-    private readonly ICacheService _cacheService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<PlayerService> _logger;
 
     public PlayerService(
         IPlayerRepository repository,
-        ICacheService cacheService,
         IHttpContextAccessor httpContextAccessor,
         ILogger<PlayerService> logger)
     {
         _repository = repository;
-        _cacheService = cacheService;
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
     }
@@ -54,20 +51,7 @@ public class PlayerService : IPlayerService
 
     public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        var key = $"players:{pageNumber}:{pageSize}";
-        var cachedPlayers = await _cacheService.GetAsync<List<Player>>(key);
-        PaginatedList<Player> players;
-
-        if (cachedPlayers is null)
-        {
-            players = await _repository.GetAllAsync(pageNumber, pageSize, token);
-            await _cacheService.SetAsync(key, players);
-        }
-        else
-        {
-            players = new(cachedPlayers, cachedPlayers.Count, pageNumber, pageSize);
-        }
-
+        var players = await _repository.GetAllAsync(pageNumber, pageSize, token);
         _logger.LogInformation("Successfully retrieved all players");
 
         return players;
@@ -75,20 +59,12 @@ public class PlayerService : IPlayerService
 
     public async Task<Player> GetByIdAsync(int id, CancellationToken token = default)
     {
-        var key = $"players:{id}";
-        var player = await _cacheService.GetAsync<Player>(key);
+        var player = await _repository.GetByIdAsync(id, token);
 
         if (player is null)
         {
-            player = await _repository.GetByIdAsync(id, token);
-
-            if (player is null)
-            {
-                _logger.LogWarning("Failed to retrieve a player with id {Id}", id);
-                throw new NullReferenceException($"Player with id {id} not found");
-            }
-
-            await _cacheService.SetAsync(key, player);
+            _logger.LogWarning("Failed to retrieve a player with id {Id}", id);
+            throw new NullReferenceException($"Player with id {id} not found");
         }
 
         _logger.LogInformation("Successfully retrieved a player with id {Id}", id);
@@ -98,20 +74,12 @@ public class PlayerService : IPlayerService
 
     public async Task<Player> GetByNameAsync(string name, CancellationToken token = default)
     {
-        var key = $"players:{name}";
-        var player = await _cacheService.GetAsync<Player>(key);
+        var player = await _repository.GetByNameAsync(name, token);
         
         if (player is null)
         {
-            player = await _repository.GetByNameAsync(name, token);
-
-            if (player is null)
-            {
-                _logger.LogWarning("Failed to retrieve a player with name '{Name}'", name);
-                throw new NullReferenceException($"Player with name '{name}' not found");
-            }
-
-            await _cacheService.SetAsync(key, player);
+            _logger.LogWarning("Failed to retrieve a player with name '{Name}'", name);
+            throw new NullReferenceException($"Player with name '{name}' not found");
         }
 
         _logger.LogInformation("Successfully retrieved a player with name '{Name}'", name);

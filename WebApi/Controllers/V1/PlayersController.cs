@@ -7,6 +7,7 @@ using Core.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using WebApi.Filters;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Controllers.V1;
@@ -39,6 +40,7 @@ public class PlayersController : ControllerBase
     }
 
     [HttpGet]
+    [CacheFilter]
     public async Task<ActionResult<PageDto<PlayerReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
     {
         var players = await _playerService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
@@ -48,6 +50,7 @@ public class PlayersController : ControllerBase
     }
 
     [HttpGet("{id:int:min(1)}")]
+    [CacheFilter]
     public async Task<ActionResult<PlayerReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
     {
         var player = await _playerService.GetByIdAsync(id, token);

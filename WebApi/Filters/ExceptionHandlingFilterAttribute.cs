@@ -7,7 +7,7 @@ using System.Net;
 
 namespace WebApi.Filters;
 
-public class ExceptionHandlingFilter : ExceptionFilterAttribute
+public class ExceptionHandlingFilterAttribute : ExceptionFilterAttribute
 {
     public override void OnException(ExceptionContext context)
     {

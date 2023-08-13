@@ -21,7 +21,7 @@ public class MountServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfMountsFromRepository_WhenParametersAreValid()
+    public async Task GetAllAsync_Should_ReturnPaginatedListOfMounts_WhenParametersAreValid()
     {
         // Arrange
         _fixture.MountRepository
@@ -36,22 +36,7 @@ public class MountServiceTests
     }
 
     [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfMountFromCache_WhenParametersAreValid()
-    {
-        // Arrange
-        _fixture.CacheService
-            .GetAsync<List<Mount>>(Arg.Any<string>())
-            .Returns(_fixture.Mounts);
-
-        // Act
-        var result = await _fixture.MountService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
-
-        // Assert
-        result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Mount>>();
-    }
-
-    [Test]
-    public async Task GetByIdAsync_Should_ReturnMountFromRepository_WhenMountsExists()
+    public async Task GetByIdAsync_Should_ReturnMount_WhenMountsExists()
     {
         // Arrange
         _fixture.MountRepository
@@ -66,28 +51,9 @@ public class MountServiceTests
     }
 
     [Test]
-    public async Task GetByIdAsync_Should_ReturnMountFromCache_WhenMountExists()
-    {
-        // Arrange
-        _fixture.CacheService
-            .GetAsync<Mount>(Arg.Any<string>())
-            .Returns(_fixture.Mount);
-
-        // Act
-        var result = await _fixture.MountService.GetByIdAsync(_fixture.Id);
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Mount>();
-    }
-
-    [Test]
     public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenMountDoesNotExist()
     {
         // Arrange
-        _fixture.CacheService
-            .GetAsync<Mount>(Arg.Any<string>())
-            .ReturnsNull();
-
         _fixture.MountRepository
             .GetByIdAsync(Arg.Any<int>())
             .ReturnsNull();

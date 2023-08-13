@@ -26,7 +26,7 @@ public class CacheServiceTests
             .Returns(_fixture.Bytes);
 
         // Act
-        var result = await _fixture.CacheService.GetAsync<Player>(_fixture.Key);
+        var result = await _fixture.CacheService.GetAsync(_fixture.Key);
 
         // Assert
         result.Should().NotBeNull();
@@ -41,7 +41,7 @@ public class CacheServiceTests
             .Returns((byte[])null!);
 
         // Act
-        var result = await _fixture.CacheService.GetAsync<Player>(_fixture.Key);
+        var result = await _fixture.CacheService.GetAsync(_fixture.Key);
 
         // Assert
         result.Should().BeNull();
@@ -51,7 +51,7 @@ public class CacheServiceTests
     public void SetAsync_Should_ReturnTask_WhenDataIsValid()
     {
         // Act
-        var result = async () => await _fixture.CacheService.SetAsync(_fixture.Key, _fixture.Player);
+        var result = async () => await _fixture.CacheService.SetAsync(_fixture.Key, _fixture.Player, _fixture.CacheOptions);
 
         // Assert
         result.Should().NotBeNull();

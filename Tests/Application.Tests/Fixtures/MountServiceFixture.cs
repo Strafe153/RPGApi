@@ -42,12 +42,10 @@ public class MountServiceFixture
                 PageSize));
 
         MountRepository = fixture.Freeze<IItemRepository<Mount>>();
-        CacheService = fixture.Freeze<ICacheService>();
         Logger = fixture.Freeze<ILogger<MountService>>();
 
         MountService = new MountService(
             MountRepository,
-            CacheService,
             Logger);
 
         Mount = mountFaker.Generate();
@@ -60,7 +58,6 @@ public class MountServiceFixture
 
     public IItemService<Mount> MountService { get; }
     public IItemRepository<Mount> MountRepository { get; }
-    public ICacheService CacheService { get; }
     public ILogger<MountService> Logger { get; }
 
     public int Id { get; }

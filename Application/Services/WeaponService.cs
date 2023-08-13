@@ -10,16 +10,13 @@ namespace Application.Services;
 public class WeaponService : IItemService<Weapon>
 {
     private readonly IItemRepository<Weapon> _repository;
-    private readonly ICacheService _cacheService;
     private readonly ILogger<WeaponService> _logger;
 
     public WeaponService(
         IItemRepository<Weapon> repository,
-        ICacheService cacheService,
         ILogger<WeaponService> logger)
     {
         _repository = repository;
-        _cacheService = cacheService;
         _logger = logger;
     }
 
@@ -46,20 +43,7 @@ public class WeaponService : IItemService<Weapon>
 
     public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        var key = $"weapons:{pageNumber}:{pageSize}";
-        var cachedWeapons = await _cacheService.GetAsync<List<Weapon>>(key);
-        PaginatedList<Weapon> weapons;
-
-        if (cachedWeapons is null)
-        {
-            weapons = await _repository.GetAllAsync(pageNumber, pageSize, token);
-            await _cacheService.SetAsync(key, weapons);
-        }
-        else
-        {
-            weapons = new(cachedWeapons, cachedWeapons.Count, pageNumber, pageSize);
-        }
-
+        var weapons = await _repository.GetAllAsync(pageNumber, pageSize, token);
         _logger.LogInformation("Successfully retrieved all weapons");
 
         return weapons;
@@ -67,20 +51,12 @@ public class WeaponService : IItemService<Weapon>
 
     public async Task<Weapon> GetByIdAsync(int id, CancellationToken token = default)
     {
-        var key = $"weapons:{id}";
-        var weapon = await _cacheService.GetAsync<Weapon>(key);
+        var weapon = await _repository.GetByIdAsync(id, token);
 
         if (weapon is null)
         {
-            weapon = await _repository.GetByIdAsync(id, token);
-
-            if (weapon is null)
-            {
-                _logger.LogWarning("Failed to retrieve a weapon with id {Id}", id);
-                throw new NullReferenceException($"Weapon with id {id} not found");
-            }
-
-            await _cacheService.SetAsync(key, weapon);
+            _logger.LogWarning("Failed to retrieve a weapon with id {Id}", id);
+            throw new NullReferenceException($"Weapon with id {id} not found");
         }
 
         _logger.LogInformation("Successfully retrieved a weapon with id {Id}", id);

@@ -45,13 +45,11 @@ public class PlayerServiceFixture
                 PageSize));
 
         PlayerRepository = fixture.Freeze<IPlayerRepository>();
-        CacheService = fixture.Freeze<ICacheService>();
         HttpContextAccessor = fixture.Freeze<IHttpContextAccessor>();
         Logger = fixture.Freeze<ILogger<PlayerService>>();
 
         PlayerService = new PlayerService(
             PlayerRepository,
-            CacheService,
             HttpContextAccessor,
             Logger);
 
@@ -66,7 +64,6 @@ public class PlayerServiceFixture
 
     public IPlayerService PlayerService { get; }
     public IPlayerRepository PlayerRepository { get; }
-    public ICacheService CacheService { get; }
     public IHttpContextAccessor HttpContextAccessor { get; }
     public ILogger<PlayerService> Logger { get; }
 

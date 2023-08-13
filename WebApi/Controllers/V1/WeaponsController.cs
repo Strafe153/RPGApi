@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using WebApi.Filters;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Controllers.V1;
@@ -45,6 +46,7 @@ public class WeaponsController : ControllerBase
     }
 
     [HttpGet]
+    [CacheFilter]
     public async Task<ActionResult<PageDto<WeaponReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
     {
         var weapons = await _weaponService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
@@ -54,6 +56,7 @@ public class WeaponsController : ControllerBase
     }
 
     [HttpGet("{id:int:min(1)}")]
+    [CacheFilter]
     public async Task<ActionResult<WeaponReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
     {
         var weapon = await _weaponService.GetByIdAsync(id, token);
