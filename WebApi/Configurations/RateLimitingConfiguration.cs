@@ -8,11 +8,7 @@ public static class RateLimitingConfiguration
 {
     public static void ConfigureRateLimiting(this IServiceCollection services, IConfiguration configuration)
     {
-        var rateLimitOptions = new RateLimitOptions();
-
-        configuration
-            .GetSection(RateLimitOptions.RateLimitSettingsSectionName)
-            .Bind(rateLimitOptions);
+        var rateLimitOptions = configuration.Get<RateLimitOptions>()!;
 
         services.AddRateLimiter(options =>
         {

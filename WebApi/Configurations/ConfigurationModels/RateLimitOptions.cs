@@ -2,8 +2,6 @@
 
 public class RateLimitOptions
 {
-    public static string RateLimitSettingsSectionName = "RateLimitSettings";
-
     public int PermitLimit { get; set; } = 100;
     public int Window { get; set; } = 10;
     public int ReplenishmentPeriod { get; set; } = 2;
