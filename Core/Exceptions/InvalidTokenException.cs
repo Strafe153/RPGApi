@@ -2,8 +2,17 @@
 
 public class InvalidTokenException : ApplicationException
 {
-	public InvalidTokenException(string message)
+    public InvalidTokenException()
+    {
+    }
+
+    public InvalidTokenException(string message)
 		: base(message)
 	{
 	}
+
+    public InvalidTokenException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+    }
 }
