@@ -14,7 +14,7 @@ public class CharactersControllerTests
 {
     private CharactersControllerFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
         _fixture = new CharactersControllerFixture();

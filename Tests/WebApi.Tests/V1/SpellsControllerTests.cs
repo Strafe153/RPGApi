@@ -16,7 +16,7 @@ public class SpellsControllerTests
 {
     private SpellsControllerFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
         _fixture = new SpellsControllerFixture();

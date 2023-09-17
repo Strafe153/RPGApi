@@ -15,7 +15,7 @@ public class WeaponControllerTests
 {
     private WeaponsControllerFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
         _fixture = new WeaponsControllerFixture();

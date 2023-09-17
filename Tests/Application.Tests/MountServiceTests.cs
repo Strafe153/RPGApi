@@ -14,7 +14,7 @@ public class MountServiceTests
 {
     private MountServiceFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
         _fixture = new MountServiceFixture();

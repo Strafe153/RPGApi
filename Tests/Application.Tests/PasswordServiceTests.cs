@@ -10,7 +10,7 @@ public class PasswordServiceTests
 {
     private PasswordServiceFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
         _fixture = new PasswordServiceFixture();

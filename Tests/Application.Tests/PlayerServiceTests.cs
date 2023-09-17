@@ -16,7 +16,7 @@ public class PlayerServiceTests
 {
     private PlayerServiceFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
         _fixture = new PlayerServiceFixture();

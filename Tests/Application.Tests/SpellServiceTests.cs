@@ -14,7 +14,7 @@ public class SpellServiceTests
 {
     private SpellServiceFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
         _fixture = new SpellServiceFixture();

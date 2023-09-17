@@ -14,7 +14,7 @@ public class WeaponServiceTests
 {
     private WeaponServiceFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
         _fixture = new WeaponServiceFixture();

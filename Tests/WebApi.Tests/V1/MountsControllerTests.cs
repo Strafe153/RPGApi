@@ -14,7 +14,7 @@ public class MountsControllerTests
 {
     private MountsControllerFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
         _fixture = new MountsControllerFixture();

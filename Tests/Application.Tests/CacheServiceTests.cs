@@ -11,7 +11,7 @@ public class CacheServiceTests
 {
     private CacheServiceFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
         _fixture = new CacheServiceFixture();

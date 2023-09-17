@@ -53,7 +53,7 @@ public class CharacterServiceFixture
         characterFaker
             .RuleFor(c => c.Id, CharacterId)
             .RuleFor(c => c.Name, f => f.Internet.UserName())
-            .RuleFor(c => c.Health, f => f.Random.Int(1, 100))
+            .RuleFor(c => c.Health, 100)
             .RuleFor(c => c.Race, f => (CharacterRace)f.Random.Int(Enum.GetValues(typeof(CharacterRace)).Length))
             .RuleFor(c => c.CharacterWeapons, new[] { characterWeaponFaker.Generate() })
             .RuleFor(c => c.CharacterSpells, new[] {characterSpellFaker.Generate() });

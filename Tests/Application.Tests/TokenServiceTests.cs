@@ -11,7 +11,7 @@ public class TokenServiceTests
 {
     private TokenServiceFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void OneTimeSetUp()
     {
         _fixture = new TokenServiceFixture();

@@ -15,7 +15,7 @@ public class PlayersControllerTests
 {
     private PlayersControllerFixture _fixture = default!;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void SetUp()
     {
         _fixture = new PlayersControllerFixture();
