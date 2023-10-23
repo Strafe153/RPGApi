@@ -19,16 +19,20 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task<int> AddAsync(Player entity)
     {
-        var query = @"INSERT INTO ""Players"" (""Name"", ""Role"", ""PasswordHash"", ""PasswordSalt"")
-                      VALUES (@Name, @Role, @PasswordHash, @PasswordSalt)
-                      RETURNING ""Id""";
         var queryParams = new
         {
-            Name = entity.Name,
+            entity.Name,
             Role = PlayerRole.Player,
-            PasswordHash = entity.PasswordHash,
-            PasswordSalt = entity.PasswordSalt
+            entity.PasswordHash,
+            entity.PasswordSalt
         };
+
+        var query = @"
+            INSERT INTO ""Players""
+                (""Name"", ""Role"", ""PasswordHash"", ""PasswordSalt"")
+            VALUES
+                (@Name, @Role, @PasswordHash, @PasswordSalt)
+            RETURNING ""Id""";
 
         using var connection = _context.CreateConnection();
         var id = await connection.ExecuteScalarAsync<int>(query, queryParams);
@@ -38,9 +42,10 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task DeleteAsync(int id)
     {
-        var query = @"DELETE FROM ""Players"" 
-                      WHERE ""Id"" = @Id";
         var queryParams = new { Id = id };
+        var query = @"
+            DELETE FROM ""Players"" 
+            WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
@@ -48,19 +53,30 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        var query = @"SELECT *
-                      FROM ""Players"" AS p
-                      LEFT JOIN ""Characters"" AS c on p.""Id"" = c.""PlayerId""
-                      ORDER BY p.""Id"" ASC";
+        var queryParams = new
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var query = @"
+            SELECT p.*,
+                   c.*
+            FROM ""Players"" AS p
+            LEFT JOIN ""Characters"" AS c on p.""Id"" = c.""PlayerId""
+            ORDER BY p.""Id"" ASC
+            OFFSET @PageSize * (@PageNumber - 1)
+            LIMIT @PageSize";
 
         using var connection = _context.CreateConnection();
         var queryResult = await connection.QueryAsync<Player, Character, Player>(
-            new CommandDefinition(query, cancellationToken: token), 
+            new CommandDefinition(query, queryParams, cancellationToken: token), 
             (player, character) =>
             {
                 player.Characters.Add(character);
                 return player;
-            });
+            },
+            splitOn: "Id");
 
         var paginatedList = queryResult
             .GroupBy(p => p.Id)
@@ -73,16 +89,19 @@ public class PlayerRepository : IPlayerRepository
             })
             .ToPaginatedList(pageNumber, pageSize);
 
+
         return paginatedList;
     }
 
     public async Task<Player?> GetByIdAsync(int id, CancellationToken token = default)
     {
-        var query = @"SELECT *
-                      FROM ""Players"" AS p
-                      LEFT JOIN ""Characters"" AS c on p.""Id"" = c.""PlayerId""
-                      WHERE p.""Id"" = @Id";
         var queryParams = new { Id = id };
+        var query = @"
+            SELECT p.*,
+                   c.*
+            FROM ""Players"" AS p
+            LEFT JOIN ""Characters"" AS c on p.""Id"" = c.""PlayerId""
+            WHERE p.""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
         var queryResult = await connection.QueryAsync<Player, Character, Player>(
@@ -109,10 +128,11 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task<Player?> GetByNameAsync(string name, CancellationToken token = default)
     {
-        var query = @"SELECT *
-                      FROM ""Players""
-                      WHERE ""Name"" = @Name";
         var queryParams = new { Name = name };
+        var query = @"
+            SELECT *
+            FROM ""Players""
+            WHERE ""Name"" = @Name";
 
         using var connection = _context.CreateConnection();
         var player = await connection.QueryFirstOrDefaultAsync<Player>(new CommandDefinition(query, queryParams, cancellationToken: token));
@@ -122,23 +142,25 @@ public class PlayerRepository : IPlayerRepository
 
     public async Task UpdateAsync(Player entity)
     {
-        var query = @"UPDATE ""Players"" 
-                      SET ""Name"" = @Name, ""Role"" = @Role,
-                          ""PasswordHash"" = @PasswordHash,
-                          ""PasswordSalt"" = @PasswordSalt,
-                          ""RefreshToken"" = @RefreshToken,
-                          ""RefreshTokenExpiryDate"" = @RefreshTokenExpiryDate
-                      WHERE ""Id"" = @Id";
-        var queryParams = new 
+        var queryParams = new
         {
-            Name = entity.Name,
-            Role = entity.Role,
-            PasswordHash = entity.PasswordHash,
-            PasswordSalt = entity.PasswordSalt,
-            RefreshToken = entity.RefreshToken,
-            RefreshTokenExpiryDate = entity.RefreshTokenExpiryDate,
-            Id = entity.Id
+            entity.Id,
+            entity.Name,
+            entity.Role,
+            entity.PasswordHash,
+            entity.PasswordSalt,
+            entity.RefreshToken,
+            entity.RefreshTokenExpiryDate
         };
+
+        var query = @"
+            UPDATE ""Players"" 
+            SET ""Name"" = @Name, ""Role"" = @Role,
+                ""PasswordHash"" = @PasswordHash,
+                ""PasswordSalt"" = @PasswordSalt,
+                ""RefreshToken"" = @RefreshToken,
+                ""RefreshTokenExpiryDate"" = @RefreshTokenExpiryDate
+            WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);

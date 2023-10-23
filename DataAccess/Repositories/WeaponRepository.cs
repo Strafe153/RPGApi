@@ -18,15 +18,19 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task<int> AddAsync(Weapon entity)
     {
-        var query = @"INSERT INTO ""Weapons"" (""Name"", ""Type"", ""Damage"") 
-                      VALUES (@Name, @Type, @Damage)
-                      RETURNING ""Id""";
         var queryParams = new
         {
-            Name = entity.Name,
-            Type = entity.Type,
-            Damage = entity.Damage
+            entity.Name,
+            entity.Type,
+            entity.Damage
         };
+
+        var query = @"
+            INSERT INTO ""Weapons""
+                (""Name"", ""Type"", ""Damage"") 
+            VALUES
+                (@Name, @Type, @Damage)
+            RETURNING ""Id""";
 
         using var connection = _context.CreateConnection();
         var id = await connection.ExecuteScalarAsync<int>(query, queryParams);
@@ -36,9 +40,10 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task DeleteAsync(int id)
     {
-        var query = @"DELETE FROM ""Weapons"" 
-                      WHERE ""Id"" = @Id";
         var queryParams = new { Id = id };
+        var query = @"
+            DELETE FROM ""Weapons"" 
+            WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
@@ -46,75 +51,87 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        var weaponsQuery = @"SELECT *
-                             FROM ""Weapons""
-                             ORDER BY ""Id"" ASC";
-        var characterWeaponsQuery = @"SELECT *
-                                      FROM ""CharacterWeapons"" AS cw
-                                      LEFT JOIN ""Characters"" AS c on cw.""CharacterId"" = c.""Id""";
+        var queryParams = new
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var query = @"
+            SELECT w.*,
+                   cw.*,
+                   c.*
+            FROM ""Weapons"" AS w
+            LEFT JOIN ""CharacterWeapons"" AS cw ON w.""Id"" = cw.""WeaponId""
+            LEFT JOIN ""Characters"" AS c ON cw.""CharacterId"" = c.""Id""
+            ORDER BY w.""Id"" ASC
+            OFFSET @PageSize * (@PageNumber - 1)
+            LIMIT @PageSize";
 
         using var connection = _context.CreateConnection();
-        var weapons = await connection.QueryAsync<Weapon>(new CommandDefinition(weaponsQuery, cancellationToken: token));
-        var characterWeapons = await GetCharacterWeaponsAsync(characterWeaponsQuery, token);
-
-        var paginatedList = weapons
-            .GroupBy(w => w.Id)
-            .Select(g =>
+        var queryResult = await connection.QueryAsync<Weapon, CharacterWeapon, Character, Weapon>(
+            new CommandDefinition(query, queryParams, cancellationToken: token),
+            (weapon, characterWeapon, character) =>
             {
-                var w = g.First();
-                w.CharacterWeapons = characterWeapons.Where(cw => cw.WeaponId == w.Id).ToList();
+                if (characterWeapon is not null)
+                {
+                    characterWeapon.Character = character;
+                    weapon.CharacterWeapons.Add(characterWeapon);
+                }
 
-                return w;
-            })
-            .ToPaginatedList(pageNumber, pageSize);
+                return weapon;
+            },
+            splitOn: "Id, CharacterId, Id");
 
-        return paginatedList;
+        return queryResult.ToPaginatedList(pageNumber, pageSize);
     }
 
     public async Task<Weapon?> GetByIdAsync(int id, CancellationToken token = default)
     {
         var queryParams = new { Id = id };
-        var weaponQuery = @"SELECT *
-                            FROM ""Weapons""
-                            WHERE ""Id"" = @Id";
-        var characterWeaponsQuery = @$"SELECT *
-                                       FROM ""CharacterWeapons"" AS cw
-                                       LEFT JOIN ""Characters"" AS c on cw.""CharacterId"" = c.""Id""
-                                       WHERE cw.""WeaponId"" = {id}";
+        var query = @"
+            SELECT w.*,
+                   cw.*,
+                   c.*
+            FROM ""Weapons"" AS w
+            LEFT JOIN ""CharacterWeapons"" AS cw ON w.""Id"" = cw.""WeaponId""
+            LEFT JOIN ""Characters"" AS c ON cw.""CharacterId"" = c.""Id""
+            WHERE w.""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
-        var weapons = await connection.QueryAsync<Weapon>(
-            new CommandDefinition(weaponQuery, queryParams, cancellationToken: token));
-        var characterWeapons = await GetCharacterWeaponsAsync(characterWeaponsQuery, token);
-
-        var weapon = weapons
-            .GroupBy(w => w.Id)
-            .Select(g =>
+        var queryResult = await connection.QueryAsync<Weapon, CharacterWeapon, Character, Weapon>(
+            new CommandDefinition(query, queryParams, cancellationToken: token),
+            (weapon, characterWeapon, character) =>
             {
-                var w = g.First();
-                w.CharacterWeapons = characterWeapons.ToList();
+                if (characterWeapon is not null)
+                {
+                    characterWeapon.Character = character;
+                    weapon.CharacterWeapons.Add(characterWeapon);
+                }
 
-                return w;
-            })
-            .FirstOrDefault();
+                return weapon;
+            },
+            splitOn: "Id, CharacterId, Id");
 
-        return weapon;
+        return queryResult.FirstOrDefault();
     }
 
     public async Task UpdateAsync(Weapon entity)
     {
-        var query = @"UPDATE ""Weapons"" 
-                      SET ""Name"" = @Name,
-                          ""Type"" = @Type,
-                          ""Damage"" = @Damage
-                      WHERE ""Id"" = @Id";
         var queryParams = new
         {
-            Name = entity.Name,
-            Type = entity.Type,
-            Damage = entity.Damage,
-            Id = entity.Id
+            entity.Name,
+            entity.Type,
+            entity.Damage,
+            entity.Id
         };
+
+        var query = @"
+            UPDATE ""Weapons"" 
+            SET ""Name"" = @Name,
+                ""Type"" = @Type,
+                ""Damage"" = @Damage
+            WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
@@ -122,13 +139,17 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task AddToCharacterAsync(Character character, Weapon item)
     {
-        var query = @"INSERT INTO ""CharacterWeapons"" (""CharacterId"", ""WeaponId"")
-                      VALUES (@CharacterId, @WeaponId)";
         var queryParams = new
         {
             CharacterId = character.Id,
             WeaponId = item.Id
         };
+
+        var query = @"
+            INSERT INTO ""CharacterWeapons""
+                (""CharacterId"", ""WeaponId"")
+            VALUES
+                (@CharacterId, @WeaponId)";
 
         using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
@@ -136,30 +157,18 @@ public class WeaponRepository : IItemRepository<Weapon>
 
     public async Task RemoveFromCharacterAsync(Character character, Weapon item)
     {
-        var query = @"DELETE FROM ""CharacterWeapons""
-                      WHERE ""CharacterId"" = @CharacterId
-                            AND ""WeaponId"" = @WeaponId";
         var queryParams = new
         {
             CharacterId = character.Id,
             WeaponId = item.Id
         };
 
+        var query = @"
+            DELETE FROM ""CharacterWeapons""
+            WHERE ""CharacterId"" = @CharacterId
+                  AND ""WeaponId"" = @WeaponId";
+
         using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
-    }
-
-    private async Task<IEnumerable<CharacterWeapon>> GetCharacterWeaponsAsync(string query, CancellationToken token)
-    {
-        using var connection = _context.CreateConnection();
-        var characterWeapons = await connection.QueryAsync<CharacterWeapon, Character, CharacterWeapon>(
-            new CommandDefinition(query, cancellationToken: token),
-            (characterWeapon, character) =>
-            {
-                characterWeapon.Character = character;
-                return characterWeapon;
-            });
-
-        return characterWeapons;
     }
 }

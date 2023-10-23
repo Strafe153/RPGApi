@@ -18,15 +18,19 @@ public class SpellRepository : IItemRepository<Spell>
 
     public async Task<int> AddAsync(Spell entity)
     {
-        var query = @"INSERT INTO ""Spells"" (""Name"", ""Type"", ""Damage"") 
-                      VALUES (@Name, @Type, @Damage)
-                      RETURNING ""Id""";
         var queryParams = new
         {
-            Name = entity.Name,
-            Type = entity.Type,
-            Damage = entity.Damage
+            entity.Name,
+            entity.Type,
+            entity.Damage
         };
+
+        var query = @"
+            INSERT INTO ""Spells""
+                (""Name"", ""Type"", ""Damage"") 
+            VALUES
+                (@Name, @Type, @Damage)
+            RETURNING ""Id""";
 
         using var connection = _context.CreateConnection();
         var id = await connection.ExecuteScalarAsync<int>(query, queryParams);
@@ -36,9 +40,10 @@ public class SpellRepository : IItemRepository<Spell>
 
     public async Task DeleteAsync(int id)
     {
-        var query = @"DELETE FROM ""Spells"" 
-                      WHERE ""Id"" = @Id";
         var queryParams = new { Id = id };
+        var query = @"
+            DELETE FROM ""Spells"" 
+            WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
@@ -46,75 +51,87 @@ public class SpellRepository : IItemRepository<Spell>
 
     public async Task<PaginatedList<Spell>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
     {
-        var spellsQuery = @"SELECT *
-                            FROM ""Spells""
-                            ORDER BY ""Id"" ASC";
-        var characterSpellsQuery = @"SELECT *
-                                     FROM ""CharacterSpells"" AS cs
-                                     LEFT JOIN ""Characters"" AS c on cs.""CharacterId"" = c.""Id""";
+        var queryParams = new
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+
+        var query = @"
+            SELECT s.*,
+                   cs.*,
+                   c.*
+            FROM ""Spells"" AS s
+            LEFT JOIN ""CharacterSpells"" AS cs ON s.""Id"" = cs.""SpellId""
+            LEFT JOIN ""Characters"" AS c ON cs.""CharacterId"" = c.""Id""
+            ORDER BY s.""Id"" ASC
+            OFFSET @PageSize * (@PageNumber - 1)
+            LIMIT @PageSize";
 
         using var connection = _context.CreateConnection();
-        var spells = await connection.QueryAsync<Spell>(new CommandDefinition(spellsQuery, cancellationToken: token));
-        var characterSpells = await GetCharacterSpellsAsync(characterSpellsQuery, token);
-
-        var paginatedList = spells
-            .GroupBy(s => s.Id)
-            .Select(g =>
+        var queryResult = await connection.QueryAsync<Spell, CharacterSpell, Character, Spell>(
+            new CommandDefinition(query, queryParams, cancellationToken: token),
+            (spell, characterSpell, character) =>
             {
-                var s = g.First();
-                s.CharacterSpells = characterSpells.Where(cs => cs.SpellId == s.Id).ToList();
+                if (characterSpell is not null)
+                {
+                    characterSpell.Character = character;
+                    spell.CharacterSpells.Add(characterSpell);
+                }
 
-                return s;
-            })
-            .ToPaginatedList(pageNumber, pageSize);
+                return spell;
+            },
+            splitOn: "Id, CharacterId, Id");
 
-        return paginatedList;
+        return queryResult.ToPaginatedList(pageNumber, pageSize);
     }
 
     public async Task<Spell?> GetByIdAsync(int id, CancellationToken token = default)
     {
         var queryParams = new { Id = id };
-        var spellsQuery = @"SELECT *
-                            FROM ""Spells""
-                            WHERE ""Id"" = @Id";
-        var characterSpellsQuery = @$"SELECT *
-                                      FROM ""CharacterSpells"" AS cs
-                                      LEFT JOIN ""Characters"" AS c on cs.""CharacterId"" = c.""Id""
-                                      WHERE cs.""SpellId"" = {id}";
+        var query = @"
+            SELECT s.*,
+                   cs.*,
+                   c.*
+            FROM ""Spells"" AS s
+            LEFT JOIN ""CharacterSpells"" AS cs ON s.""Id"" = cs.""SpellId""
+            LEFT JOIN ""Characters"" AS c ON cs.""CharacterId"" = c.""Id""
+            WHERE s.""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
-        var spells = await connection.QueryAsync<Spell>(
-            new CommandDefinition(spellsQuery, queryParams, cancellationToken: token));
-        var characterSpells = await GetCharacterSpellsAsync(characterSpellsQuery, token);
-
-        var spell = spells
-            .GroupBy(s => s.Id)
-            .Select(g =>
+        var queryResult = await connection.QueryAsync<Spell, CharacterSpell, Character, Spell>(
+            new CommandDefinition(query, queryParams, cancellationToken: token),
+            (spell, characterSpell, character) =>
             {
-                var s = g.First();
-                s.CharacterSpells = characterSpells.ToList();
+                if (characterSpell is not null)
+                {
+                    characterSpell.Character = character;
+                    spell.CharacterSpells.Add(characterSpell);
+                }
 
-                return s;
-            })
-            .FirstOrDefault();
+                return spell;
+            },
+            splitOn: "Id, CharacterId, Id");
 
-        return spell;
+        return queryResult.FirstOrDefault();
     }
 
     public async Task UpdateAsync(Spell entity)
     {
-        var query = @"UPDATE ""Spells"" 
-                      SET ""Name"" = @Name,
-                          ""Type"" = @Type,
-                          ""Damage"" = @Damage
-                      WHERE ""Id"" = @Id";
         var queryParams = new
         {
-            Name = entity.Name,
-            Type = entity.Type,
-            Damage = entity.Damage,
-            Id = entity.Id
+            entity.Name,
+            entity.Type,
+            entity.Damage,
+            entity.Id
         };
+
+        var query = @"
+            UPDATE ""Spells"" 
+            SET ""Name"" = @Name,
+                ""Type"" = @Type,
+                ""Damage"" = @Damage
+            WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
@@ -122,13 +139,17 @@ public class SpellRepository : IItemRepository<Spell>
 
     public async Task AddToCharacterAsync(Character character, Spell item)
     {
-        var query = @"INSERT INTO ""CharacterSpells"" (""CharacterId"", ""SpellId"")
-                      VALUES (@CharacterId, @SpellId)";
         var queryParams = new
         {
             CharacterId = character.Id,
             SpellId = item.Id
         };
+
+        var query = @"
+            INSERT INTO ""CharacterSpells""
+                (""CharacterId"", ""SpellId"")
+            VALUES
+                (@CharacterId, @SpellId)";
 
         using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
@@ -136,30 +157,18 @@ public class SpellRepository : IItemRepository<Spell>
 
     public async Task RemoveFromCharacterAsync(Character character, Spell item)
     {
-        var query = @"DELETE FROM ""CharacterSpells""
-                      WHERE ""CharacterId"" = @CharacterId
-                            AND ""SpellId"" = @SpellId";
         var queryParams = new
         {
             CharacterId = character.Id,
             SpellId = item.Id
         };
 
+        var query = @"
+            DELETE FROM ""CharacterSpells""
+            WHERE ""CharacterId"" = @CharacterId
+                  AND ""SpellId"" = @SpellId";
+
         using var connection = _context.CreateConnection();
         await connection.ExecuteAsync(query, queryParams);
-    }
-
-    private async Task<IEnumerable<CharacterSpell>> GetCharacterSpellsAsync(string query, CancellationToken token)
-    {
-        using var connection = _context.CreateConnection();
-        var characterSpells = await connection.QueryAsync<CharacterSpell, Character, CharacterSpell>(
-            new CommandDefinition(query, cancellationToken: token),
-            (characterSpell, character) =>
-            {
-                characterSpell.Character = character;
-                return characterSpell;
-            });
-
-        return characterSpells;
     }
 }
