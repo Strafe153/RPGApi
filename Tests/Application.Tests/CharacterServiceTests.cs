@@ -15,10 +15,7 @@ public class CharacterServiceTests
     private CharacterServiceFixture _fixture = default!;
 
     [SetUp]
-    public void SetUp()
-    {
-        _fixture = new CharacterServiceFixture();
-    }
+    public void SetUp() => _fixture = new CharacterServiceFixture();
 
     [TearDown]
     public void TearDown()

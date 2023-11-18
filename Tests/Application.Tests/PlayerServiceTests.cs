@@ -17,10 +17,7 @@ public class PlayerServiceTests
     private PlayerServiceFixture _fixture = default!;
 
     [SetUp]
-    public void SetUp()
-    {
-        _fixture = new PlayerServiceFixture();
-    }
+    public void SetUp() => _fixture = new PlayerServiceFixture();
 
     [Test]
     public async Task GetAllAsync_Should_ReturnPaginatedListOfPlayer_WhenParametersAreValid()

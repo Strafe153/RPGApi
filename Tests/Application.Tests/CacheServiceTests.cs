@@ -12,10 +12,7 @@ public class CacheServiceTests
     private CacheServiceFixture _fixture = default!;
 
     [SetUp]
-    public void SetUp()
-    {
-        _fixture = new CacheServiceFixture();
-    }
+    public void SetUp() => _fixture = new CacheServiceFixture();
 
     [Test]
     public async Task GetAsync_Should_ReturnData_WhenDataExists()

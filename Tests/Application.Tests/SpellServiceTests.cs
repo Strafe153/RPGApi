@@ -15,10 +15,7 @@ public class SpellServiceTests
     private SpellServiceFixture _fixture = default!;
 
     [SetUp]
-    public void SetUp()
-    {
-        _fixture = new SpellServiceFixture();
-    }
+    public void SetUp() => _fixture = new SpellServiceFixture();
 
     [Test]
     public async Task GetAllAsync_Should_ReturnPaginatedListOfSpell_WhenPageParametersAreValid()

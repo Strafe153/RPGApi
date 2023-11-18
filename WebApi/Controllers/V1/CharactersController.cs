@@ -53,7 +53,7 @@ public class CharactersController : ControllerBase
 
     [HttpGet]
     [CacheFilter]
-    public async Task<ActionResult<PageDto<CharacterReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
+    public async Task<ActionResult<PageDto<CharacterReadDto>>> Get([FromQuery] PageParameters pageParams, CancellationToken token)
     {
         var characters = await _characterService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
         var pageDto = _paginatedMapper.Map(characters);
@@ -63,7 +63,7 @@ public class CharactersController : ControllerBase
 
     [HttpGet("{id:int:min(1)}")]
     [CacheFilter]
-    public async Task<ActionResult<CharacterReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
+    public async Task<ActionResult<CharacterReadDto>> Get([FromRoute] int id, CancellationToken token)
     {
         var character = await _characterService.GetByIdAsync(id, token);
         var readDto = _readMapper.Map(character);
@@ -72,7 +72,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<CharacterReadDto>> CreateAsync([FromBody] CharacterCreateDto createDto)
+    public async Task<ActionResult<CharacterReadDto>> Create([FromBody] CharacterCreateDto createDto)
     {
         var player = await _playerService.GetByIdAsync(createDto.PlayerId);
         _playerService.VerifyPlayerAccessRights(player);
@@ -82,11 +82,11 @@ public class CharactersController : ControllerBase
 
         var readDto = _readMapper.Map(character);
 
-        return CreatedAtAction(nameof(GetAsync), new { id = readDto.Id }, readDto);
+        return CreatedAtAction(nameof(Get), new { id = readDto.Id }, readDto);
     }
 
     [HttpPut("{id:int:min(1)}")]
-    public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] CharacterBaseDto updateDto)
+    public async Task<ActionResult> Update([FromRoute] int id, [FromBody] CharacterBaseDto updateDto)
     {
         var character = await _characterService.GetByIdAsync(id);
         _playerService.VerifyPlayerAccessRights(character.Player!);
@@ -98,7 +98,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpPatch("{id:int:min(1)}")]
-    public async Task<ActionResult> UpdateAsync(
+    public async Task<ActionResult> Update(
         [FromRoute] int id,
         [FromBody] JsonPatchDocument<CharacterBaseDto> patchDocument)
     {
@@ -120,7 +120,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpDelete("{id:int:min(1)}")]
-    public async Task<ActionResult> DeleteAsync([FromRoute] int id)
+    public async Task<ActionResult> Delete([FromRoute] int id)
     {
         var character = await _characterService.GetByIdAsync(id);
 
@@ -131,7 +131,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpPut("add/weapon")]
-    public async Task<ActionResult> AddWeaponAsync([FromBody] AddRemoveItemDto itemDto)
+    public async Task<ActionResult> AddWeapon([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         _playerService.VerifyPlayerAccessRights(character.Player!);
@@ -145,7 +145,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpPut("remove/weapon")]
-    public async Task<ActionResult> RemoveWeaponAsync([FromBody] AddRemoveItemDto itemDto)
+    public async Task<ActionResult> RemoveWeapon([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         _playerService.VerifyPlayerAccessRights(character.Player!);
@@ -159,7 +159,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpPut("add/spell")]
-    public async Task<ActionResult> AddSpellAsync([FromBody] AddRemoveItemDto itemDto)
+    public async Task<ActionResult> AddSpell([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         _playerService.VerifyPlayerAccessRights(character.Player!);
@@ -173,7 +173,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpPut("remove/spell")]
-    public async Task<ActionResult> RemoveSpellAsync([FromBody] AddRemoveItemDto itemDto)
+    public async Task<ActionResult> RemoveSpell([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         _playerService.VerifyPlayerAccessRights(character.Player!);
@@ -187,7 +187,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpPut("add/mount")]
-    public async Task<ActionResult> AddMountAsync([FromBody] AddRemoveItemDto itemDto)
+    public async Task<ActionResult> AddMount([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         _playerService.VerifyPlayerAccessRights(character.Player!);
@@ -201,7 +201,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpPut("remove/mount")]
-    public async Task<ActionResult> RemoveMountAsync([FromBody] AddRemoveItemDto itemDto)
+    public async Task<ActionResult> RemoveMount([FromBody] AddRemoveItemDto itemDto)
     {
         var character = await _characterService.GetByIdAsync(itemDto.CharacterId);
         _playerService.VerifyPlayerAccessRights(character.Player!);

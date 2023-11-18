@@ -47,7 +47,7 @@ public class SpellsController : ControllerBase
 
     [HttpGet]
     [CacheFilter]
-    public async Task<ActionResult<PageDto<SpellReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
+    public async Task<ActionResult<PageDto<SpellReadDto>>> Get([FromQuery] PageParameters pageParams, CancellationToken token)
     {
         var spells = await _spellService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
         var pageDto = _paginatedMapper.Map(spells);
@@ -57,7 +57,7 @@ public class SpellsController : ControllerBase
 
     [HttpGet("{id:int:min(1)}")]
     [CacheFilter]
-    public async Task<ActionResult<SpellReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
+    public async Task<ActionResult<SpellReadDto>> Get([FromRoute] int id, CancellationToken token)
     {
         var spell = await _spellService.GetByIdAsync(id, token);
         var readDto = _readMapper.Map(spell);
@@ -67,19 +67,19 @@ public class SpellsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<SpellReadDto>> CreateAsync([FromBody] SpellBaseDto createDto)
+    public async Task<ActionResult<SpellReadDto>> Create([FromBody] SpellBaseDto createDto)
     {
         var spell = _createMapper.Map(createDto);
         spell.Id = await _spellService.AddAsync(spell);
 
         var readDto = _readMapper.Map(spell);
 
-        return CreatedAtAction(nameof(GetAsync), new { readDto.Id }, readDto);
+        return CreatedAtAction(nameof(Get), new { readDto.Id }, readDto);
     }
 
     [HttpPut("{id:int:min(1)}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] SpellBaseDto updateDto)
+    public async Task<ActionResult> Update([FromRoute] int id, [FromBody] SpellBaseDto updateDto)
     {
         var spell = await _spellService.GetByIdAsync(id);
 
@@ -91,7 +91,7 @@ public class SpellsController : ControllerBase
 
     [HttpPatch("{id:int:min(1)}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> UpdateAsync(
+    public async Task<ActionResult> Update(
         [FromRoute] int id,
         [FromBody] JsonPatchDocument<SpellBaseDto> patchDocument)
     {
@@ -113,14 +113,14 @@ public class SpellsController : ControllerBase
 
     [HttpDelete("{id:int:min(1)}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> DeleteAsync([FromRoute] int id)
+    public async Task<ActionResult> Delete([FromRoute] int id)
     {
         await _spellService.DeleteAsync(id);
         return NoContent();
     }
 
     [HttpPut("hit")]
-    public async Task<ActionResult> HitAsync([FromBody] HitDto hitDto)
+    public async Task<ActionResult> Hit([FromBody] HitDto hitDto)
     {
         var dealer = await _characterService.GetByIdAsync(hitDto.DealerId);
         _playerService.VerifyPlayerAccessRights(dealer.Player!);

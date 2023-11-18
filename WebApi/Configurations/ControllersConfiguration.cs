@@ -11,7 +11,6 @@ public static class ControllersConfiguration
         services
             .AddControllers(options =>
             {
-                options.SuppressAsyncSuffixInActionNames = false;
                 options.Filters.Add<ExceptionHandlingFilterAttribute>();
             })
             .AddNewtonsoftJson(options =>

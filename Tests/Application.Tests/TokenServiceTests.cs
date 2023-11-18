@@ -12,10 +12,7 @@ public class TokenServiceTests
     private TokenServiceFixture _fixture = default!;
 
     [SetUp]
-    public void OneTimeSetUp()
-    {
-        _fixture = new TokenServiceFixture();
-    }
+    public void OneTimeSetUp() => _fixture = new TokenServiceFixture();
 
     [Test]
     public void GenerateAccessToken_Should_ReturnString_WhenDataIsValid()

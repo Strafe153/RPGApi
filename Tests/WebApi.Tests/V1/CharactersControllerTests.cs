@@ -22,13 +22,10 @@ public class CharactersControllerTests
     }
 
     [TearDown]
-    public void TearDown()
-    {
-        _fixture.CharactersController.ControllerContext = _fixture.MockControllerContext();
-    }
+    public void TearDown() => _fixture.CharactersController.ControllerContext = _fixture.MockControllerContext();
 
     [Test]
-    public async Task GetAsync_Should_ReturnActionResultOfPageDtoOfCharacterReadDto_WhenPageParametersAreValid()
+    public async Task Get_Should_ReturnActionResultOfPageDtoOfCharacterReadDto_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.CharacterService
@@ -36,7 +33,7 @@ public class CharactersControllerTests
             .Returns(_fixture.PaginatedList);
 
         // Act
-        var result = await _fixture.CharactersController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
+        var result = await _fixture.CharactersController.Get(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var pageDto = objectResult.Value.As<PageDto<CharacterReadDto>>();
 
@@ -46,7 +43,7 @@ public class CharactersControllerTests
     }
 
     [Test]
-    public async Task GetAsync_Should_ReturnActionResultOfCharacterReadDto_WhenCharacterExists()
+    public async Task Get_Should_ReturnActionResultOfCharacterReadDto_WhenCharacterExists()
     {
         // Arrange
         _fixture.CharacterService
@@ -54,7 +51,7 @@ public class CharactersControllerTests
             .Returns(_fixture.Character);
 
         // Act
-        var result = await _fixture.CharactersController.GetAsync(_fixture.Id, _fixture.CancellationToken);
+        var result = await _fixture.CharactersController.Get(_fixture.Id, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var readDto = objectResult.Value.As<CharacterReadDto>();
 
@@ -65,10 +62,10 @@ public class CharactersControllerTests
     }
 
     [Test]
-    public async Task CreateAsync_Should_ReturnActionResultOfCharacterReadDto_WhenCharacterCreateDtoIsValid()
+    public async Task Create_Should_ReturnActionResultOfCharacterReadDto_WhenCharacterCreateDtoIsValid()
     {
         // Act
-        var result = await _fixture.CharactersController.CreateAsync(_fixture.CharacterCreateDto);
+        var result = await _fixture.CharactersController.Create(_fixture.CharacterCreateDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
         var readDto = objectResult.Value.As<CharacterReadDto>();
 
@@ -79,7 +76,7 @@ public class CharactersControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenCharacterExistsAndCharacterUpdateDtoIsValid()
+    public async Task Update_Should_ReturnNoContentResult_WhenCharacterExistsAndCharacterUpdateDtoIsValid()
     {
         // Arrange
         _fixture.CharacterService
@@ -87,7 +84,7 @@ public class CharactersControllerTests
             .Returns(_fixture.Character);
 
         // Act
-        var result = await _fixture.CharactersController.UpdateAsync(_fixture.Id, _fixture.CharacterUpdateDto);
+        var result = await _fixture.CharactersController.Update(_fixture.Id, _fixture.CharacterUpdateDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -96,7 +93,7 @@ public class CharactersControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenCharacterExistsAndPatchDocumentIsValid()
+    public async Task Update_Should_ReturnNoContentResult_WhenCharacterExistsAndPatchDocumentIsValid()
     {
         // Arrange
         _fixture.CharacterService
@@ -104,7 +101,7 @@ public class CharactersControllerTests
             .Returns(_fixture.Character);
 
         // Act
-        var result = await _fixture.CharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var result = await _fixture.CharactersController.Update(_fixture.Id, _fixture.PatchDocument);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -113,7 +110,7 @@ public class CharactersControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnObjectResult_WhenCharacterExistsAndPatchDocumentIsInvalid()
+    public async Task Update_Should_ReturnObjectResult_WhenCharacterExistsAndPatchDocumentIsInvalid()
     {
         // Arrange
         _fixture.CharacterService
@@ -123,14 +120,14 @@ public class CharactersControllerTests
         _fixture.MockModelError(_fixture.CharactersController);
 
         // Act
-        var result = await _fixture.CharactersController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var result = await _fixture.CharactersController.Update(_fixture.Id, _fixture.PatchDocument);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ObjectResult>();
     }
 
     [Test]
-    public async Task DeleteAsync_Should_ReturnNoContentResult_WhenCharacterExists()
+    public async Task Delete_Should_ReturnNoContentResult_WhenCharacterExists()
     {
         // Arrange
         _fixture.CharacterService
@@ -138,7 +135,7 @@ public class CharactersControllerTests
             .Returns(_fixture.Character);
 
         // Act
-        var result = await _fixture.CharactersController.DeleteAsync(_fixture.Id);
+        var result = await _fixture.CharactersController.Delete(_fixture.Id);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -147,7 +144,7 @@ public class CharactersControllerTests
     }
 
     [Test]
-    public async Task AddWeaponAsync_Should_ReturnNoContentResult_WhenCharacterAndWeaponExist()
+    public async Task AddWeapon_Should_ReturnNoContentResult_WhenCharacterAndWeaponExist()
     {
         // Arrange
         _fixture.CharacterService
@@ -159,7 +156,7 @@ public class CharactersControllerTests
             .Returns(_fixture.Weapon);
 
         // Act
-        var result = await _fixture.CharactersController.AddWeaponAsync(_fixture.ItemDto);
+        var result = await _fixture.CharactersController.AddWeapon(_fixture.ItemDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -168,7 +165,7 @@ public class CharactersControllerTests
     }
 
     [Test]
-    public async Task RemoveWeaponAsync_Should_ReturnNoContentResult_WhenCharacterAndWeaponExist()
+    public async Task RemoveWeapon_Should_ReturnNoContentResult_WhenCharacterAndWeaponExist()
     {
         // Arrange
         _fixture.CharacterService
@@ -180,7 +177,7 @@ public class CharactersControllerTests
             .Returns(_fixture.Weapon);
 
         // Act
-        var result = await _fixture.CharactersController.RemoveWeaponAsync(_fixture.ItemDto);
+        var result = await _fixture.CharactersController.RemoveWeapon(_fixture.ItemDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -189,7 +186,7 @@ public class CharactersControllerTests
     }
 
     [Test]
-    public async Task AddSpellAsync_Should_ReturnNoContentResult_WhenCharacterAndSpellExist()
+    public async Task AddSpell_Should_ReturnNoContentResult_WhenCharacterAndSpellExist()
     {
         // Arrange
         _fixture.CharacterService
@@ -201,7 +198,7 @@ public class CharactersControllerTests
             .Returns(_fixture.Spell);
 
         // Act
-        var result = await _fixture.CharactersController.AddSpellAsync(_fixture.ItemDto);
+        var result = await _fixture.CharactersController.AddSpell(_fixture.ItemDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -210,7 +207,7 @@ public class CharactersControllerTests
     }
 
     [Test]
-    public async Task RemoveSpellAsync_Should_ReturnNoContentResult_WhenCharacterAndSpellExist()
+    public async Task RemoveSpell_Should_ReturnNoContentResult_WhenCharacterAndSpellExist()
     {
         // Arrange
         _fixture.CharacterService
@@ -222,7 +219,7 @@ public class CharactersControllerTests
             .Returns(_fixture.Spell);
 
         // Act
-        var result = await _fixture.CharactersController.RemoveSpellAsync(_fixture.ItemDto);
+        var result = await _fixture.CharactersController.RemoveSpell(_fixture.ItemDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -231,7 +228,7 @@ public class CharactersControllerTests
     }
 
     [Test]
-    public async Task AddMountAsync_Should_ReturnNoContentResult_WhenCharacterAndMountExist()
+    public async Task AddMount_Should_ReturnNoContentResult_WhenCharacterAndMountExist()
     {
         // Arrange
         _fixture.CharacterService
@@ -243,7 +240,7 @@ public class CharactersControllerTests
             .Returns(_fixture.Mount);
 
         // Act
-        var result = await _fixture.CharactersController.AddMountAsync(_fixture.ItemDto);
+        var result = await _fixture.CharactersController.AddMount(_fixture.ItemDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -252,7 +249,7 @@ public class CharactersControllerTests
     }
 
     [Test]
-    public async Task RemoveMountAsync_Should_ReturnNoContentResult_WhenCharacterAndMountExist()
+    public async Task RemoveMount_Should_ReturnNoContentResult_WhenCharacterAndMountExist()
     {
         // Arrange
         _fixture.CharacterService
@@ -264,7 +261,7 @@ public class CharactersControllerTests
             .Returns(_fixture.Mount);
 
         // Act
-        var result = await _fixture.CharactersController.RemoveMountAsync(_fixture.ItemDto);
+        var result = await _fixture.CharactersController.RemoveMount(_fixture.ItemDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert

@@ -41,7 +41,7 @@ public class PlayersController : ControllerBase
 
     [HttpGet]
     [CacheFilter]
-    public async Task<ActionResult<PageDto<PlayerReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
+    public async Task<ActionResult<PageDto<PlayerReadDto>>> Get([FromQuery] PageParameters pageParams, CancellationToken token)
     {
         var players = await _playerService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
         var pageDto = _paginatedMapper.Map(players);
@@ -51,7 +51,7 @@ public class PlayersController : ControllerBase
 
     [HttpGet("{id:int:min(1)}")]
     [CacheFilter]
-    public async Task<ActionResult<PlayerReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
+    public async Task<ActionResult<PlayerReadDto>> Get([FromRoute] int id, CancellationToken token)
     {
         var player = await _playerService.GetByIdAsync(id, token);
         var readDto = _readMapper.Map(player);
@@ -61,7 +61,7 @@ public class PlayersController : ControllerBase
 
     [HttpPost("register")]
     [AllowAnonymous]
-    public async Task<ActionResult<PlayerReadDto>> RegisterAsync([FromBody] PlayerAuthorizeDto authorizeModel)
+    public async Task<ActionResult<PlayerReadDto>> Register([FromBody] PlayerAuthorizeDto authorizeModel)
     {
         var (hash, salt) = _passwordService.GeneratePasswordHashAndSalt(authorizeModel.Password!);
 
@@ -70,12 +70,12 @@ public class PlayersController : ControllerBase
 
         var readDto = _readMapper.Map(player);
 
-        return CreatedAtAction(nameof(GetAsync), new { readDto.Id }, readDto);
+        return CreatedAtAction(nameof(Get), new { readDto.Id }, readDto);
     }
 
     [HttpPost("login")]
     [AllowAnonymous]
-    public async Task<ActionResult<TokensReadDto>> LoginAsync([FromBody] PlayerAuthorizeDto authorizeDto, CancellationToken token)
+    public async Task<ActionResult<TokensReadDto>> Login([FromBody] PlayerAuthorizeDto authorizeDto, CancellationToken token)
     {
         var player = await _playerService.GetByNameAsync(authorizeDto.Name!, token);
         _passwordService.VerifyPasswordHash(authorizeDto.Password!, player);
@@ -96,7 +96,7 @@ public class PlayersController : ControllerBase
     }
 
     [HttpPut("{id:int:min(1)}")]
-    public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] PlayerBaseDto updateDto)
+    public async Task<ActionResult> Update([FromRoute] int id, [FromBody] PlayerBaseDto updateDto)
     {
         var player = await _playerService.GetByIdAsync(id);
         _playerService.VerifyPlayerAccessRights(player);
@@ -108,7 +108,7 @@ public class PlayersController : ControllerBase
     }
 
     [HttpDelete("{id:int:min(1)}")]
-    public async Task<ActionResult> DeleteAsync([FromRoute] int id)
+    public async Task<ActionResult> Delete([FromRoute] int id)
     {
         var player = await _playerService.GetByIdAsync(id);
 
@@ -119,7 +119,7 @@ public class PlayersController : ControllerBase
     }
 
     [HttpPut("{id:int:min(1)}/changePassword")]
-    public async Task<ActionResult<TokensReadDto>> ChangePasswordAsync(
+    public async Task<ActionResult<TokensReadDto>> ChangePassword(
         [FromRoute] int id,
         [FromBody] PlayerChangePasswordDto changePasswordDto)
     {
@@ -146,7 +146,7 @@ public class PlayersController : ControllerBase
 
     [HttpPut("{id:int:min(1)}/changeRole")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<PlayerReadDto>> ChangeRoleAsync([FromRoute] int id, [FromBody] PlayerChangeRoleDto changeRoleDto)
+    public async Task<ActionResult<PlayerReadDto>> ChangeRole([FromRoute] int id, [FromBody] PlayerChangeRoleDto changeRoleDto)
     {
         var player = await _playerService.GetByIdAsync(id);
 
@@ -159,7 +159,7 @@ public class PlayersController : ControllerBase
     }
 
     [HttpPut("refreshTokens/{id}")]
-    public async Task<ActionResult<TokensReadDto>> RefreshTokensAsync([FromRoute] int id, [FromBody] TokensRefreshDto refreshDto)
+    public async Task<ActionResult<TokensReadDto>> RefreshTokens([FromRoute] int id, [FromBody] TokensRefreshDto refreshDto)
     {
         var player = await _playerService.GetByIdAsync(id);
         _playerService.VerifyPlayerAccessRights(player);
@@ -171,7 +171,7 @@ public class PlayersController : ControllerBase
         _tokenService.SetRefreshToken(refreshToken, player, Response);
         await _playerService.UpdateAsync(player);
 
-        var tokensReadDto = new TokensReadDto()
+        var tokensReadDto = new TokensReadDto
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken

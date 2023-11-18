@@ -15,10 +15,7 @@ public class WeaponServiceTests
     private WeaponServiceFixture _fixture = default!;
 
     [SetUp]
-    public void SetUp()
-    {
-        _fixture = new WeaponServiceFixture();
-    }
+    public void SetUp() => _fixture = new WeaponServiceFixture();
 
     [Test]
     public async Task GetAllAsync_Should_ReturnPaginatedListOfWeapon_WhenParametersAreValid()

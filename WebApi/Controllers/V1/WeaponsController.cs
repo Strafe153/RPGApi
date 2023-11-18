@@ -47,7 +47,7 @@ public class WeaponsController : ControllerBase
 
     [HttpGet]
     [CacheFilter]
-    public async Task<ActionResult<PageDto<WeaponReadDto>>> GetAsync([FromQuery] PageParameters pageParams, CancellationToken token)
+    public async Task<ActionResult<PageDto<WeaponReadDto>>> Get([FromQuery] PageParameters pageParams, CancellationToken token)
     {
         var weapons = await _weaponService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
         var pageDto = _paginatedMapper.Map(weapons);
@@ -57,7 +57,7 @@ public class WeaponsController : ControllerBase
 
     [HttpGet("{id:int:min(1)}")]
     [CacheFilter]
-    public async Task<ActionResult<WeaponReadDto>> GetAsync([FromRoute] int id, CancellationToken token)
+    public async Task<ActionResult<WeaponReadDto>> Get([FromRoute] int id, CancellationToken token)
     {
         var weapon = await _weaponService.GetByIdAsync(id, token);
         var readDto = _readMapper.Map(weapon);
@@ -67,19 +67,19 @@ public class WeaponsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<WeaponReadDto>> CreateAsync([FromBody] WeaponBaseDto createDto)
+    public async Task<ActionResult<WeaponReadDto>> Create([FromBody] WeaponBaseDto createDto)
     {
         var weapon = _createMapper.Map(createDto);
         weapon.Id = await _weaponService.AddAsync(weapon);
 
         var readDto = _readMapper.Map(weapon);
 
-        return CreatedAtAction(nameof(GetAsync), new { readDto.Id }, readDto);
+        return CreatedAtAction(nameof(Get), new { readDto.Id }, readDto);
     }
 
     [HttpPut("{id:int:min(1)}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> UpdateAsync([FromRoute] int id, [FromBody] WeaponBaseDto updateDto)
+    public async Task<ActionResult> Update([FromRoute] int id, [FromBody] WeaponBaseDto updateDto)
     {
         var weapon = await _weaponService.GetByIdAsync(id);
 
@@ -91,7 +91,7 @@ public class WeaponsController : ControllerBase
 
     [HttpPatch("{id:int:min(1)}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> UpdateAsync(
+    public async Task<ActionResult> Update(
         [FromRoute] int id,
         [FromBody] JsonPatchDocument<WeaponBaseDto> patchDocument)
     {
@@ -113,14 +113,14 @@ public class WeaponsController : ControllerBase
 
     [HttpDelete("{id:int:min(1)}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> DeleteAsync([FromRoute] int id)
+    public async Task<ActionResult> Delete([FromRoute] int id)
     {
         await _weaponService.DeleteAsync(id);
         return NoContent();
     }
 
     [HttpPut("hit")]
-    public async Task<ActionResult> HitAsync([FromBody] HitDto hitDto)
+    public async Task<ActionResult> Hit([FromBody] HitDto hitDto)
     {
         var dealer = await _characterService.GetByIdAsync(hitDto.DealerId);
         _playerService.VerifyPlayerAccessRights(dealer.Player!);

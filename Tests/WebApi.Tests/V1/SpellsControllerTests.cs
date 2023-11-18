@@ -24,13 +24,10 @@ public class SpellsControllerTests
     }
 
     [TearDown]
-    public void TearDown()
-    {
-        _fixture.SpellsController.ControllerContext = _fixture.MockControllerContext();
-    }
+    public void TearDown() => _fixture.SpellsController.ControllerContext = _fixture.MockControllerContext();
 
     [Test]
-    public async Task GetAsync_Should_ReturnActionResultOfPageDtoOfSpellReadDto_WhenPageParametersAreValid()
+    public async Task Get_Should_ReturnActionResultOfPageDtoOfSpellReadDto_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.SpellService
@@ -38,7 +35,7 @@ public class SpellsControllerTests
             .Returns(_fixture.PaginatedList);
 
         // Act
-        var result = await _fixture.SpellsController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
+        var result = await _fixture.SpellsController.Get(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var pageDto = objectResult.Value.As<PageDto<SpellReadDto>>();
 
@@ -49,7 +46,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task GetAsync_Should_ReturnActionResultOfSpellReadDto_WhenSpellExists()
+    public async Task Get_Should_ReturnActionResultOfSpellReadDto_WhenSpellExists()
     {
         // Arrange
         _fixture.SpellService
@@ -57,7 +54,7 @@ public class SpellsControllerTests
             .Returns(_fixture.Spell);
 
         // Act
-        var result = await _fixture.SpellsController.GetAsync(_fixture.Id, _fixture.CancellationToken);
+        var result = await _fixture.SpellsController.Get(_fixture.Id, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var readDto = objectResult.Value.As<SpellReadDto>();
 
@@ -68,10 +65,10 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task CreateAsync_Should_ReturnActionResultOfSpellReadDto_WhenSpellBaseDtoIsValid()
+    public async Task Create_Should_ReturnActionResultOfSpellReadDto_WhenSpellBaseDtoIsValid()
     {
         // Act
-        var result = await _fixture.SpellsController.CreateAsync(_fixture.SpellBaseDto);
+        var result = await _fixture.SpellsController.Create(_fixture.SpellBaseDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
         var readDto = objectResult.Value.As<SpellReadDto>();
 
@@ -82,7 +79,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenSpellExistsAndSpellBaseDtoIsValid()
+    public async Task Update_Should_ReturnNoContentResult_WhenSpellExistsAndSpellBaseDtoIsValid()
     {
         // Arrange
         _fixture.SpellService
@@ -90,7 +87,7 @@ public class SpellsControllerTests
             .Returns(_fixture.Spell);
 
         // Act
-        var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.SpellBaseDto);
+        var result = await _fixture.SpellsController.Update(_fixture.Id, _fixture.SpellBaseDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -99,7 +96,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenSpellExistsAndPatchDocumentIsValid()
+    public async Task Update_Should_ReturnNoContentResult_WhenSpellExistsAndPatchDocumentIsValid()
     {
         // Arrange
         _fixture.SpellService
@@ -107,7 +104,7 @@ public class SpellsControllerTests
             .Returns(_fixture.Spell);
 
         // Act
-        var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var result = await _fixture.SpellsController.Update(_fixture.Id, _fixture.PatchDocument);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -116,7 +113,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnObjectResult_WhenSpellExistsAndPatchDocumentIsInvalid()
+    public async Task Update_Should_ReturnObjectResult_WhenSpellExistsAndPatchDocumentIsInvalid()
     {
         // Arrange
         _fixture.SpellService
@@ -126,14 +123,14 @@ public class SpellsControllerTests
         _fixture.MockModelError(_fixture.SpellsController);
 
         // Act
-        var result = await _fixture.SpellsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var result = await _fixture.SpellsController.Update(_fixture.Id, _fixture.PatchDocument);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ObjectResult>();
     }
 
     [Test]
-    public async Task DeleteAsync_Should_ReturnNoContentResult_WhenSpellExists()
+    public async Task Delete_Should_ReturnNoContentResult_WhenSpellExists()
     {
         // Arrange
         _fixture.SpellService
@@ -141,7 +138,7 @@ public class SpellsControllerTests
             .Returns(_fixture.Spell);
 
         // Act
-        var result = await _fixture.SpellsController.DeleteAsync(_fixture.Id);
+        var result = await _fixture.SpellsController.Delete(_fixture.Id);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -150,7 +147,7 @@ public class SpellsControllerTests
     }
 
     [Test]
-    public async Task HitAsync_Should_ReturnNoContentResult_WhenHitDtoIsValid()
+    public async Task Hit_Should_ReturnNoContentResult_WhenHitDtoIsValid()
     {
         // Arrange
         _fixture.CharacterService
@@ -162,7 +159,7 @@ public class SpellsControllerTests
             .Returns(_fixture.Spell);
 
         // Act
-        var result = await _fixture.SpellsController.HitAsync(_fixture.HitDto);
+        var result = await _fixture.SpellsController.Hit(_fixture.HitDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert

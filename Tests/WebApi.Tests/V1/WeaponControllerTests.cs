@@ -23,13 +23,10 @@ public class WeaponControllerTests
     }
 
     [TearDown]
-    public void TearDown()
-    {
-        _fixture.WeaponsController.ControllerContext = _fixture.MockControllerContext();
-    }
+    public void TearDown() => _fixture.WeaponsController.ControllerContext = _fixture.MockControllerContext();
 
     [Test]
-    public async Task GetAsync_Should_ReturnActionResultOfPageDtoOfWeaponReadDto_WhenPageParametersAreValid()
+    public async Task Get_Should_ReturnActionResultOfPageDtoOfWeaponReadDto_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.WeaponService
@@ -37,7 +34,7 @@ public class WeaponControllerTests
             .Returns(_fixture.PaginatedList);
 
         // Act
-        var result = await _fixture.WeaponsController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
+        var result = await _fixture.WeaponsController.Get(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var pageDto = objectResult.Value.As<PageDto<WeaponReadDto>>();
 
@@ -48,7 +45,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task GetAsync_Should_ReturnActionResultOfWeaponReadDto_WhenWeaponExists()
+    public async Task Get_Should_ReturnActionResultOfWeaponReadDto_WhenWeaponExists()
     {
         // Arrange
         _fixture.WeaponService
@@ -56,7 +53,7 @@ public class WeaponControllerTests
             .Returns(_fixture.Weapon);
 
         // Act
-        var result = await _fixture.WeaponsController.GetAsync(_fixture.Id, _fixture.CancellationToken);
+        var result = await _fixture.WeaponsController.Get(_fixture.Id, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var readDto = objectResult.Value.As<WeaponReadDto>();
 
@@ -67,10 +64,10 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task CreateAsync_Should_ReturnActionResultOfWeaponReadDto_WhenWeaponBaseDtoIsValid()
+    public async Task Create_Should_ReturnActionResultOfWeaponReadDto_WhenWeaponBaseDtoIsValid()
     {
         // Act
-        var result = await _fixture.WeaponsController.CreateAsync(_fixture.WeaponBaseDto);
+        var result = await _fixture.WeaponsController.Create(_fixture.WeaponBaseDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
         var readDto = objectResult.Value.As<WeaponReadDto>();
 
@@ -81,7 +78,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenWeaponBaseDtoIsValid()
+    public async Task Update_Should_ReturnNoContentResult_WhenWeaponBaseDtoIsValid()
     {
         // Arrange
         _fixture.WeaponService
@@ -89,7 +86,7 @@ public class WeaponControllerTests
             .Returns(_fixture.Weapon);
 
         // Act
-        var result = await _fixture.WeaponsController.UpdateAsync(_fixture.Id, _fixture.WeaponBaseDto);
+        var result = await _fixture.WeaponsController.Update(_fixture.Id, _fixture.WeaponBaseDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -98,7 +95,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenWeaponExistsAndPatchDocumentIsValid()
+    public async Task Update_Should_ReturnNoContentResult_WhenWeaponExistsAndPatchDocumentIsValid()
     {
         // Arrange
         _fixture.WeaponService
@@ -106,7 +103,7 @@ public class WeaponControllerTests
             .Returns(_fixture.Weapon);
 
         // Act
-        var result = await _fixture.WeaponsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var result = await _fixture.WeaponsController.Update(_fixture.Id, _fixture.PatchDocument);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -115,7 +112,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnObjectResult_WhenWeaponExistsAndPatchDocumentIsInvalid()
+    public async Task Update_Should_ReturnObjectResult_WhenWeaponExistsAndPatchDocumentIsInvalid()
     {
         // Arrange
         _fixture.WeaponService
@@ -125,14 +122,14 @@ public class WeaponControllerTests
         _fixture.MockModelError(_fixture.WeaponsController);
 
         // Act
-        var result = await _fixture.WeaponsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var result = await _fixture.WeaponsController.Update(_fixture.Id, _fixture.PatchDocument);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ObjectResult>();
     }
 
     [Test]
-    public async Task DeleteAsync_Should_ReturnNoContentResult_WhenWeaponExists()
+    public async Task Delete_Should_ReturnNoContentResult_WhenWeaponExists()
     {
         // Arrange
         _fixture.WeaponService
@@ -140,7 +137,7 @@ public class WeaponControllerTests
             .Returns(_fixture.Weapon);
 
         // Act
-        var result = await _fixture.WeaponsController.DeleteAsync(_fixture.Id);
+        var result = await _fixture.WeaponsController.Delete(_fixture.Id);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -149,7 +146,7 @@ public class WeaponControllerTests
     }
 
     [Test]
-    public async Task HitAsync_Should_ReturnNoContentResult_WhenHitDtoIsValid()
+    public async Task Hit_Should_ReturnNoContentResult_WhenHitDtoIsValid()
     {
         // Arrange
         _fixture.CharacterService
@@ -161,7 +158,7 @@ public class WeaponControllerTests
             .Returns(_fixture.Weapon);
 
         // Act
-        var result = await _fixture.WeaponsController.HitAsync(_fixture.HitDto);
+        var result = await _fixture.WeaponsController.Hit(_fixture.HitDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert

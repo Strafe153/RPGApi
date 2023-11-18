@@ -16,13 +16,10 @@ public class PlayersControllerTests
     private PlayersControllerFixture _fixture = default!;
 
     [SetUp]
-    public void SetUp()
-    {
-        _fixture = new PlayersControllerFixture();
-    }
+    public void SetUp() => _fixture = new PlayersControllerFixture();
 
     [Test]
-    public async Task GetAsync_Should_ReturnActionResultOfPageDtoOfPlayerReadDto_WhenPageParametersAreValid()
+    public async Task Get_Should_ReturnActionResultOfPageDtoOfPlayerReadDto_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.PlayerService
@@ -30,7 +27,7 @@ public class PlayersControllerTests
             .Returns(_fixture.PaginatedList);
 
         // Act
-        var result = await _fixture.PlayersController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
+        var result = await _fixture.PlayersController.Get(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var pageDto = objectResult.Value.As<PageDto<PlayerReadDto>>();
 
@@ -41,7 +38,7 @@ public class PlayersControllerTests
     }
 
     [Test]
-    public async Task GetAsync_Should_ReturnActionResultOfPlayerReadDto_WhenPlayerExists()
+    public async Task Get_Should_ReturnActionResultOfPlayerReadDto_WhenPlayerExists()
     {
         // Arrange
         _fixture.PlayerService
@@ -49,7 +46,7 @@ public class PlayersControllerTests
             .Returns(_fixture.Player);
 
         // Act
-        var result = await _fixture.PlayersController.GetAsync(_fixture.Id, _fixture.CancellationToken);
+        var result = await _fixture.PlayersController.Get(_fixture.Id, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var readDto = objectResult.Value.As<PlayerReadDto>();
 
@@ -60,7 +57,7 @@ public class PlayersControllerTests
     }
 
     [Test]
-    public async Task RegisterAsync_Should_ReturnActionResultOfPlayerReadDto_WhenPlayerAuthorizeDtoIsValid()
+    public async Task Register_Should_ReturnActionResultOfPlayerReadDto_WhenPlayerAuthorizeDtoIsValid()
     {
         // Arrange
         _fixture.PlayerService
@@ -71,7 +68,7 @@ public class PlayersControllerTests
             .Returns(_fixture.Player);
 
         // Act
-        var result = await _fixture.PlayersController.RegisterAsync(_fixture.PlayerAuthorizeDto);
+        var result = await _fixture.PlayersController.Register(_fixture.PlayerAuthorizeDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
         var readDto = objectResult.Value.As<PlayerReadDto>();
 
@@ -82,7 +79,7 @@ public class PlayersControllerTests
     }
 
     [Test]
-    public async Task LoginAsync_Should_ReturnActionResultOfTokensReadDto_WhenPlayerAuthorizeDtoIsValid()
+    public async Task Login_Should_ReturnActionResultOfTokensReadDto_WhenPlayerAuthorizeDtoIsValid()
     {
         // Arrange
         _fixture.PlayerService
@@ -90,7 +87,7 @@ public class PlayersControllerTests
             .Returns(_fixture.Player);
 
         // Act
-        var result = await _fixture.PlayersController.LoginAsync(_fixture.PlayerAuthorizeDto, _fixture.CancellationToken);
+        var result = await _fixture.PlayersController.Login(_fixture.PlayerAuthorizeDto, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var readWithTokenDto = objectResult.Value.As<TokensReadDto>();
 
@@ -101,7 +98,7 @@ public class PlayersControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenPlayerExistsAndPlayerBaseDtoIsValid()
+    public async Task Update_Should_ReturnNoContentResult_WhenPlayerExistsAndPlayerBaseDtoIsValid()
     {
         // Arrange
         _fixture.PlayerService
@@ -109,7 +106,7 @@ public class PlayersControllerTests
             .Returns(_fixture.Player);
 
         // Act
-        var result = await _fixture.PlayersController.UpdateAsync(_fixture.Id, _fixture.PlayerUpdateDto);
+        var result = await _fixture.PlayersController.Update(_fixture.Id, _fixture.PlayerUpdateDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -118,7 +115,7 @@ public class PlayersControllerTests
     }
 
     [Test]
-    public async Task DeleteAsync_Should_ReturnNoContentResult_WhenPlayerExists()
+    public async Task Delete_Should_ReturnNoContentResult_WhenPlayerExists()
     {
         // Arrange
         _fixture.PlayerService
@@ -126,7 +123,7 @@ public class PlayersControllerTests
             .Returns(_fixture.Player);
 
         // Act
-        var result = await _fixture.PlayersController.DeleteAsync(_fixture.Id);
+        var result = await _fixture.PlayersController.Delete(_fixture.Id);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -135,7 +132,7 @@ public class PlayersControllerTests
     }
 
     [Test]
-    public async Task ChangePasswordAsync_Should_ReturnOkObjectResultOfTokensReadDto_WhenPlayerExistsAndPlayerChangePasswordDtoIsValid()
+    public async Task ChangePassword_Should_ReturnOkObjectResultOfTokensReadDto_WhenPlayerExistsAndPlayerChangePasswordDtoIsValid()
     {
         // Arrange
         _fixture.PlayerService
@@ -143,7 +140,7 @@ public class PlayersControllerTests
             .Returns(_fixture.Player);
 
         // Act
-        var result = await _fixture.PlayersController.ChangePasswordAsync(_fixture.Id, _fixture.PlayerChangePasswordDto);
+        var result = await _fixture.PlayersController.ChangePassword(_fixture.Id, _fixture.PlayerChangePasswordDto);
         var objectResult = result.Result.As<OkObjectResult>();
         var tokensReadDto = objectResult.Value.As<TokensReadDto>();
 
@@ -154,7 +151,7 @@ public class PlayersControllerTests
     }
 
     [Test]
-    public async Task ChangeRoleAsync_Should_ReturnActionResultOfPlayerReadDto_WhenPlayerExistsAndPlayerChangeRoleDtoIsValid()
+    public async Task ChangeRole_Should_ReturnActionResultOfPlayerReadDto_WhenPlayerExistsAndPlayerChangeRoleDtoIsValid()
     {
         // Arrange
         _fixture.PlayerService
@@ -162,7 +159,7 @@ public class PlayersControllerTests
             .Returns(_fixture.Player);
 
         // Act
-        var result = await _fixture.PlayersController.ChangeRoleAsync(_fixture.Id, _fixture.PlayerChangeRoleDto);
+        var result = await _fixture.PlayersController.ChangeRole(_fixture.Id, _fixture.PlayerChangeRoleDto);
         var objectResult = result.Result.As<OkObjectResult>();
         var readDto = objectResult.Value.As<PlayerReadDto>();
 
@@ -173,7 +170,7 @@ public class PlayersControllerTests
     }
 
     [Test]
-    public async Task RefreshTokensAsync_Should_ReturnActionResultOfTokensReadDto_WhenPlayerExistsAndTokensRefreshDtoIsValid()
+    public async Task RefreshTokens_Should_ReturnActionResultOfTokensReadDto_WhenPlayerExistsAndTokensRefreshDtoIsValid()
     {
         // Arrange
         _fixture.PlayerService
@@ -181,7 +178,7 @@ public class PlayersControllerTests
             .Returns(_fixture.Player);
 
         // Act
-        var result = await _fixture.PlayersController.RefreshTokensAsync(_fixture.Id, _fixture.TokensRefreshDto);
+        var result = await _fixture.PlayersController.RefreshTokens(_fixture.Id, _fixture.TokensRefreshDto);
         var objectResult = result.Result.As<OkObjectResult>();
         var tokensReadDto = objectResult.Value.As<TokensReadDto>();
 

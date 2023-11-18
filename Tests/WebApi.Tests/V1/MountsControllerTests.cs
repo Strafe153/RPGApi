@@ -22,13 +22,10 @@ public class MountsControllerTests
     }
 
     [TearDown]
-    public void TearDown()
-    {
-        _fixture.MountsController.ControllerContext = _fixture.MockControllerContext();
-    }
+    public void TearDown() => _fixture.MountsController.ControllerContext = _fixture.MockControllerContext();
 
     [Test]
-    public async Task GetAsync_Should_ReturnActionResultOfPageDtoOfMountReadDto_WhenPageParametersAreValid()
+    public async Task Get_Should_ReturnActionResultOfPageDtoOfMountReadDto_WhenPageParametersAreValid()
     {
         // Arrange
         _fixture.MountService
@@ -36,7 +33,7 @@ public class MountsControllerTests
             .Returns(_fixture.PaginatedList);
 
         // Act
-        var result = await _fixture.MountsController.GetAsync(_fixture.PageParameters, _fixture.CancellationToken);
+        var result = await _fixture.MountsController.Get(_fixture.PageParameters, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var pageDto = objectResult.Value.As<PageDto<MountReadDto>>();
 
@@ -47,7 +44,7 @@ public class MountsControllerTests
     }
 
     [Test]
-    public async Task GetAsync_Should_ReturnActionREsultOfMountReadDto_WhenMountExists()
+    public async Task Get_Should_ReturnActionREsultOfMountReadDto_WhenMountExists()
     {
         // Arrange
         _fixture.MountService
@@ -55,7 +52,7 @@ public class MountsControllerTests
             .Returns(_fixture.Mount);
 
         // Act
-        var result = await _fixture.MountsController.GetAsync(_fixture.Id, _fixture.CancellationToken);
+        var result = await _fixture.MountsController.Get(_fixture.Id, _fixture.CancellationToken);
         var objectResult = result.Result.As<OkObjectResult>();
         var readDto = objectResult.Value.As<MountReadDto>();
 
@@ -66,10 +63,10 @@ public class MountsControllerTests
     }
 
     [Test]
-    public async Task CreateAsync_Should_ReturnActionResultOfMountReadDto_WhenMountCreateDtoIsValid()
+    public async Task Create_Should_ReturnActionResultOfMountReadDto_WhenMountCreateDtoIsValid()
     {
         // Act
-        var result = await _fixture.MountsController.CreateAsync(_fixture.MountBaseDto);
+        var result = await _fixture.MountsController.Create(_fixture.MountBaseDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
         var readDto = objectResult.Value.As<MountReadDto>();
 
@@ -80,7 +77,7 @@ public class MountsControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenMountExistsAndMountUpdateDtoIsValid()
+    public async Task Update_Should_ReturnNoContentResult_WhenMountExistsAndMountUpdateDtoIsValid()
     {
         // Arrange
         _fixture.MountService
@@ -88,7 +85,7 @@ public class MountsControllerTests
             .Returns(_fixture.Mount);
 
         // Act
-        var result = await _fixture.MountsController.UpdateAsync(_fixture.Id, _fixture.MountBaseDto);
+        var result = await _fixture.MountsController.Update(_fixture.Id, _fixture.MountBaseDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -97,7 +94,7 @@ public class MountsControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnNoContentResult_WhenMountExistsAndPatchDocumentIsValid()
+    public async Task Update_Should_ReturnNoContentResult_WhenMountExistsAndPatchDocumentIsValid()
     {
         // Arrange
         _fixture.MountService
@@ -105,7 +102,7 @@ public class MountsControllerTests
             .Returns(_fixture.Mount);
 
         // Act
-        var result = await _fixture.MountsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var result = await _fixture.MountsController.Update(_fixture.Id, _fixture.PatchDocument);
         var objectResult = result.As<NoContentResult>();
 
         // Assert
@@ -114,7 +111,7 @@ public class MountsControllerTests
     }
 
     [Test]
-    public async Task UpdateAsync_Should_ReturnObjectResult_WhenMountExistsAndPatchDocumentIsInvalid()
+    public async Task Update_Should_ReturnObjectResult_WhenMountExistsAndPatchDocumentIsInvalid()
     {
         // Arrange
         _fixture.MountService
@@ -124,14 +121,14 @@ public class MountsControllerTests
         _fixture.MockModelError(_fixture.MountsController);
 
         // Act
-        var result = await _fixture.MountsController.UpdateAsync(_fixture.Id, _fixture.PatchDocument);
+        var result = await _fixture.MountsController.Update(_fixture.Id, _fixture.PatchDocument);
 
         // Assert
         result.Should().NotBeNull().And.BeOfType<ObjectResult>();
     }
 
     [Test]
-    public async Task DeleteAsync_Should_ReturnNoContentResult_WhenMountExists()
+    public async Task Delete_Should_ReturnNoContentResult_WhenMountExists()
     {
         // Arrange
         _fixture.MountService
@@ -139,7 +136,7 @@ public class MountsControllerTests
             .Returns(_fixture.Mount);
 
         // Act
-        var result = await _fixture.MountsController.DeleteAsync(_fixture.Id);
+        var result = await _fixture.MountsController.Delete(_fixture.Id);
         var objectResult = result.As<NoContentResult>();
 
         // Assert

@@ -15,10 +15,7 @@ public class MountServiceTests
     private MountServiceFixture _fixture = default!;
 
     [SetUp]
-    public void SetUp()
-    {
-        _fixture = new MountServiceFixture();
-    }
+    public void SetUp() => _fixture = new MountServiceFixture();
 
     [Test]
     public async Task GetAllAsync_Should_ReturnPaginatedListOfMounts_WhenParametersAreValid()

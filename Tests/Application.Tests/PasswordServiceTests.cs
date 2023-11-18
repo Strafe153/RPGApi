@@ -11,10 +11,7 @@ public class PasswordServiceTests
     private PasswordServiceFixture _fixture = default!;
 
     [SetUp]
-    public void SetUp()
-    {
-        _fixture = new PasswordServiceFixture();
-    }
+    public void SetUp() => _fixture = new PasswordServiceFixture();
 
     [Test]
     public void GeneratePasswordHashAndSalt_Should_ReturnTupleOfByteArrays_WhenPasswordIsValid()
