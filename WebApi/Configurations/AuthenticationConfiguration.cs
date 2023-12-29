@@ -18,10 +18,10 @@ public static class AuthenticationConfiguration
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration.GetSection(JwtSettingsConstants.JWT_ISSUER).Value,
-                    ValidAudience = configuration.GetSection(JwtSettingsConstants.JWT_AUDIENCE).Value,
+                    ValidIssuer = configuration.GetSection(JwtSettingsConstants.JwtIssuer).Value,
+                    ValidAudience = configuration.GetSection(JwtSettingsConstants.JwtAudience).Value,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration.GetSection(JwtSettingsConstants.JWT_SECRET).Value!))
+                        Encoding.UTF8.GetBytes(configuration.GetSection(JwtSettingsConstants.JwtSecret).Value!))
                 };
             });
     }

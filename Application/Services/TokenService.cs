@@ -35,12 +35,12 @@ public class TokenService : ITokenService
             new Claim("id", player.Id.ToString())
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection(JwtSettingsConstants.JWT_SECRET).Value));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection(JwtSettingsConstants.JwtSecret).Value));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
 
         var token = new JwtSecurityToken(
-            issuer: _configuration.GetSection(JwtSettingsConstants.JWT_ISSUER).Value,
-            audience: _configuration.GetSection(JwtSettingsConstants.JWT_AUDIENCE).Value,
+            issuer: _configuration.GetSection(JwtSettingsConstants.JwtIssuer).Value,
+            audience: _configuration.GetSection(JwtSettingsConstants.JwtAudience).Value,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(10),
             notBefore: DateTime.UtcNow,
