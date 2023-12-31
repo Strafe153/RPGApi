@@ -1,4 +1,5 @@
-﻿using Core.Enums;
+﻿using Core.Constants;
+using Core.Enums;
 using Core.Interfaces.Services;
 using Dapper;
 using Microsoft.Extensions.Configuration;
@@ -22,14 +23,13 @@ public class RPGContext
     {
         _configuration = configuration;
         _passwordService = passwordService;
-        _databaseConnection = _configuration.GetConnectionString("DatabaseConnection");
-        _globalDatabaseConnection = _configuration.GetConnectionString("GlobalPostgresConnection");
+        _databaseConnection = _configuration.GetConnectionString(ConnectionStringConstants.DatabaseConnection);
+        _globalDatabaseConnection = _configuration.GetConnectionString(ConnectionStringConstants.GlobalPosgresConnection);
 
         EnsureDatabase();
     }
 
-    public IDbConnection CreateConnection() =>
-        new NpgsqlConnection(_databaseConnection);
+    public IDbConnection CreateConnection() => new NpgsqlConnection(_databaseConnection);
 
     private void EnsureDatabase()
     {
@@ -71,7 +71,7 @@ public class RPGContext
 
     private void InitializePlayers(IDbTransaction transaction)
     {
-        var (hash, salt) = _passwordService.GeneratePasswordHashAndSalt(_configuration.GetSection("AdminSettings:Password").Value);
+        var (hash, salt) = _passwordService.GeneratePasswordHashAndSalt(_configuration.GetSection(AdminConstants.Password).Value);
         var tableQuery = @"CREATE TABLE IF NOT EXISTS public.""Players""
                            (
                                ""Id"" serial NOT NULL,
@@ -91,7 +91,7 @@ public class RPGContext
                            VALUES (@Name, @Role, @PasswordHash, @PasswordSalt)";
         var adminQueryParams = new
         {
-            Name = "Admin",
+            Name = _configuration.GetSection(AdminConstants.Username).Value,
             Role = PlayerRole.Admin,
             PasswordHash = hash,
             PasswordSalt = salt

@@ -1,4 +1,6 @@
-﻿namespace WebApi.Configurations;
+﻿using Core.Constants;
+
+namespace WebApi.Configurations;
 
 public static class RedisConfiguration
 {
@@ -6,7 +8,7 @@ public static class RedisConfiguration
     {
         services.AddStackExchangeRedisCache(options =>
         {
-            options.Configuration = configuration.GetConnectionString("RedisConnection");
+            options.Configuration = configuration.GetConnectionString(ConnectionStringConstants.RedisConnection);
         });
     }
 }

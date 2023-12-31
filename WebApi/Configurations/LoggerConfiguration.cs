@@ -2,7 +2,7 @@
 
 namespace WebApi.Configurations;
 
-public static class LoggersConfiguration
+public static class LoggerConfiguration
 {
     public static void ConfigureLoggers(this WebApplicationBuilder builder)
     {

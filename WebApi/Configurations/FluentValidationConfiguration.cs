@@ -17,31 +17,27 @@ public static class FluentValidationConfiguration
 {
     public static void ConfigureFluentValidation(this IServiceCollection services)
     {
-        services.AddFluentValidationAutoValidation()
+        services
+            .AddFluentValidationAutoValidation()
             .AddFluentValidationClientsideAdapters();
     }
 
     public static void AddCustomValidators(this IServiceCollection services)
     {
-        // Player validators
         services.AddScoped<IValidator<PlayerBaseDto>, PlayerBaseValidator<PlayerBaseDto>>();
         services.AddScoped<IValidator<PlayerAuthorizeDto>, PlayerAuthorizeValidator>();
         services.AddScoped<IValidator<PlayerChangePasswordDto>, PlayerChangePasswordValidator>();
         services.AddScoped<IValidator<PlayerChangeRoleDto>, PlayerChangeRoleValidator>();
 
-        // Character validators
         services.AddScoped<IValidator<CharacterBaseDto>, CharacterBaseValidator<CharacterBaseDto>>();
         services.AddScoped<IValidator<CharacterCreateDto>, CharacterCreateValidator>();
 
-        // Weapon validators
         services.AddScoped<IValidator<WeaponBaseDto>, WeaponBaseValidator<WeaponBaseDto>>();
         services.AddScoped<IValidator<WeaponBaseDto>, WeaponCreateUpdateValidator>();
 
-        // Spell validators
         services.AddScoped<IValidator<SpellBaseDto>, SpellBaseValidator<SpellBaseDto>>();
         services.AddScoped<IValidator<SpellBaseDto>, SpellCreateUpdateValidator>();
 
-        // Mount validators
         services.AddScoped<IValidator<MountBaseDto>, MountBaseValidator<MountBaseDto>>();
         services.AddScoped<IValidator<MountBaseDto>, MountCreateUpdateValidator>();
     }

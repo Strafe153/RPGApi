@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.RateLimiting;
-using System.Threading.RateLimiting;
+﻿using Core.Constants;
+using Microsoft.AspNetCore.RateLimiting;
 using WebApi.Configurations.ConfigurationModels;
 
 namespace WebApi.Configurations;
@@ -8,15 +8,14 @@ public static class RateLimitingConfiguration
 {
     public static void ConfigureRateLimiting(this IServiceCollection services, IConfiguration configuration)
     {
-        var rateLimitOptions = new RateLimitOptions();
-        configuration.GetSection(RateLimitOptions.RateLimitOptionsSectionName).Bind(rateLimitOptions);
+        var rateLimitOptions = configuration.GetSection(RateLimitOptions.SectionName).Get<RateLimitOptions>()!;
 
         services.AddRateLimiter(options =>
         {
-            options.AddTokenBucketLimiter("tokenBucket", tokenOptions =>
+            options.AddTokenBucketLimiter(RateLimitingConstants.TokenBucket, tokenOptions =>
             {
                 tokenOptions.TokenLimit = rateLimitOptions.TokenLimit;
-                tokenOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                tokenOptions.QueueProcessingOrder = rateLimitOptions.QueueProcessingOrder;
                 tokenOptions.QueueLimit = rateLimitOptions.QueueLimit;
                 tokenOptions.ReplenishmentPeriod = TimeSpan.FromSeconds(rateLimitOptions.ReplenishmentPeriod);
                 tokenOptions.TokensPerPeriod = rateLimitOptions.TokensPerPeriod;

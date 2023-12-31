@@ -1,8 +1,8 @@
-﻿namespace Core.Shared;
+﻿namespace Core.Constants;
 
 public static class JwtSettingsConstants
 {
-    private const string JwtSettingsPrefix = "JwtSettings";
+    private const string JwtSettingsPrefix = "Jwt";
 
     public const string JwtSecret = $"{JwtSettingsPrefix}:Secret";
     public const string JwtIssuer = $"{JwtSettingsPrefix}:Issuer";

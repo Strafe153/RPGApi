@@ -1,4 +1,5 @@
-﻿using Core.Dtos;
+﻿using Core.Constants;
+using Core.Dtos;
 using Core.Dtos.PlayerDtos;
 using Core.Dtos.TokensDtos;
 using Core.Entities;
@@ -16,7 +17,7 @@ namespace WebApi.Controllers.V1;
 [ApiController]
 [Authorize]
 [ApiVersion("1.0")]
-[EnableRateLimiting("tokenBucket")]
+[EnableRateLimiting(RateLimitingConstants.TokenBucket)]
 public class PlayersController : ControllerBase
 {
     private readonly IPlayerService _playerService;

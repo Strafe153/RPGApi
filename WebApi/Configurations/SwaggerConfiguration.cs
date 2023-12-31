@@ -19,7 +19,7 @@ public static class SwaggerConfiguration
             {
                 options.SwaggerDoc(description.GroupName, new OpenApiInfo
                 {
-                    Title = $"RPGApi {description.ApiVersion}",
+                    Title = $"{typeof(Program).Assembly.GetName().Name} {description.ApiVersion}",
                     Version = description.ApiVersion.ToString()
                 });
             }

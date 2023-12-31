@@ -1,4 +1,5 @@
-﻿using HealthChecks.UI.Client;
+﻿using Core.Constants;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace WebApi.Configurations;
@@ -9,8 +10,8 @@ public static class HealthChecksConfiguration
     {
         services
             .AddHealthChecks()
-            .AddNpgSql(configuration.GetConnectionString("DatabaseConnection")!)
-            .AddRedis(configuration.GetConnectionString("RedisConnection")!);
+            .AddNpgSql(configuration.GetConnectionString(ConnectionStringConstants.DatabaseConnection)!)
+            .AddRedis(configuration.GetConnectionString(ConnectionStringConstants.RedisConnection)!);
     }
 
     public static void UseHealthChecks(this WebApplication application)

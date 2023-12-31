@@ -6,7 +6,7 @@ using System.Text;
 
 namespace WebApi.Filters;
 
-[AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class CacheFilterAttribute : Attribute, IAsyncResourceFilter
 {
     private readonly int _absoluteExpirationRelativeToNow;
@@ -59,7 +59,6 @@ public class CacheFilterAttribute : Attribute, IAsyncResourceFilter
     private static string GenerateCacheKey(HttpRequest request)
     {
         var cacheKeyBuilder = new StringBuilder();
-
         cacheKeyBuilder.Append(request.Path);
 
         foreach (var (key, value) in request.Query.OrderBy(kv => kv.Key))
