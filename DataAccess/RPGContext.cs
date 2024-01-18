@@ -1,8 +1,10 @@
 ﻿using Core.Constants;
 using Core.Enums;
 using Core.Interfaces.Services;
+using Core.Shared;
 using Dapper;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Npgsql;
 using System.Data;
 
@@ -11,6 +13,7 @@ namespace DataAccess;
 public class RPGContext
 {
     private readonly IConfiguration _configuration;
+    private readonly AdminOptions _adminOptions;
     private readonly IPasswordService _passwordService;
     private readonly string _databaseConnection;
     private readonly string _globalDatabaseConnection;
@@ -19,9 +22,11 @@ public class RPGContext
 
     public RPGContext(
         IConfiguration configuration,
+        IOptions<AdminOptions> adminOptions,
         IPasswordService passwordService)
     {
         _configuration = configuration;
+        _adminOptions = adminOptions.Value;
         _passwordService = passwordService;
         _databaseConnection = _configuration.GetConnectionString(ConnectionStringConstants.DatabaseConnection);
         _globalDatabaseConnection = _configuration.GetConnectionString(ConnectionStringConstants.GlobalPosgresConnection);
@@ -71,7 +76,7 @@ public class RPGContext
 
     private void InitializePlayers(IDbTransaction transaction)
     {
-        var (hash, salt) = _passwordService.GeneratePasswordHashAndSalt(_configuration.GetSection(AdminConstants.Password).Value);
+        var (hash, salt) = _passwordService.GeneratePasswordHashAndSalt(_adminOptions.Password);
         var tableQuery = @"CREATE TABLE IF NOT EXISTS public.""Players""
                            (
                                ""Id"" serial NOT NULL,
@@ -91,7 +96,7 @@ public class RPGContext
                            VALUES (@Name, @Role, @PasswordHash, @PasswordSalt)";
         var adminQueryParams = new
         {
-            Name = _configuration.GetSection(AdminConstants.Username).Value,
+            Name = _adminOptions.Username,
             Role = PlayerRole.Admin,
             PasswordHash = hash,
             PasswordSalt = salt

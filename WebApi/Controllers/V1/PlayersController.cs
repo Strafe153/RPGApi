@@ -84,7 +84,7 @@ public class PlayersController : ControllerBase
         var accessToken = _tokenService.GenerateAccessToken(player);
         var refreshToken = _tokenService.GenerateRefreshToken();
 
-        _tokenService.SetRefreshToken(refreshToken, player, Response);
+        _tokenService.SetRefreshToken(player, refreshToken);
         await _playerService.UpdateAsync(player);
 
         var tokensDto = new TokensReadDto()
@@ -133,7 +133,7 @@ public class PlayersController : ControllerBase
         string accessToken = _tokenService.GenerateAccessToken(player);
         string refreshToken = _tokenService.GenerateRefreshToken();
 
-        _tokenService.SetRefreshToken(refreshToken, player, Response);
+        _tokenService.SetRefreshToken(player, refreshToken);
         await _playerService.UpdateAsync(player);
 
         var tokensDto = new TokensReadDto()
@@ -169,7 +169,7 @@ public class PlayersController : ControllerBase
         var accessToken = _tokenService.GenerateAccessToken(player);
         var refreshToken = _tokenService.GenerateRefreshToken();
 
-        _tokenService.SetRefreshToken(refreshToken, player, Response);
+        _tokenService.SetRefreshToken(player, refreshToken);
         await _playerService.UpdateAsync(player);
 
         var tokensReadDto = new TokensReadDto

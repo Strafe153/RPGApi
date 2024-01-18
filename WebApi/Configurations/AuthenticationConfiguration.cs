@@ -1,4 +1,4 @@
-﻿using Core.Constants;
+﻿using Core.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -9,20 +9,22 @@ public static class AuthenticationConfiguration
 {
     public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
+        var jwtSection = configuration.GetSection(JwtOptions.SectionName);
+        var jwtOptinos = jwtSection.Get<JwtOptions>()!;
+
+        services.Configure<JwtOptions>(jwtSection);
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters()
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateActor = true,
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration.GetSection(JwtSettingsConstants.JwtIssuer).Value,
-                    ValidAudience = configuration.GetSection(JwtSettingsConstants.JwtAudience).Value,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(configuration.GetSection(JwtSettingsConstants.JwtSecret).Value!))
-                };
-            });
+                    ValidIssuer = jwtOptinos.Issuer,
+                    ValidAudience = jwtOptinos.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptinos.Secret))
+                });
     }
 }

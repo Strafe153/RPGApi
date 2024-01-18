@@ -1,6 +1,6 @@
 ﻿using Core.Constants;
 using Microsoft.AspNetCore.RateLimiting;
-using WebApi.Configurations.ConfigurationModels;
+using System.Threading.RateLimiting;
 
 namespace WebApi.Configurations;
 
@@ -8,20 +8,13 @@ public static class RateLimitingConfiguration
 {
     public static void ConfigureRateLimiting(this IServiceCollection services, IConfiguration configuration)
     {
-        var rateLimitOptions = configuration.GetSection(RateLimitOptions.SectionName).Get<RateLimitOptions>()!;
-
         services.AddRateLimiter(options =>
         {
-            options.AddTokenBucketLimiter(RateLimitingConstants.TokenBucket, tokenOptions =>
-            {
-                tokenOptions.TokenLimit = rateLimitOptions.TokenLimit;
-                tokenOptions.QueueProcessingOrder = rateLimitOptions.QueueProcessingOrder;
-                tokenOptions.QueueLimit = rateLimitOptions.QueueLimit;
-                tokenOptions.ReplenishmentPeriod = TimeSpan.FromSeconds(rateLimitOptions.ReplenishmentPeriod);
-                tokenOptions.TokensPerPeriod = rateLimitOptions.TokensPerPeriod;
-                tokenOptions.AutoReplenishment = rateLimitOptions.AutoReplenishment;
-            });
+            var rateLimitOptions = configuration
+                .GetSection(RateLimitingConstants.SectionName)
+                .Get<TokenBucketRateLimiterOptions>()!;
 
+            options.AddTokenBucketLimiter(RateLimitingConstants.TokenBucket, options => options = rateLimitOptions);
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
             options.OnRejected = (context, _) =>

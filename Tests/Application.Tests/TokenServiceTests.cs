@@ -17,14 +17,6 @@ public class TokenServiceTests
     [Test]
     public void GenerateAccessToken_Should_ReturnString_WhenDataIsValid()
     {
-        // Arrange
-        _fixture.ConfigurationSection.Value
-            .Returns(_fixture.ValidToken);
-
-        _fixture.Configuration
-            .GetSection(Arg.Any<string>())
-            .Returns(_fixture.ConfigurationSection);
-
         // Act
         var result = _fixture.TokenService.GenerateAccessToken(_fixture.PlayerWithValidToken);
 
@@ -46,8 +38,7 @@ public class TokenServiceTests
     public void SetRefreshToken_Should_ReturnVoid_WhenDataIsValid()
     {
         // Act
-        var result = () => _fixture.TokenService.SetRefreshToken(
-            _fixture.ValidToken, _fixture.PlayerWithValidToken, _fixture.HttpResponse);
+        var result = () => _fixture.TokenService.SetRefreshToken(_fixture.PlayerWithValidToken, _fixture.ValidToken);
 
         // Assert
         result.Should().NotBeNull();

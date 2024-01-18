@@ -1,10 +1,9 @@
-﻿using Core.Constants;
-using Core.Entities;
+﻿using Core.Entities;
 using Core.Exceptions;
 using Core.Interfaces.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+using Core.Shared;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,32 +14,32 @@ namespace Application.Services;
 
 public class TokenService : ITokenService
 {
-    private readonly IConfiguration _configuration;
+    private readonly JwtOptions _jwtOptions;
     private readonly ILogger<TokenService> _logger;
 
     public TokenService(
-        IConfiguration configuration,
+        IOptions<JwtOptions> jwtOptions,
         ILogger<TokenService> logger)
     {
-        _configuration = configuration;
+        _jwtOptions = jwtOptions.Value;
         _logger = logger;
     }
 
     public string GenerateAccessToken(Player player)
     {
-        var claims = new List<Claim>()
+        List<Claim> claims = new()
         {
-            new Claim(ClaimTypes.Name, player.Name!),
-            new Claim(ClaimTypes.Role, player.Role.ToString()),
-            new Claim("id", player.Id.ToString())
+            new(ClaimTypes.Name, player.Name!),
+            new(ClaimTypes.Role, player.Role.ToString()),
+            new(nameof(player.Id), player.Id.ToString())
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection(JwtSettingsConstants.JwtSecret).Value));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
+        SymmetricSecurityKey key = new(Encoding.UTF8.GetBytes(_jwtOptions.Secret));
+        SigningCredentials credentials = new(key, SecurityAlgorithms.HmacSha256Signature);
 
-        var token = new JwtSecurityToken(
-            issuer: _configuration.GetSection(JwtSettingsConstants.JwtIssuer).Value,
-            audience: _configuration.GetSection(JwtSettingsConstants.JwtAudience).Value,
+        JwtSecurityToken token = new(
+            issuer: _jwtOptions.Issuer,
+            audience: _jwtOptions.Audience,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(10),
             notBefore: DateTime.UtcNow,
@@ -49,27 +48,12 @@ public class TokenService : ITokenService
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public string GenerateRefreshToken()
+    public string GenerateRefreshToken() => Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+
+    public void SetRefreshToken(Player player, string refreshToken)
     {
-        var bytesForToken = RandomNumberGenerator.GetBytes(64);
-        var refreshToken = Convert.ToBase64String(bytesForToken);
-
-        return refreshToken;
-    }
-
-    public void SetRefreshToken(string refreshToken, Player player, HttpResponse response)
-    {
-        var expiryDate = DateTime.UtcNow.AddDays(7);
-        var cookieOptions = new CookieOptions()
-        {
-            HttpOnly = true,
-            Expires = expiryDate
-        };
-
         player.RefreshToken = refreshToken;
-        player.RefreshTokenExpiryDate = expiryDate;
-
-        response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+        player.RefreshTokenExpiryDate = DateTime.UtcNow.AddDays(14);
     }
 
     public void ValidateRefreshToken(Player player, string refreshToken)

@@ -4,10 +4,9 @@ using AutoFixture.AutoNSubstitute;
 using Bogus;
 using Core.Entities;
 using Core.Enums;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+using Core.Shared;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
+using Microsoft.Extensions.Options;
 
 namespace Application.Tests.Fixtures;
 
@@ -34,27 +33,28 @@ public class TokenServiceFixture
 		var playerWithExpiredTokenFaker = playerwithValidTokenFaker
 			.RuleFor(p => p.RefreshTokenExpiryDate, f => f.Date.Past());
 
-        Configuration = fixture.Freeze<IConfiguration>();
+		var jwtOptionsFaker = new Faker<JwtOptions>()
+			.RuleFor(o => o.Audience, f => f.Internet.Url())
+			.RuleFor(o => o.Issuer, f => f.Internet.Url())
+			.RuleFor(o => o.Secret, f => f.Random.String(64));
+
+        JwtOptions = Options.Create(jwtOptionsFaker.Generate());
 		Logger = fixture.Freeze<ILogger<TokenService>>();
 
 		TokenService = new TokenService(
-			Configuration,
+			JwtOptions,
 			Logger);
 
         PlayerWithValidToken = playerwithValidTokenFaker.Generate();
 		PlayerWithExpiredToken = playerWithExpiredTokenFaker.Generate();
-		ConfigurationSection = Substitute.For<IConfigurationSection>();
-		HttpResponse = Substitute.For<HttpResponse>();
 	}
 
 	public TokenService TokenService { get; }
-	public IConfiguration Configuration { get; }
+	public IOptions<JwtOptions> JwtOptions { get; }
 	public ILogger<TokenService> Logger { get; }
 
 	public string ValidToken { get; }
 	public string InvalidToken { get; }
 	public Player PlayerWithValidToken { get; }
     public Player PlayerWithExpiredToken { get; }
-	public IConfigurationSection ConfigurationSection { get; }
-	public HttpResponse HttpResponse { get; }
 }
