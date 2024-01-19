@@ -14,7 +14,7 @@ public static class RateLimitingConfiguration
                 .GetSection(RateLimitingConstants.SectionName)
                 .Get<TokenBucketRateLimiterOptions>()!;
 
-            options.AddTokenBucketLimiter(RateLimitingConstants.TokenBucket, options => options = rateLimitOptions);
+            options.AddTokenBucketLimiter(RateLimitingConstants.TokenBucket, tokenOptions => tokenOptions = rateLimitOptions);
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
             options.OnRejected = (context, _) =>
