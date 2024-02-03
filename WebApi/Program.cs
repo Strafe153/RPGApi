@@ -7,7 +7,6 @@ builder.ConfigureLoggers();
 builder.Services.ConfigureHealthChecks(builder.Configuration);
 builder.Services.ConfigureRateLimiting(builder.Configuration);
 
-builder.Services.AddCustomValidators();
 builder.Services.AddRepositories();
 builder.Services.AddCustomServices();
 builder.Services.AddMappers();

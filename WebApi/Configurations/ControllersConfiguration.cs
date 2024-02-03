@@ -6,8 +6,7 @@ namespace WebApi.Configurations;
 
 public static class ControllersConfiguration
 {
-    public static void ConfigureControllers(this IServiceCollection services)
-    {
+    public static void ConfigureControllers(this IServiceCollection services) =>
         services
             .AddControllers(options =>
             {
@@ -18,5 +17,4 @@ public static class ControllersConfiguration
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
-    }
 }

@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Versioning;
+﻿using Asp.Versioning;
 
 namespace WebApi.Configurations;
 
 public static class ApiVersioningConfiguration
 {
-    public static void ConfigureApiVersioning(this IServiceCollection services)
-    {
+    public static void ConfigureApiVersioning(this IServiceCollection services) =>
         services
             .AddApiVersioning(options =>
             {
@@ -19,9 +17,8 @@ public static class ApiVersioningConfiguration
                     new HeaderApiVersionReader("X-Version"),
                     new MediaTypeApiVersionReader("ver"));
             })
-            .AddVersionedApiExplorer(options =>
+            .AddApiExplorer(options =>
             {
                 options.GroupNameFormat = "'v'VVV";
             });
-    }
 }

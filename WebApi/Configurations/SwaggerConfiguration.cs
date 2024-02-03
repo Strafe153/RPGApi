@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
+﻿using Asp.Versioning.ApiExplorer;
 using Microsoft.OpenApi.Models;
 
 namespace WebApi.Configurations;
@@ -11,6 +11,8 @@ public static class SwaggerConfiguration
 
         services.AddSwaggerGen(options =>
         {
+            const string BearerScheme = "Bearer";
+
             var apiVersionDescriptionProvider = services
                 .BuildServiceProvider()
                 .GetRequiredService<IApiVersionDescriptionProvider>();
@@ -24,11 +26,11 @@ public static class SwaggerConfiguration
                 });
             }
 
-            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            options.AddSecurityDefinition(BearerScheme, new OpenApiSecurityScheme
             {
                 Name = "Authorization",
                 Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer",
+                Scheme = BearerScheme,
                 BearerFormat = "JWT",
                 In = ParameterLocation.Header,
                 Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer kl4wof7t3nf\"",
@@ -42,7 +44,7 @@ public static class SwaggerConfiguration
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = "Bearer"
+                            Id = BearerScheme
                         }
                     },
                     Array.Empty<string>()

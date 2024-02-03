@@ -17,12 +17,14 @@ public static class FluentValidationConfiguration
 {
     public static void ConfigureFluentValidation(this IServiceCollection services)
     {
+        services.AddCustomValidators();
+
         services
             .AddFluentValidationAutoValidation()
             .AddFluentValidationClientsideAdapters();
     }
 
-    public static void AddCustomValidators(this IServiceCollection services)
+    private static void AddCustomValidators(this IServiceCollection services)
     {
         services.AddScoped<IValidator<PlayerBaseDto>, PlayerBaseValidator<PlayerBaseDto>>();
         services.AddScoped<IValidator<PlayerAuthorizeDto>, PlayerAuthorizeValidator>();
