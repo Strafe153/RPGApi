@@ -1,10 +1,12 @@
-﻿using Core.Constants;
+﻿using Asp.Versioning;
+using Core.Constants;
 using Core.Dtos;
 using Core.Dtos.PlayerDtos;
 using Core.Dtos.TokensDtos;
 using Core.Entities;
 using Core.Interfaces.Services;
 using Core.Shared;
+using Core.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -16,7 +18,7 @@ namespace WebApi.Controllers.V1;
 [Route("api/players")]
 [ApiController]
 [Authorize]
-[ApiVersion("1.0")]
+[ApiVersion(ApiVersioningConstants.V1)]
 [EnableRateLimiting(RateLimitingConstants.TokenBucket)]
 public class PlayersController : ControllerBase
 {

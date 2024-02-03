@@ -9,12 +9,10 @@ namespace WebApi.Filters;
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class CacheFilterAttribute : Attribute, IAsyncResourceFilter
 {
-    private readonly int _absoluteExpirationRelativeToNow;
     private readonly int _slidingExpiration;
 
-    public CacheFilterAttribute(int absoluteExpirationRelativeToNow = 8, int slidingExpiration = 3)
+    public CacheFilterAttribute(int slidingExpiration = 2)
     {
-        _absoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow;
         _slidingExpiration = slidingExpiration;
     }
 
@@ -50,7 +48,6 @@ public class CacheFilterAttribute : Attribute, IAsyncResourceFilter
         {
             await cacheService.SetAsync(key, okObjectResult.Value!, new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_absoluteExpirationRelativeToNow),
                 SlidingExpiration = TimeSpan.FromSeconds(_slidingExpiration)
             });
         }

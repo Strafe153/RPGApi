@@ -1,9 +1,11 @@
-﻿using Core.Constants;
+﻿using Asp.Versioning;
+using Core.Constants;
 using Core.Dtos;
 using Core.Dtos.CharacterDtos;
 using Core.Entities;
 using Core.Interfaces.Services;
 using Core.Shared;
+using Core.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +18,7 @@ namespace WebApi.Controllers.V1;
 [Route("api/characters")]
 [ApiController]
 [Authorize]
-[ApiVersion("1.0")]
+[ApiVersion(ApiVersioningConstants.V1)]
 [EnableRateLimiting(RateLimitingConstants.TokenBucket)]
 public class CharactersController : ControllerBase
 {
