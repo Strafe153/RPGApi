@@ -38,7 +38,7 @@ public class WeaponRepository : IItemRepository<Weapon>
         return id;
     }
 
-    public async Task DeleteAsync(int id)
+    public Task DeleteAsync(int id)
     {
         var queryParams = new { Id = id };
         var query = @"
@@ -46,7 +46,7 @@ public class WeaponRepository : IItemRepository<Weapon>
             WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
-        await connection.ExecuteAsync(query, queryParams);
+        return connection.ExecuteAsync(query, queryParams);
     }
 
     public async Task<PaginatedList<Weapon>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
@@ -116,7 +116,7 @@ public class WeaponRepository : IItemRepository<Weapon>
         return queryResult.FirstOrDefault();
     }
 
-    public async Task UpdateAsync(Weapon entity)
+    public Task UpdateAsync(Weapon entity)
     {
         var queryParams = new
         {
@@ -134,10 +134,10 @@ public class WeaponRepository : IItemRepository<Weapon>
             WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
-        await connection.ExecuteAsync(query, queryParams);
+        return connection.ExecuteAsync(query, queryParams);
     }
 
-    public async Task AddToCharacterAsync(Character character, Weapon item)
+    public Task AddToCharacterAsync(Character character, Weapon item)
     {
         var queryParams = new
         {
@@ -152,10 +152,10 @@ public class WeaponRepository : IItemRepository<Weapon>
                 (@CharacterId, @WeaponId)";
 
         using var connection = _context.CreateConnection();
-        await connection.ExecuteAsync(query, queryParams);
+        return connection.ExecuteAsync(query, queryParams);
     }
 
-    public async Task RemoveFromCharacterAsync(Character character, Weapon item)
+    public Task RemoveFromCharacterAsync(Character character, Weapon item)
     {
         var queryParams = new
         {
@@ -169,6 +169,6 @@ public class WeaponRepository : IItemRepository<Weapon>
                   AND ""WeaponId"" = @WeaponId";
 
         using var connection = _context.CreateConnection();
-        await connection.ExecuteAsync(query, queryParams);
+        return connection.ExecuteAsync(query, queryParams);
     }
 }
