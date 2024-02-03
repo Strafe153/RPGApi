@@ -11,6 +11,7 @@
 * Mounts creation, editing and deletion
 
 ## Dependencies
+* `Asp.Versioning.Mvc.ApiExplorer` for API versioning
 * `AspNetCore.HealthChecks.NpgSql` for PostgreSQL health check
 * `AspNetCore.HealthChecks.Redis` for Redis health checks
 * `AspNetCore.HealthChecks.UI.Client` for detailed health checks information
@@ -25,7 +26,6 @@
 * `Microsoft.AspNetCore.Http` for default HTTP feature implementations
 * `Microsoft.AspNetCore.Http.Abstractions` for object model for HTTP requests and responses
 * `Microsoft.AspNetCore.Mvc.NewtonsoftJson` for MVC features that use Newtonsoft.Json
-* `Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer` for API versioning
 * `Microsoft.Extensions.Caching.Abstractions` for caching abstractions
 * `Microsoft.Extensions.Configuration` for key-value based configuration
 * `Microsoft.Extensions.Configuration.Abstractions` for configuration abstractions
