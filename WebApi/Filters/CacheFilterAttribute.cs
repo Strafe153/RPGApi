@@ -12,7 +12,7 @@ public class CacheFilterAttribute : Attribute, IAsyncResourceFilter
     private readonly int _absoluteExpirationRelativeToNow;
     private readonly int _slidingExpiration;
 
-    public CacheFilterAttribute(int absoluteExpirationRelativeToNow = 60, int slidingExpiration = 10)
+    public CacheFilterAttribute(int absoluteExpirationRelativeToNow = 8, int slidingExpiration = 3)
     {
         _absoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow;
         _slidingExpiration = slidingExpiration;
@@ -48,7 +48,7 @@ public class CacheFilterAttribute : Attribute, IAsyncResourceFilter
 
         if (executedContext.Result is OkObjectResult okObjectResult)
         {
-            await cacheService.SetAsync(key, okObjectResult.Value!, new DistributedCacheEntryOptions()
+            await cacheService.SetAsync(key, okObjectResult.Value!, new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_absoluteExpirationRelativeToNow),
                 SlidingExpiration = TimeSpan.FromSeconds(_slidingExpiration)
