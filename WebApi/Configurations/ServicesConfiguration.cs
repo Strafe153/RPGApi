@@ -6,15 +6,14 @@ namespace WebApi.Configurations;
 
 public static class ServicesConfiguration
 {
-    public static void AddCustomServices(this IServiceCollection services)
-    {
-        services.AddScoped<IPlayerService, PlayerService>();
-        services.AddScoped<ICharacterService, CharacterService>();
-        services.AddScoped<IItemService<Weapon>, WeaponService>();
-        services.AddScoped<IItemService<Spell>, SpellService>();
-        services.AddScoped<IItemService<Mount>, MountService>();
-        services.AddSingleton<IPasswordService, PasswordService>();
-        services.AddSingleton<ITokenService, TokenService>();
-        services.AddSingleton<ICacheService, CacheService>();
-    }
+	public static void AddCustomServices(this IServiceCollection services) =>
+		services
+			.AddScoped<IPlayerService, PlayerService>()
+			.AddScoped<ICharacterService, CharacterService>()
+			.AddScoped<IItemService<Weapon>, WeaponService>()
+			.AddScoped<IItemService<Spell>, SpellService>()
+			.AddScoped<IItemService<Mount>, MountService>()
+			.AddSingleton<IPasswordService, PasswordService>()
+			.AddSingleton<ITokenService, TokenService>()
+			.AddSingleton<ICacheService, CacheService>();
 }

@@ -15,32 +15,37 @@ namespace WebApi.Configurations;
 
 public static class FluentValidationConfiguration
 {
-    public static void ConfigureFluentValidation(this IServiceCollection services)
-    {
-        services.AddCustomValidators();
+	public static void ConfigureFluentValidation(this IServiceCollection services)
+	{
+		services.AddCustomValidators();
 
-        services
-            .AddFluentValidationAutoValidation()
-            .AddFluentValidationClientsideAdapters();
-    }
+		services
+			.AddFluentValidationAutoValidation()
+			.AddFluentValidationClientsideAdapters();
+	}
 
-    private static void AddCustomValidators(this IServiceCollection services)
-    {
-        services.AddScoped<IValidator<PlayerBaseDto>, PlayerBaseValidator<PlayerBaseDto>>();
-        services.AddScoped<IValidator<PlayerAuthorizeDto>, PlayerAuthorizeValidator>();
-        services.AddScoped<IValidator<PlayerChangePasswordDto>, PlayerChangePasswordValidator>();
-        services.AddScoped<IValidator<PlayerChangeRoleDto>, PlayerChangeRoleValidator>();
+	private static void AddCustomValidators(this IServiceCollection services)
+	{
+		services
+			.AddScoped<IValidator<PlayerBaseDto>, PlayerBaseValidator<PlayerBaseDto>>()
+			.AddScoped<IValidator<PlayerAuthorizeDto>, PlayerAuthorizeValidator>()
+			.AddScoped<IValidator<PlayerChangePasswordDto>, PlayerChangePasswordValidator>()
+			.AddScoped<IValidator<PlayerChangeRoleDto>, PlayerChangeRoleValidator>();
 
-        services.AddScoped<IValidator<CharacterBaseDto>, CharacterBaseValidator<CharacterBaseDto>>();
-        services.AddScoped<IValidator<CharacterCreateDto>, CharacterCreateValidator>();
+		services
+			.AddScoped<IValidator<CharacterBaseDto>, CharacterBaseValidator<CharacterBaseDto>>()
+			.AddScoped<IValidator<CharacterCreateDto>, CharacterCreateValidator>();
 
-        services.AddScoped<IValidator<WeaponBaseDto>, WeaponBaseValidator<WeaponBaseDto>>();
-        services.AddScoped<IValidator<WeaponBaseDto>, WeaponCreateUpdateValidator>();
+		services
+			.AddScoped<IValidator<WeaponBaseDto>, WeaponBaseValidator<WeaponBaseDto>>()
+			.AddScoped<IValidator<WeaponBaseDto>, WeaponCreateUpdateValidator>();
 
-        services.AddScoped<IValidator<SpellBaseDto>, SpellBaseValidator<SpellBaseDto>>();
-        services.AddScoped<IValidator<SpellBaseDto>, SpellCreateUpdateValidator>();
+		services
+			.AddScoped<IValidator<SpellBaseDto>, SpellBaseValidator<SpellBaseDto>>()
+			.AddScoped<IValidator<SpellBaseDto>, SpellCreateUpdateValidator>();
 
-        services.AddScoped<IValidator<MountBaseDto>, MountBaseValidator<MountBaseDto>>();
-        services.AddScoped<IValidator<MountBaseDto>, MountCreateUpdateValidator>();
-    }
+		services
+			.AddScoped<IValidator<MountBaseDto>, MountBaseValidator<MountBaseDto>>()
+			.AddScoped<IValidator<MountBaseDto>, MountCreateUpdateValidator>();
+	}
 }
