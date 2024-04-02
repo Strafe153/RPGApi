@@ -1,18 +1,18 @@
 ﻿namespace Core.Exceptions;
 
-public class InvalidTokenException : ApplicationException
+public class InvalidTokenException : Exception
 {
-    public InvalidTokenException()
-    {
-    }
+	public InvalidTokenException()
+	{
+	}
 
-    public InvalidTokenException(string message)
+	public InvalidTokenException(string message)
 		: base(message)
 	{
 	}
 
-    public InvalidTokenException(string message, Exception innerException)
-        : base(message, innerException)
-    {
-    }
+	public InvalidTokenException(string message, Exception innerException)
+		: base(message, innerException)
+	{
+	}
 }
