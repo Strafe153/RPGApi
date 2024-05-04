@@ -1,4 +1,4 @@
-﻿using Core.Dtos.PlayerDtos;
+﻿using Domain.Dtos.PlayerDtos;
 using FluentValidation;
 
 namespace WebApi.Validators.PlayerValidators;

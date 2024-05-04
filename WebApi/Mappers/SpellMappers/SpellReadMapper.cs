@@ -1,5 +1,5 @@
-﻿using Core.Dtos.SpellDtos;
-using Core.Entities;
+﻿using Domain.Dtos.SpellDtos;
+using Domain.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.SpellMappers;

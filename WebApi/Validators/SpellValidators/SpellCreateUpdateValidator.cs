@@ -1,4 +1,4 @@
-﻿using Core.Dtos.SpellDtos;
+﻿using Domain.Dtos.SpellDtos;
 using FluentValidation;
 
 namespace WebApi.Validators.SpellValidators;

@@ -1,5 +1,5 @@
-﻿using Core.Entities;
-using Core.Interfaces.Repositories;
+﻿using Domain.Entities;
+using Domain.Interfaces.Repositories;
 using DataAccess.Repositories;
 
 namespace WebApi.Configurations;

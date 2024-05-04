@@ -1,5 +1,5 @@
-﻿using Core.Dtos.WeaponDtos;
-using Core.Entities;
+﻿using Domain.Dtos.WeaponDtos;
+using Domain.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.WeaponMappers;

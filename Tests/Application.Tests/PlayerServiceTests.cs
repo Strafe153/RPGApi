@@ -1,7 +1,7 @@
 ﻿using Application.Tests.Fixtures;
-using Core.Entities;
-using Core.Exceptions;
-using Core.Shared;
+using Domain.Entities;
+using Domain.Exceptions;
+using Domain.Shared;
 using FluentAssertions;
 using Npgsql;
 using NSubstitute;

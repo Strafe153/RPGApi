@@ -1,7 +1,6 @@
-﻿using Core.Dtos;
-using Core.Dtos.SpellDtos;
-using Core.Entities;
-using Core.Shared;
+﻿using Domain.Dtos;
+using Domain.Dtos.SpellDtos;
+using Domain.Entities;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

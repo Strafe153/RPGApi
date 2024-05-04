@@ -1,4 +1,4 @@
-﻿using Core.Constants;
+﻿using Domain.Constants;
 
 namespace WebApi.Configurations;
 

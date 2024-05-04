@@ -1,5 +1,5 @@
-﻿using Core.Dtos;
-using Core.Dtos.CharacterDtos;
+﻿using Domain.Dtos;
+using Domain.Dtos.CharacterDtos;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

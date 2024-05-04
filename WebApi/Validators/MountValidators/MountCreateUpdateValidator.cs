@@ -1,4 +1,4 @@
-﻿using Core.Dtos.MountDtos;
+﻿using Domain.Dtos.MountDtos;
 using FluentValidation;
 
 namespace WebApi.Validators.MountValidators;

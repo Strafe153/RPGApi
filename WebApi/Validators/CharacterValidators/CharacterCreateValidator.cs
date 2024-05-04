@@ -1,4 +1,4 @@
-﻿using Core.Dtos.CharacterDtos;
+﻿using Domain.Dtos.CharacterDtos;
 using FluentValidation;
 
 namespace WebApi.Validators.CharacterValidators;

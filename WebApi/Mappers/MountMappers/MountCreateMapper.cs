@@ -1,5 +1,5 @@
-﻿using Core.Dtos.MountDtos;
-using Core.Entities;
+﻿using Domain.Dtos.MountDtos;
+using Domain.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.MountMappers;

@@ -1,7 +1,7 @@
-﻿using Core.Constants;
-using Core.Enums;
-using Core.Interfaces.Services;
-using Core.Shared;
+﻿using Domain.Constants;
+using Domain.Enums;
+using Domain.Interfaces.Services;
+using Domain.Shared;
 using Dapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;

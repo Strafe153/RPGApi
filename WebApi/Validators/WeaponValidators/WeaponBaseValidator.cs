@@ -1,5 +1,5 @@
-﻿using Core.Dtos.WeaponDtos;
-using Core.Enums;
+﻿using Domain.Dtos.WeaponDtos;
+using Domain.Enums;
 using FluentValidation;
 
 namespace WebApi.Validators.WeaponValidators;

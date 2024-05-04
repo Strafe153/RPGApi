@@ -1,5 +1,4 @@
 ﻿using Application.Tests.Fixtures;
-using Core.Entities;
 using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;

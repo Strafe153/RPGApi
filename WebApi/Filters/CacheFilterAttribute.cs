@@ -1,4 +1,4 @@
-﻿using Core.Interfaces.Services;
+﻿using Domain.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Distributed;

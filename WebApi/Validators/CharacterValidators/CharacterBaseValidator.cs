@@ -1,5 +1,5 @@
-﻿using Core.Dtos.CharacterDtos;
-using Core.Enums;
+﻿using Domain.Dtos.CharacterDtos;
+using Domain.Enums;
 using FluentValidation;
 
 namespace WebApi.Validators.CharacterValidators;

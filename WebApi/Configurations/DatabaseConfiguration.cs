@@ -1,5 +1,5 @@
-﻿using Core.Shared;
-using DataAccess;
+﻿using DataAccess;
+using Domain.Shared;
 
 namespace WebApi.Configurations;
 

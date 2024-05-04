@@ -1,8 +1,8 @@
-﻿using Core.Entities;
-using Core.Exceptions;
-using Core.Interfaces.Repositories;
-using Core.Interfaces.Services;
-using Core.Shared;
+﻿using Domain.Entities;
+using Domain.Exceptions;
+using Domain.Interfaces.Repositories;
+using Domain.Interfaces.Services;
+using Domain.Shared;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services;

@@ -1,4 +1,4 @@
-﻿using Core.Constants;
+﻿using Domain.Constants;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 

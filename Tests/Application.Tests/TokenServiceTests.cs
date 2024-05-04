@@ -1,7 +1,6 @@
 ﻿using Application.Tests.Fixtures;
-using Core.Exceptions;
+using Domain.Exceptions;
 using FluentAssertions;
-using NSubstitute;
 using NUnit.Framework;
 
 namespace Application.Tests;

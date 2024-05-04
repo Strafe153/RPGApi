@@ -2,11 +2,11 @@
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Bogus;
-using Core.Entities;
-using Core.Enums;
-using Core.Interfaces.Repositories;
-using Core.Interfaces.Services;
-using Core.Shared;
+using Domain.Entities;
+using Domain.Enums;
+using Domain.Interfaces.Repositories;
+using Domain.Interfaces.Services;
+using Domain.Shared;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Tests.Fixtures;

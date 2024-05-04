@@ -1,5 +1,5 @@
-﻿using Core.Dtos.CharacterDtos;
-using Core.Entities;
+﻿using Domain.Dtos.CharacterDtos;
+using Domain.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.CharacterMappers;

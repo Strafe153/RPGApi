@@ -2,8 +2,8 @@
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Bogus;
-using Core.Entities;
-using Core.Enums;
+using Domain.Entities;
+using Domain.Enums;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Tests.Fixtures;

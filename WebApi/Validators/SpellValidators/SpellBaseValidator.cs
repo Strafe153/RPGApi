@@ -1,5 +1,5 @@
-﻿using Core.Dtos.SpellDtos;
-using Core.Enums;
+﻿using Domain.Dtos.SpellDtos;
+using Domain.Enums;
 using FluentValidation;
 
 namespace WebApi.Validators.SpellValidators;

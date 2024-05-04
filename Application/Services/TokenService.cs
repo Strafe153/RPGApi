@@ -1,7 +1,7 @@
-﻿using Core.Entities;
-using Core.Exceptions;
-using Core.Interfaces.Services;
-using Core.Shared;
+﻿using Domain.Entities;
+using Domain.Exceptions;
+using Domain.Interfaces.Services;
+using Domain.Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

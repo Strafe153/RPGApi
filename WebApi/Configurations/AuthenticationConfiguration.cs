@@ -1,4 +1,4 @@
-﻿using Core.Shared;
+﻿using Domain.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;

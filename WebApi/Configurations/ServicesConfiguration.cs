@@ -1,6 +1,6 @@
 ﻿using Application.Services;
-using Core.Entities;
-using Core.Interfaces.Services;
+using Domain.Entities;
+using Domain.Interfaces.Services;
 
 namespace WebApi.Configurations;
 

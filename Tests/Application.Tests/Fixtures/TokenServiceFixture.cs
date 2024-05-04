@@ -2,9 +2,9 @@
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Bogus;
-using Core.Entities;
-using Core.Enums;
-using Core.Shared;
+using Domain.Entities;
+using Domain.Enums;
+using Domain.Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

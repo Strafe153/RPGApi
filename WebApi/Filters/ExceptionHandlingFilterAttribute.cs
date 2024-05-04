@@ -1,5 +1,5 @@
-﻿using Core.Exceptions;
-using Core.Shared;
+﻿using Domain.Exceptions;
+using Domain.Shared;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;

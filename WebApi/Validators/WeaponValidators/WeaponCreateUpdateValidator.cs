@@ -1,4 +1,4 @@
-﻿using Core.Dtos.WeaponDtos;
+﻿using Domain.Dtos.WeaponDtos;
 using FluentValidation;
 
 namespace WebApi.Validators.WeaponValidators;

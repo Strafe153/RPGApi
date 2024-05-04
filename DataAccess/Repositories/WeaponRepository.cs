@@ -1,6 +1,6 @@
-﻿using Core.Entities;
-using Core.Interfaces.Repositories;
-using Core.Shared;
+﻿using Domain.Entities;
+using Domain.Interfaces.Repositories;
+using Domain.Shared;
 using Dapper;
 using DataAccess.Extensions;
 using Microsoft.EntityFrameworkCore;

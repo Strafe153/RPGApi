@@ -5,7 +5,7 @@ WORKDIR /app
 # Copy csproj and restore as distinct layers
 COPY ../*.sln ./
 COPY ../WebApi/*.csproj ./WebApi/
-COPY ../Core/*.csproj ./Core/
+COPY ../Domain/*.csproj ./Domain/
 COPY ../DataAccess/*.csproj ./DataAccess/
 COPY ../Application/*.csproj ./Application/
 COPY ../Tests/Application.Tests/*.csproj ./Tests/Application.Tests/
@@ -14,7 +14,7 @@ RUN dotnet restore
     
 # Copy everything else and build
 COPY ../WebApi/ ./WebApi/
-COPY ../Core/ ./Core/
+COPY ../Domain/ ./Domain/
 COPY ../DataAccess/ ./DataAccess/
 COPY ../Application/ ./Application/
 COPY ../Tests/Application.Tests/ ./Tests/Application.Tests/

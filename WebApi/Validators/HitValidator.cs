@@ -1,4 +1,4 @@
-﻿using Core.Dtos;
+﻿using Domain.Dtos;
 using FluentValidation;
 
 namespace WebApi.Validators;

@@ -1,6 +1,6 @@
-﻿using Core.Dtos;
-using Core.Dtos.WeaponDtos;
-using Core.Entities;
+﻿using Domain.Dtos;
+using Domain.Dtos.WeaponDtos;
+using Domain.Entities;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

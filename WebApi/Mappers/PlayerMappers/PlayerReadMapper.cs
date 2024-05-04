@@ -1,5 +1,5 @@
-﻿using Core.Dtos.PlayerDtos;
-using Core.Entities;
+﻿using Domain.Dtos.PlayerDtos;
+using Domain.Entities;
 using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.PlayerMappers;

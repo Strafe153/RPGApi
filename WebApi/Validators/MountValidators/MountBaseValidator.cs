@@ -1,5 +1,5 @@
-﻿using Core.Dtos.MountDtos;
-using Core.Enums;
+﻿using Domain.Dtos.MountDtos;
+using Domain.Enums;
 using FluentValidation;
 
 namespace WebApi.Validators.MountValidators;

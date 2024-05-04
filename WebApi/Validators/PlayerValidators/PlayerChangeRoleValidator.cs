@@ -1,5 +1,5 @@
-﻿using Core.Dtos.PlayerDtos;
-using Core.Enums;
+﻿using Domain.Dtos.PlayerDtos;
+using Domain.Enums;
 using FluentValidation;
 
 namespace WebApi.Validators.PlayerValidators;

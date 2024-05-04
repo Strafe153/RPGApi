@@ -1,8 +1,8 @@
-﻿using Core.Dtos.CharacterDtos;
-using Core.Dtos.MountDtos;
-using Core.Dtos.PlayerDtos;
-using Core.Dtos.SpellDtos;
-using Core.Dtos.WeaponDtos;
+﻿using Domain.Dtos.CharacterDtos;
+using Domain.Dtos.MountDtos;
+using Domain.Dtos.PlayerDtos;
+using Domain.Dtos.SpellDtos;
+using Domain.Dtos.WeaponDtos;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using WebApi.Validators.CharacterValidators;
