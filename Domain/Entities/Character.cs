@@ -5,7 +5,7 @@ namespace Domain.Entities;
 public class Character
 {
     public int Id { get; set; }
-    public string? Name { get; set; }
+    public string Name { get; set; } = default!;
     public CharacterRace Race { get; set; }
     public int Health { get; set; } = 100;
 

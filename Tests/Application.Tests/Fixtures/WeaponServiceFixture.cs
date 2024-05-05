@@ -44,9 +44,7 @@ public class WeaponServiceFixture
         WeaponRepository = fixture.Freeze<IItemRepository<Weapon>>();
         Logger = fixture.Freeze<ILogger<WeaponService>>();
 
-        WeaponService = new WeaponService(
-            WeaponRepository,
-            Logger);
+        WeaponService = new WeaponService(WeaponRepository, Logger);
 
         Weapon = weaponFaker.Generate();
         Character = characterFaker.Generate();

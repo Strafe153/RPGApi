@@ -6,17 +6,15 @@ namespace WebApi.Mappers.SpellMappers;
 
 public class SpellReadMapper : IMapper<Spell, SpellReadDto>
 {
-    public SpellReadDto Map(Spell source)
-    {
-        var characters = source.CharacterSpells.Select(cs => cs.Character!);
+	public SpellReadDto Map(Spell source)
+	{
+		var characters = source.CharacterSpells.Select(cs => cs.Character);
 
-        return new SpellReadDto()
-        {
-            Id = source.Id,
-            Name = source.Name,
-            Type = source.Type,
-            Damage = source.Damage,
-            Characters = characters
-        };
-    }
+		return new(
+			source.Id,
+			source.Name,
+			source.Type,
+			source.Damage,
+			characters);
+	}
 }

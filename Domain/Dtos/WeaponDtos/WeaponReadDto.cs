@@ -1,9 +1,11 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 
 namespace Domain.Dtos.WeaponDtos;
 
-public record WeaponReadDto : WeaponBaseDto
-{
-    public int Id { get; init; }
-    public IEnumerable<Character>? Characters { get; init; }
-}
+public record WeaponReadDto(
+	int Id,
+	string Name,
+	WeaponType Type,
+	int Damage,
+	IEnumerable<Character> Characters);

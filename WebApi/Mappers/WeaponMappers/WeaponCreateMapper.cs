@@ -4,9 +4,9 @@ using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.WeaponMappers;
 
-public class WeaponCreateMapper : IMapper<WeaponBaseDto, Weapon>
+public class WeaponCreateMapper : IMapper<WeaponCreateDto, Weapon>
 {
-    public Weapon Map(WeaponBaseDto source)
+    public Weapon Map(WeaponCreateDto source)
     {
         return new Weapon()
         {

@@ -4,9 +4,9 @@ using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.SpellMappers;
 
-public class SpellCreateMapper : IMapper<SpellBaseDto, Spell>
+public class SpellCreateMapper : IMapper<SpellCreateDto, Spell>
 {
-    public Spell Map(SpellBaseDto source)
+    public Spell Map(SpellCreateDto source)
     {
         return new Spell()
         {

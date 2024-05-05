@@ -4,22 +4,14 @@ using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.SpellMappers;
 
-public class SpellUpdateMapper : IUpdateMapper<SpellBaseDto, Spell>
+public class SpellUpdateMapper : IUpdateMapper<SpellUpdateDto, Spell>
 {
-    public void Map(SpellBaseDto first, Spell second)
-    {
-        second.Name = first.Name;
-        second.Type = first.Type;
-        second.Damage = first.Damage;
-    }
+	public void Map(SpellUpdateDto first, Spell second)
+	{
+		second.Name = first.Name;
+		second.Type = first.Type;
+		second.Damage = first.Damage;
+	}
 
-    public SpellBaseDto Map(Spell second)
-    {
-        return new SpellBaseDto()
-        {
-            Name = second.Name,
-            Type = second.Type,
-            Damage = second.Damage
-        };
-    }
+	public SpellUpdateDto Map(Spell second) => new(second.Name, second.Type, second.Damage);
 }

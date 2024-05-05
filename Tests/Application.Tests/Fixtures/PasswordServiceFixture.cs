@@ -4,6 +4,7 @@ using AutoFixture.AutoNSubstitute;
 using Bogus;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Interfaces.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Tests.Fixtures;
@@ -20,7 +21,7 @@ public class PasswordServiceFixture
             .RuleFor(p => p.Role, f => (PlayerRole)f.Random.Int(Enum.GetValues(typeof(PlayerRole)).Length))
             .RuleFor(p => p.PasswordHash, f => f.Random.Bytes(32))
             .RuleFor(p => p.PasswordSalt, f => f.Random.Bytes(32))
-            .RuleFor(p => p.RefreshToken, f => f.Random.String(64))
+            .RuleFor(p => p.RefreshToken, f => f.Random.String2(64))
             .RuleFor(p => p.RefreshTokenExpiryDate, f => f.Date.Future());
 
         Logger = fixture.Freeze<ILogger<PasswordService>>();
@@ -31,7 +32,7 @@ public class PasswordServiceFixture
         Player = playerFaker.Generate();
     }
 
-    public PasswordService PasswordService { get; }
+    public IPasswordService PasswordService { get; }
     public ILogger<PasswordService> Logger { get; }
 
     public string Password { get; }

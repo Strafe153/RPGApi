@@ -30,7 +30,7 @@ public class CharactersController : ControllerBase
     private readonly IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>> _paginatedMapper;
     private readonly IMapper<Character, CharacterReadDto> _readMapper;
     private readonly IMapper<CharacterCreateDto, Character> _createMapper;
-    private readonly IUpdateMapper<CharacterBaseDto, Character> _updateMapper;
+    private readonly IUpdateMapper<CharacterUpdateDto, Character> _updateMapper;
 
     public CharactersController(
         ICharacterService characterService,
@@ -41,7 +41,7 @@ public class CharactersController : ControllerBase
         IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>> paginatedMapper,
         IMapper<Character, CharacterReadDto> readMapper,
         IMapper<CharacterCreateDto, Character> createMapper,
-        IUpdateMapper<CharacterBaseDto, Character> updateMapper)
+        IUpdateMapper<CharacterUpdateDto, Character> updateMapper)
     {
         _characterService = characterService;
         _playerService = playerService;
@@ -89,7 +89,7 @@ public class CharactersController : ControllerBase
     }
 
     [HttpPut("{id:int:min(1)}")]
-    public async Task<ActionResult> Update([FromRoute] int id, [FromBody] CharacterBaseDto updateDto)
+    public async Task<ActionResult> Update([FromRoute] int id, [FromBody] CharacterUpdateDto updateDto)
     {
         var character = await _characterService.GetByIdAsync(id);
         _playerService.VerifyPlayerAccessRights(character.Player!);
@@ -103,7 +103,7 @@ public class CharactersController : ControllerBase
     [HttpPatch("{id:int:min(1)}")]
     public async Task<ActionResult> Update(
         [FromRoute] int id,
-        [FromBody] JsonPatchDocument<CharacterBaseDto> patchDocument)
+        [FromBody] JsonPatchDocument<CharacterUpdateDto> patchDocument)
     {
         var character = await _characterService.GetByIdAsync(id);
         _playerService.VerifyPlayerAccessRights(character.Player!);

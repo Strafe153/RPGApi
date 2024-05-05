@@ -27,8 +27,8 @@ public class WeaponsController : ControllerBase
     private readonly IPlayerService _playerService;
     private readonly IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> _paginatedMapper;
     private readonly IMapper<Weapon, WeaponReadDto> _readMapper;
-    private readonly IMapper<WeaponBaseDto, Weapon> _createMapper;
-    private readonly IUpdateMapper<WeaponBaseDto, Weapon> _updateMapper;
+    private readonly IMapper<WeaponCreateDto, Weapon> _createMapper;
+    private readonly IUpdateMapper<WeaponUpdateDto, Weapon> _updateMapper;
 
     public WeaponsController(
         IItemService<Weapon> weaponService,
@@ -36,8 +36,8 @@ public class WeaponsController : ControllerBase
         IPlayerService playerService,
         IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> paginatedMapper,
         IMapper<Weapon, WeaponReadDto> readMapper,
-        IMapper<WeaponBaseDto, Weapon> createMapper,
-        IUpdateMapper<WeaponBaseDto, Weapon> updateMapper)
+        IMapper<WeaponCreateDto, Weapon> createMapper,
+        IUpdateMapper<WeaponUpdateDto, Weapon> updateMapper)
     {
         _weaponService = weaponService;
         _characterService = characterService;
@@ -70,7 +70,7 @@ public class WeaponsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<WeaponReadDto>> Create([FromBody] WeaponBaseDto createDto)
+    public async Task<ActionResult<WeaponReadDto>> Create([FromBody] WeaponCreateDto createDto)
     {
         var weapon = _createMapper.Map(createDto);
         weapon.Id = await _weaponService.AddAsync(weapon);
@@ -82,7 +82,7 @@ public class WeaponsController : ControllerBase
 
     [HttpPut("{id:int:min(1)}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> Update([FromRoute] int id, [FromBody] WeaponBaseDto updateDto)
+    public async Task<ActionResult> Update([FromRoute] int id, [FromBody] WeaponUpdateDto updateDto)
     {
         var weapon = await _weaponService.GetByIdAsync(id);
 
@@ -96,7 +96,7 @@ public class WeaponsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> Update(
         [FromRoute] int id,
-        [FromBody] JsonPatchDocument<WeaponBaseDto> patchDocument)
+        [FromBody] JsonPatchDocument<WeaponUpdateDto> patchDocument)
     {
         var weapon = await _weaponService.GetByIdAsync(id);
         var updateDto = _updateMapper.Map(weapon);

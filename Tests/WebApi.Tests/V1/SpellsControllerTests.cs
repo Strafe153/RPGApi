@@ -67,7 +67,7 @@ public class SpellsControllerTests
     public async Task Create_Should_ReturnActionResultOfSpellReadDto_WhenSpellBaseDtoIsValid()
     {
         // Act
-        var result = await _fixture.SpellsController.Create(_fixture.SpellBaseDto);
+        var result = await _fixture.SpellsController.Create(_fixture.SpellCreateDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
         var readDto = objectResult.Value.As<SpellReadDto>();
 
@@ -86,7 +86,7 @@ public class SpellsControllerTests
             .Returns(_fixture.Spell);
 
         // Act
-        var result = await _fixture.SpellsController.Update(_fixture.Id, _fixture.SpellBaseDto);
+        var result = await _fixture.SpellsController.Update(_fixture.Id, _fixture.SpellUpdateDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert

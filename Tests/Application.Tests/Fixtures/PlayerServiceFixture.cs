@@ -34,7 +34,7 @@ public class PlayerServiceFixture
             .RuleFor(p => p.Role, f => (PlayerRole)f.Random.Int(Enum.GetValues(typeof(PlayerRole)).Length))
             .RuleFor(p => p.PasswordHash, f => f.Random.Bytes(32))
             .RuleFor(p => p.PasswordSalt, f => f.Random.Bytes(32))
-            .RuleFor(p => p.RefreshToken, f => f.Random.String(64))
+            .RuleFor(p => p.RefreshToken, f => f.Random.String2(64))
             .RuleFor(p => p.RefreshTokenExpiryDate, f => f.Date.Future());
 
         var paginatedListFaker = new Faker<PaginatedList<Player>>()
@@ -48,10 +48,7 @@ public class PlayerServiceFixture
         HttpContextAccessor = fixture.Freeze<IHttpContextAccessor>();
         Logger = fixture.Freeze<ILogger<PlayerService>>();
 
-        PlayerService = new PlayerService(
-            PlayerRepository,
-            HttpContextAccessor,
-            Logger);
+        PlayerService = new PlayerService(PlayerRepository, HttpContextAccessor, Logger);
 
         Player = playerFaker.Generate();
         Players = playerFaker.Generate(PlayersCount);

@@ -1,6 +1,7 @@
-﻿namespace Domain.Dtos.PlayerDtos;
+﻿using System.ComponentModel.DataAnnotations;
 
-public record PlayerChangePasswordDto
-{
-    public string? Password { get; init; }
-}
+namespace Domain.Dtos.PlayerDtos;
+
+public record PlayerChangePasswordDto(
+	[StringLength(50, MinimumLength = 6)]
+	string Password);

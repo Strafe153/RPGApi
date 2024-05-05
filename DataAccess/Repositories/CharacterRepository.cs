@@ -36,7 +36,7 @@ public class CharacterRepository : IRepository<Character>
         return id;
     }
 
-    public Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
         var queryParams = new { Id = id };
         var query = @"
@@ -44,7 +44,7 @@ public class CharacterRepository : IRepository<Character>
             WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
-        return connection.ExecuteAsync(query, queryParams);
+        await connection.ExecuteAsync(query, queryParams);
     }
 
     public async Task<PaginatedList<Character>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
@@ -142,7 +142,7 @@ public class CharacterRepository : IRepository<Character>
         return character;
     }
 
-    public Task UpdateAsync(Character entity)
+    public async Task UpdateAsync(Character entity)
     {
         var queryParams = new
         {
@@ -160,7 +160,7 @@ public class CharacterRepository : IRepository<Character>
             WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
-        return connection.ExecuteAsync(query, queryParams);
+        await connection.ExecuteAsync(query, queryParams);
     }
 
     private async Task<IEnumerable<CharacterWeapon>> GetCharacterWeaponsAsync(string query, object? queryParams = default, CancellationToken token = default)

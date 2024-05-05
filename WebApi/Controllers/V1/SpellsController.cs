@@ -27,8 +27,8 @@ public class SpellsController : ControllerBase
     private readonly IPlayerService _playerService;
     private readonly IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>> _paginatedMapper;
     private readonly IMapper<Spell, SpellReadDto> _readMapper;
-    private readonly IMapper<SpellBaseDto, Spell> _createMapper;
-    private readonly IUpdateMapper<SpellBaseDto, Spell> _updateMapper;
+    private readonly IMapper<SpellCreateDto, Spell> _createMapper;
+    private readonly IUpdateMapper<SpellUpdateDto, Spell> _updateMapper;
 
     public SpellsController(
         IItemService<Spell> spellService,
@@ -36,8 +36,8 @@ public class SpellsController : ControllerBase
         IPlayerService playerService,
         IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>> paginatedMapper,
         IMapper<Spell, SpellReadDto> readMapper,
-        IMapper<SpellBaseDto, Spell> createMapper,
-        IUpdateMapper<SpellBaseDto, Spell> updateMapper)
+        IMapper<SpellCreateDto, Spell> createMapper,
+        IUpdateMapper<SpellUpdateDto, Spell> updateMapper)
     {
         _spellService = spellService;
         _characterService = characterService;
@@ -70,7 +70,7 @@ public class SpellsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<SpellReadDto>> Create([FromBody] SpellBaseDto createDto)
+    public async Task<ActionResult<SpellReadDto>> Create([FromBody] SpellCreateDto createDto)
     {
         var spell = _createMapper.Map(createDto);
         spell.Id = await _spellService.AddAsync(spell);
@@ -82,7 +82,7 @@ public class SpellsController : ControllerBase
 
     [HttpPut("{id:int:min(1)}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> Update([FromRoute] int id, [FromBody] SpellBaseDto updateDto)
+    public async Task<ActionResult> Update([FromRoute] int id, [FromBody] SpellUpdateDto updateDto)
     {
         var spell = await _spellService.GetByIdAsync(id);
 
@@ -96,7 +96,7 @@ public class SpellsController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> Update(
         [FromRoute] int id,
-        [FromBody] JsonPatchDocument<SpellBaseDto> patchDocument)
+        [FromBody] JsonPatchDocument<SpellUpdateDto> patchDocument)
     {
         var spell = await _spellService.GetByIdAsync(id);
         var updateDto = _updateMapper.Map(spell);

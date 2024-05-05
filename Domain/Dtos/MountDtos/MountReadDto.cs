@@ -1,9 +1,11 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 
 namespace Domain.Dtos.MountDtos;
 
-public record MountReadDto : MountBaseDto
-{
-    public int Id { get; init; }
-    public IEnumerable<Character>? Characters { get; init; }
-}
+public record MountReadDto(
+	int Id,
+	string Name,
+	MountType Type,
+	int Speed,
+	IEnumerable<Character> Characters);

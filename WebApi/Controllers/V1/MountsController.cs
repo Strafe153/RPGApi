@@ -22,97 +22,97 @@ namespace WebApi.Controllers.V1;
 [EnableRateLimiting(RateLimitingConstants.TokenBucket)]
 public class MountsController : ControllerBase
 {
-    private readonly IItemService<Mount> _mountService;
-    private readonly IMapper<PaginatedList<Mount>, PageDto<MountReadDto>> _paginatedMapper;
-    private readonly IMapper<Mount, MountReadDto> _readMapper;
-    private readonly IMapper<MountBaseDto, Mount> _createMapper;
-    private readonly IUpdateMapper<MountBaseDto, Mount> _updateMapper;
+	private readonly IItemService<Mount> _mountService;
+	private readonly IMapper<PaginatedList<Mount>, PageDto<MountReadDto>> _paginatedMapper;
+	private readonly IMapper<Mount, MountReadDto> _readMapper;
+	private readonly IMapper<MountCreateDto, Mount> _createMapper;
+	private readonly IUpdateMapper<MountUpdateDto, Mount> _updateMapper;
 
-    public MountsController(
-        IItemService<Mount> mountService,
-        IMapper<PaginatedList<Mount>, PageDto<MountReadDto>> paginatedMapper,
-        IMapper<Mount, MountReadDto> readMapper,
-        IMapper<MountBaseDto, Mount> createMapper,
-        IUpdateMapper<MountBaseDto, Mount> updateMapper)
-    {
-        _mountService = mountService;
-        _paginatedMapper = paginatedMapper;
-        _readMapper = readMapper;
-        _createMapper = createMapper;
-        _updateMapper = updateMapper;
-    }
+	public MountsController(
+		IItemService<Mount> mountService,
+		IMapper<PaginatedList<Mount>, PageDto<MountReadDto>> paginatedMapper,
+		IMapper<Mount, MountReadDto> readMapper,
+		IMapper<MountCreateDto, Mount> createMapper,
+		IUpdateMapper<MountUpdateDto, Mount> updateMapper)
+	{
+		_mountService = mountService;
+		_paginatedMapper = paginatedMapper;
+		_readMapper = readMapper;
+		_createMapper = createMapper;
+		_updateMapper = updateMapper;
+	}
 
-    [HttpGet]
-    [CacheFilter]
-    public async Task<ActionResult<PageDto<MountReadDto>>> Get([FromQuery] PageParameters pageParams, CancellationToken token)
-    {
-        var mounts = await _mountService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
-        var pageDto = _paginatedMapper.Map(mounts);
+	[HttpGet]
+	[CacheFilter]
+	public async Task<ActionResult<PageDto<MountReadDto>>> Get([FromQuery] PageParameters pageParams, CancellationToken token)
+	{
+		var mounts = await _mountService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
+		var pageDto = _paginatedMapper.Map(mounts);
 
-        return Ok(pageDto);
-    }
+		return Ok(pageDto);
+	}
 
-    [HttpGet("{id:int:min(1)}")]
-    [CacheFilter]
-    public async Task<ActionResult<MountReadDto>> Get([FromRoute] int id, CancellationToken token)
-    {
-        var mount = await _mountService.GetByIdAsync(id, token);
-        var readDto = _readMapper.Map(mount);
+	[HttpGet("{id:int:min(1)}")]
+	[CacheFilter]
+	public async Task<ActionResult<MountReadDto>> Get([FromRoute] int id, CancellationToken token)
+	{
+		var mount = await _mountService.GetByIdAsync(id, token);
+		var readDto = _readMapper.Map(mount);
 
-        return Ok(readDto);
-    }
+		return Ok(readDto);
+	}
 
-    [HttpPost]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<MountReadDto>> Create([FromBody] MountBaseDto createDto)
-    {
-        var mount = _createMapper.Map(createDto);
-        mount.Id = await _mountService.AddAsync(mount);
+	[HttpPost]
+	[Authorize(Roles = "Admin")]
+	public async Task<ActionResult<MountReadDto>> Create([FromBody] MountCreateDto createDto)
+	{
+		var mount = _createMapper.Map(createDto);
+		mount.Id = await _mountService.AddAsync(mount);
 
-        var readDto = _readMapper.Map(mount);
+		var readDto = _readMapper.Map(mount);
 
-        return CreatedAtAction(nameof(Get), new { readDto.Id }, readDto);
-    }
+		return CreatedAtAction(nameof(Get), new { readDto.Id }, readDto);
+	}
 
-    [HttpPut("{id:int:min(1)}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> Update([FromRoute] int id, [FromBody] MountBaseDto updateDto)
-    {
-        var mount = await _mountService.GetByIdAsync(id);
+	[HttpPut("{id:int:min(1)}")]
+	[Authorize(Roles = "Admin")]
+	public async Task<ActionResult> Update([FromRoute] int id, [FromBody] MountUpdateDto updateDto)
+	{
+		var mount = await _mountService.GetByIdAsync(id);
 
-        _updateMapper.Map(updateDto, mount);
-        await _mountService.UpdateAsync(mount);
+		_updateMapper.Map(updateDto, mount);
+		await _mountService.UpdateAsync(mount);
 
-        return NoContent();
-    }
+		return NoContent();
+	}
 
-    [HttpPatch("{id:int:min(1)}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> Update(
-        [FromRoute] int id,
-        [FromBody] JsonPatchDocument<MountBaseDto> patchDocument)
-    {
-        var mount = await _mountService.GetByIdAsync(id);
-        var updateDto = _updateMapper.Map(mount);
+	[HttpPatch("{id:int:min(1)}")]
+	[Authorize(Roles = "Admin")]
+	public async Task<ActionResult> Update(
+		[FromRoute] int id,
+		[FromBody] JsonPatchDocument<MountUpdateDto> patchDocument)
+	{
+		var mount = await _mountService.GetByIdAsync(id);
+		var updateDto = _updateMapper.Map(mount);
 
-        patchDocument.ApplyTo(updateDto, ModelState);
+		patchDocument.ApplyTo(updateDto, ModelState);
 
-        if (!TryValidateModel(updateDto))
-        {
-            return ValidationProblem(ModelState);
-        }
+		if (!TryValidateModel(updateDto))
+		{
+			return ValidationProblem(ModelState);
+		}
 
-        _updateMapper.Map(updateDto, mount);
-        await _mountService.UpdateAsync(mount);
+		_updateMapper.Map(updateDto, mount);
+		await _mountService.UpdateAsync(mount);
 
-        return NoContent();
-    }
+		return NoContent();
+	}
 
-    [HttpDelete("{id:int:min(1)}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<ActionResult> Delete([FromRoute] int id)
-    {
-        await _mountService.DeleteAsync(id);
-        return NoContent();
-    }
+	[HttpDelete("{id:int:min(1)}")]
+	[Authorize(Roles = "Admin")]
+	public async Task<ActionResult> Delete([FromRoute] int id)
+	{
+		await _mountService.DeleteAsync(id);
+		return NoContent();
+	}
 }

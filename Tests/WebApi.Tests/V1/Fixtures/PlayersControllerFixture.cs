@@ -29,23 +29,24 @@ public class PlayersControllerFixture
             .RuleFor(p => p.Role, f => (PlayerRole)f.Random.Int(Enum.GetValues(typeof(PlayerRole)).Length))
             .RuleFor(p => p.PasswordHash, f => f.Random.Bytes(32))
             .RuleFor(p => p.PasswordSalt, f => f.Random.Bytes(32))
-            .RuleFor(p => p.RefreshToken, f => f.Random.String(64));
+            .RuleFor(p => p.RefreshToken, f => f.Random.String2(64));
 
         var playerAuthorizeDtoFaker = new Faker<PlayerAuthorizeDto>()
-            .RuleFor(p => p.Name, f => f.Internet.UserName())
-            .RuleFor(p => p.Password, f => f.Internet.Password());
+            .CustomInstantiator(f => new(
+                f.Internet.UserName(),
+                f.Internet.Password()));
 
-        var playerUpdateDtoFaker = new Faker<PlayerBaseDto>()
-            .RuleFor(p => p.Name, f => f.Internet.UserName());
+        var playerUpdateDtoFaker = new Faker<PlayerUpdateDto>()
+            .CustomInstantiator(f => new(f.Internet.UserName()));
 
         var playerChangePasswordDtoFaker = new Faker<PlayerChangePasswordDto>()
-            .RuleFor(p => p.Password, f => f.Random.String(16));
+            .CustomInstantiator(f => new(f.Random.String2(16)));
 
         var playerChangeRoleDtoFaker = new Faker<PlayerChangeRoleDto>()
-            .RuleFor(p => p.Role, f => (PlayerRole)f.Random.Int(Enum.GetValues(typeof(PlayerRole)).Length));
+            .CustomInstantiator(f => new(f.PickRandom<PlayerRole>()));
 
         var tokensRefreshDtoFaker = new Faker<TokensRefreshDto>()
-            .RuleFor(t => t.RefreshToken, f => f.Random.String(64));
+            .CustomInstantiator(f => new(f.Random.String2(64)));
 
         var pageParametersFaker = new Faker<PageParameters>()
             .RuleFor(p => p.PageNumber, f => f.Random.Int(1, 100))
@@ -64,7 +65,7 @@ public class PlayersControllerFixture
         ReadMapper = new PlayerReadMapper();
         PaginatedMapper = new PlayerPaginatedMapper(ReadMapper);
 
-        PlayersController = new PlayersController(
+        PlayersController = new(
             PlayerService,
             PasswordService,
             TokenService,
@@ -93,7 +94,7 @@ public class PlayersControllerFixture
     public Player Player { get; }
     public TokensRefreshDto TokensRefreshDto { get; }
     public PlayerAuthorizeDto PlayerAuthorizeDto { get; }
-    public PlayerBaseDto PlayerUpdateDto { get; }
+    public PlayerUpdateDto PlayerUpdateDto { get; }
     public PlayerChangePasswordDto PlayerChangePasswordDto { get; }
     public PlayerChangeRoleDto PlayerChangeRoleDto { get; }
     public PageParameters PageParameters { get; }

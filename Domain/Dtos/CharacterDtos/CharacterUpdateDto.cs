@@ -3,9 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Domain.Dtos.CharacterDtos;
 
-public record CharacterCreateDto(
+public record CharacterUpdateDto(
 	[StringLength(30, MinimumLength = 2)]
 	string Name,
-	[Required]
-	int PlayerId,
 	CharacterRace Race = CharacterRace.Human);

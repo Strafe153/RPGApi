@@ -6,22 +6,20 @@ namespace WebApi.Mappers.CharacterMappers;
 
 public class CharacterReadMapper : IMapper<Character, CharacterReadDto>
 {
-    public CharacterReadDto Map(Character source)
-    {
-        var weapons = source.CharacterWeapons.Select(cw => cw.Weapon!);
-        var spells = source.CharacterSpells.Select(cs => cs.Spell!);
-        var mounts = source.CharacterMounts.Select(cm => cm.Mount!);
+	public CharacterReadDto Map(Character source)
+	{
+		var weapons = source.CharacterWeapons.Select(cw => cw.Weapon);
+		var spells = source.CharacterSpells.Select(cs => cs.Spell);
+		var mounts = source.CharacterMounts.Select(cm => cm.Mount);
 
-        return new CharacterReadDto()
-        {
-            Id = source.Id,
-            Name = source.Name,
-            Race = source.Race,
-            Health = source.Health,
-            PlayerId = source.PlayerId,
-            Weapons = weapons,
-            Spells = spells,
-            Mounts = mounts
-        };
-    }
+		return new(
+			source.Id,
+			source.Name,
+			source.Race,
+			source.Health,
+			source.PlayerId,
+			weapons,
+			spells,
+			mounts);
+	}
 }

@@ -66,7 +66,7 @@ public class MountsControllerTests
     public async Task Create_Should_ReturnActionResultOfMountReadDto_WhenMountCreateDtoIsValid()
     {
         // Act
-        var result = await _fixture.MountsController.Create(_fixture.MountBaseDto);
+        var result = await _fixture.MountsController.Create(_fixture.MountCreateDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
         var readDto = objectResult.Value.As<MountReadDto>();
 
@@ -85,7 +85,7 @@ public class MountsControllerTests
             .Returns(_fixture.Mount);
 
         // Act
-        var result = await _fixture.MountsController.Update(_fixture.Id, _fixture.MountBaseDto);
+        var result = await _fixture.MountsController.Update(_fixture.Id, _fixture.MountUpdateDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert

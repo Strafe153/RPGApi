@@ -1,15 +1,14 @@
 ﻿using Domain.Entities;
+using Domain.Enums;
 
 namespace Domain.Dtos.CharacterDtos;
 
-public record CharacterReadDto : CharacterBaseDto
-{
-    public int Id { get; init; }
-    public int Health { get; init; }
-
-    public int PlayerId { get; init; }
-
-    public IEnumerable<Weapon>? Weapons { get; init; }
-    public IEnumerable<Spell>? Spells { get; init; }
-    public IEnumerable<Mount>? Mounts { get; init; }
-}
+public record CharacterReadDto(
+	int Id,
+	string Name,
+	CharacterRace Race,
+	int Health,
+	int PlayerId,
+	IEnumerable<Weapon> Weapons,
+	IEnumerable<Spell> Spells,
+	IEnumerable<Mount> Mounts);

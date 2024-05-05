@@ -44,9 +44,7 @@ public class SpellServiceFixture
         SpellRepository = fixture.Freeze<IItemRepository<Spell>>();
         Logger = fixture.Freeze<ILogger<SpellService>>();
 
-        SpellService = new SpellService(
-            SpellRepository,
-            Logger);
+        SpellService = new SpellService(SpellRepository, Logger);
 
         Spell = spellFaker.Generate();
         Character = characterFaker.Generate();

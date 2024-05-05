@@ -68,9 +68,7 @@ public class CharacterServiceFixture
         CharacterRepository = fixture.Freeze<IRepository<Character>>();
         Logger = fixture.Freeze<ILogger<CharacterService>>();
 
-        CharacterService = new CharacterService(
-            CharacterRepository,
-            Logger);
+        CharacterService = new CharacterService(CharacterRepository, Logger);
 
         Character = characterFaker.Generate();
         Characters = characterFaker.Generate(CharactersCount);

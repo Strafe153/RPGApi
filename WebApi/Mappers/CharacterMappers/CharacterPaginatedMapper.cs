@@ -8,24 +8,19 @@ namespace WebApi.Mappers.CharacterMappers;
 
 public class CharacterPaginatedMapper : IMapper<PaginatedList<Character>, PageDto<CharacterReadDto>>
 {
-    private readonly IMapper<Character, CharacterReadDto> _readMapper;
+	private readonly IMapper<Character, CharacterReadDto> _readMapper;
 
-    public CharacterPaginatedMapper(IMapper<Character, CharacterReadDto> readMapper)
-    {
-        _readMapper = readMapper;
-    }
+	public CharacterPaginatedMapper(IMapper<Character, CharacterReadDto> readMapper)
+	{
+		_readMapper = readMapper;
+	}
 
-    public PageDto<CharacterReadDto> Map(PaginatedList<Character> source)
-    {
-        return new PageDto<CharacterReadDto>()
-        {
-            CurrentPage = source.CurrentPage,
-            TotalPages = source.TotalPages,
-            PageSize = source.PageSize,
-            TotalItems = source.TotalItems,
-            HasPrevious = source.HasPrevious,
-            HasNext = source.HasNext,
-            Entities = source.Select(c => _readMapper.Map(c))
-        };
-    }
+	public PageDto<CharacterReadDto> Map(PaginatedList<Character> source) => new(
+		source.CurrentPage,
+		source.TotalPages,
+		source.PageSize,
+		source.TotalItems,
+		source.HasPrevious,
+		source.HasNext,
+		source.Select(_readMapper.Map));
 }

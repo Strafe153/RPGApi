@@ -8,24 +8,19 @@ namespace WebApi.Mappers.WeaponMappers;
 
 public class WeaponPaginatedMapper : IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>>
 {
-    private readonly IMapper<Weapon, WeaponReadDto> _readMapper;
+	private readonly IMapper<Weapon, WeaponReadDto> _readMapper;
 
-    public WeaponPaginatedMapper(IMapper<Weapon, WeaponReadDto> readMapper)
-    {
-        _readMapper = readMapper;
-    }
+	public WeaponPaginatedMapper(IMapper<Weapon, WeaponReadDto> readMapper)
+	{
+		_readMapper = readMapper;
+	}
 
-    public PageDto<WeaponReadDto> Map(PaginatedList<Weapon> source)
-    {
-        return new PageDto<WeaponReadDto>()
-        {
-            CurrentPage = source.CurrentPage,
-            TotalPages = source.TotalPages,
-            PageSize = source.PageSize,
-            TotalItems = source.TotalItems,
-            HasPrevious = source.HasPrevious,
-            HasNext = source.HasNext,
-            Entities = source.Select(p => _readMapper.Map(p))
-        };
-    }
+	public PageDto<WeaponReadDto> Map(PaginatedList<Weapon> source) => new(
+		source.CurrentPage,
+		source.TotalPages,
+		source.PageSize,
+		source.TotalItems,
+		source.HasPrevious,
+		source.HasNext,
+		source.Select(_readMapper.Map));
 }

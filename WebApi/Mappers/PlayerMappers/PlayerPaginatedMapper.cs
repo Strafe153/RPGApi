@@ -8,24 +8,19 @@ namespace WebApi.Mappers.PlayerMappers;
 
 public class PlayerPaginatedMapper : IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>>
 {
-    private readonly IMapper<Player, PlayerReadDto> _readMapper;
+	private readonly IMapper<Player, PlayerReadDto> _readMapper;
 
-    public PlayerPaginatedMapper(IMapper<Player, PlayerReadDto> readMapper)
-    {
-        _readMapper = readMapper;
-    }
+	public PlayerPaginatedMapper(IMapper<Player, PlayerReadDto> readMapper)
+	{
+		_readMapper = readMapper;
+	}
 
-    public PageDto<PlayerReadDto> Map(PaginatedList<Player> source)
-    {
-        return new PageDto<PlayerReadDto>()
-        {
-            CurrentPage = source.CurrentPage,
-            TotalPages = source.TotalPages,
-            PageSize = source.PageSize,
-            TotalItems = source.TotalItems,
-            HasPrevious = source.HasPrevious,
-            HasNext = source.HasNext,
-            Entities = source.Select(p => _readMapper.Map(p))
-        };
-    }
+	public PageDto<PlayerReadDto> Map(PaginatedList<Player> source) => new(
+		source.CurrentPage,
+		source.TotalPages,
+		source.PageSize,
+		source.TotalItems,
+		source.HasPrevious,
+		source.HasNext,
+		source.Select(_readMapper.Map));
 }

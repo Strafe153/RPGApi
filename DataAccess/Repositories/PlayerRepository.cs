@@ -40,7 +40,7 @@ public class PlayerRepository : IPlayerRepository
         return id;
     }
 
-    public Task DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
         var queryParams = new { Id = id };
         var query = @"
@@ -48,7 +48,7 @@ public class PlayerRepository : IPlayerRepository
             WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
-        return connection.ExecuteAsync(query, queryParams);
+        await connection.ExecuteAsync(query, queryParams);
     }
 
     public async Task<PaginatedList<Player>> GetAllAsync(int pageNumber, int pageSize, CancellationToken token = default)
@@ -140,7 +140,7 @@ public class PlayerRepository : IPlayerRepository
         return player;
     }
 
-    public Task UpdateAsync(Player entity)
+    public async Task UpdateAsync(Player entity)
     {
         var queryParams = new
         {
@@ -163,6 +163,6 @@ public class PlayerRepository : IPlayerRepository
             WHERE ""Id"" = @Id";
 
         using var connection = _context.CreateConnection();
-        return connection.ExecuteAsync(query, queryParams);
+        await connection.ExecuteAsync(query, queryParams);
     }
 }

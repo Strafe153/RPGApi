@@ -4,20 +4,13 @@ using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.CharacterMappers;
 
-public class CharacterUpdateMapper : IUpdateMapper<CharacterBaseDto, Character>
+public class CharacterUpdateMapper : IUpdateMapper<CharacterUpdateDto, Character>
 {
-    public void Map(CharacterBaseDto first, Character second)
+    public void Map(CharacterUpdateDto first, Character second)
     {
         second.Name = first.Name;
         second.Race = first.Race;
     }
 
-    public CharacterBaseDto Map(Character second)
-    {
-        return new CharacterBaseDto()
-        {
-            Name = second.Name,
-            Race = second.Race
-        };
-    }
+    public CharacterUpdateDto Map(Character second) => new(second.Name, second.Race);
 }

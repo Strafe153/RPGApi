@@ -22,96 +22,104 @@ namespace WebApi.Tests.V1.Fixtures;
 
 public class MountsControllerFixture
 {
-    public MountsControllerFixture()
-    {
-        var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+	public MountsControllerFixture()
+	{
+		var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        Id = Random.Shared.Next();
-        MountsCount = Random.Shared.Next(1, 20);
+		Id = Random.Shared.Next();
+		MountsCount = Random.Shared.Next(1, 20);
 
-        var mountFaker = new Faker<Mount>()
-            .RuleFor(m => m.Id, f => f.Random.Int())
-            .RuleFor(m => m.Name, f => f.Name.FirstName())
-            .RuleFor(m => m.Speed, f => f.Random.Int(1, 100))
-            .RuleFor(m => m.Type, f => (MountType)f.Random.Int(Enum.GetValues(typeof(MountType)).Length));
+		var mountFaker = new Faker<Mount>()
+			.RuleFor(m => m.Id, f => f.Random.Int())
+			.RuleFor(m => m.Name, f => f.Name.FirstName())
+			.RuleFor(m => m.Speed, f => f.Random.Int(1, 100))
+			.RuleFor(m => m.Type, f => (MountType)f.Random.Int(Enum.GetValues(typeof(MountType)).Length));
 
-        var mountBaseDtoFaker = new Faker<MountBaseDto>()
-            .RuleFor(m => m.Name, f => f.Name.FirstName())
-            .RuleFor(m => m.Speed, f => f.Random.Int(1, 100))
-            .RuleFor(m => m.Type, f => (MountType)f.Random.Int(Enum.GetValues(typeof(MountType)).Length));
+		var mountCreateDtoFaker = new Faker<MountCreateDto>()
+			.CustomInstantiator(f => new(
+				f.Name.FirstName(),
+				f.PickRandom<MountType>(),
+				f.Random.Int(1, 100)));
 
-        var pageParametersFaker = new Faker<PageParameters>()
-            .RuleFor(p => p.PageNumber, f => f.Random.Int(1, 100))
-            .RuleFor(p => p.PageSize, f => f.Random.Int(1, 100));
+		var mountUpdateDtoFaker = new Faker<MountUpdateDto>()
+			.CustomInstantiator(f => new(
+				f.Name.FirstName(),
+				f.PickRandom<MountType>(),
+				f.Random.Int(1, 100)));
 
-        var paginatedListFaker = new Faker<PaginatedList<Mount>>()
-            .CustomInstantiator(f => new(
-                mountFaker.Generate(MountsCount),
-                MountsCount,
-                f.Random.Int(1, 2),
-                f.Random.Int(1, 2)));
+		var pageParametersFaker = new Faker<PageParameters>()
+			.RuleFor(p => p.PageNumber, f => f.Random.Int(1, 100))
+			.RuleFor(p => p.PageSize, f => f.Random.Int(1, 100));
 
-        MountService = fixture.Freeze<IItemService<Mount>>();
-        ReadMapper = new MountReadMapper();
-        PaginatedMapper = new MountPaginatedMapper(ReadMapper);
-        CreateMapper = new MountCreateMapper();
-        UpdateMapper = new MountUpdateMapper();
+		var paginatedListFaker = new Faker<PaginatedList<Mount>>()
+			.CustomInstantiator(f => new(
+				mountFaker.Generate(MountsCount),
+				MountsCount,
+				f.Random.Int(1, 2),
+				f.Random.Int(1, 2)));
 
-        MountsController = new MountsController(
-            MountService,
-            PaginatedMapper,
-            ReadMapper,
-            CreateMapper,
-            UpdateMapper);
+		MountService = fixture.Freeze<IItemService<Mount>>();
+		ReadMapper = new MountReadMapper();
+		PaginatedMapper = new MountPaginatedMapper(ReadMapper);
+		CreateMapper = new MountCreateMapper();
+		UpdateMapper = new MountUpdateMapper();
 
-        Mount = mountFaker.Generate();
-        MountBaseDto = mountBaseDtoFaker.Generate();
-        PageParameters = pageParametersFaker.Generate();
-        PaginatedList = paginatedListFaker.Generate();
-        PatchDocument = new JsonPatchDocument<MountBaseDto>();
-    }
+		MountsController = new(
+			MountService,
+			PaginatedMapper,
+			ReadMapper,
+			CreateMapper,
+			UpdateMapper);
 
-    public MountsController MountsController { get; }
-    public IItemService<Mount> MountService { get; }
-    public IMapper<PaginatedList<Mount>, PageDto<MountReadDto>> PaginatedMapper { get; }
-    public IMapper<Mount, MountReadDto> ReadMapper { get; }
-    public IMapper<MountBaseDto, Mount> CreateMapper { get; }
-    public IUpdateMapper<MountBaseDto, Mount> UpdateMapper { get; }
+		Mount = mountFaker.Generate();
+		MountCreateDto = mountCreateDtoFaker.Generate();
+		MountUpdateDto = mountUpdateDtoFaker.Generate();
+		PageParameters = pageParametersFaker.Generate();
+		PaginatedList = paginatedListFaker.Generate();
+		PatchDocument = new JsonPatchDocument<MountUpdateDto>();
+	}
 
-    public int Id { get; }
-    public int MountsCount { get; }
-    public Mount Mount { get; }
-    public MountBaseDto MountBaseDto { get; }
-    public PageParameters PageParameters { get; }
-    public PaginatedList<Mount> PaginatedList { get; }
-    public JsonPatchDocument<MountBaseDto> PatchDocument { get; }
-    public CancellationToken CancellationToken { get; }
+	public MountsController MountsController { get; }
+	public IItemService<Mount> MountService { get; }
+	public IMapper<PaginatedList<Mount>, PageDto<MountReadDto>> PaginatedMapper { get; }
+	public IMapper<Mount, MountReadDto> ReadMapper { get; }
+	public IMapper<MountCreateDto, Mount> CreateMapper { get; }
+	public IUpdateMapper<MountUpdateDto, Mount> UpdateMapper { get; }
 
-    public void MockObjectModelValidator(ControllerBase controller)
-    {
-        var objectValidator = Substitute.For<IObjectModelValidator>();
+	public int Id { get; }
+	public int MountsCount { get; }
+	public Mount Mount { get; }
+	public MountCreateDto MountCreateDto { get; }
+	public MountUpdateDto MountUpdateDto { get; }
+	public PageParameters PageParameters { get; }
+	public PaginatedList<Mount> PaginatedList { get; }
+	public JsonPatchDocument<MountUpdateDto> PatchDocument { get; }
+	public CancellationToken CancellationToken { get; }
 
-        objectValidator.Validate(
-            Arg.Any<ActionContext>(),
-            Arg.Any<ValidationStateDictionary>(),
-            Arg.Any<string>(),
-            Arg.Any<object>());
+	public void MockObjectModelValidator(ControllerBase controller)
+	{
+		var objectValidator = Substitute.For<IObjectModelValidator>();
 
-        controller.ObjectValidator = objectValidator;
-    }
+		objectValidator.Validate(
+			Arg.Any<ActionContext>(),
+			Arg.Any<ValidationStateDictionary>(),
+			Arg.Any<string>(),
+			Arg.Any<object>());
 
-    public ControllerContext MockControllerContext() =>
-        new ControllerContext(
-            new ActionContext(
-                new DefaultHttpContext() { TraceIdentifier = "trace" },
-                new RouteData(),
-                new ControllerActionDescriptor()));
+		controller.ObjectValidator = objectValidator;
+	}
 
-    public void MockModelError(ControllerBase controller)
-    {
-        var context = MockControllerContext();
+	public ControllerContext MockControllerContext() => new(
+		new(
+			new DefaultHttpContext() { TraceIdentifier = "trace" },
+			new RouteData(),
+			new ControllerActionDescriptor()));
 
-        context.ModelState.AddModelError("key", "error");
-        controller.ControllerContext = context;
-    }
+	public void MockModelError(ControllerBase controller)
+	{
+		var context = MockControllerContext();
+
+		context.ModelState.AddModelError("key", "error");
+		controller.ControllerContext = context;
+	}
 }

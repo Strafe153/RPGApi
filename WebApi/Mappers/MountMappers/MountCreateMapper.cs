@@ -4,15 +4,12 @@ using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Mappers.MountMappers;
 
-public class MountCreateMapper : IMapper<MountBaseDto, Mount>
+public class MountCreateMapper : IMapper<MountCreateDto, Mount>
 {
-    public Mount Map(MountBaseDto source)
-    {
-        return new Mount()
-        {
-            Name = source.Name,
-            Type = source.Type,
-            Speed = source.Speed
-        };
-    }
+	public Mount Map(MountCreateDto source) => new()
+	{
+		Name = source.Name,
+		Type = source.Type,
+		Speed = source.Speed
+	};
 }

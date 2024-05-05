@@ -44,9 +44,7 @@ public class MountServiceFixture
         MountRepository = fixture.Freeze<IItemRepository<Mount>>();
         Logger = fixture.Freeze<ILogger<MountService>>();
 
-        MountService = new MountService(
-            MountRepository,
-            Logger);
+        MountService = new MountService(MountRepository, Logger);
 
         Mount = mountFaker.Generate();
         Character = characterFaker.Generate();

@@ -2,7 +2,4 @@
 
 namespace Domain.Dtos.PlayerDtos;
 
-public record PlayerChangeRoleDto
-{
-    public PlayerRole Role { get; init; } = PlayerRole.Player;
-}
+public record PlayerChangeRoleDto(PlayerRole Role = PlayerRole.Player);

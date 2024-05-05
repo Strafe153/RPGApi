@@ -8,24 +8,19 @@ namespace WebApi.Mappers.SpellMappers;
 
 public class SpellPaginatedMapper : IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>>
 {
-    private readonly IMapper<Spell, SpellReadDto> _readMapper;
+	private readonly IMapper<Spell, SpellReadDto> _readMapper;
 
-    public SpellPaginatedMapper(IMapper<Spell, SpellReadDto> readMapper)
-    {
-        _readMapper = readMapper;
-    }
+	public SpellPaginatedMapper(IMapper<Spell, SpellReadDto> readMapper)
+	{
+		_readMapper = readMapper;
+	}
 
-    public PageDto<SpellReadDto> Map(PaginatedList<Spell> source)
-    {
-        return new PageDto<SpellReadDto>()
-        {
-            CurrentPage = source.CurrentPage,
-            TotalPages = source.TotalPages,
-            PageSize = source.PageSize,
-            TotalItems = source.TotalItems,
-            HasPrevious = source.HasPrevious,
-            HasNext = source.HasNext,
-            Entities = source.Select(p => _readMapper.Map(p))
-        };
-    }
+	public PageDto<SpellReadDto> Map(PaginatedList<Spell> source) => new(
+		source.CurrentPage,
+		source.TotalPages,
+		source.PageSize,
+		source.TotalItems,
+		source.HasPrevious,
+		source.HasNext,
+		source.Select(_readMapper.Map));
 }

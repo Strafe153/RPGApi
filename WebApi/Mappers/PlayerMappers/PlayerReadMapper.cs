@@ -6,14 +6,9 @@ namespace WebApi.Mappers.PlayerMappers;
 
 public class PlayerReadMapper : IMapper<Player, PlayerReadDto>
 {
-    public PlayerReadDto Map(Player source)
-    {
-        return new PlayerReadDto()
-        {
-            Id = source.Id,
-            Name = source.Name,
-            Role = source.Role,
-            Characters = source.Characters
-        };
-    }
+	public PlayerReadDto Map(Player source) => new(
+		source.Id,
+		source.Name,
+		source.Role,
+		source.Characters);
 }

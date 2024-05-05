@@ -67,7 +67,7 @@ public class WeaponControllerTests
     public async Task Create_Should_ReturnActionResultOfWeaponReadDto_WhenWeaponBaseDtoIsValid()
     {
         // Act
-        var result = await _fixture.WeaponsController.Create(_fixture.WeaponBaseDto);
+        var result = await _fixture.WeaponsController.Create(_fixture.WeaponCreateDto);
         var objectResult = result.Result.As<CreatedAtActionResult>();
         var readDto = objectResult.Value.As<WeaponReadDto>();
 
@@ -86,7 +86,7 @@ public class WeaponControllerTests
             .Returns(_fixture.Weapon);
 
         // Act
-        var result = await _fixture.WeaponsController.Update(_fixture.Id, _fixture.WeaponBaseDto);
+        var result = await _fixture.WeaponsController.Update(_fixture.Id, _fixture.WeaponUpdateDto);
         var objectResult = result.As<NoContentResult>();
 
         // Assert

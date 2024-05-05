@@ -33,23 +33,28 @@ public class SpellsControllerFixture
             .RuleFor(c => c.Id, Id)
             .RuleFor(c => c.Name, f => f.Internet.UserName())
             .RuleFor(c => c.Health, f => f.Random.Int(1, 100))
-            .RuleFor(c => c.Race, f => (CharacterRace)f.Random.Int(Enum.GetValues(typeof(CharacterRace)).Length));
+            .RuleFor(c => c.Race, f => f.PickRandom<CharacterRace>());
 
         var spellFaker = new Faker<Spell>()
             .RuleFor(s => s.Id, f => f.Random.Int())
             .RuleFor(s => s.Name, f => f.Commerce.ProductName())
             .RuleFor(s => s.Damage, f => f.Random.Int(1, 100))
-            .RuleFor(s => s.Type, f => (SpellType)f.Random.Int(Enum.GetValues(typeof(SpellType)).Length));
+            .RuleFor(s => s.Type, f => f.PickRandom<SpellType>());
 
-        var spellBaseDtoFaker = new Faker<SpellBaseDto>()
-            .RuleFor(s => s.Name, f => f.Commerce.ProductName())
-            .RuleFor(s => s.Damage, f => f.Random.Int(1, 100))
-            .RuleFor(s => s.Type, f => (SpellType)f.Random.Int(Enum.GetValues(typeof(SpellType)).Length));
+        var spellCreateDtoFaker = new Faker<SpellCreateDto>()
+            .CustomInstantiator(f => new(
+                f.Commerce.ProductName(),
+                f.PickRandom<SpellType>(),
+                f.Random.Int(1, 100)));
 
-        var hitDtoFaker = new Faker<HitDto>()
-            .RuleFor(h => h.DealerId, f => f.Random.Int())
-            .RuleFor(h => h.ReceiverId, f => f.Random.Int())
-            .RuleFor(h => h.ItemId, Id);
+		var spellUpdateDtoFaker = new Faker<SpellUpdateDto>()
+			.CustomInstantiator(f => new(
+				f.Commerce.ProductName(),
+				f.PickRandom<SpellType>(),
+				f.Random.Int(1, 100)));
+
+		var hitDtoFaker = new Faker<HitDto>()
+            .CustomInstantiator(f => new(f.Random.Int(), f.Random.Int(), Id));
 
         var pageParametersFaker = new Faker<PageParameters>()
             .RuleFor(p => p.PageNumber, f => f.Random.Int(1, 100))
@@ -70,7 +75,7 @@ public class SpellsControllerFixture
         CreateMapper = new SpellCreateMapper();
         UpdateMapper = new SpellUpdateMapper();
 
-        SpellsController = new SpellsController(
+        SpellsController = new(
             SpellService,
             CharacterService,
             PlayerService,
@@ -81,11 +86,12 @@ public class SpellsControllerFixture
 
         Character = characterFaker.Generate();
         Spell = spellFaker.Generate();
-        SpellBaseDto = spellBaseDtoFaker.Generate();
-        HitDto = hitDtoFaker.Generate();
+        SpellCreateDto = spellCreateDtoFaker.Generate();
+		SpellUpdateDto = spellUpdateDtoFaker.Generate();
+		HitDto = hitDtoFaker.Generate();
         PageParameters = pageParametersFaker.Generate();
         PaginatedList = paginatedListFaker.Generate();
-        PatchDocument = new JsonPatchDocument<SpellBaseDto>(); ;
+        PatchDocument = new JsonPatchDocument<SpellUpdateDto>();
     }
 
     public SpellsController SpellsController { get; }
@@ -94,18 +100,19 @@ public class SpellsControllerFixture
     public IPlayerService PlayerService { get; }
     public IMapper<PaginatedList<Spell>, PageDto<SpellReadDto>> PaginatedMapper { get; }
     public IMapper<Spell, SpellReadDto> ReadMapper { get; }
-    public IMapper<SpellBaseDto, Spell> CreateMapper { get; }
-    public IUpdateMapper<SpellBaseDto, Spell> UpdateMapper { get; }
+    public IMapper<SpellCreateDto, Spell> CreateMapper { get; }
+    public IUpdateMapper<SpellUpdateDto, Spell> UpdateMapper { get; }
 
     public int Id { get; }
     public int SpellsCount { get; }
     public Character Character { get; }
     public Spell Spell { get; }
-    public SpellBaseDto SpellBaseDto { get; }
-    public HitDto HitDto { get; }
+    public SpellCreateDto SpellCreateDto { get; }
+	public SpellUpdateDto SpellUpdateDto { get; }
+	public HitDto HitDto { get; }
     public PageParameters PageParameters { get; }
     public PaginatedList<Spell> PaginatedList { get; }
-    public JsonPatchDocument<SpellBaseDto> PatchDocument { get; }
+    public JsonPatchDocument<SpellUpdateDto> PatchDocument { get; }
     public CancellationToken CancellationToken { get; }
 
     public void MockObjectModelValidator(ControllerBase controller)

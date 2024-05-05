@@ -13,7 +13,6 @@ builder.Services.AddMappers();
 
 builder.Services.ConfigureApiVersioning();
 builder.Services.ConfigureControllers();
-builder.Services.ConfigureFluentValidation();
 
 builder.Services.ConfigureDatabase(builder.Configuration);
 builder.Services.ConfigureRedis(builder.Configuration);

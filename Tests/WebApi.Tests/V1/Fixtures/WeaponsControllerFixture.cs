@@ -33,23 +33,28 @@ public class WeaponsControllerFixture
             .RuleFor(w => w.Id, f => f.Random.Int())
             .RuleFor(w => w.Name, f => f.Commerce.ProductName())
             .RuleFor(w => w.Damage, f => f.Random.Int(1, 100))
-            .RuleFor(w => w.Type, f => (WeaponType)f.Random.Int(Enum.GetValues(typeof(WeaponType)).Length));
+            .RuleFor(w => w.Type, f => f.PickRandom<WeaponType>());
 
-        var weaponBaseDtoFaker = new Faker<WeaponBaseDto>()
-            .RuleFor(s => s.Name, f => f.Commerce.ProductName())
-            .RuleFor(s => s.Damage, f => f.Random.Int(1, 100))
-            .RuleFor(s => s.Type, f => (WeaponType)f.Random.Int(Enum.GetValues(typeof(WeaponType)).Length));
+        var weaponCreateDtoFaker = new Faker<WeaponCreateDto>()
+            .CustomInstantiator(f => new(
+                f.Commerce.ProductName(),
+                f.PickRandom<WeaponType>(),
+                f.Random.Int(1, 100)));
 
-        var characterFaker = new Faker<Character>()
+		var weaponUpdateDtoFaker = new Faker<WeaponUpdateDto>()
+			.CustomInstantiator(f => new(
+				f.Commerce.ProductName(),
+				f.PickRandom<WeaponType>(),
+				f.Random.Int(1, 100)));
+
+		var characterFaker = new Faker<Character>()
             .RuleFor(c => c.Id, Id)
             .RuleFor(c => c.Name, f => f.Internet.UserName())
             .RuleFor(c => c.Health, f => f.Random.Int(1, 100))
-            .RuleFor(c => c.Race, f => (CharacterRace)f.Random.Int(Enum.GetValues(typeof(CharacterRace)).Length));
+            .RuleFor(c => c.Race, f => f.PickRandom<CharacterRace>());
 
         var hitDtoFaker = new Faker<HitDto>()
-            .RuleFor(h => h.DealerId, f => f.Random.Int())
-            .RuleFor(h => h.ReceiverId, f => f.Random.Int())
-            .RuleFor(h => h.ItemId, Id);
+            .CustomInstantiator(f => new(f.Random.Int(), f.Random.Int(), Id));
 
         var pageParametersFaker = new Faker<PageParameters>()
             .RuleFor(p => p.PageNumber, f => f.Random.Int(1, 100))
@@ -70,7 +75,7 @@ public class WeaponsControllerFixture
         CreateMapper = new WeaponCreateMapper();
         UpdateMapper = new WeaponUpdateMapper();
 
-        WeaponsController = new WeaponsController(
+        WeaponsController = new(
             WeaponService,
             CharacterService,
             PlayerService,
@@ -81,11 +86,12 @@ public class WeaponsControllerFixture
 
         Character = characterFaker.Generate();
         Weapon = weaponFaker.Generate();
-        WeaponBaseDto = weaponBaseDtoFaker.Generate();
-        HitDto = hitDtoFaker.Generate();
+        WeaponCreateDto = weaponCreateDtoFaker.Generate();
+		WeaponUpdateDto = weaponUpdateDtoFaker.Generate();
+		HitDto = hitDtoFaker.Generate();
         PageParameters = pageParametersFaker.Generate();
         PaginatedList = paginatedListFaker.Generate();
-        PatchDocument = new JsonPatchDocument<WeaponBaseDto>();
+        PatchDocument = new JsonPatchDocument<WeaponUpdateDto>();
     }
 
     public WeaponsController WeaponsController { get; }
@@ -94,18 +100,19 @@ public class WeaponsControllerFixture
     public IPlayerService PlayerService { get; }
     public IMapper<PaginatedList<Weapon>, PageDto<WeaponReadDto>> PaginatedMapper { get; }
     public IMapper<Weapon, WeaponReadDto> ReadMapper { get; }
-    public IMapper<WeaponBaseDto, Weapon> CreateMapper { get; }
-    public IUpdateMapper<WeaponBaseDto, Weapon> UpdateMapper { get; }
+    public IMapper<WeaponCreateDto, Weapon> CreateMapper { get; }
+    public IUpdateMapper<WeaponUpdateDto, Weapon> UpdateMapper { get; }
 
     public int Id { get; }
     public int WeaponsCount { get; }
     public Character Character { get; }
     public Weapon Weapon { get; }
-    public WeaponBaseDto WeaponBaseDto { get; }
-    public HitDto HitDto { get; }
+    public WeaponCreateDto WeaponCreateDto { get; }
+	public WeaponUpdateDto WeaponUpdateDto { get; }
+	public HitDto HitDto { get; }
     public PageParameters PageParameters { get; }
     public PaginatedList<Weapon> PaginatedList { get; }
-    public JsonPatchDocument<WeaponBaseDto> PatchDocument { get; }
+    public JsonPatchDocument<WeaponUpdateDto> PatchDocument { get; }
     public CancellationToken CancellationToken { get; }
 
     public void MockObjectModelValidator(ControllerBase controller)

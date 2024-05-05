@@ -4,6 +4,7 @@ using AutoFixture.AutoNSubstitute;
 using Bogus;
 using Domain.Entities;
 using Domain.Enums;
+using Domain.Interfaces.Services;
 using Domain.Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,8 +19,8 @@ public class TokenServiceFixture
 
         var generalFaker = new Faker();
 
-        ValidToken = generalFaker.Random.String(64);
-        InvalidToken = generalFaker.Random.String(64);
+        ValidToken = generalFaker.Random.String2(64);
+        InvalidToken = generalFaker.Random.String2(64);
 
         var playerwithValidTokenFaker = new Faker<Player>()
             .RuleFor(p => p.Id, f => f.Random.Int())
@@ -36,20 +37,18 @@ public class TokenServiceFixture
 		var jwtOptionsFaker = new Faker<JwtOptions>()
 			.RuleFor(o => o.Audience, f => f.Internet.Url())
 			.RuleFor(o => o.Issuer, f => f.Internet.Url())
-			.RuleFor(o => o.Secret, f => f.Random.String(64));
+			.RuleFor(o => o.Secret, f => f.Random.String2(64));
 
         JwtOptions = Options.Create(jwtOptionsFaker.Generate());
 		Logger = fixture.Freeze<ILogger<TokenService>>();
 
-		TokenService = new TokenService(
-			JwtOptions,
-			Logger);
+		TokenService = new TokenService(JwtOptions, Logger);
 
         PlayerWithValidToken = playerwithValidTokenFaker.Generate();
 		PlayerWithExpiredToken = playerWithExpiredTokenFaker.Generate();
 	}
 
-	public TokenService TokenService { get; }
+	public ITokenService TokenService { get; }
 	public IOptions<JwtOptions> JwtOptions { get; }
 	public ILogger<TokenService> Logger { get; }
 
