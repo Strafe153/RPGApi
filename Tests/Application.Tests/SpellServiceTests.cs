@@ -1,6 +1,4 @@
 ﻿using Application.Tests.Fixtures;
-using Domain.Entities;
-using Domain.Exceptions;
 using Domain.Shared;
 using FluentAssertions;
 using NSubstitute;
@@ -12,113 +10,184 @@ namespace Application.Tests;
 [TestFixture]
 public class SpellServiceTests
 {
-    private SpellServiceFixture _fixture = default!;
+	private SpellServiceFixture _fixture = default!;
 
-    [SetUp]
-    public void SetUp() => _fixture = new SpellServiceFixture();
+	[SetUp]
+	public void SetUp() => _fixture = new();
 
-    [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfSpell_WhenPageParametersAreValid()
-    {
-        // Arrange
-        _fixture.SpellRepository
-            .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
-            .Returns(_fixture.PaginatedList);
+	[Test]
+	public async Task GetAllAsync_Should_ReturnPageDtoOfSpellReadDto_WhenDataIsValid()
+	{
+		// Arrange
+		_fixture.SpellsRepository
+			.GetAllAsync(Arg.Any<PageParameters>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.PagedList);
 
-        // Act
-        var result = await _fixture.SpellService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
+		// Act
+		var result = await _fixture.SpellsService.GetAllAsync(_fixture.PageParameters, _fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Spell>>();
-    }
+		// Assert
+		result.Should().NotBeNull();
+		result.Entities.Should().NotBeEmpty();
+	}
 
-    [Test]
-    public async Task GetByIdAsync_Should_ReturnSpell_WhenSpellExists()
-    {
-        // Arrange
-        _fixture.SpellRepository
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Spell);
+	[Test]
+	public async Task GetByIdAsync_Should_ReturnSpellReadDto_WhenSpellExists()
+	{
+		// Arrange
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Spell);
 
-        // Act
-        var result = await _fixture.SpellService.GetByIdAsync(_fixture.Id);
+		// Act
+		var result = await _fixture.SpellsService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Spell>();
-    }
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-    [Test]
-    public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
-    {
-        // Arrange
-        _fixture.SpellRepository
-            .GetByIdAsync(Arg.Any<int>())
-            .ReturnsNull();
+	[Test]
+	public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
+	{
+		// Arrange
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
 
-        // Act
-        var result = async () => await _fixture.SpellService.GetByIdAsync(_fixture.Id);
+		// Act
+		var result = () => _fixture.SpellsService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
 
-        // Assert
-        await result.Should().ThrowAsync<NullReferenceException>();
-    }
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 
-    [Test]
-    public void AddAsync_Should_ReturnTask_WhenSpellIsValid()
-    {
-        // Act
-        var result = _fixture.SpellService.AddAsync(_fixture.Spell);
+	[Test]
+	public void AddAsync_Should_ReturnSpellReadDto_WhenDtoIsValid()
+	{
+		// Act
+		var result = _fixture.SpellsService.AddAsync(_fixture.SpellCreateDto);
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-    [Test]
-    public void UpdateAsync_Should_ReturnTask_WhenSpellIsValid()
-    {
-        // Act
-        var result = _fixture.SpellService.UpdateAsync(_fixture.Spell);
+	[Test]
+	public void UpdateAsync_Should_ReturnTask_WhenSpellExists()
+	{
+		// Arrange
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Spell);
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		// Act
+		var result = _fixture.SpellsService.UpdateAsync(_fixture.Id, _fixture.SpellUpdateDto, _fixture.CancellationToken);
 
-    [Test]
-    public void DeleteAsync_Should_ReturnTask_WhenSpellIsValid()
-    {
-        // Act
-        var result = _fixture.SpellService.DeleteAsync(_fixture.Id);
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+	[Test]
+	public async Task UpdateAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
+	{
+		// Arrange
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
 
-    [Test]
-    public void AddToCharacter_Should_ReturnVoid_WhenDataIsValid()
-    {
-        // Act
-        var result = () => _fixture.SpellService.AddToCharacterAsync(_fixture.Character, _fixture.Spell);
+		// Act
+		var result = () => _fixture.SpellsService.UpdateAsync(
+			_fixture.Id,
+			_fixture.SpellUpdateDto,
+			_fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 
-    [Test]
-    public void RemoveFromCharacter_Should_ReturnVoid_WhenSpellExists()
-    {
-        // Act
-        var result = async () => await _fixture.SpellService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Spell);
+	[Test]
+	public void DeleteAsync_Should_ReturnTask_WhenSpellExists()
+	{
+		// Arrange
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Spell);
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		// Act
+		var result = _fixture.SpellsService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
 
-    [Test]
-    public void RemoveFromCharacter_Should_ThrowItemNotFoundException_WhenSpellDoesNotExist()
-    {
-        // Act
-        var result = async () => await _fixture.SpellService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Spell);
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-        // Assert
-        result.Should().ThrowAsync<ItemNotFoundException>();
-    }
+	[Test]
+	public async Task DeleteAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
+	{
+		// Arrange
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.SpellsService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	public async Task PatchAsync_Should_ReturnTrue_WhenSpellExistsAndModelIsValid()
+	{
+		// Arrange
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Spell);
+
+		// Act
+		var result = await _fixture.SpellsService.PatchAsync(
+			_fixture.Id,
+			_fixture.PatchDocument,
+			_ => true,
+			_fixture.CancellationToken);
+
+		// Assert
+		result.Should().BeTrue();
+	}
+
+	[Test]
+	public async Task PatchAsync_Should_ReturnFalse_WhenSpellExistsAndModelIsNotValid()
+	{
+		// Arrange
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Spell);
+
+		// Act
+		var result = await _fixture.SpellsService.PatchAsync(
+			_fixture.Id,
+			_fixture.PatchDocument,
+			_ => false,
+			_fixture.CancellationToken);
+
+		// Assert
+		result.Should().BeFalse();
+	}
+
+	[Test]
+	public async Task PatchAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
+	{
+		// Arrange
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.SpellsService.PatchAsync(
+			_fixture.Id,
+			_fixture.PatchDocument,
+			_ => false,
+			_fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 }

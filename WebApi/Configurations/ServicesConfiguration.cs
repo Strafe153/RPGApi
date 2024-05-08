@@ -1,19 +1,15 @@
-﻿using Application.Services;
-using Domain.Entities;
-using Domain.Interfaces.Services;
+﻿using Application.Services.Abstractions;
+using Application.Services.Implementations;
 
 namespace WebApi.Configurations;
 
 public static class ServicesConfiguration
 {
-	public static void AddCustomServices(this IServiceCollection services) =>
+	public static void AddServices(this IServiceCollection services) =>
 		services
-			.AddScoped<IPlayerService, PlayerService>()
-			.AddScoped<ICharacterService, CharacterService>()
-			.AddScoped<IItemService<Weapon>, WeaponService>()
-			.AddScoped<IItemService<Spell>, SpellService>()
-			.AddScoped<IItemService<Mount>, MountService>()
-			.AddSingleton<IPasswordService, PasswordService>()
-			.AddSingleton<ITokenService, TokenService>()
-			.AddSingleton<ICacheService, CacheService>();
+			.AddScoped<IPlayersService, PlayersService>()
+			.AddScoped<ICharactersService, CharactersService>()
+			.AddScoped<IWeaponsService, WeaponsService>()
+			.AddScoped<ISpellsService, SpellsService>()
+			.AddScoped<IMountsService, MountsService>();
 }

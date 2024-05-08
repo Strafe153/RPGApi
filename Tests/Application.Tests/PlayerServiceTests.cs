@@ -14,194 +14,331 @@ namespace Application.Tests;
 [TestFixture]
 public class PlayerServiceTests
 {
-    private PlayerServiceFixture _fixture = default!;
+	private PlayerServiceFixture _fixture = default!;
 
-    [SetUp]
-    public void SetUp() => _fixture = new PlayerServiceFixture();
+	[SetUp]
+	public void SetUp() => _fixture = new();
 
-    [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfPlayer_WhenParametersAreValid()
-    {
-        // Arrange
-        _fixture.PlayerRepository
-            .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
-            .Returns(_fixture.PaginatedList);
+	[Test]
+	public async Task GetAllAsync_Should_ReturnPageDtoOfPlayerReadDto_WhenDataIsValid()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetAllAsync(Arg.Any<PageParameters>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.PagedList);
 
-        // Act
-        var result = await _fixture.PlayerService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
+		// Act
+		var result = await _fixture.PlayersService.GetAllAsync(_fixture.PageParameters, _fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Player>>();
-    }
+		// Assert
+		result.Should().NotBeNull();
+		result.Entities.Should().NotBeEmpty();
+	}
 
-    [Test]
-    public async Task GetByIdAsync_Should_ReturnPlayer_WhenPlayerExists()
-    {
-        // Arrange
-        _fixture.PlayerRepository
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Player);
+	[Test]
+	public async Task GetByIdAsync_Should_ReturnPlayerReadDto_WhenPlayerExists()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
 
-        // Act
-        var result = await _fixture.PlayerService.GetByIdAsync(_fixture.Id);
+		// Act
+		var result = await _fixture.PlayersService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Player>();
-    }
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-    [Test]
-    public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
-    {
-        // Arrange
-        _fixture.PlayerRepository
-            .GetByIdAsync(Arg.Any<int>())
-            .ReturnsNull();
+	[Test]
+	public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
 
-        // Act
-        var result = async () => await _fixture.PlayerService.GetByIdAsync(_fixture.Id);
+		// Act
+		var result = () => _fixture.PlayersService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
 
-        // Assert
-        await result.Should().ThrowAsync<NullReferenceException>();
-    }
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 
-    [Test]
-    public async Task GetByNameAsync_Should_ReturnPlayer_WhenPlayerExists()
-    {
-        // Arrange
-        _fixture.PlayerRepository
-            .GetByNameAsync(Arg.Any<string>())
-            .Returns(_fixture.Player);
+	[Test]
+	public void AddAsync_Should_ReturnPlayerReadDto_WhenNameIsUnique()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.AddAsync(_fixture.Player)
+			.Returns(_fixture.Id);
 
-        // Act
-        var result = await _fixture.PlayerService.GetByNameAsync(_fixture.Name);
+		// Act
+		var result = _fixture.PlayersService.AddAsync(_fixture.PlayerAuthorizeDto);
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Player>();
-    }
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-    [Test]
-    public async Task GetByNameAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
-    {
-        // Arrange
-        _fixture.PlayerRepository
-            .GetByNameAsync(Arg.Any<string>())
-            .ReturnsNull();
+	[Test]
+	public async Task AddAsync_Should_ThrowNameNotUniqueException_WhenNameIsNotUnique()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.AddAsync(Arg.Any<Player>())
+			.ThrowsAsync<NpgsqlException>();
 
-        // Act
-        var result = async () => await _fixture.PlayerService.GetByNameAsync(_fixture.Name);
+		// Act
+		var result = () => _fixture.PlayersService.AddAsync(_fixture.PlayerAuthorizeDto);
 
-        // Assert
-        await result.Should().ThrowAsync<NullReferenceException>();
-    }
+		// Assert
+		await result.Should().ThrowAsync<NameNotUniqueException>();
+	}
 
-    [Test]
-    public void AddAsync_Should_ReturnTask_WhenNameIsUnique()
-    {
-        // Act
-        var result = _fixture.PlayerService.AddAsync(_fixture.Player);
+	[Test]
+	public async Task LoginAsync_Should_ReturnTokensReadDto_WhenPlayerExists()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByNameAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		_fixture.TokenHelper
+			.GenerateAccessToken(Arg.Any<Player>())
+			.Returns(_fixture.AccessToken);
 
-    [Test]
-    public async Task AddAsync_Should_ReturnTask_WhenNameIsNotUnique()
-    {
-        // Arrange
-        _fixture.PlayerRepository
-            .AddAsync(_fixture.Player)
-            .ThrowsAsync<NpgsqlException>();
+		_fixture.TokenHelper
+			.GenerateRefreshToken()
+			.Returns(_fixture.RefreshToken);
 
-        // Act
-        var result = async () => await _fixture.PlayerService.AddAsync(_fixture.Player);
+		// Act
+		var result = await _fixture.PlayersService.LoginAsync(_fixture.PlayerAuthorizeDto, _fixture.CancellationToken);
 
-        // Assert
-        await result.Should().ThrowAsync<NameNotUniqueException>();
-    }
+		// Assert
+		result.AccessToken.Length.Should().BeGreaterThan(0);
+		result.RefreshToken.Length.Should().BeGreaterThan(0);
+	}
 
-    [Test]
-    public void UpdateAsync_Should_ReturnTask_WhenNameIsUnique()
-    {
-        // Act
-        var result = _fixture.PlayerService.UpdateAsync(_fixture.Player);
+	[Test]
+	public async Task LoginAsync_Should_ThrowNullReferenceException_WhenPlayerExists()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByNameAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		// Act
+		var result = () => _fixture.PlayersService.LoginAsync(_fixture.PlayerAuthorizeDto, _fixture.CancellationToken);
 
-    [Test]
-    public async Task UpdateAsync_Should_ReturnTask_WhenPlayerIsNotUnique()
-    {
-        // Arrange
-        _fixture.PlayerRepository
-            .UpdateAsync(_fixture.Player)
-            .ThrowsAsync<NpgsqlException>();
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 
-        // Act
-        var result = async () => await _fixture.PlayerService.UpdateAsync(_fixture.Player);
+	[Test]
+	public void UpdateAsync_Should_ReturnTask_WhenPlayerExistsAndNameIsUnique()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
 
-        // Assert
-        await result.Should().ThrowAsync<NameNotUniqueException>();
-    }
+		// Act
+		var result = _fixture.PlayersService.UpdateAsync(_fixture.Id, _fixture.PlayerUpdateDto, _fixture.CancellationToken);
 
-    [Test]
-    public void DeleteAsync_Should_ReturnTask_WhenPlayerIsValid()
-    {
-        // Act
-        var result = _fixture.PlayerService.DeleteAsync(_fixture.Id);
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+	[Test]
+	public async Task UpdateAsync_Should_ThrowNameNotUniqueException_WhenPlayerExistsAndNameIsNotUnique()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
 
-    [Test]
-    public void CreatePlayer_Should_ReturnPlayer_WhenPlayerIsValid()
-    {
-        // Act
-        var result = _fixture.PlayerService.CreatePlayer(_fixture.Name, _fixture.Bytes, _fixture.Bytes);
+		_fixture.PlayersRepository
+			.UpdateAsync(_fixture.Player)
+			.ThrowsAsync<NpgsqlException>();
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Player>();
-    }
+		// Act
+		var result = () => _fixture.PlayersService.UpdateAsync(_fixture.Id, _fixture.PlayerUpdateDto, _fixture.CancellationToken);
 
-    [Test]
-    public void ChangePasswordData_Should_ReturnVoid_WhenDataIsValid()
-    {
-        // Act
-        var result = () => _fixture.PlayerService
-            .ChangePasswordData(_fixture.Player, _fixture.Bytes, _fixture.Bytes);
+		// Assert
+		await result.Should().ThrowAsync<NameNotUniqueException>();
+	}
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+	[Test]
+	public async Task UpdateAsync_Should_ThrowNullReferenceException_WhenPlayerExistsAndNameIsUnique()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
 
-    [Test]
-    public void VerifyPlayerAccessRights_Should_ReturnVoid_WhenClaimsAreSufficient()
-    {
-        // Arrange
-        _fixture.HttpContextAccessor
-            .HttpContext.User.Claims
-            .Returns(_fixture.SufficientClaims);
+		// Act
+		var result = () => _fixture.PlayersService.UpdateAsync(
+			_fixture.Id,
+			_fixture.PlayerUpdateDto,
+			_fixture.CancellationToken);
 
-        // Act
-        var result = () => _fixture.PlayerService.VerifyPlayerAccessRights(_fixture.Player);
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+	[Test]
+	public void DeleteAsync_Should_ReturnTask_WhenPlayerExists()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
 
-    [Test]
-    public void VerifyPlayerAccessRights_Should_ReturnVoid_WhenClaimsAreInsufficient()
-    {
-        // Arrange
-        _fixture.HttpContextAccessor
-            .HttpContext.User.Claims
-            .Returns(_fixture.InsufficientClaims);
-            
-        // Act
-        var result = () => _fixture.PlayerService.VerifyPlayerAccessRights(_fixture.Player);
+		// Act
+		var result = _fixture.PlayersService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
 
-        // Assert
-        result.Should().Throw<NotEnoughRightsException>();
-    }
+		// Assert
+		result.Should().NotBeNull();
+	}
+
+	[Test]
+	public async Task DeleteAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.PlayersService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	public async Task ChangePasswordAsync_Should_ReturnTokensReadDto_WhenPlayerExists()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
+
+		_fixture.TokenHelper
+			.GenerateAccessToken(Arg.Any<Player>())
+			.Returns(_fixture.AccessToken);
+
+		_fixture.TokenHelper
+			.GenerateRefreshToken()
+			.Returns(_fixture.RefreshToken);
+
+		// Act
+		var result = await _fixture.PlayersService.ChangePasswordAsync(
+			_fixture.Id,
+			_fixture.PlayerChangePasswordDto,
+			_fixture.CancellationToken);
+
+		// Assert
+		result.AccessToken.Length.Should().BeGreaterThan(0);
+		result.RefreshToken.Length.Should().BeGreaterThan(0);
+	}
+
+	[Test]
+	public async Task ChangePasswordAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.PlayersService.ChangePasswordAsync(
+			_fixture.Id,
+			_fixture.PlayerChangePasswordDto,
+			_fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	public async Task ChangeRoleAsync_Should_ReturnPlayerReadDto_WhenPlayerExists()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
+
+		// Act
+		var result = await _fixture.PlayersService.ChangeRoleAsync(
+			_fixture.Id,
+			_fixture.PlayerChangeRoleDto,
+			_fixture.CancellationToken);
+
+		// Assert
+		result.Should().NotBeNull();
+	}
+
+	[Test]
+	public async Task ChangeRoleAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.PlayersService.ChangeRoleAsync(
+			_fixture.Id,
+			_fixture.PlayerChangeRoleDto,
+			_fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	public async Task RefreshTokensAsync_Should_ReturnTokensReadDto_WhenPlayerExists()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
+
+		_fixture.TokenHelper
+			.GenerateAccessToken(Arg.Any<Player>())
+			.Returns(_fixture.AccessToken);
+
+		_fixture.TokenHelper
+			.GenerateRefreshToken()
+			.Returns(_fixture.RefreshToken);
+
+		// Act
+		var result = await _fixture.PlayersService.RefreshTokensAsync(
+			_fixture.Id,
+			_fixture.TokensRefreshDto,
+			_fixture.CancellationToken);
+
+		// Assert
+		result.AccessToken.Length.Should().BeGreaterThan(0);
+		result.RefreshToken.Length.Should().BeGreaterThan(0);
+	}
+
+	[Test]
+	public async Task RefreshTokensAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.PlayersService.RefreshTokensAsync(
+			_fixture.Id,
+			_fixture.TokensRefreshDto,
+			_fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 }

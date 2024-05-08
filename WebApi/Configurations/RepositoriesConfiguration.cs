@@ -1,6 +1,6 @@
 ﻿using Domain.Entities;
-using Domain.Interfaces.Repositories;
 using DataAccess.Repositories;
+using Domain.Repositories;
 
 namespace WebApi.Configurations;
 
@@ -8,9 +8,9 @@ public static class RepositoriesConfiguration
 {
 	public static void AddRepositories(this IServiceCollection services) =>
 		services
-			.AddScoped<IPlayerRepository, PlayerRepository>()
-			.AddScoped<IRepository<Character>, CharacterRepository>()
-			.AddScoped<IItemRepository<Weapon>, WeaponRepository>()
-			.AddScoped<IItemRepository<Spell>, SpellRepository>()
-			.AddScoped<IItemRepository<Mount>, MountRepository>();
+			.AddScoped<IPlayersRepository, PlayersRepository>()
+			.AddScoped<IRepository<Character>, CharactersRepository>()
+			.AddScoped<IItemRepository<Weapon>, WeaponsRepository>()
+			.AddScoped<IItemRepository<Spell>, SpellsRepository>()
+			.AddScoped<IItemRepository<Mount>, MountsRepository>();
 }

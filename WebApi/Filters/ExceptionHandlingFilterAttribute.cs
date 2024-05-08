@@ -35,30 +35,24 @@ public class ExceptionHandlingFilterAttribute : ExceptionFilterAttribute
 		base.OnException(context);
 	}
 
-	private static HttpStatusCode GetHttpStatusCode(Exception exception)
+	private static HttpStatusCode GetHttpStatusCode(Exception exception) => exception switch
 	{
-		return exception switch
-		{
-			NullReferenceException
-				or ItemNotFoundException => HttpStatusCode.NotFound,
-			NotEnoughRightsException
-				or InvalidTokenException => HttpStatusCode.Forbidden,
-			IncorrectPasswordException
-				or NameNotUniqueException
-				or OperationCanceledException
-				or PostgresException => HttpStatusCode.BadRequest,
-			_ => HttpStatusCode.InternalServerError
-		};
-	}
+		NullReferenceException
+			or ItemNotFoundException => HttpStatusCode.NotFound,
+		NotEnoughRightsException
+			or InvalidTokenException => HttpStatusCode.Forbidden,
+		IncorrectPasswordException
+			or NameNotUniqueException
+			or OperationCanceledException
+			or PostgresException => HttpStatusCode.BadRequest,
+		_ => HttpStatusCode.InternalServerError
+	};
 
-	private static string GetRFCType(HttpStatusCode statusCode)
+	private static string GetRFCType(HttpStatusCode statusCode) => statusCode switch
 	{
-		return statusCode switch
-		{
-			HttpStatusCode.BadRequest => RFCType.BadRequest,
-			HttpStatusCode.Forbidden => RFCType.Forbidden,
-			HttpStatusCode.NotFound => RFCType.NotFound,
-			_ => RFCType.InternalServerError
-		};
-	}
+		HttpStatusCode.BadRequest => RFCType.BadRequest,
+		HttpStatusCode.Forbidden => RFCType.Forbidden,
+		HttpStatusCode.NotFound => RFCType.NotFound,
+		_ => RFCType.InternalServerError
+	};
 }

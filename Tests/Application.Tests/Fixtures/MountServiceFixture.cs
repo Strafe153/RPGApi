@@ -1,68 +1,92 @@
-﻿using Application.Services;
+﻿using Application.Mappers.Implementations;
+using Application.Services.Abstractions;
+using Application.Services.Implementations;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Bogus;
+using Domain.Dtos.MountDtos;
 using Domain.Entities;
 using Domain.Enums;
-using Domain.Interfaces.Repositories;
-using Domain.Interfaces.Services;
+using Domain.Repositories;
 using Domain.Shared;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Tests.Fixtures;
 
 public class MountServiceFixture
 {
-    public MountServiceFixture()
-    {
-        var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+	public MountServiceFixture()
+	{
+		var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        Id = Random.Shared.Next();
-        PageNumber = Random.Shared.Next(1, 25);
-        PageSize = Random.Shared.Next(1, 100);
-        MountsCount = Random.Shared.Next(1, 20);
+		Id = Random.Shared.Next();
+		MountsCount = Random.Shared.Next(1, 20);
+		PageParameters = new()
+		{
+			PageNumber = Random.Shared.Next(1, 25),
+			PageSize = Random.Shared.Next(1, 100)
+		};
 
-        var mountFaker = new Faker<Mount>()
-           .RuleFor(m => m.Id, Id)
-           .RuleFor(m => m.Name, f => f.Name.FirstName())
-           .RuleFor(m => m.Speed, f => f.Random.Int(1, 100))
-           .RuleFor(m => m.Type, f => (MountType)f.Random.Int(Enum.GetValues(typeof(MountType)).Length));
+		var mountFaker = new Faker<Mount>()
+			.RuleFor(m => m.Id, Id)
+			.RuleFor(m => m.Name, f => f.Name.FirstName())
+			.RuleFor(m => m.Speed, f => f.Random.Int(1, 100))
+			.RuleFor(m => m.Type, f => f.PickRandom<MountType>());
 
-        var characterFaker = new Faker<Character>()
-            .RuleFor(c => c.Id, f => f.Random.Int())
-            .RuleFor(c => c.Name, f => f.Internet.UserName())
-            .RuleFor(c => c.Health, f => f.Random.Int(1, 100))
-            .RuleFor(c => c.Race, f => (CharacterRace)f.Random.Int(Enum.GetValues(typeof(CharacterRace)).Length));
+		var mountCreateDtoFaker = new Faker<MountCreateDto>()
+			.CustomInstantiator(f => new(
+				f.Name.FirstName(),
+				f.PickRandom<MountType>(),
+				f.Random.Int(1, 100)));
 
-        var paginatedListFaker = new Faker<PaginatedList<Mount>>()
-            .CustomInstantiator(f => new(
-                mountFaker.Generate(MountsCount),
-                MountsCount,
-                PageNumber,
-                PageSize));
+		var mountUpdateDtoFaker = new Faker<MountUpdateDto>()
+			.CustomInstantiator(f => new(
+				f.Name.FirstName(),
+				f.PickRandom<MountType>(),
+				f.Random.Int(1, 100)));
 
-        MountRepository = fixture.Freeze<IItemRepository<Mount>>();
-        Logger = fixture.Freeze<ILogger<MountService>>();
+		var characterFaker = new Faker<Character>()
+			.RuleFor(c => c.Id, f => f.Random.Int())
+			.RuleFor(c => c.Name, f => f.Internet.UserName())
+			.RuleFor(c => c.Health, f => f.Random.Int(1, 100))
+			.RuleFor(c => c.Race, f => f.PickRandom<CharacterRace>());
 
-        MountService = new MountService(MountRepository, Logger);
+		var pagedListFaker = new Faker<PagedList<Mount>>()
+			.CustomInstantiator(f => new(
+				mountFaker.Generate(MountsCount),
+				MountsCount,
+				f.Random.Int(1, 2),
+				f.Random.Int(1, 2)));
 
-        Mount = mountFaker.Generate();
-        Character = characterFaker.Generate();
-        Mounts = mountFaker.Generate(MountsCount);
-        PaginatedList = paginatedListFaker.Generate();
-    }
+		MountsRepository = fixture.Freeze<IItemRepository<Mount>>();
+		Logger = fixture.Freeze<ILogger<MountsService>>();
 
-    private int MountsCount { get; }
+		MountsService = new MountsService(MountsRepository, new MountMapper(), Logger);
 
-    public IItemService<Mount> MountService { get; }
-    public IItemRepository<Mount> MountRepository { get; }
-    public ILogger<MountService> Logger { get; }
+		Mount = mountFaker.Generate();
+		MountCreateDto = mountCreateDtoFaker.Generate();
+		MountUpdateDto = mountUpdateDtoFaker.Generate();
+		Character = characterFaker.Generate();
+		Mounts = mountFaker.Generate(MountsCount);
+		PagedList = pagedListFaker.Generate();
+		PatchDocument = new();
+	}
 
-    public int Id { get; }
-    public int PageNumber { get; }
-    public int PageSize { get; }
-    public Mount Mount { get; }
-    public Character Character { get; }
-    public List<Mount> Mounts { get; }
-    public PaginatedList<Mount> PaginatedList { get; }
+	private int MountsCount { get; }
+
+	public IMountsService MountsService { get; }
+	public IItemRepository<Mount> MountsRepository { get; }
+	public ILogger<MountsService> Logger { get; }
+
+	public int Id { get; }
+	public PageParameters PageParameters { get; }
+	public Mount Mount { get; }
+	public MountCreateDto MountCreateDto { get; }
+	public MountUpdateDto MountUpdateDto { get; }
+	public Character Character { get; }
+	public List<Mount> Mounts { get; }
+	public PagedList<Mount> PagedList { get; }
+	public JsonPatchDocument<MountUpdateDto> PatchDocument { get; }
+	public CancellationToken CancellationToken { get; }
 }

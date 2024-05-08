@@ -1,17 +1,16 @@
-﻿using Asp.Versioning;
+﻿using Application.Services.Abstractions;
+using Asp.Versioning;
 using Domain.Constants;
 using Domain.Dtos;
 using Domain.Dtos.PlayerDtos;
 using Domain.Dtos.TokensDtos;
-using Domain.Entities;
-using Domain.Interfaces.Services;
+using Domain.Enums;
 using Domain.Shared;
 using Domain.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using WebApi.Filters;
-using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Controllers.V1;
 
@@ -22,57 +21,30 @@ namespace WebApi.Controllers.V1;
 [EnableRateLimiting(RateLimitingConstants.TokenBucket)]
 public class PlayersController : ControllerBase
 {
-	private readonly IPlayerService _playerService;
-	private readonly IPasswordService _passwordService;
-	private readonly ITokenService _tokenService;
-	private readonly IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>> _paginatedMapper;
-	private readonly IMapper<Player, PlayerReadDto> _readMapper;
+	private readonly IPlayersService _playersService;
 
-	public PlayersController(
-		IPlayerService playerService,
-		IPasswordService passwordService,
-		ITokenService tokenService,
-		IMapper<PaginatedList<Player>, PageDto<PlayerReadDto>> paginatedMapper,
-		IMapper<Player, PlayerReadDto> readMapper)
+	public PlayersController(IPlayersService playersService)
 	{
-		_playerService = playerService;
-		_passwordService = passwordService;
-		_tokenService = tokenService;
-		_paginatedMapper = paginatedMapper;
-		_readMapper = readMapper;
+		_playersService = playersService;
 	}
 
 	[HttpGet]
 	[CacheFilter]
-	public async Task<ActionResult<PageDto<PlayerReadDto>>> Get([FromQuery] PageParameters pageParams, CancellationToken token)
-	{
-		var players = await _playerService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
-		var pageDto = _paginatedMapper.Map(players);
-
-		return Ok(pageDto);
-	}
+	public async Task<ActionResult<PageDto<PlayerReadDto>>> Get(
+		[FromQuery] PageParameters pageParameters,
+		CancellationToken token) =>
+			Ok(await _playersService.GetAllAsync(pageParameters, token));
 
 	[HttpGet("{id:int:min(1)}")]
 	[CacheFilter]
-	public async Task<ActionResult<PlayerReadDto>> Get([FromRoute] int id, CancellationToken token)
-	{
-		var player = await _playerService.GetByIdAsync(id, token);
-		var readDto = _readMapper.Map(player);
-
-		return Ok(readDto);
-	}
+	public async Task<ActionResult<PlayerReadDto>> Get([FromRoute] int id, CancellationToken token) =>
+		Ok(await _playersService.GetByIdAsync(id, token));
 
 	[HttpPost("register")]
 	[AllowAnonymous]
 	public async Task<ActionResult<PlayerReadDto>> Register([FromBody] PlayerAuthorizeDto authorizeDto)
 	{
-		var (hash, salt) = _passwordService.GeneratePasswordHashAndSalt(authorizeDto.Password);
-
-		var player = _playerService.CreatePlayer(authorizeDto.Name, hash, salt);
-		player.Id = await _playerService.AddAsync(player);
-
-		var readDto = _readMapper.Map(player);
-
+		var readDto = await _playersService.AddAsync(authorizeDto);
 		return CreatedAtAction(nameof(Get), new { readDto.Id }, readDto);
 	}
 
@@ -80,94 +52,43 @@ public class PlayersController : ControllerBase
 	[AllowAnonymous]
 	public async Task<ActionResult<TokensReadDto>> Login([FromBody] PlayerAuthorizeDto authorizeDto, CancellationToken token)
 	{
-		var player = await _playerService.GetByNameAsync(authorizeDto.Name, token);
-		_passwordService.VerifyPasswordHash(authorizeDto.Password, player);
-
-		var accessToken = _tokenService.GenerateAccessToken(player);
-		var refreshToken = _tokenService.GenerateRefreshToken();
-
-		_tokenService.SetRefreshToken(player, refreshToken);
-		//await _playerService.UpdateAsync(player);
-
-		TokensReadDto tokensDto = new(accessToken, refreshToken);
-
+		var tokensDto = await _playersService.LoginAsync(authorizeDto, token);
 		return Ok(tokensDto);
 	}
 
 	[HttpPut("{id:int:min(1)}")]
-	public async Task<ActionResult> Update([FromRoute] int id, [FromBody] PlayerUpdateDto updateDto)
+	public async Task<ActionResult> Update([FromRoute] int id, [FromBody] PlayerUpdateDto updateDto, CancellationToken token)
 	{
-		var player = await _playerService.GetByIdAsync(id);
-		_playerService.VerifyPlayerAccessRights(player);
-
-		player.Name = updateDto.Name;
-		await _playerService.UpdateAsync(player);
-
+		await _playersService.UpdateAsync(id, updateDto, token);
 		return NoContent();
 	}
 
 	[HttpDelete("{id:int:min(1)}")]
-	public async Task<ActionResult> Delete([FromRoute] int id)
+	public async Task<ActionResult> Delete([FromRoute] int id, CancellationToken token)
 	{
-		var player = await _playerService.GetByIdAsync(id);
-
-		_playerService.VerifyPlayerAccessRights(player);
-		await _playerService.DeleteAsync(id);
-
+		await _playersService.DeleteAsync(id, token);
 		return NoContent();
 	}
 
 	[HttpPut("{id:int:min(1)}/changePassword")]
 	public async Task<ActionResult<TokensReadDto>> ChangePassword(
 		[FromRoute] int id,
-		[FromBody] PlayerChangePasswordDto changePasswordDto)
-	{
-		var player = await _playerService.GetByIdAsync(id);
-		_playerService.VerifyPlayerAccessRights(player);
-
-		var (hash, salt) = _passwordService.GeneratePasswordHashAndSalt(changePasswordDto.Password!);
-		_playerService.ChangePasswordData(player, hash, salt);
-
-		string accessToken = _tokenService.GenerateAccessToken(player);
-		string refreshToken = _tokenService.GenerateRefreshToken();
-
-		_tokenService.SetRefreshToken(player, refreshToken);
-		await _playerService.UpdateAsync(player);
-
-		TokensReadDto tokensDto = new(accessToken, refreshToken);
-
-		return Ok(tokensDto);
-	}
+		[FromBody] PlayerChangePasswordDto changePasswordDto,
+		CancellationToken token) =>
+			Ok(await _playersService.ChangePasswordAsync(id, changePasswordDto, token));
 
 	[HttpPut("{id:int:min(1)}/changeRole")]
-	[Authorize(Roles = "Admin")]
-	public async Task<ActionResult<PlayerReadDto>> ChangeRole([FromRoute] int id, [FromBody] PlayerChangeRoleDto changeRoleDto)
-	{
-		var player = await _playerService.GetByIdAsync(id);
+	[Authorize(Roles = nameof(PlayerRole.Admin))]
+	public async Task<ActionResult<PlayerReadDto>> ChangeRole(
+		[FromRoute] int id,
+		[FromBody] PlayerChangeRoleDto changeRoleDto,
+		CancellationToken token) =>
+			Ok(await _playersService.ChangeRoleAsync(id, changeRoleDto, token));
 
-		player.Role = changeRoleDto.Role;
-		await _playerService.UpdateAsync(player);
-
-		var readDto = _readMapper.Map(player);
-
-		return Ok(readDto);
-	}
-
-	[HttpPut("refreshTokens/{id}")]
-	public async Task<ActionResult<TokensReadDto>> RefreshTokens([FromRoute] int id, [FromBody] TokensRefreshDto refreshDto)
-	{
-		var player = await _playerService.GetByIdAsync(id);
-		_playerService.VerifyPlayerAccessRights(player);
-		_tokenService.ValidateRefreshToken(player, refreshDto.RefreshToken!);
-
-		var accessToken = _tokenService.GenerateAccessToken(player);
-		var refreshToken = _tokenService.GenerateRefreshToken();
-
-		_tokenService.SetRefreshToken(player, refreshToken);
-		await _playerService.UpdateAsync(player);
-
-		TokensReadDto tokensReadDto = new(accessToken, refreshToken);
-
-		return Ok(tokensReadDto);
-	}
+	[HttpPut("{id:int:min(1)}/refreshTokens")]
+	public async Task<ActionResult<TokensReadDto>> RefreshTokens(
+		[FromRoute] int id,
+		[FromBody] TokensRefreshDto refreshDto,
+		CancellationToken token) =>
+			Ok(await _playersService.RefreshTokensAsync(id, refreshDto, token));
 }

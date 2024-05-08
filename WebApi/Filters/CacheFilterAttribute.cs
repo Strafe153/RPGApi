@@ -1,68 +1,70 @@
-﻿using Domain.Interfaces.Services;
+﻿using Application.Services.Abstractions;
+using Domain.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Caching.Distributed;
+using System.Net.Mime;
 using System.Text;
 
 namespace WebApi.Filters;
 
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Method)]
 public class CacheFilterAttribute : Attribute, IAsyncResourceFilter
 {
-    private readonly int _slidingExpiration;
+	private readonly int _absoluteExpirationRelativeToNow;
 
-    public CacheFilterAttribute(int slidingExpiration = 2)
-    {
-        _slidingExpiration = slidingExpiration;
-    }
+	public CacheFilterAttribute(int absoluteExpirationRelativeToNow = 3)
+	{
+		_absoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow;
+	}
 
-    public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
-    {
-        var cacheService = context.HttpContext.RequestServices.GetRequiredService<ICacheService>();
+	public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
+	{
+		var cacheHelper = context.HttpContext.RequestServices.GetRequiredService<ICacheHelper>();
 
-        if (cacheService is null)
-        {
-            await next();
-            return;
-        }
+		if (cacheHelper is null)
+		{
+			await next();
+			return;
+		}
 
-        var key = GenerateCacheKey(context.HttpContext.Request);
-        var cachedResponse = await cacheService.GetAsync(key);
+		var key = GenerateCacheKey(context.HttpContext.Request);
+		var cachedResponse = await cacheHelper.GetAsync(key);
 
-        if (!string.IsNullOrEmpty(cachedResponse))
-        {
-            var contentResult = new ContentResult
-            {
-                Content = cachedResponse,
-                ContentType = "application/json",
-                StatusCode = StatusCodes.Status200OK
-            };
+		if (!string.IsNullOrEmpty(cachedResponse))
+		{
+			var contentResult = new ContentResult
+			{
+				Content = cachedResponse,
+				ContentType = MediaTypeNames.Application.Json,
+				StatusCode = StatusCodes.Status200OK
+			};
 
-            context.Result = contentResult;
-            return;
-        }
+			context.Result = contentResult;
+			return;
+		}
 
-        var executedContext = await next();
+		var executedContext = await next();
 
-        if (executedContext.Result is OkObjectResult okObjectResult)
-        {
-            await cacheService.SetAsync(key, okObjectResult.Value!, new DistributedCacheEntryOptions
-            {
-                SlidingExpiration = TimeSpan.FromSeconds(_slidingExpiration)
-            });
-        }
-    }
+		if (executedContext.Result is OkObjectResult okObjectResult
+			&& okObjectResult.Value is not null)
+		{
+			await cacheHelper.SetAsync(key, okObjectResult.Value, new DistributedCacheEntryOptions
+			{
+				AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_absoluteExpirationRelativeToNow)
+			});
+		}
+	}
 
-    private static string GenerateCacheKey(HttpRequest request)
-    {
-        var cacheKeyBuilder = new StringBuilder();
-        cacheKeyBuilder.Append(request.Path);
+	private static string GenerateCacheKey(HttpRequest request)
+	{
+		var cacheKeyBuilder = new StringBuilder(request.Path);
 
-        foreach (var (key, value) in request.Query.OrderBy(kv => kv.Key))
-        {
-            cacheKeyBuilder.Append($"|{key}:{value}");
-        }
+		foreach (var (key, value) in request.Query.OrderBy(kv => kv.Key))
+		{
+			cacheKeyBuilder.Append($"|{key}:{value}");
+		}
 
-        return cacheKeyBuilder.ToString();
-    }
+		return cacheKeyBuilder.ToString();
+	}
 }

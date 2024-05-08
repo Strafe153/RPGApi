@@ -8,7 +8,8 @@ builder.Services.ConfigureHealthChecks(builder.Configuration);
 builder.Services.ConfigureRateLimiting(builder.Configuration);
 
 builder.Services.AddRepositories();
-builder.Services.AddCustomServices();
+builder.Services.AddServices();
+builder.Services.AddHelpers();
 builder.Services.AddMappers();
 
 builder.Services.ConfigureApiVersioning();
@@ -25,7 +26,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.ConfigureSwaggerUI();
+	app.ConfigureSwaggerUI();
 }
 
 app.UseHttpsRedirection();

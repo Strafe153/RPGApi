@@ -1,6 +1,10 @@
-﻿namespace Domain.Dtos;
+﻿using Domain.Enums;
+using System.ComponentModel.DataAnnotations;
+
+namespace Domain.Dtos;
 
 public record HitDto(
-	int DealerId,
-	int ReceiverId,
-	int ItemId);
+	[Required] int DealerId,
+	[Required] int ReceiverId,
+	[Required] int ItemId,
+	[Required] HitType Type);

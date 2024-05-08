@@ -1,92 +1,144 @@
-﻿using Application.Services;
+﻿using Application.Mappers.Implementations;
+using Application.Services.Abstractions;
+using Application.Services.Implementations;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Bogus;
+using Domain.Dtos.CharacterDtos;
 using Domain.Entities;
 using Domain.Enums;
-using Domain.Interfaces.Repositories;
-using Domain.Interfaces.Services;
+using Domain.Helpers;
+using Domain.Repositories;
 using Domain.Shared;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Tests.Fixtures;
 
 public class CharacterServiceFixture
 {
-    public CharacterServiceFixture()
-    {
-        var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+	public CharacterServiceFixture()
+	{
+		var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        CharacterId = Random.Shared.Next();
-        WeaponId = Random.Shared.Next();
-        SpellId = Random.Shared.Next();
-        PageNumber = Random.Shared.Next(1, 25);
-        PageSize = Random.Shared.Next(1, 100);
-        CharactersCount = Random.Shared.Next(1, 20);
+		CharacterId = Random.Shared.Next();
+		WeaponId = Random.Shared.Next();
+		SpellId = Random.Shared.Next();
+		CharactersCount = Random.Shared.Next(1, 20);
+		PageParameters = new()
+		{
+			PageNumber = Random.Shared.Next(1, 25),
+			PageSize = Random.Shared.Next(1, 100)
+		};
 
-        var characterFaker = new Faker<Character>();
+		var characterFaker = new Faker<Character>();
 
-        var weaponFaker = new Faker<Weapon>()
-            .RuleFor(w => w.Id, WeaponId)
-            .RuleFor(w => w.Name, f => f.Commerce.ProductName())
-            .RuleFor(w => w.Damage, f => f.Random.Int(1, 100))
-            .RuleFor(w => w.Type, f => (WeaponType)f.Random.Int(Enum.GetValues(typeof(WeaponType)).Length));
+		var weaponFaker = new Faker<Weapon>()
+			.RuleFor(w => w.Id, WeaponId)
+			.RuleFor(w => w.Name, f => f.Commerce.ProductName())
+			.RuleFor(w => w.Damage, f => f.Random.Int(1, 100))
+			.RuleFor(w => w.Type, f => f.PickRandom<WeaponType>());
 
-        var spellFaker = new Faker<Spell>()
-            .RuleFor(s => s.Id, SpellId)
-            .RuleFor(s => s.Name, f => f.Commerce.ProductName())
-            .RuleFor(s => s.Damage, f => f.Random.Int(1, 100))
-            .RuleFor(s => s.Type, f => (SpellType)f.Random.Int(Enum.GetValues(typeof(SpellType)).Length));
+		var spellFaker = new Faker<Spell>()
+			.RuleFor(s => s.Id, SpellId)
+			.RuleFor(s => s.Name, f => f.Commerce.ProductName())
+			.RuleFor(s => s.Damage, f => f.Random.Int(1, 100))
+			.RuleFor(s => s.Type, f => f.PickRandom<SpellType>());
 
-        var characterWeaponFaker = new Faker<CharacterWeapon>()
-            .RuleFor(cw => cw.CharacterId, CharacterId)
-            .RuleFor(cw => cw.WeaponId, WeaponId)
-            .RuleFor(cw => cw.Character, characterFaker)
-            .RuleFor(cw => cw.Weapon, weaponFaker);
+		var mountFaker = new Faker<Mount>()
+			.RuleFor(s => s.Id, f => f.Random.Int())
+			.RuleFor(s => s.Name, f => f.Commerce.ProductName())
+			.RuleFor(s => s.Speed, f => f.Random.Int(1, 100))
+			.RuleFor(s => s.Type, f => f.PickRandom<MountType>());
 
-        var characterSpellFaker = new Faker<CharacterSpell>()
-            .RuleFor(cw => cw.CharacterId, CharacterId)
-            .RuleFor(cw => cw.SpellId, SpellId)
-            .RuleFor(cw => cw.Character, characterFaker)
-            .RuleFor(cw => cw.Spell, spellFaker);
+		var characterWeaponFaker = new Faker<CharacterWeapon>()
+			.RuleFor(cw => cw.CharacterId, CharacterId)
+			.RuleFor(cw => cw.WeaponId, WeaponId)
+			.RuleFor(cw => cw.Character, characterFaker)
+			.RuleFor(cw => cw.Weapon, weaponFaker);
 
-        characterFaker
-            .RuleFor(c => c.Id, CharacterId)
-            .RuleFor(c => c.Name, f => f.Internet.UserName())
-            .RuleFor(c => c.Health, 100)
-            .RuleFor(c => c.Race, f => (CharacterRace)f.Random.Int(Enum.GetValues(typeof(CharacterRace)).Length))
-            .RuleFor(c => c.CharacterWeapons, new[] { characterWeaponFaker.Generate() })
-            .RuleFor(c => c.CharacterSpells, new[] {characterSpellFaker.Generate() });
+		var characterSpellFaker = new Faker<CharacterSpell>()
+			.RuleFor(cw => cw.CharacterId, CharacterId)
+			.RuleFor(cw => cw.SpellId, SpellId)
+			.RuleFor(cw => cw.Character, characterFaker)
+			.RuleFor(cw => cw.Spell, spellFaker);
 
-        var paginatedListFaker = new Faker<PaginatedList<Character>>()
-            .CustomInstantiator(f => new(
-                characterFaker.Generate(CharactersCount),
-                CharactersCount,
-                f.Random.Int(1, 2),
-                f.Random.Int(1, 2)));
+		characterFaker
+			.RuleFor(c => c.Id, CharacterId)
+			.RuleFor(c => c.Name, f => f.Internet.UserName())
+			.RuleFor(c => c.Health, f => f.Random.Int(1, 100))
+			.RuleFor(c => c.Race, f => f.PickRandom<CharacterRace>())
+			.RuleFor(c => c.CharacterWeapons, new[] { characterWeaponFaker.Generate() })
+			.RuleFor(c => c.CharacterSpells, new[] { characterSpellFaker.Generate() });
 
-        CharacterRepository = fixture.Freeze<IRepository<Character>>();
-        Logger = fixture.Freeze<ILogger<CharacterService>>();
+		var characterCreateDtoFaker = new Faker<CharacterCreateDto>()
+			.CustomInstantiator(f => new(
+				f.Internet.UserAgent(),
+				f.Random.Int(),
+				f.PickRandom<CharacterRace>()));
 
-        CharacterService = new CharacterService(CharacterRepository, Logger);
+		var characterUpdateDtoFaker = new Faker<CharacterUpdateDto>()
+			.CustomInstantiator(f => new(
+				f.Internet.UserAgent(),
+				f.PickRandom<CharacterRace>()));
 
-        Character = characterFaker.Generate();
-        Characters = characterFaker.Generate(CharactersCount);
-        PaginatedList = paginatedListFaker.Generate();
-    }
-    
-    private int CharactersCount { get; }
+		var pagedListFaker = new Faker<PagedList<Character>>()
+			.CustomInstantiator(f => new(
+				characterFaker.Generate(CharactersCount),
+				CharactersCount,
+				f.Random.Int(1, 2),
+				f.Random.Int(1, 2)));
 
-    public ICharacterService CharacterService { get; }
-    public IRepository<Character> CharacterRepository { get; set; }
-    public ILogger<CharacterService> Logger { get; set; }
+		CharactersRepository = fixture.Freeze<IRepository<Character>>();
+		PlayersRepository = fixture.Freeze<IPlayersRepository>();
+		WeaponsRepository = fixture.Freeze<IItemRepository<Weapon>>();
+		SpellsRepository = fixture.Freeze<IItemRepository<Spell>>();
+		MountsRepository = fixture.Freeze<IItemRepository<Mount>>();
+		AccessHelper = fixture.Freeze<IAccessHelper>();
+		Logger = fixture.Freeze<ILogger<CharactersService>>();
 
-    public int CharacterId { get; }
-    public int WeaponId { get; }
-    public int SpellId { get; }
-    public int PageNumber { get; }
-    public int PageSize { get; }
-    public Character Character { get; }
-    public List<Character> Characters { get; }
-    public PaginatedList<Character> PaginatedList { get; }
+		CharactersService = new CharactersService(
+			CharactersRepository,
+			PlayersRepository,
+			WeaponsRepository,
+			SpellsRepository,
+			MountsRepository,
+			AccessHelper,
+			new CharacterMapper(),
+			Logger);
+
+		Weapon = weaponFaker.Generate();
+		Spell = spellFaker.Generate();
+		Mount = mountFaker.Generate();
+		Character = characterFaker.Generate();
+		CharacterCreateDto = characterCreateDtoFaker.Generate();
+		CharacterUpdateDto = characterUpdateDtoFaker.Generate();
+		PagedList = pagedListFaker.Generate();
+		PatchDocument = new();
+	}
+
+	private int CharactersCount { get; }
+
+	public ICharactersService CharactersService { get; }
+	public IRepository<Character> CharactersRepository { get; }
+	public IPlayersRepository PlayersRepository { get; }
+	public IItemRepository<Weapon> WeaponsRepository { get; }
+	public IItemRepository<Spell> SpellsRepository { get; }
+	public IItemRepository<Mount> MountsRepository { get; }
+	public IAccessHelper AccessHelper { get; }
+	public ILogger<CharactersService> Logger { get; }
+	private int WeaponId { get; }
+	private int SpellId { get; }
+
+	public int CharacterId { get; }
+	public PageParameters PageParameters { get; }
+	public Weapon Weapon { get; }
+	public Spell Spell { get; }
+	public Mount Mount { get; }
+	public Character Character { get; }
+	public CharacterCreateDto CharacterCreateDto { get; }
+	public CharacterUpdateDto CharacterUpdateDto { get; }
+	public PagedList<Character> PagedList { get; }
+	public JsonPatchDocument<CharacterUpdateDto> PatchDocument { get; }
+	public CancellationToken CancellationToken { get; }
 }

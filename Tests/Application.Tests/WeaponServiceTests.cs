@@ -1,6 +1,4 @@
 ﻿using Application.Tests.Fixtures;
-using Domain.Entities;
-using Domain.Exceptions;
 using Domain.Shared;
 using FluentAssertions;
 using NSubstitute;
@@ -12,113 +10,184 @@ namespace Application.Tests;
 [TestFixture]
 public class WeaponServiceTests
 {
-    private WeaponServiceFixture _fixture = default!;
+	private WeaponServiceFixture _fixture = default!;
 
-    [SetUp]
-    public void SetUp() => _fixture = new WeaponServiceFixture();
+	[SetUp]
+	public void SetUp() => _fixture = new();
 
-    [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfWeapon_WhenParametersAreValid()
-    {
-        // Arrange
-        _fixture.WeaponRepository
-            .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
-            .Returns(_fixture.PaginatedList);
+	[Test]
+	public async Task GetAllAsync_Should_ReturnPageDtoOfWeaponReadDto_WhenDataIsValid()
+	{
+		// Arrange
+		_fixture.WeaponsRepository
+			.GetAllAsync(Arg.Any<PageParameters>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.PagedList);
 
-        // Act
-        var result = await _fixture.WeaponService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
+		// Act
+		var result = await _fixture.WeaponsService.GetAllAsync(_fixture.PageParameters, _fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Weapon>>();
-    }
+		// Assert
+		result.Should().NotBeNull();
+		result.Entities.Should().NotBeEmpty();
+	}
 
-    [Test]
-    public async Task GetByIdAsync_Should_ReturnWeapon_WhenWeaponExists()
-    {
-        // Arrange
-        _fixture.WeaponRepository
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Weapon);
+	[Test]
+	public async Task GetByIdAsync_Should_ReturnWeaponReadDto_WhenWeaponExists()
+	{
+		// Arrange
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Weapon);
 
-        // Act
-        var result = await _fixture.WeaponService.GetByIdAsync(_fixture.Id);
+		// Act
+		var result = await _fixture.WeaponsService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Weapon>();
-    }
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-    [Test]
-    public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
-    {
-        // Arrange
-        _fixture.WeaponRepository
-            .GetByIdAsync(Arg.Any<int>())
-            .ReturnsNull();
+	[Test]
+	public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
+	{
+		// Arrange
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
 
-        // Act
-        var result = async () => await _fixture.WeaponService.GetByIdAsync(_fixture.Id);
+		// Act
+		var result = () => _fixture.WeaponsService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
 
-        // Assert
-        await result.Should().ThrowAsync<NullReferenceException>();
-    }
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 
-    [Test]
-    public void AddAsync_Should_ReturnTask_WhenWeaponIsValid()
-    {
-        // Act
-        var result = _fixture.WeaponService.AddAsync(_fixture.Weapon);
+	[Test]
+	public void AddAsync_Should_ReturnWeaponReadDto_WhenDtoIsValid()
+	{
+		// Act
+		var result = _fixture.WeaponsService.AddAsync(_fixture.WeaponCreateDto);
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-    [Test]
-    public void UpdateAsync_Should_ReturnTask_WhenWeaponIsValid()
-    {
-        // Act
-        var result = _fixture.WeaponService.UpdateAsync(_fixture.Weapon);
+	[Test]
+	public void UpdateAsync_Should_ReturnTask_WhenWeaponExists()
+	{
+		// Arrange
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Weapon);
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		// Act
+		var result = _fixture.WeaponsService.UpdateAsync(_fixture.Id, _fixture.WeaponUpdateDto, _fixture.CancellationToken);
 
-    [Test]
-    public void DeleteAsync_Should_ReturnTask_WhenWeaponIsValid()
-    {
-        // Act
-        var result = _fixture.WeaponService.DeleteAsync(_fixture.Id);
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+	[Test]
+	public async Task UpdateAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
+	{
+		// Arrange
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
 
-    [Test]
-    public void AddToCharacter_Should_ReturnVoid_WhenDataIsValid()
-    {
-        // Act
-        var result = () => _fixture.WeaponService.AddToCharacterAsync(_fixture.Character, _fixture.Weapon);
+		// Act
+		var result = () => _fixture.WeaponsService.UpdateAsync(
+			_fixture.Id,
+			_fixture.WeaponUpdateDto,
+			_fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 
-    [Test]
-    public void RemoveFromCharacter_Should_ReturnVoid_WhenWeaponExists()
-    {
-        // Act
-        var result = () => _fixture.WeaponService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Weapon);
+	[Test]
+	public void DeleteAsync_Should_ReturnTask_WhenWeaponExists()
+	{
+		// Arrange
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Weapon);
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		// Act
+		var result = _fixture.WeaponsService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
 
-    [Test]
-    public void RemoveFromCharacter_Should_ThrowItemNotFoundException_WhenWeaponDoesNotExist()
-    {
-        // Act
-        var result = async() => await _fixture.WeaponService.RemoveFromCharacterAsync(_fixture.Character, _fixture.Weapon);
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-        // Assert
-        result.Should().ThrowAsync<ItemNotFoundException>();
-    }
+	[Test]
+	public async Task DeleteAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
+	{
+		// Arrange
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.WeaponsService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	public async Task PatchAsync_Should_ReturnTrue_WhenWeaponExistsAndModelIsValid()
+	{
+		// Arrange
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Weapon);
+
+		// Act
+		var result = await _fixture.WeaponsService.PatchAsync(
+			_fixture.Id,
+			_fixture.PatchDocument,
+			_ => true,
+			_fixture.CancellationToken);
+
+		// Assert
+		result.Should().BeTrue();
+	}
+
+	[Test]
+	public async Task PatchAsync_Should_ReturnFalse_WhenWeaponExistsAndModelIsNotValid()
+	{
+		// Arrange
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Weapon);
+
+		// Act
+		var result = await _fixture.WeaponsService.PatchAsync(
+			_fixture.Id,
+			_fixture.PatchDocument,
+			_ => false,
+			_fixture.CancellationToken);
+
+		// Assert
+		result.Should().BeFalse();
+	}
+
+	[Test]
+	public async Task PatchAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
+	{
+		// Arrange
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.WeaponsService.PatchAsync(
+			_fixture.Id,
+			_fixture.PatchDocument,
+			_ => false,
+			_fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 }

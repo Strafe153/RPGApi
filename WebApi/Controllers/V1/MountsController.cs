@@ -1,9 +1,9 @@
-﻿using Asp.Versioning;
+﻿using Application.Services.Abstractions;
+using Asp.Versioning;
 using Domain.Constants;
 using Domain.Dtos;
 using Domain.Dtos.MountDtos;
-using Domain.Entities;
-using Domain.Interfaces.Services;
+using Domain.Enums;
 using Domain.Shared;
 using Domain.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
@@ -11,108 +11,65 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using WebApi.Filters;
-using WebApi.Mappers.Interfaces;
 
 namespace WebApi.Controllers.V1;
 
 [Route("api/mounts")]
 [ApiController]
-[Authorize]
+[Authorize(Roles = nameof(PlayerRole.Admin))]
 [ApiVersion(ApiVersioningConstants.V1)]
 [EnableRateLimiting(RateLimitingConstants.TokenBucket)]
 public class MountsController : ControllerBase
 {
-	private readonly IItemService<Mount> _mountService;
-	private readonly IMapper<PaginatedList<Mount>, PageDto<MountReadDto>> _paginatedMapper;
-	private readonly IMapper<Mount, MountReadDto> _readMapper;
-	private readonly IMapper<MountCreateDto, Mount> _createMapper;
-	private readonly IUpdateMapper<MountUpdateDto, Mount> _updateMapper;
+	private readonly IMountsService _mountsService;
 
-	public MountsController(
-		IItemService<Mount> mountService,
-		IMapper<PaginatedList<Mount>, PageDto<MountReadDto>> paginatedMapper,
-		IMapper<Mount, MountReadDto> readMapper,
-		IMapper<MountCreateDto, Mount> createMapper,
-		IUpdateMapper<MountUpdateDto, Mount> updateMapper)
+	public MountsController(IMountsService mountsService)
 	{
-		_mountService = mountService;
-		_paginatedMapper = paginatedMapper;
-		_readMapper = readMapper;
-		_createMapper = createMapper;
-		_updateMapper = updateMapper;
+		_mountsService = mountsService;
 	}
 
 	[HttpGet]
+	[Authorize]
 	[CacheFilter]
-	public async Task<ActionResult<PageDto<MountReadDto>>> Get([FromQuery] PageParameters pageParams, CancellationToken token)
-	{
-		var mounts = await _mountService.GetAllAsync(pageParams.PageNumber, pageParams.PageSize, token);
-		var pageDto = _paginatedMapper.Map(mounts);
-
-		return Ok(pageDto);
-	}
+	public async Task<ActionResult<PageDto<MountReadDto>>> Get(
+		[FromQuery] PageParameters pageParams,
+		CancellationToken token) =>
+			Ok(await _mountsService.GetAllAsync(pageParams, token));
 
 	[HttpGet("{id:int:min(1)}")]
+	[Authorize]
 	[CacheFilter]
-	public async Task<ActionResult<MountReadDto>> Get([FromRoute] int id, CancellationToken token)
-	{
-		var mount = await _mountService.GetByIdAsync(id, token);
-		var readDto = _readMapper.Map(mount);
-
-		return Ok(readDto);
-	}
+	public async Task<ActionResult<MountReadDto>> Get([FromRoute] int id, CancellationToken token) =>
+		Ok(await _mountsService.GetByIdAsync(id, token));
 
 	[HttpPost]
-	[Authorize(Roles = "Admin")]
 	public async Task<ActionResult<MountReadDto>> Create([FromBody] MountCreateDto createDto)
 	{
-		var mount = _createMapper.Map(createDto);
-		mount.Id = await _mountService.AddAsync(mount);
-
-		var readDto = _readMapper.Map(mount);
-
+		var readDto = await _mountsService.AddAsync(createDto);
 		return CreatedAtAction(nameof(Get), new { readDto.Id }, readDto);
 	}
 
 	[HttpPut("{id:int:min(1)}")]
-	[Authorize(Roles = "Admin")]
-	public async Task<ActionResult> Update([FromRoute] int id, [FromBody] MountUpdateDto updateDto)
+	public async Task<ActionResult> Update([FromRoute] int id, [FromBody] MountUpdateDto updateDto, CancellationToken token)
 	{
-		var mount = await _mountService.GetByIdAsync(id);
-
-		_updateMapper.Map(updateDto, mount);
-		await _mountService.UpdateAsync(mount);
-
+		await _mountsService.UpdateAsync(id, updateDto, token);
 		return NoContent();
 	}
 
 	[HttpPatch("{id:int:min(1)}")]
-	[Authorize(Roles = "Admin")]
 	public async Task<ActionResult> Update(
 		[FromRoute] int id,
-		[FromBody] JsonPatchDocument<MountUpdateDto> patchDocument)
+		[FromBody] JsonPatchDocument<MountUpdateDto> patchDocument,
+		CancellationToken token)
 	{
-		var mount = await _mountService.GetByIdAsync(id);
-		var updateDto = _updateMapper.Map(mount);
-
-		patchDocument.ApplyTo(updateDto, ModelState);
-
-		if (!TryValidateModel(updateDto))
-		{
-			return ValidationProblem(ModelState);
-		}
-
-		_updateMapper.Map(updateDto, mount);
-		await _mountService.UpdateAsync(mount);
-
-		return NoContent();
+		var patchResult = await _mountsService.PatchAsync(id, patchDocument, TryValidateModel, token);
+		return patchResult ? NoContent() : ValidationProblem(ModelState);
 	}
 
 	[HttpDelete("{id:int:min(1)}")]
-	[Authorize(Roles = "Admin")]
-	public async Task<ActionResult> Delete([FromRoute] int id)
+	public async Task<ActionResult> Delete([FromRoute] int id, CancellationToken token)
 	{
-		await _mountService.DeleteAsync(id);
+		await _mountsService.DeleteAsync(id, token);
 		return NoContent();
 	}
 }

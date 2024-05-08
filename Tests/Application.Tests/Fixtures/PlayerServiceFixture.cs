@@ -1,13 +1,16 @@
-﻿using Application.Services;
+﻿using Application.Mappers.Implementations;
+using Application.Services.Abstractions;
+using Application.Services.Implementations;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Bogus;
+using Domain.Dtos.PlayerDtos;
+using Domain.Dtos.TokensDtos;
 using Domain.Entities;
 using Domain.Enums;
-using Domain.Interfaces.Repositories;
-using Domain.Interfaces.Services;
+using Domain.Helpers;
+using Domain.Repositories;
 using Domain.Shared;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
@@ -15,77 +18,119 @@ namespace Application.Tests.Fixtures;
 
 public class PlayerServiceFixture
 {
-    public PlayerServiceFixture()
-    {
-        var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
+	public PlayerServiceFixture()
+	{
+		var fixture = new Fixture().Customize(new AutoNSubstituteCustomization());
 
-        var generalFaker = new Faker();
+		var generalFaker = new Faker();
 
-        Id = Random.Shared.Next();
-        Name = generalFaker.Internet.UserName();
-        Bytes = generalFaker.Random.Bytes(32);
-        PageNumber = Random.Shared.Next(1, 25);
-        PageSize = Random.Shared.Next(1, 100);
-        PlayersCount = Random.Shared.Next(1, 20);
+		Id = Random.Shared.Next();
+		Name = generalFaker.Internet.UserName();
+		Bytes = generalFaker.Random.Bytes(32);
+		AccessToken = $"{generalFaker.Random.String2(32)}.{generalFaker.Random.String2(64)}.{generalFaker.Random.String2(32)}";
+		RefreshToken = generalFaker.Random.String2(64);
+		PlayersCount = Random.Shared.Next(1, 20);
+		PageParameters = new()
+		{
+			PageNumber = Random.Shared.Next(1, 25),
+			PageSize = Random.Shared.Next(1, 100)
+		};
 
-        var playerFaker = new Faker<Player>()
-            .RuleFor(p => p.Id, f => f.Random.Int())
-            .RuleFor(p => p.Name, Name)
-            .RuleFor(p => p.Role, f => (PlayerRole)f.Random.Int(Enum.GetValues(typeof(PlayerRole)).Length))
-            .RuleFor(p => p.PasswordHash, f => f.Random.Bytes(32))
-            .RuleFor(p => p.PasswordSalt, f => f.Random.Bytes(32))
-            .RuleFor(p => p.RefreshToken, f => f.Random.String2(64))
-            .RuleFor(p => p.RefreshTokenExpiryDate, f => f.Date.Future());
+		var password = generalFaker.Internet.Password();
+		var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt(password);
 
-        var paginatedListFaker = new Faker<PaginatedList<Player>>()
-            .CustomInstantiator(f => new(
-                playerFaker.Generate(PlayersCount),
-                PlayersCount,
-                PageNumber,
-                PageSize));
+		var playerFaker = new Faker<Player>()
+			.RuleFor(p => p.Id, f => f.Random.Int())
+			.RuleFor(p => p.Name, Name)
+			.RuleFor(p => p.Role, f => f.PickRandom<PlayerRole>())
+			.RuleFor(p => p.PasswordHash, hash)
+			.RuleFor(p => p.PasswordSalt, salt)
+			.RuleFor(p => p.RefreshToken, f => f.Random.String2(64))
+			.RuleFor(p => p.RefreshTokenExpiryDate, f => f.Date.Future());
 
-        PlayerRepository = fixture.Freeze<IPlayerRepository>();
-        HttpContextAccessor = fixture.Freeze<IHttpContextAccessor>();
-        Logger = fixture.Freeze<ILogger<PlayerService>>();
+		var playerAuthorizeDtoFaker = new Faker<PlayerAuthorizeDto>()
+			.CustomInstantiator(f => new(f.Internet.UserName(), password));
 
-        PlayerService = new PlayerService(PlayerRepository, HttpContextAccessor, Logger);
+		var playerUpdateDtoFaker = new Faker<PlayerUpdateDto>()
+			.CustomInstantiator(f => new(f.Internet.UserName()));
 
-        Player = playerFaker.Generate();
-        Players = playerFaker.Generate(PlayersCount);
-        PaginatedList = paginatedListFaker.Generate();
-        SufficientClaims = GetSufficientClaims();
-        InsufficientClaims = GetInsufficientClaims();
-    }
+		var playerChangePasswordDtoFaker = new Faker<PlayerChangePasswordDto>()
+			.CustomInstantiator(f => new(f.Internet.Password()));
 
-    private int PlayersCount { get; }
+		var playerChangeRoleDtoFaker = new Faker<PlayerChangeRoleDto>()
+			.CustomInstantiator(f => new(f.PickRandom<PlayerRole>()));
 
-    public IPlayerService PlayerService { get; }
-    public IPlayerRepository PlayerRepository { get; }
-    public IHttpContextAccessor HttpContextAccessor { get; }
-    public ILogger<PlayerService> Logger { get; }
+		var tokensRefreshDtoFaker = new Faker<TokensRefreshDto>()
+			.CustomInstantiator(f => new(f.Random.String2(64)));
 
-    public int Id { get; }
-    public int PageNumber { get; }
-    public int PageSize { get; }
-    public string Name { get; }
-    public byte[] Bytes { get; }
-    public Player Player { get; }
-    public List<Player> Players { get; }
-    public PaginatedList<Player> PaginatedList { get; }
-    public IEnumerable<Claim> SufficientClaims { get; }
-    public IEnumerable<Claim> InsufficientClaims { get; }
+		var pagedListFaker = new Faker<PagedList<Player>>()
+			.CustomInstantiator(f => new(
+				playerFaker.Generate(PlayersCount),
+				PlayersCount,
+				f.Random.Int(1, 2),
+				f.Random.Int(1, 2)));
 
-    private IEnumerable<Claim> GetInsufficientClaims() =>
-        new List<Claim>()
-        {
-            new Claim(ClaimTypes.Name, string.Empty),
-            new Claim(ClaimTypes.Role, string.Empty)
-        };
+		PlayersRepository = fixture.Freeze<IPlayersRepository>();
+		AccessHelper = fixture.Freeze<IAccessHelper>();
+		TokenHelper = fixture.Freeze<ITokenHelper>();
+		Logger = fixture.Freeze<ILogger<PlayersService>>();
 
-    private IEnumerable<Claim> GetSufficientClaims() =>
-        new List<Claim>()
-        {
-            new Claim(ClaimTypes.Name, Name),
-            new Claim(ClaimTypes.Role, PlayerRole.Admin.ToString())
-        };
+		PlayersService = new PlayersService(
+			PlayersRepository,
+			AccessHelper,
+			TokenHelper,
+			new PlayerMapper(),
+			Logger);
+
+		Player = playerFaker.Generate();
+		PlayerAuthorizeDto = playerAuthorizeDtoFaker.Generate();
+		PlayerUpdateDto = playerUpdateDtoFaker.Generate();
+		PlayerChangePasswordDto = playerChangePasswordDtoFaker.Generate();
+		PlayerChangeRoleDto = playerChangeRoleDtoFaker.Generate();
+		TokensRefreshDto = tokensRefreshDtoFaker.Generate();
+		Players = playerFaker.Generate(PlayersCount);
+		PagedList = pagedListFaker.Generate();
+		SufficientClaims = GetSufficientClaims();
+		InsufficientClaims = GetInsufficientClaims();
+	}
+
+	private int PlayersCount { get; }
+
+	public IPlayersService PlayersService { get; }
+	public IPlayersRepository PlayersRepository { get; }
+	public IAccessHelper AccessHelper { get; }
+	public ITokenHelper TokenHelper { get; }
+	public ILogger<PlayersService> Logger { get; }
+
+	public int Id { get; }
+	public PageParameters PageParameters { get; }
+	public string Name { get; }
+	public byte[] Bytes { get; }
+    public string AccessToken { get; }
+	public string RefreshToken { get; }
+	public Player Player { get; }
+	public PlayerAuthorizeDto PlayerAuthorizeDto { get; }
+	public PlayerUpdateDto PlayerUpdateDto { get; }
+    public PlayerChangePasswordDto PlayerChangePasswordDto { get; }
+	public PlayerChangeRoleDto PlayerChangeRoleDto { get; }
+	public TokensRefreshDto TokensRefreshDto { get; }
+	public List<Player> Players { get; }
+	public PagedList<Player> PagedList { get; }
+	public CancellationToken CancellationToken { get; }
+	public IEnumerable<Claim> SufficientClaims { get; }
+	public IEnumerable<Claim> InsufficientClaims { get; }
+
+	private IEnumerable<Claim> GetInsufficientClaims() =>
+		new List<Claim>
+		{
+			new(ClaimTypes.Name, string.Empty),
+			new(ClaimTypes.Role, string.Empty)
+		};
+
+	private IEnumerable<Claim> GetSufficientClaims() =>
+		new List<Claim>
+		{
+			new(ClaimTypes.Name, Name),
+			new(ClaimTypes.Role, PlayerRole.Admin.ToString())
+		};
 }

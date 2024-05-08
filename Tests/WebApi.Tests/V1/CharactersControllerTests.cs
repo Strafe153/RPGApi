@@ -1,7 +1,10 @@
 ﻿using Domain.Dtos;
 using Domain.Dtos.CharacterDtos;
+using Domain.Enums;
+using Domain.Shared;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using NSubstitute;
 using NUnit.Framework;
@@ -12,260 +15,178 @@ namespace WebApi.Tests.V1;
 [TestFixture]
 public class CharactersControllerTests
 {
-    private CharactersControllerFixture _fixture = default!;
+	private CharactersControllerFixture _fixture = default!;
+	private static int _characterId;
 
-    [SetUp]
-    public void SetUp()
-    {
-        _fixture = new CharactersControllerFixture();
-        _fixture.MockObjectModelValidator(_fixture.CharactersController);
-    }
+	[SetUp]
+	public void SetUp()
+	{
+		_fixture = new();
+		_characterId = _fixture.Id;
+	}
 
-    [TearDown]
-    public void TearDown() => _fixture.CharactersController.ControllerContext = _fixture.MockControllerContext();
+	[Test]
+	public async Task Get_Should_ReturnActionResultOfPageDtoOfCharacterReadDto_WhenDataIsValid()
+	{
+		// Arrange
+		_fixture.CharactersService
+			.GetAllAsync(Arg.Any<PageParameters>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.PageDto);
 
-    [Test]
-    public async Task Get_Should_ReturnActionResultOfPageDtoOfCharacterReadDto_WhenPageParametersAreValid()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
-            .Returns(_fixture.PaginatedList);
+		// Act
+		var result = await _fixture.CharactersController.Get(_fixture.PageParameters, _fixture.CancellationToken);
+		var objectResult = result.Result.As<OkObjectResult>();
+		var pageDto = objectResult.Value.As<PageDto<CharacterReadDto>>();
 
-        // Act
-        var result = await _fixture.CharactersController.Get(_fixture.PageParameters, _fixture.CancellationToken);
-        var objectResult = result.Result.As<OkObjectResult>();
-        var pageDto = objectResult.Value.As<PageDto<CharacterReadDto>>();
+		result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<CharacterReadDto>>>();
+		objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
+		pageDto.Entities.Count().Should().Be(_fixture.CharactersCount);
+	}
 
-        result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<CharacterReadDto>>>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
-        pageDto.Entities!.Count().Should().Be(_fixture.CharactersCount);
-    }
+	[Test]
+	public async Task Get_Should_ReturnCreatedAtActionResultOfCharacterReadDto_WhenCharacterExists()
+	{
+		// Arrange
+		_fixture.CharactersService
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.CharacterReadDto);
 
-    [Test]
-    public async Task Get_Should_ReturnActionResultOfCharacterReadDto_WhenCharacterExists()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
+		// Act
+		var result = await _fixture.CharactersController.Get(_fixture.Id, _fixture.CancellationToken);
+		var objectResult = result.Result.As<OkObjectResult>();
+		var readDto = objectResult.Value.As<CharacterReadDto>();
 
-        // Act
-        var result = await _fixture.CharactersController.Get(_fixture.Id, _fixture.CancellationToken);
-        var objectResult = result.Result.As<OkObjectResult>();
-        var readDto = objectResult.Value.As<CharacterReadDto>();
+		// Assert
+		result.Should().NotBeNull().And.BeOfType<ActionResult<CharacterReadDto>>();
+		objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
+		readDto.Should().NotBeNull();
+	}
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<ActionResult<CharacterReadDto>>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
-        readDto.Should().NotBeNull();
-    }
+	[Test]
+	public async Task Create_Should_ReturnActionResultOfCharacterReadDto_WhenCharacterCreateDtoIsValid()
+	{
+		// Arrange
+		_fixture.CharactersService
+			.AddAsync(Arg.Any<CharacterCreateDto>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.CharacterReadDto);
 
-    [Test]
-    public async Task Create_Should_ReturnActionResultOfCharacterReadDto_WhenCharacterCreateDtoIsValid()
-    {
-        // Act
-        var result = await _fixture.CharactersController.Create(_fixture.CharacterCreateDto);
-        var objectResult = result.Result.As<CreatedAtActionResult>();
-        var readDto = objectResult.Value.As<CharacterReadDto>();
+		// Act
+		var result = await _fixture.CharactersController.Create(_fixture.CharacterCreateDto, _fixture.CancellationToken);
+		var objectResult = result.Result.As<CreatedAtActionResult>();
+		var readDto = objectResult.Value.As<CharacterReadDto>();
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<ActionResult<CharacterReadDto>>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status201Created);
-        readDto.Should().NotBeNull();
-    }
+		// Assert
+		result.Should().NotBeNull().And.BeOfType<ActionResult<CharacterReadDto>>();
+		objectResult.StatusCode.Should().Be(StatusCodes.Status201Created);
+		readDto.Should().NotBeNull();
+	}
 
-    [Test]
-    public async Task Update_Should_ReturnNoContentResult_WhenCharacterExistsAndCharacterUpdateDtoIsValid()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
+	[Test]
+	public async Task Update_Should_ReturnNoContentResult_WhenCharacterExistsAndDtoIsValid()
+	{
+		// Arrange
+		_fixture.CharactersService
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.CharacterReadDto);
 
-        // Act
-        var result = await _fixture.CharactersController.Update(_fixture.Id, _fixture.CharacterUpdateDto);
-        var objectResult = result.As<NoContentResult>();
+		// Act
+		var result = await _fixture.CharactersController.Update(_fixture.Id, _fixture.CharacterUpdateDto, _fixture.CancellationToken);
+		var objectResult = result.As<NoContentResult>();
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-    }
+		// Assert
+		result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+		objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+	}
 
-    [Test]
-    public async Task Update_Should_ReturnNoContentResult_WhenCharacterExistsAndPatchDocumentIsValid()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
+	[Test]
+	public async Task Update_Should_ReturnNoContentResult_WhenCharacterExistsAndPatchDocumentIsValid()
+	{
+		// Arrange
+		_fixture.CharactersService
+			.PatchAsync(
+				Arg.Any<int>(),
+				Arg.Any<JsonPatchDocument<CharacterUpdateDto>>(),
+				Arg.Any<Func<object, bool>>(),
+				Arg.Any<CancellationToken>())
+			.Returns(true);
 
-        // Act
-        var result = await _fixture.CharactersController.Update(_fixture.Id, _fixture.PatchDocument);
-        var objectResult = result.As<NoContentResult>();
+		// Act
+		var result = await _fixture.CharactersController.Update(_fixture.Id, _fixture.PatchDocument, _fixture.CancellationToken);
+		var objectResult = result.As<NoContentResult>();
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-    }
+		// Assert
+		result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+		objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+	}
 
-    [Test]
-    public async Task Update_Should_ReturnObjectResult_WhenCharacterExistsAndPatchDocumentIsInvalid()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
+	[Test]
+	public async Task Update_Should_ReturnObjectResult_WhenCharacterExistsAndPatchDocumentIsInvalid()
+	{
+		// Arrange
+		_fixture.CharactersService
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.CharacterReadDto);
 
-        _fixture.MockModelError(_fixture.CharactersController);
+		// Act
+		var result = await _fixture.CharactersController.Update(_fixture.Id, _fixture.PatchDocument, _fixture.CancellationToken);
+		var objectResult = result.As<ObjectResult>();
 
-        // Act
-        var result = await _fixture.CharactersController.Update(_fixture.Id, _fixture.PatchDocument);
+		// Assert
+		result.Should().NotBeNull().And.BeOfType<ObjectResult>();
+		objectResult.StatusCode.Should().BeNull();
+	}
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<ObjectResult>();
-    }
+	[Test]
+	public async Task Delete_Should_ReturnNoContentResult_WhenCharacterExists()
+	{
+		// Act
+		var result = await _fixture.CharactersController.Delete(_fixture.Id, _fixture.CancellationToken);
+		var objectResult = result.As<NoContentResult>();
 
-    [Test]
-    public async Task Delete_Should_ReturnNoContentResult_WhenCharacterExists()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
+		// Assert
+		result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+		objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+	}
 
-        // Act
-        var result = await _fixture.CharactersController.Delete(_fixture.Id);
-        var objectResult = result.As<NoContentResult>();
+	[Test]
+	[TestCaseSource(nameof(ManageItemTestData))]
+	public async Task ManageItem_Should_ReturnNoContentResult_WhenCharacterAndItemExist(ManageItemDto itemDto)
+	{
+		// Act
+		var result = await _fixture.CharactersController.ManageItem(itemDto, _fixture.CancellationToken);
+		var objectResult = result.As<NoContentResult>();
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-    }
+		// Assert
+		result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+		objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+	}
 
-    [Test]
-    public async Task AddWeapon_Should_ReturnNoContentResult_WhenCharacterAndWeaponExist()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
+	[Test]
+	[TestCaseSource(nameof(HitTestData))]
+	public async Task Hit_Should_ReturnNoContentResult_WhenCharacterAndItemExist(HitDto hitDto)
+	{
+		// Act
+		var result = await _fixture.CharactersController.Hit(hitDto, _fixture.CancellationToken);
+		var objectResult = result.As<NoContentResult>();
 
-        _fixture.WeaponService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Weapon);
+		// Assert
+		result.Should().NotBeNull().And.BeOfType<NoContentResult>();
+		objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+	}
 
-        // Act
-        var result = await _fixture.CharactersController.AddWeapon(_fixture.ItemDto);
-        var objectResult = result.As<NoContentResult>();
+	private static IEnumerable<ManageItemDto> ManageItemTestData()
+	{
+		yield return new(_characterId, 1, ItemType.Weapon, ManageItemOperation.Add);
+		yield return new(_characterId, 1, ItemType.Weapon, ManageItemOperation.Remove);
+		yield return new(_characterId, 1, ItemType.Spell, ManageItemOperation.Add);
+		yield return new(_characterId, 1, ItemType.Spell, ManageItemOperation.Remove);
+		yield return new(_characterId, 1, ItemType.Mount, ManageItemOperation.Add);
+		yield return new(_characterId, 1, ItemType.Mount, ManageItemOperation.Remove);
+	}
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-    }
-
-    [Test]
-    public async Task RemoveWeapon_Should_ReturnNoContentResult_WhenCharacterAndWeaponExist()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
-
-        _fixture.WeaponService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Weapon);
-
-        // Act
-        var result = await _fixture.CharactersController.RemoveWeapon(_fixture.ItemDto);
-        var objectResult = result.As<NoContentResult>();
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-    }
-
-    [Test]
-    public async Task AddSpell_Should_ReturnNoContentResult_WhenCharacterAndSpellExist()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
-
-        _fixture.SpellService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Spell);
-
-        // Act
-        var result = await _fixture.CharactersController.AddSpell(_fixture.ItemDto);
-        var objectResult = result.As<NoContentResult>();
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-    }
-
-    [Test]
-    public async Task RemoveSpell_Should_ReturnNoContentResult_WhenCharacterAndSpellExist()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
-
-        _fixture.SpellService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Spell);
-
-        // Act
-        var result = await _fixture.CharactersController.RemoveSpell(_fixture.ItemDto);
-        var objectResult = result.As<NoContentResult>();
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-    }
-
-    [Test]
-    public async Task AddMount_Should_ReturnNoContentResult_WhenCharacterAndMountExist()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
-
-        _fixture.MountService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Mount);
-
-        // Act
-        var result = await _fixture.CharactersController.AddMount(_fixture.ItemDto);
-        var objectResult = result.As<NoContentResult>();
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-    }
-
-    [Test]
-    public async Task RemoveMount_Should_ReturnNoContentResult_WhenCharacterAndMountExist()
-    {
-        // Arrange
-        _fixture.CharacterService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
-
-        _fixture.MountService
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Mount);
-
-        // Act
-        var result = await _fixture.CharactersController.RemoveMount(_fixture.ItemDto);
-        var objectResult = result.As<NoContentResult>();
-
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-        objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-    }
+	private static IEnumerable<HitDto> HitTestData()
+	{
+		yield return new(1, _characterId, 1, HitType.Weapon);
+		yield return new(1, _characterId, 1, HitType.Spell);
+	}
 }

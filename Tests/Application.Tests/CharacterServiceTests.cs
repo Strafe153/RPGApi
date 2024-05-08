@@ -1,6 +1,7 @@
 ﻿using Application.Tests.Fixtures;
-using Domain.Entities;
-using Domain.Exceptions;
+using Domain.Dtos;
+using Domain.Dtos.CharacterDtos;
+using Domain.Enums;
 using Domain.Shared;
 using FluentAssertions;
 using NSubstitute;
@@ -12,141 +13,417 @@ namespace Application.Tests;
 [TestFixture]
 public class CharacterServiceTests
 {
-    private CharacterServiceFixture _fixture = default!;
+	private CharacterServiceFixture _fixture = default!;
+	private static int _characterId;
 
-    [SetUp]
-    public void SetUp() => _fixture = new CharacterServiceFixture();
+	[SetUp]
+	public void SetUp()
+	{
+		 _fixture = new();
+		_characterId = _fixture.CharacterId;
+	}
 
-    [TearDown]
-    public void TearDown()
-    {
-        _fixture.Character.Health = 100;
-    }
+	[TearDown]
+	public void TearDown()
+	{
+		_fixture.Character.Health = 100;
+	}
 
-    [Test]
-    public async Task GetAllAsync_Should_ReturnPaginatedListOfCharacter_WhenPageParametersAreValid()
-    {
-        // Arrange
-        _fixture.CharacterRepository
-            .GetAllAsync(Arg.Any<int>(), Arg.Any<int>())
-            .Returns(_fixture.PaginatedList);
+	[Test]
+	public async Task GetAllAsync_Should_ReturnPageDtoOfCharacterReadDto_WhenDataIsValid()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetAllAsync(Arg.Any<PageParameters>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.PagedList);
 
-        // Act
-        var result = await _fixture.CharacterService.GetAllAsync(_fixture.PageNumber, _fixture.PageSize);
+		// Act
+		var result = await _fixture.CharactersService.GetAllAsync(_fixture.PageParameters, _fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull().And.NotBeEmpty().And.BeOfType<PaginatedList<Character>>();
-    }
+		// Assert
+		result.Should().NotBeNull();
+		result.Entities.Should().NotBeEmpty();
+	}
 
-    [Test]
-    public async Task GetByIdAsync_Should_ReturnCharacter_WhenCharacterExists()
-    {
-        // Arrange
-        _fixture.CharacterRepository
-            .GetByIdAsync(Arg.Any<int>())
-            .Returns(_fixture.Character);
+	[Test]
+	public async Task GetByIdAsync_Should_ReturnCharacterReadDto_WhenCharacterExists()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
 
-        // Act
-        var result = await _fixture.CharacterService.GetByIdAsync(_fixture.CharacterId);
+		// Act
+		var result = await _fixture.CharactersService.GetByIdAsync(_fixture.CharacterId, _fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Character>();
-    }
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-    [Test]
-    public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist()
-    {
-        // Arrange
-        _fixture.CharacterRepository
-            .GetByIdAsync(Arg.Any<int>())
-            .ReturnsNull();
+	[Test]
+	public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
 
-        // Act
-        var result = async () => await _fixture.CharacterService.GetByIdAsync(_fixture.CharacterId);
+		// Act
+		var result = () => _fixture.CharactersService.GetByIdAsync(_fixture.CharacterId, _fixture.CancellationToken);
 
-        // Assert
-        await result.Should().ThrowAsync<NullReferenceException>();
-    }
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 
-    [Test]
-    public void AddAsync_Should_ReturnTask_WhenCharacterIsValid()
-    {
-        // Act
-        var result = _fixture.CharacterService.AddAsync(_fixture.Character);
+	[Test]
+	public void AddAsync_Should_ReturnCharacterReadDto_WhenPlayerExists()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		// Act
+		var result = _fixture.CharactersService.AddAsync(_fixture.CharacterCreateDto, _fixture.CancellationToken);
 
-    [Test]
-    public void UpdateAsync_Should_ReturnTAsk_WhenCharacterIsValid()
-    {
-        // Act
-        var result = _fixture.CharacterService.UpdateAsync(_fixture.Character);
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+	[Test]
+	public async Task AddAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
 
-    [Test]
-    public void DeleteAsync_Should_ReturnTask_WhenCharacterIsValid()
-    {
-        // Act
-        var result = _fixture.CharacterService.DeleteAsync(_fixture.CharacterId);
+		// Act
+		var result = () => _fixture.CharactersService.AddAsync(_fixture.CharacterCreateDto, _fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull();
-    }
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 
-    [Test]
-    public void GetWeapon_Should_ReturnWeapon_WhenWeaponExists()
-    {
-        // Act
-        var result = _fixture.CharacterService.GetWeapon(_fixture.Character, _fixture.WeaponId);
+	[Test]
+	public void UpdateAsync_Should_ReturnTask_WhenCharacterExists()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Weapon>();
-    }
+		// Act
+		var result = _fixture.CharactersService.UpdateAsync(
+			_fixture.CharacterId,
+			_fixture.CharacterUpdateDto,
+			_fixture.CancellationToken);
 
-    [Test]
-    public void GetWeapon_Should_ThrowItemNotFoundException_WhenWeaponDoesNotExist()
-    {
-        // Act
-        var result = () => _fixture.CharacterService.GetWeapon(_fixture.Character, 3);
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-        // Assert
-        result.Should().Throw<ItemNotFoundException>();
-    }
+	[Test]
+	public async Task UpdateAsync_Should_ThrowNullReferenceExceition_WhenCharacterDoesNotExist()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
 
-    [Test]
-    public void GetSpell_Should_ReturnSpell_WhenSpellExists()
-    {
-        // Act
-        var result = _fixture.CharacterService.GetSpell(_fixture.Character, _fixture.SpellId);
+		// Act
+		var result = () => _fixture.CharactersService.UpdateAsync(
+			_fixture.CharacterId,
+			_fixture.CharacterUpdateDto,
+			_fixture.CancellationToken);
 
-        // Assert
-        result.Should().NotBeNull().And.BeOfType<Spell>();
-    }
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
 
-    [Test]
-    public void GetSpell_Should_ThrowItemNotFoundException_WhenSpellDoesNotExist()
-    {
-        // Act
-        var result = () => _fixture.CharacterService.GetSpell(_fixture.Character, 3);
+	[Test]
+	public void DeleteAsync_Should_ReturnTask_WhenCharacterExists()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
 
-        // Assert
-        result.Should().Throw<ItemNotFoundException>();
-    }
+		// Act
+		var result = _fixture.CharactersService.DeleteAsync(_fixture.CharacterId, _fixture.CancellationToken);
 
-    [TestCase(20, 80)]
-    [TestCase(100, 0)]
-    [TestCase(-25, 100)]
-    public void CalculateHealth_Should_ReturnRemainingHealth_WhenDamaged(int damage, int resultingHealth)
-    {
-        // Act
-        _fixture.CharacterService.CalculateHealth(_fixture.Character, damage);
+		// Assert
+		result.Should().NotBeNull();
+	}
 
-        // Assert
-        resultingHealth.Should().Be(_fixture.Character.Health);
-    }
+	[Test]
+	public async Task DeleteAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.CharactersService.DeleteAsync(_fixture.CharacterId, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	public async Task PatchAsync_Should_ReturnTrue_WhenCharacterExistsAndModelIsValid()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
+
+		// Act
+		var result = await _fixture.CharactersService.PatchAsync(
+			_fixture.CharacterId,
+			_fixture.PatchDocument,
+			_ => true,
+			_fixture.CancellationToken);
+
+		// Assert
+		result.Should().BeTrue();
+	}
+
+	[Test]
+	public async Task PatchAsync_Should_ReturnFalse_WhenCharacterExistsAndModelIsNotValid()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
+
+		// Act
+		var result = await _fixture.CharactersService.PatchAsync(
+			_fixture.CharacterId,
+			_fixture.PatchDocument,
+			_ => false,
+			_fixture.CancellationToken);
+
+		// Assert
+		result.Should().BeFalse();
+	}
+
+	[Test]
+	public async Task PatchAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.CharactersService.PatchAsync(
+			_fixture.CharacterId,
+			_fixture.PatchDocument,
+			_ => false,
+			_fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	[TestCaseSource(nameof(ManageItemAsyncTestData))]
+	public void ManageItemAsync_Should_ReturnTask_WhenCharacterAndItemExist(ManageItemDto itemDto)
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
+
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Weapon);
+
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Spell);
+
+		_fixture.MountsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Mount);
+
+		// Act
+		var result = _fixture.CharactersService.ManageItemAsync(itemDto, _fixture.CancellationToken);
+
+		// Assert
+		result.Should().NotBeNull();
+
+	}
+
+	[Test]
+	[TestCaseSource(nameof(ManageItemAsyncTestData))]
+	public void ManageItemAsync_Should_ReturnTask_WhenCharacterExistAndItemDoesNotExist(ManageItemDto itemDto)
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
+
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		_fixture.MountsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = _fixture.CharactersService.ManageItemAsync(itemDto, _fixture.CancellationToken);
+
+		// Assert
+		result.Should().NotBeNull();
+
+	}
+
+	[Test]
+	[TestCaseSource(nameof(ManageItemAsyncTestData))]
+	public async Task ManageItemAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist(ManageItemDto itemDto)
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.CharactersService.ManageItemAsync(itemDto, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	[TestCaseSource(nameof(HitAsyncSuccessfulTestData))]
+	public void HitAsync_Should_ReturnTask_WhenCharacterAndItemExist(
+		HitDto hitDto,
+		int damage,
+		int startingHealth,
+		int resultingHealth)
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
+
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Weapon);
+
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Spell);
+
+		_fixture.Weapon.Damage = _fixture.Spell.Damage = damage;
+		_fixture.Character.Health = startingHealth;
+
+		// Act
+		var result = _fixture.CharactersService.HitAsync(hitDto, _fixture.CancellationToken);
+
+		// Assert
+		result.Should().NotBeNull();
+		_fixture.Character.Health.Should().Be(resultingHealth);
+	}
+
+	[Test]
+	[TestCaseSource(nameof(HitAsyncFailedTestData))]
+	public async Task HitAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist(HitDto hitDto)
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.CharactersService.HitAsync(hitDto, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	[TestCaseSource(nameof(HitAsyncFailedTestData))]
+	public async Task HitAsync_Should_ThrowNullReferenceException_WhenCharacterExistsAndItemDoesNotExist(HitDto hitDto)
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
+
+		_fixture.WeaponsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		_fixture.SpellsRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.ReturnsNull();
+
+		// Act
+		var result = () => _fixture.CharactersService.HitAsync(hitDto, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	private static IEnumerable<ManageItemDto> ManageItemAsyncTestData()
+	{
+		yield return new(_characterId, 1, ItemType.Weapon, ManageItemOperation.Add);
+		yield return new(_characterId, 1, ItemType.Weapon, ManageItemOperation.Remove);
+		yield return new(_characterId, 1, ItemType.Spell, ManageItemOperation.Add);
+		yield return new(_characterId, 1, ItemType.Spell, ManageItemOperation.Remove);
+		yield return new(_characterId, 1, ItemType.Mount, ManageItemOperation.Add);
+		yield return new(_characterId, 1, ItemType.Mount, ManageItemOperation.Remove);
+	}
+
+	private static IEnumerable<HitDto> HitAsyncFailedTestData()
+	{
+		yield return new(1, _characterId, 1, HitType.Weapon);
+		yield return new(1, _characterId, 1, HitType.Weapon);
+		yield return new(1, _characterId, 1, HitType.Spell);
+		yield return new(1, _characterId, 1, HitType.Spell);
+	}
+
+	private static IEnumerable<object[]> HitAsyncSuccessfulTestData()
+	{
+		yield return new object[]
+		{
+			new HitDto(1, _characterId, 1, HitType.Weapon),
+			38,
+			100,
+			62
+		};
+
+		yield return new object[]
+		{
+			new HitDto(1, _characterId, 1, HitType.Weapon),
+			94,
+			75,
+			0
+		};
+
+		yield return new object[]
+		{
+			new HitDto(1, _characterId, 1, HitType.Spell),
+			47,
+			100,
+			53
+		};
+
+		yield return new object[]
+		{
+			new HitDto(1, _characterId, 1, HitType.Spell),
+			28,
+			16,
+			0
+		};
+	}
 }
