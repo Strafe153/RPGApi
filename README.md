@@ -20,8 +20,6 @@
 * `Bogus` for fake data generation
 * `Dapper` for object-relational mapping
 * `FluentAssertions` for assertions
-* `FluentValidation` for DTO validation
-* `FluentValidation.AspNetCore` for ASP.NET Core integration with FluentValidation
 * `Microsoft.AspNetCore.Authentication.JwtBearer` for JWT authentication
 * `Microsoft.AspNetCore.Http` for default HTTP feature implementations
 * `Microsoft.AspNetCore.Http.Abstractions` for object model for HTTP requests and responses
