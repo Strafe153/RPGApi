@@ -49,5 +49,3 @@
 2. Log In
 3. Create a character
 4. Try things out
-
-> **NOTE!** To see advanced features, log in with "admin" as username and "qwerty" as password.
