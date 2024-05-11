@@ -187,6 +187,26 @@ public class PlayerServiceTests
 	}
 
 	[Test]
+	public async Task UpdateAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
+
+		_fixture.ConfigureAccessRights(false);
+
+		// Act
+		var result = () => _fixture.PlayersService.UpdateAsync(
+			_fixture.Id,
+			_fixture.PlayerUpdateDto,
+			_fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NotEnoughRightsException>();
+	}
+
+	[Test]
 	public void DeleteAsync_Should_ReturnTask_WhenPlayerExists()
 	{
 		// Arrange
@@ -214,6 +234,23 @@ public class PlayerServiceTests
 
 		// Assert
 		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	public async Task DeleteAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
+
+		_fixture.ConfigureAccessRights(false);
+
+		// Act
+		var result = () => _fixture.PlayersService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NotEnoughRightsException>();
 	}
 
 	[Test]
@@ -259,6 +296,26 @@ public class PlayerServiceTests
 
 		// Assert
 		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	public async Task ChangePasswordAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
+
+		_fixture.ConfigureAccessRights(false);
+
+		// Act
+		var result = () => _fixture.PlayersService.ChangePasswordAsync(
+			_fixture.Id,
+			_fixture.PlayerChangePasswordDto,
+			_fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NotEnoughRightsException>();
 	}
 
 	[Test]
@@ -340,5 +397,25 @@ public class PlayerServiceTests
 
 		// Assert
 		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	public async Task RefreshTokensAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
+
+		_fixture.ConfigureAccessRights(false);
+
+		// Act
+		var result = () => _fixture.PlayersService.RefreshTokensAsync(
+			_fixture.Id,
+			_fixture.TokensRefreshDto,
+			_fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NotEnoughRightsException>();
 	}
 }

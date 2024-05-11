@@ -24,7 +24,7 @@ public class AccessHelper : IAccessHelper
 		var performerName = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)!.Value;
 		var performerRole = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)!.Value;
 
-		if (player.Name != performerName && performerRole != PlayerRole.Admin.ToString())
+		if (player.Name != performerName && performerRole != nameof(PlayerRole.Admin))
 		{
 			throw new NotEnoughRightsException("Not enough rights to perform the operation");
 		}

@@ -2,6 +2,7 @@
 using Domain.Dtos;
 using Domain.Dtos.CharacterDtos;
 using Domain.Enums;
+using Domain.Exceptions;
 using Domain.Shared;
 using FluentAssertions;
 using NSubstitute;
@@ -106,6 +107,23 @@ public class CharacterServiceTests
 	}
 
 	[Test]
+	public async Task AddAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
+	{
+		// Arrange
+		_fixture.PlayersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Player);
+
+		_fixture.ConfigureAccessRights(false);
+
+		// Act
+		var result = () => _fixture.CharactersService.AddAsync(_fixture.CharacterCreateDto, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NotEnoughRightsException>();
+	}
+
+	[Test]
 	public void UpdateAsync_Should_ReturnTask_WhenCharacterExists()
 	{
 		// Arrange
@@ -142,6 +160,26 @@ public class CharacterServiceTests
 	}
 
 	[Test]
+	public async Task UpdateAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
+
+		_fixture.ConfigureAccessRights(false);
+
+		// Act
+		var result = () => _fixture.CharactersService.UpdateAsync(
+			_fixture.CharacterId,
+			_fixture.CharacterUpdateDto,
+			_fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NotEnoughRightsException>();
+	}
+
+	[Test]
 	public void DeleteAsync_Should_ReturnTask_WhenCharacterExists()
 	{
 		// Arrange
@@ -169,6 +207,23 @@ public class CharacterServiceTests
 
 		// Assert
 		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	public async Task DeleteAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
+
+		_fixture.ConfigureAccessRights(false);
+
+		// Act
+		var result = () => _fixture.CharactersService.DeleteAsync(_fixture.CharacterId, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NotEnoughRightsException>();
 	}
 
 	[Test]
@@ -283,7 +338,6 @@ public class CharacterServiceTests
 
 		// Assert
 		result.Should().NotBeNull();
-
 	}
 
 	[Test]
@@ -300,6 +354,25 @@ public class CharacterServiceTests
 
 		// Assert
 		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	[TestCaseSource(nameof(ManageItemAsyncTestData))]
+	public async Task ManageItemAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights(
+		ManageItemDto itemDto)
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
+
+		_fixture.ConfigureAccessRights(false);
+
+		// Act
+		var result = () => _fixture.CharactersService.ManageItemAsync(itemDto, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NotEnoughRightsException>();
 	}
 
 	[Test]
@@ -372,6 +445,24 @@ public class CharacterServiceTests
 
 		// Assert
 		await result.Should().ThrowAsync<NullReferenceException>();
+	}
+
+	[Test]
+	[TestCaseSource(nameof(HitAsyncFailedTestData))]
+	public async Task HitAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights(HitDto hitDto)
+	{
+		// Arrange
+		_fixture.CharactersRepository
+			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
+			.Returns(_fixture.Character);
+
+		_fixture.ConfigureAccessRights(false);
+
+		// Act
+		var result = () => _fixture.CharactersService.HitAsync(hitDto, _fixture.CancellationToken);
+
+		// Assert
+		await result.Should().ThrowAsync<NotEnoughRightsException>();
 	}
 
 	private static IEnumerable<ManageItemDto> ManageItemAsyncTestData()
