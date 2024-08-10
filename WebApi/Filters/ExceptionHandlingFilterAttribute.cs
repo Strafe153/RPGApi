@@ -13,7 +13,7 @@ public class ExceptionHandlingFilterAttribute : ExceptionFilterAttribute
 	public override void OnException(ExceptionContext context)
 	{
 		var statusCode = GetHttpStatusCode(context.Exception);
-		int statusCodeAsInt = (int)statusCode;
+		var statusCodeAsInt = (int)statusCode;
 
 		context.HttpContext.Response.ContentType = MediaTypeNames.Application.Json;
 		context.HttpContext.Response.StatusCode = statusCodeAsInt;

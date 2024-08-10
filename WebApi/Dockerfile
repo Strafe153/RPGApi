@@ -1,6 +1,5 @@
-# syntax=docker/dockerfile:1
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
-WORKDIR /app
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+WORKDIR /source
     
 # Copy csproj and restore as distinct layers
 COPY ../*.sln ./
@@ -13,17 +12,17 @@ COPY ../Tests/WebApi.Tests/*.csproj ./Tests/WebApi.Tests/
 RUN dotnet restore
     
 # Copy everything else and build
-COPY ../WebApi/ ./WebApi/
-COPY ../Domain/ ./Domain/
-COPY ../DataAccess/ ./DataAccess/
-COPY ../Application/ ./Application/
-COPY ../Tests/Application.Tests/ ./Tests/Application.Tests/
-COPY ../Tests/WebApi.Tests/ ./Tests/WebApi.Tests/
-WORKDIR /app/WebApi
-RUN dotnet publish -c Release -o /app/out
+COPY ../WebApi/. ./WebApi/
+COPY ../Domain/. ./Domain/
+COPY ../DataAccess/. ./DataAccess/
+COPY ../Application/. ./Application/
+COPY ../Tests/Application.Tests/. ./Tests/Application.Tests/
+COPY ../Tests/WebApi.Tests/. ./Tests/WebApi.Tests/
+WORKDIR /source/WebApi
+RUN dotnet publish -c Release -o /app --no-restore
     
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
-WORKDIR /app
-COPY --from=build-env /app/out .
+WORKDIR /source
+COPY --from=build /app .
 ENTRYPOINT ["dotnet", "WebApi.dll"]
