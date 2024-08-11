@@ -21,7 +21,6 @@ public class ExceptionHandlingFilterAttribute : ExceptionFilterAttribute
 		ProblemDetails problemDetails = new()
 		{
 			Type = GetRFCType(statusCode),
-			Title = context.Exception.Message,
 			Status = statusCodeAsInt,
 			Detail = context.Exception.Message,
 			Instance = context.HttpContext.Request.Path
