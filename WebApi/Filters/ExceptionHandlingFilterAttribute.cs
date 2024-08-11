@@ -10,48 +10,50 @@ namespace WebApi.Filters;
 
 public class ExceptionHandlingFilterAttribute : ExceptionFilterAttribute
 {
-	public override void OnException(ExceptionContext context)
-	{
-		var statusCode = GetHttpStatusCode(context.Exception);
-		var statusCodeAsInt = (int)statusCode;
+    public override void OnException(ExceptionContext context)
+    {
+        var statusCode = GetHttpStatusCode(context.Exception);
+        var statusCodeAsInt = (int)statusCode;
 
-		context.HttpContext.Response.ContentType = MediaTypeNames.Application.Json;
-		context.HttpContext.Response.StatusCode = statusCodeAsInt;
+        context.HttpContext.Response.ContentType = MediaTypeNames.Application.Json;
+        context.HttpContext.Response.StatusCode = statusCodeAsInt;
 
-		ProblemDetails problemDetails = new()
-		{
-			Type = GetRFCType(statusCode),
-			Status = statusCodeAsInt,
-			Detail = context.Exception.Message,
-			Instance = context.HttpContext.Request.Path
-		};
+        var rfcType = GetRFCType(statusCode);
 
-		context.Result = new JsonResult(problemDetails)
-		{
-			StatusCode = statusCodeAsInt
-		};
+        ProblemDetails problemDetails = new()
+        {
+            Type = rfcType,
+            Status = statusCodeAsInt,
+            Detail = context.Exception.Message,
+            Instance = context.HttpContext.Request.Path
+        };
 
-		base.OnException(context);
-	}
+        context.Result = new JsonResult(problemDetails)
+        {
+            StatusCode = statusCodeAsInt
+        };
 
-	private static HttpStatusCode GetHttpStatusCode(Exception exception) => exception switch
-	{
-		NullReferenceException
-			or ItemNotFoundException => HttpStatusCode.NotFound,
-		NotEnoughRightsException
-			or InvalidTokenException => HttpStatusCode.Forbidden,
-		IncorrectPasswordException
-			or NameNotUniqueException
-			or OperationCanceledException
-			or PostgresException => HttpStatusCode.BadRequest,
-		_ => HttpStatusCode.InternalServerError
-	};
+        base.OnException(context);
+    }
 
-	private static string GetRFCType(HttpStatusCode statusCode) => statusCode switch
-	{
-		HttpStatusCode.BadRequest => RFCType.BadRequest,
-		HttpStatusCode.Forbidden => RFCType.Forbidden,
-		HttpStatusCode.NotFound => RFCType.NotFound,
-		_ => RFCType.InternalServerError
-	};
+    private static HttpStatusCode GetHttpStatusCode(Exception exception) => exception switch
+    {
+        NullReferenceException
+            or ItemNotFoundException => HttpStatusCode.NotFound,
+        NotEnoughRightsException
+            or InvalidTokenException => HttpStatusCode.Forbidden,
+        IncorrectPasswordException
+            or NameNotUniqueException
+            or OperationCanceledException
+            or PostgresException => HttpStatusCode.BadRequest,
+        _ => HttpStatusCode.InternalServerError
+    };
+
+    private static string GetRFCType(HttpStatusCode statusCode) => statusCode switch
+    {
+        HttpStatusCode.BadRequest => RFCType.BadRequest,
+        HttpStatusCode.Forbidden => RFCType.Forbidden,
+        HttpStatusCode.NotFound => RFCType.NotFound,
+        _ => RFCType.InternalServerError
+    };
 }
