@@ -55,6 +55,13 @@ public class EmbeddedScriptAndCodeWithInjectionProvider : IScriptProvider
         _serviceProvider = serviceProvider;
     }
 
+    public IEnumerable<SqlScript> GetScripts(IConnectionManager connectionManager) =>
+        _embeddedScriptProvider
+            .GetScripts(connectionManager)
+            .Concat(GetScriptsFromScriptClasses(connectionManager))
+            .OrderBy(s => s.Name)
+            .Where(s => _filter(s.Name));
+
     private IEnumerable<SqlScript> GetScriptsFromScriptClasses(IConnectionManager connectionManager)
     {
         const string CsExtension = ".cs";
@@ -92,14 +99,6 @@ public class EmbeddedScriptAndCodeWithInjectionProvider : IScriptProvider
                         name,
                         _sqlScriptOptions,
                         () => ((IScript)instance!).ProvideScript(dbCommandFactory));
-                })
-                .ToList());
+                }));
     }
-
-    public IEnumerable<SqlScript> GetScripts(IConnectionManager connectionManager) =>
-        _embeddedScriptProvider
-            .GetScripts(connectionManager)
-            .Concat(GetScriptsFromScriptClasses(connectionManager))
-            .OrderBy(s => s.Name)
-            .Where(s => _filter(s.Name));
 }
