@@ -96,9 +96,6 @@ public class EmbeddedScriptAndCodeWithInjectionProvider : IScriptProvider
                 .ToList());
     }
 
-    /// <summary>
-    /// Gets all scripts that should be executed.
-    /// </summary>
     public IEnumerable<SqlScript> GetScripts(IConnectionManager connectionManager) =>
         _embeddedScriptProvider
             .GetScripts(connectionManager)
