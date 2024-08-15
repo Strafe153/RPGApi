@@ -13,6 +13,7 @@ public static class DatabaseInitializer
             .PostgresqlDatabase(connectionString)
             .WithScriptsAndCodeWithInjectionEmbeddedInAssembly(typeof(DatabaseInitializer).Assembly, serviceProvider)
             .WithTransaction()
+            .LogToConsole()
             .Build();
 
         if (upgrader.IsUpgradeRequired())
