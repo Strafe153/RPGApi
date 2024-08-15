@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DataAccess.Database;
 using Domain.Entities;
 using Domain.Extensions;
 using Domain.Repositories;
@@ -9,11 +10,11 @@ namespace DataAccess.Repositories;
 
 public class MountsRepository : IItemRepository<Mount>
 {
-	private readonly RPGContext _context;
+	private readonly DatabaseConnectionProvider _connectionProvider;
 
-	public MountsRepository(RPGContext context)
+	public MountsRepository(DatabaseConnectionProvider connectionProvider)
 	{
-		_context = context;
+		_connectionProvider = connectionProvider;
 	}
 
 	public async Task<int> AddAsync(Mount entity)
@@ -26,13 +27,11 @@ public class MountsRepository : IItemRepository<Mount>
 		};
 
 		var query = @"
-            INSERT INTO ""Mounts""
-                (""Name"", ""Type"", ""Speed"") 
-            VALUES
-                (@Name, @Type, @Speed)
+            INSERT INTO Mounts (""Name"", ""Type"", ""Speed"") 
+            VALUES (@Name, @Type, @Speed)
             RETURNING ""Id""";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var id = await connection.ExecuteScalarAsync<int>(query, queryParams);
 
 		return id;
@@ -42,10 +41,10 @@ public class MountsRepository : IItemRepository<Mount>
 	{
 		var queryParams = new { Id = id };
 		var query = @"
-            DELETE FROM ""Mounts"" 
+            DELETE FROM Mounts
             WHERE ""Id"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
@@ -61,14 +60,14 @@ public class MountsRepository : IItemRepository<Mount>
             SELECT m.*,
                    cm.*,
                    c.*
-            FROM ""Mounts"" AS m
-            LEFT JOIN ""CharacterMounts"" AS cm ON m.""Id"" = cm.""MountId""
-            LEFT JOIN ""Characters"" AS c ON cm.""CharacterId"" = c.""Id""
+            FROM Mounts AS m
+            LEFT JOIN CharacterMounts AS cm ON m.""Id"" = cm.""MountId""
+            LEFT JOIN Characters AS c ON cm.""CharacterId"" = c.""Id""
             ORDER BY m.""Id"" ASC
             OFFSET @PageSize * (@PageNumber - 1)
             LIMIT @PageSize";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var queryResult = await connection.QueryAsync<Mount, CharacterMount, Character, Mount>(
 			new CommandDefinition(query, queryParams, cancellationToken: token),
 			(mount, characterMount, character) =>
@@ -93,12 +92,12 @@ public class MountsRepository : IItemRepository<Mount>
             SELECT m.*,
                    cm.*,
                    c.*
-            FROM ""Mounts"" AS m
-            LEFT JOIN ""CharacterMounts"" AS cm ON m.""Id"" = cm.""MountId""
-            LEFT JOIN ""Characters"" AS c ON cm.""CharacterId"" = c.""Id""
+            FROM Mounts AS m
+            LEFT JOIN CharacterMounts AS cm ON m.""Id"" = cm.""MountId""
+            LEFT JOIN Characters AS c ON cm.""CharacterId"" = c.""Id""
             WHERE m.""Id"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var queryResult = await connection.QueryAsync<Mount, CharacterMount, Character, Mount>(
 			new CommandDefinition(query, queryParams, cancellationToken: token),
 			(mount, characterMount, character) =>
@@ -127,13 +126,13 @@ public class MountsRepository : IItemRepository<Mount>
 		};
 
 		var query = @"
-            UPDATE ""Mounts"" 
+            UPDATE Mounts
             SET ""Name"" = @Name,
                 ""Type"" = @Type,
                 ""Speed"" = @Speed
             WHERE ""Id"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
@@ -146,12 +145,10 @@ public class MountsRepository : IItemRepository<Mount>
 		};
 
 		var query = @"
-            INSERT INTO ""CharacterMounts""
-                (""CharacterId"", ""MountId"")
-            VALUES
-                (@CharacterId, @MountId)";
+            INSERT INTO CharacterMounts (""CharacterId"", ""MountId"")
+            VALUES (@CharacterId, @MountId)";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
@@ -164,11 +161,11 @@ public class MountsRepository : IItemRepository<Mount>
 		};
 
 		var query = @"
-            DELETE FROM ""CharacterMounts""
+            DELETE FROM CharacterMounts
             WHERE ""CharacterId"" = @CharacterId
                   AND ""MountId"" = @MountId";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 }

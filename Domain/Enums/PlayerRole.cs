@@ -2,6 +2,6 @@
 
 public enum PlayerRole
 {
-	Admin,
+	Admin = 1,
 	Player
 }

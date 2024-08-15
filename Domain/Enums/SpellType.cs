@@ -2,7 +2,7 @@
 
 public enum SpellType
 {
-    Fire,
+    Fire = 1,
     Water,
     Earth,
     Wind,
@@ -12,5 +12,10 @@ public enum SpellType
     Void,
     Bio,
     Heal,
-    Summon
+    Summon,
+    Nuke,
+    Psyo,
+    Bless,
+    Curse,
+    Almighty
 }

@@ -1,3 +1,5 @@
+using DataAccess.Database;
+using Domain.Constants;
 using WebApi.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,7 +25,6 @@ builder.Services.ConfigureSwagger();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
 	app.ConfigureSwaggerUI();
@@ -39,5 +40,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+DatabaseInitializer.Initialize(
+	app.Configuration.GetConnectionString(ConnectionStringConstants.DatabaseConnection)!,
+	app.Services);
 
 app.Run();

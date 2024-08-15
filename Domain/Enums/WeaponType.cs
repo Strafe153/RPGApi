@@ -2,7 +2,7 @@
 
 public enum WeaponType
 {
-    Sword,
+    Sword = 1,
     Knife,
     Dagger,
     Axe,

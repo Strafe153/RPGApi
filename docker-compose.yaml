@@ -13,9 +13,8 @@ services:
       - ASPNETCORE_HTTPS_PORT=8081
       - ASPNETCORE_Kestrel__Certificates__Default__Password=kestrel_password
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/RPGApi.pfx
-      - ConnectionStrings__RedisConnection=redis:6379
-      - ConnectionStrings__GlobalPostgresConnection=Host=postgres;Database=postgres;Username=postgres;Password=postgres_password
       - ConnectionStrings__DatabaseConnection=Host=postgres;Database=rpg_api;Username=postgres;Password=postgres_password
+      - ConnectionStrings__RedisConnection=redis:6379
     volumes:
       - ~/.aspnet/https:/https:ro
     depends_on:
@@ -26,9 +25,9 @@ services:
     image: postgres:16.4
     container_name: postgres
     environment:
-      POSTGRES_DB: "rpg_api"
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "postgres_password"
+      POSTGRES_DB: rpg_api
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
     ports:
       - 5432:5432
     volumes:

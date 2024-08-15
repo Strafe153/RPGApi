@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DataAccess.Database;
 using Domain.Entities;
 using Domain.Extensions;
 using Domain.Repositories;
@@ -9,11 +10,11 @@ namespace DataAccess.Repositories;
 
 public class WeaponsRepository : IItemRepository<Weapon>
 {
-	private readonly RPGContext _context;
+	private readonly DatabaseConnectionProvider _connectionProvider;
 
-	public WeaponsRepository(RPGContext context)
+	public WeaponsRepository(DatabaseConnectionProvider connectionProvider)
 	{
-		_context = context;
+		_connectionProvider = connectionProvider;
 	}
 
 	public async Task<int> AddAsync(Weapon entity)
@@ -26,13 +27,11 @@ public class WeaponsRepository : IItemRepository<Weapon>
 		};
 
 		var query = @"
-            INSERT INTO ""Weapons""
-                (""Name"", ""Type"", ""Damage"") 
-            VALUES
-                (@Name, @Type, @Damage)
+            INSERT INTO Weapons (""Name"", ""Type"", ""Damage"") 
+            VALUES (@Name, @Type, @Damage)
             RETURNING ""Id""";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var id = await connection.ExecuteScalarAsync<int>(query, queryParams);
 
 		return id;
@@ -42,10 +41,10 @@ public class WeaponsRepository : IItemRepository<Weapon>
 	{
 		var queryParams = new { Id = id };
 		var query = @"
-            DELETE FROM ""Weapons"" 
+            DELETE FROM Weapons
             WHERE ""Id"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
@@ -61,14 +60,14 @@ public class WeaponsRepository : IItemRepository<Weapon>
             SELECT w.*,
                    cw.*,
                    c.*
-            FROM ""Weapons"" AS w
-            LEFT JOIN ""CharacterWeapons"" AS cw ON w.""Id"" = cw.""WeaponId""
-            LEFT JOIN ""Characters"" AS c ON cw.""CharacterId"" = c.""Id""
+            FROM Weapons AS w
+            LEFT JOIN CharacterWeapons AS cw ON w.""Id"" = cw.""WeaponId""
+            LEFT JOIN Characters AS c ON cw.""CharacterId"" = c.""Id""
             ORDER BY w.""Id"" ASC
             OFFSET @PageSize * (@PageNumber - 1)
             LIMIT @PageSize";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var queryResult = await connection.QueryAsync<Weapon, CharacterWeapon, Character, Weapon>(
 			new CommandDefinition(query, queryParams, cancellationToken: token),
 			(weapon, characterWeapon, character) =>
@@ -93,12 +92,12 @@ public class WeaponsRepository : IItemRepository<Weapon>
             SELECT w.*,
                    cw.*,
                    c.*
-            FROM ""Weapons"" AS w
-            LEFT JOIN ""CharacterWeapons"" AS cw ON w.""Id"" = cw.""WeaponId""
-            LEFT JOIN ""Characters"" AS c ON cw.""CharacterId"" = c.""Id""
+            FROM Weapons AS w
+            LEFT JOIN CharacterWeapons AS cw ON w.""Id"" = cw.""WeaponId""
+            LEFT JOIN Characters AS c ON cw.""CharacterId"" = c.""Id""
             WHERE w.""Id"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var queryResult = await connection.QueryAsync<Weapon, CharacterWeapon, Character, Weapon>(
 			new CommandDefinition(query, queryParams, cancellationToken: token),
 			(weapon, characterWeapon, character) =>
@@ -127,13 +126,13 @@ public class WeaponsRepository : IItemRepository<Weapon>
 		};
 
 		var query = @"
-            UPDATE ""Weapons"" 
+            UPDATE Weapons
             SET ""Name"" = @Name,
                 ""Type"" = @Type,
                 ""Damage"" = @Damage
             WHERE ""Id"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
@@ -146,12 +145,10 @@ public class WeaponsRepository : IItemRepository<Weapon>
 		};
 
 		var query = @"
-            INSERT INTO ""CharacterWeapons""
-                (""CharacterId"", ""WeaponId"")
-            VALUES
-                (@CharacterId, @WeaponId)";
+            INSERT INTO CharacterWeapons (""CharacterId"", ""WeaponId"")
+            VALUES (@CharacterId, @WeaponId)";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
@@ -164,11 +161,11 @@ public class WeaponsRepository : IItemRepository<Weapon>
 		};
 
 		var query = @"
-            DELETE FROM ""CharacterWeapons""
+            DELETE FROM CharacterWeapons
             WHERE ""CharacterId"" = @CharacterId
                   AND ""WeaponId"" = @WeaponId";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 }
