@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DataAccess.Database;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Extensions;
@@ -10,11 +11,11 @@ namespace DataAccess.Repositories;
 
 public class PlayersRepository : IPlayersRepository
 {
-	private readonly RPGContext _context;
+	private readonly DatabaseConnectionProvider _connectionProvider;
 
-	public PlayersRepository(RPGContext context)
+	public PlayersRepository(DatabaseConnectionProvider connectionProvider)
 	{
-		_context = context;
+		_connectionProvider = connectionProvider;
 	}
 
 	public async Task<int> AddAsync(Player entity)
@@ -28,13 +29,11 @@ public class PlayersRepository : IPlayersRepository
 		};
 
 		var query = @"
-            INSERT INTO ""Players""
-                (""Name"", ""Role"", ""PasswordHash"", ""PasswordSalt"")
-            VALUES
-                (@Name, @Role, @PasswordHash, @PasswordSalt)
+            INSERT INTO Players (""Name"", ""Role"", ""PasswordHash"", ""PasswordSalt"")
+            VALUES (@Name, @Role, @PasswordHash, @PasswordSalt)
             RETURNING ""Id""";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var id = await connection.ExecuteScalarAsync<int>(query, queryParams);
 
 		return id;
@@ -44,10 +43,10 @@ public class PlayersRepository : IPlayersRepository
 	{
 		var queryParams = new { Id = id };
 		var query = @"
-            DELETE FROM ""Players"" 
+            DELETE FROM Players
             WHERE ""Id"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
@@ -62,13 +61,13 @@ public class PlayersRepository : IPlayersRepository
 		var query = @"
             SELECT p.*,
                    c.*
-            FROM ""Players"" AS p
-            LEFT JOIN ""Characters"" AS c on p.""Id"" = c.""PlayerId""
+            FROM Players AS p
+            LEFT JOIN Characters AS c on p.""Id"" = c.""PlayerId""
             ORDER BY p.""Id"" ASC
             OFFSET @PageSize * (@PageNumber - 1)
             LIMIT @PageSize";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var queryResult = await connection.QueryAsync<Player, Character, Player>(
 			new CommandDefinition(query, queryParams, cancellationToken: token),
 			(player, character) =>
@@ -98,11 +97,11 @@ public class PlayersRepository : IPlayersRepository
 		var query = @"
             SELECT p.*,
                    c.*
-            FROM ""Players"" AS p
-            LEFT JOIN ""Characters"" AS c on p.""Id"" = c.""PlayerId""
+            FROM Players AS p
+            LEFT JOIN Characters AS c on p.""Id"" = c.""PlayerId""
             WHERE p.""Id"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var queryResult = await connection.QueryAsync<Player, Character, Player>(
 			new CommandDefinition(query, queryParams, cancellationToken: token),
 			(player, character) =>
@@ -130,10 +129,10 @@ public class PlayersRepository : IPlayersRepository
 		var queryParams = new { Name = name };
 		var query = @"
             SELECT *
-            FROM ""Players""
+            FROM Players
             WHERE ""Name"" = @Name";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var player = await connection.QueryFirstOrDefaultAsync<Player>(new CommandDefinition(query, queryParams, cancellationToken: token));
 
 		return player;
@@ -153,7 +152,7 @@ public class PlayersRepository : IPlayersRepository
 		};
 
 		var query = @"
-            UPDATE ""Players"" 
+            UPDATE Players
             SET ""Name"" = @Name, ""Role"" = @Role,
                 ""PasswordHash"" = @PasswordHash,
                 ""PasswordSalt"" = @PasswordSalt,
@@ -161,7 +160,7 @@ public class PlayersRepository : IPlayersRepository
                 ""RefreshTokenExpiryDate"" = @RefreshTokenExpiryDate
             WHERE ""Id"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using DataAccess.Database;
 using Domain.Entities;
 using Domain.Extensions;
 using Domain.Repositories;
@@ -9,11 +10,11 @@ namespace DataAccess.Repositories;
 
 public class CharactersRepository : IRepository<Character>
 {
-	private readonly RPGContext _context;
+	private readonly DatabaseConnectionProvider _connectionProvider;
 
-	public CharactersRepository(RPGContext context)
+	public CharactersRepository(DatabaseConnectionProvider connectionProvider)
 	{
-		_context = context;
+		_connectionProvider = connectionProvider;
 	}
 
 	public async Task<int> AddAsync(Character entity)
@@ -26,11 +27,11 @@ public class CharactersRepository : IRepository<Character>
 		};
 
 		var query = @"
-            INSERT INTO ""Characters"" (""Name"", ""Race"", ""PlayerId"") 
+            INSERT INTO Characters (""Name"", ""Race"", ""PlayerId"") 
             VALUES (@Name, @Race, @PlayerId)
             RETURNING ""Id""";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var id = await connection.ExecuteScalarAsync<int>(query, queryParams);
 
 		return id;
@@ -40,10 +41,10 @@ public class CharactersRepository : IRepository<Character>
 	{
 		var queryParams = new { Id = id };
 		var query = @"
-            DELETE FROM ""Characters""
+            DELETE FROM Characters
             WHERE ""Id"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
@@ -51,22 +52,22 @@ public class CharactersRepository : IRepository<Character>
 	{
 		var charactersQuery = @"
             SELECT *
-            FROM ""Characters""
+            FROM Characters
             ORDER BY ""Id"" ASC";
 		var characterWeaponsQuery = @"
             SELECT *
-            FROM ""CharacterWeapons"" AS cw
-            LEFT JOIN ""Weapons"" AS w on cw.""WeaponId"" = w.""Id""";
+            FROM CharacterWeapons AS cw
+            LEFT JOIN Weapons AS w on cw.""WeaponId"" = w.""Id""";
 		var characterSpellsQuery = @"
             SELECT *
-            FROM ""CharacterSpells"" AS cs
-            LEFT JOIN ""Spells"" AS s on cs.""SpellId"" = s.""Id""";
+            FROM CharacterSpells AS cs
+            LEFT JOIN Spells AS s on cs.""SpellId"" = s.""Id""";
 		var characterMountsQuery = @"
             SELECT *
-            FROM ""CharacterMounts"" AS cm
-            LEFT JOIN ""Mounts"" AS m on cm.""MountId"" = m.""Id""";
+            FROM CharacterMounts AS cm
+            LEFT JOIN Mounts AS m on cm.""MountId"" = m.""Id""";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var characters = await connection.QueryAsync<Character>(new CommandDefinition(charactersQuery, cancellationToken: token));
 		var characterWeapons = await GetCharacterWeaponsAsync(characterWeaponsQuery, token: token);
 		var characterSpells = await GetCharacterSpellsAsync(characterSpellsQuery, token: token);
@@ -94,26 +95,26 @@ public class CharactersRepository : IRepository<Character>
 		var queryParams = new { Id = id };
 		var charactersQuery = @"
             SELECT *
-            FROM ""Characters"" AS c
-            LEFT JOIN ""Players"" AS p on c.""PlayerId"" = p.""Id""
+            FROM Characters AS c
+            LEFT JOIN Players AS p on c.""PlayerId"" = p.""Id""
             WHERE c.""Id"" = @Id";
 		var characterWeaponsQuery = @"
             SELECT *
-            FROM ""CharacterWeapons"" AS cw
-            LEFT JOIN ""Weapons"" AS w on cw.""WeaponId"" = w.""Id""
+            FROM CharacterWeapons AS cw
+            LEFT JOIN Weapons AS w on cw.""WeaponId"" = w.""Id""
             WHERE cw.""CharacterId"" = @Id";
 		var characterSpellsQuery = @"
             SELECT *
-            FROM ""CharacterSpells"" AS cs
-            LEFT JOIN ""Spells"" AS s on cs.""SpellId"" = s.""Id""
+            FROM CharacterSpells AS cs
+            LEFT JOIN Spells AS s on cs.""SpellId"" = s.""Id""
             WHERE cs.""CharacterId"" = @Id";
 		var characterMountsQuery = @"
             SELECT *
-            FROM ""CharacterMounts"" AS cm
-            LEFT JOIN ""Mounts"" AS m on cm.""MountId"" = m.""Id""
+            FROM CharacterMounts AS cm
+            LEFT JOIN Mounts AS m on cm.""MountId"" = m.""Id""
             WHERE cm.""CharacterId"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var characters = await connection.QueryAsync<Character, Player, Character>(
 			new CommandDefinition(charactersQuery, queryParams, cancellationToken: token),
 			(character, player) =>
@@ -153,13 +154,13 @@ public class CharactersRepository : IRepository<Character>
 		};
 
 		var query = @"
-            UPDATE ""Characters"" 
+            UPDATE Characters
             SET ""Name"" = @Name,
                 ""Race"" = @Race,
                 ""Health"" = @Health
             WHERE ""Id"" = @Id";
 
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
@@ -168,7 +169,7 @@ public class CharactersRepository : IRepository<Character>
 		object? queryParams = default,
 		CancellationToken token = default)
 	{
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var characterWeapons = await connection.QueryAsync<CharacterWeapon, Weapon, CharacterWeapon>(
 			queryParams is not null
 				? new CommandDefinition(query, queryParams, cancellationToken: token)
@@ -187,7 +188,7 @@ public class CharactersRepository : IRepository<Character>
 		object? queryParams = default,
 		CancellationToken token = default)
 	{
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var characterSpels = await connection.QueryAsync<CharacterSpell, Spell, CharacterSpell>(
 			queryParams is not null
 				? new CommandDefinition(query, queryParams, cancellationToken: token)
@@ -206,7 +207,7 @@ public class CharactersRepository : IRepository<Character>
 		object? queryParams = default,
 		CancellationToken token = default)
 	{
-		using var connection = _context.CreateConnection();
+		using var connection = _connectionProvider.CreateConnection();
 		var characterMounts = await connection.QueryAsync<CharacterMount, Mount, CharacterMount>(
 			queryParams is not null
 				? new CommandDefinition(query, queryParams, cancellationToken: token)

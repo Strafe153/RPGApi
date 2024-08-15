@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -8,12 +8,28 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" />
+    <PackageReference Include="dbup-postgresql" Version="5.0.40" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="6.0.9" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Database\Scripts\*.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Database\Scripts\001_CreatePlayersTable.sql" />
+    <None Remove="Database\Scripts\003_CreateCharactersTable.sql" />
+    <None Remove="Database\Scripts\004_CreateWeaponsTable.sql" />
+    <None Remove="Database\Scripts\005_CreateCharacterWeaponsTable.sql" />
+    <None Remove="Database\Scripts\006_CreateSpellsTable.sql" />
+    <None Remove="Database\Scripts\007_CreateCharacterSpellsTable.sql" />
+    <None Remove="Database\Scripts\008_CreateMountsTable.sql" />
+    <None Remove="Database\Scripts\009_CreateCharacterMountsTable.sql" />
   </ItemGroup>
 
 </Project>

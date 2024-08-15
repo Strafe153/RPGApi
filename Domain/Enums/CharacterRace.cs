@@ -2,7 +2,7 @@
 
 public enum CharacterRace
 {
-    Human,
+    Human = 1,
     Elf,
     Dwarf,
     Orc,

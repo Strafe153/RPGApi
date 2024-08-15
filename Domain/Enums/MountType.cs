@@ -2,7 +2,7 @@
 
 public enum MountType
 {
-    Horse,
+    Horse = 1,
     Donkey,
     Camel,
     Wolf,
