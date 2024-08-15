@@ -19,6 +19,7 @@
 * `AutoFixture.AutoNSubstitute` for NSubstitute support with AutoFixture
 * `Bogus` for fake data generation
 * `Dapper` for object-relational mapping
+* `dbup-postgresql` for PostgreSQL database migrations
 * `FluentAssertions` for assertions
 * `Microsoft.AspNetCore.Authentication.JwtBearer` for JWT authentication
 * `Microsoft.AspNetCore.Http` for default HTTP feature implementations
