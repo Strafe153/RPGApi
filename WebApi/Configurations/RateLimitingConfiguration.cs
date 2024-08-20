@@ -26,9 +26,9 @@ public static class RateLimitingConfiguration
 
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            options.OnRejected = (context, _) =>
+            options.OnRejected = (context, cancellationToken) =>
             {
-                context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.");
+                context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", cancellationToken);
                 return new ValueTask();
             };
         });
