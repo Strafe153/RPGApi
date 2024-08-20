@@ -1,8 +1,8 @@
-﻿using DbUp;
+﻿using Autofac;
+using DbUp;
 using DbUp.Engine;
 using DbUp.Engine.Transactions;
 using DbUp.ScriptProviders;
-using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace DataAccess.Database;
@@ -13,13 +13,13 @@ public class EmbeddedScriptAndCodeWithInjectionProvider : IScriptProvider
     private readonly Assembly _assembly;
     private readonly Func<string, bool> _filter;
     private readonly SqlScriptOptions _sqlScriptOptions;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly ILifetimeScope _lifetimeScope;
 
     public EmbeddedScriptAndCodeWithInjectionProvider(
         Assembly assembly,
         Func<string, bool> filter,
-        IServiceProvider serviceProvider)
-            : this(assembly, filter, filter, new SqlScriptOptions(), serviceProvider)
+        ILifetimeScope lifetimeScope)
+            : this(assembly, filter, filter, new SqlScriptOptions(), lifetimeScope)
     {
     }
 
@@ -27,8 +27,8 @@ public class EmbeddedScriptAndCodeWithInjectionProvider : IScriptProvider
         Assembly assembly,
         Func<string, bool> filter,
         Func<string, bool> codeScriptFilter,
-        IServiceProvider serviceProvider)
-            : this(assembly, filter, codeScriptFilter, new SqlScriptOptions(), serviceProvider)
+        ILifetimeScope lifetimeScope)
+            : this(assembly, filter, codeScriptFilter, new SqlScriptOptions(), lifetimeScope)
     {
     }
 
@@ -36,8 +36,8 @@ public class EmbeddedScriptAndCodeWithInjectionProvider : IScriptProvider
         Assembly assembly,
         Func<string, bool> filter,
         SqlScriptOptions sqlScriptOptions,
-        IServiceProvider serviceProvider)
-            : this(assembly, filter, filter, sqlScriptOptions, serviceProvider)
+        ILifetimeScope lifetimeScope)
+            : this(assembly, filter, filter, sqlScriptOptions, lifetimeScope)
     {
     }
 
@@ -46,13 +46,13 @@ public class EmbeddedScriptAndCodeWithInjectionProvider : IScriptProvider
         Func<string, bool> filter,
         Func<string, bool> codeScriptFilter,
         SqlScriptOptions sqlScriptOptions,
-        IServiceProvider serviceProvider)
+        ILifetimeScope lifetimeScope)
     {
         _assembly = assembly;
         _filter = codeScriptFilter ?? filter;
         _sqlScriptOptions = sqlScriptOptions;
         _embeddedScriptProvider = new EmbeddedScriptProvider(assembly, filter, DbUpDefaults.DefaultEncoding, sqlScriptOptions);
-        _serviceProvider = serviceProvider;
+        _lifetimeScope = lifetimeScope;
     }
 
     public IEnumerable<SqlScript> GetScripts(IConnectionManager connectionManager) =>
@@ -84,7 +84,7 @@ public class EmbeddedScriptAndCodeWithInjectionProvider : IScriptProvider
 
                         for (int i = 0; i < parameters.Length; i++)
                         {
-                            var resolvedParameter = _serviceProvider.GetRequiredService(parameters[i].ParameterType);
+                            var resolvedParameter = _lifetimeScope.Resolve(parameters[i].ParameterType);
                             resolvedParameters[i] = resolvedParameter;
                         }
 

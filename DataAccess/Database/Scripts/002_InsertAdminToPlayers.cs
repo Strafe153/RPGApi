@@ -3,7 +3,6 @@ using DbUp.Engine;
 using Domain.Enums;
 using Domain.Helpers;
 using Domain.Shared;
-using Microsoft.Extensions.Options;
 using System.Data;
 
 namespace DataAccess.Database.Scripts;
@@ -12,9 +11,9 @@ public class _002_InsertAdminToPlayers : IScript
 {
     private readonly AdminOptions _adminOptions;
 
-    public _002_InsertAdminToPlayers(IOptions<AdminOptions> adminOptions)
+    public _002_InsertAdminToPlayers(AdminOptions adminOptions)
     {
-        _adminOptions = adminOptions.Value;
+        _adminOptions = adminOptions;
     }
 
     public string ProvideScript(Func<IDbCommand> dbCommandFactory)

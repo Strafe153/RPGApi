@@ -1,4 +1,5 @@
-﻿using DataAccess.Database;
+﻿using Autofac;
+using DataAccess.Database;
 using DbUp.Builder;
 using System.Reflection;
 
@@ -9,7 +10,7 @@ public static class UpgradeEngineBuilderExtensions
     public static UpgradeEngineBuilder WithScriptsAndCodeWithInjectionEmbeddedInAssembly(
         this UpgradeEngineBuilder builder,
         Assembly assembly,
-        IServiceProvider serviceProvider)
+        ILifetimeScope lifetimeScope)
     {
         const string SqlExtension = ".sql";
 
@@ -18,6 +19,6 @@ public static class UpgradeEngineBuilderExtensions
                 assembly,
                 s => s.EndsWith(SqlExtension, StringComparison.OrdinalIgnoreCase),
                 _ => true,
-                serviceProvider));
+                lifetimeScope));
     }
 }
