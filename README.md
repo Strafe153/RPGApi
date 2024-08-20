@@ -15,6 +15,7 @@
 * `AspNetCore.HealthChecks.NpgSql` for PostgreSQL health check
 * `AspNetCore.HealthChecks.Redis` for Redis health checks
 * `AspNetCore.HealthChecks.UI.Client` for detailed health checks information
+* `Autofac.Extensions.DependencyInjection` for Autofac
 * `AutoFixture` for test fixtures
 * `AutoFixture.AutoNSubstitute` for NSubstitute support with AutoFixture
 * `Bogus` for fake data generation
