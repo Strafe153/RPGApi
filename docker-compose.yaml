@@ -1,8 +1,8 @@
 services:
   web_api:
     build:
-      context: ./WebApi/
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./WebApi/Dockerfile
     container_name: web_api
     ports:
       - 8080:80
@@ -17,6 +17,8 @@ services:
       - ConnectionStrings__RedisConnection=redis:6379
     volumes:
       - ~/.aspnet/https:/https:ro
+    networks:
+      - rpg_api
     depends_on:
       - postgres
       - redis
@@ -32,6 +34,8 @@ services:
       - 5432:5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rpg_api
 
   redis:
     image: redis:7.4.0
@@ -40,7 +44,13 @@ services:
       - 6379:6379
     volumes:
       - redis_data:/data
+    networks:
+      - rpg_api
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  rpg_api:
+    driver: bridge
