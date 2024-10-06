@@ -11,9 +11,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application", "Application\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "WebApi\WebApi.csproj", "{D990A15A-D4A6-447A-B264-16A10C7DB789}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Tests", "Tests\WebApi.Tests\WebApi.Tests.csproj", "{CE63EAB8-19D3-4F7A-A1C8-3E7DEE9E96B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi.Tests", "Tests\WebApi.Tests\WebApi.Tests.csproj", "{CE63EAB8-19D3-4F7A-A1C8-3E7DEE9E96B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application.Tests", "Tests\Application.Tests\Application.Tests.csproj", "{33D72E43-4AB6-4B92-A569-58054CE98D91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.Tests", "Tests\Application.Tests\Application.Tests.csproj", "{33D72E43-4AB6-4B92-A569-58054CE98D91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Tests.Acceptance", "Tests\WebApi.Tests.Acceptance\WebApi.Tests.Acceptance.csproj", "{CF38CB62-8E71-44C1-AD37-E4DDCEE8AEE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{33D72E43-4AB6-4B92-A569-58054CE98D91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33D72E43-4AB6-4B92-A569-58054CE98D91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33D72E43-4AB6-4B92-A569-58054CE98D91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF38CB62-8E71-44C1-AD37-E4DDCEE8AEE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF38CB62-8E71-44C1-AD37-E4DDCEE8AEE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF38CB62-8E71-44C1-AD37-E4DDCEE8AEE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF38CB62-8E71-44C1-AD37-E4DDCEE8AEE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
