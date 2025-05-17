@@ -1,9 +1,9 @@
-﻿using Application.Services.Abstractions;
+﻿using Application.Dtos;
+using Application.Dtos.SpellDtos;
+using Application.Services.Abstractions;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Bogus;
-using Domain.Dtos;
-using Domain.Dtos.SpellDtos;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Shared;

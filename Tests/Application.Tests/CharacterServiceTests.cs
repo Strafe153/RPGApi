@@ -1,6 +1,6 @@
-﻿using Application.Tests.Fixtures;
-using Domain.Dtos;
-using Domain.Dtos.CharacterDtos;
+﻿using Application.Dtos;
+using Application.Dtos.CharactersDtos;
+using Application.Tests.Fixtures;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Shared;

@@ -1,10 +1,10 @@
-﻿using Application.Services.Abstractions;
+﻿using Application.Dtos;
+using Application.Dtos.PlayerDtos;
+using Application.Dtos.TokenDtos;
+using Application.Services.Abstractions;
 using AutoFixture;
 using AutoFixture.AutoNSubstitute;
 using Bogus;
-using Domain.Dtos;
-using Domain.Dtos.PlayerDtos;
-using Domain.Dtos.TokensDtos;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Shared;

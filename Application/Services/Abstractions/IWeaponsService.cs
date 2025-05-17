@@ -1,5 +1,5 @@
-﻿using Domain.Dtos;
-using Domain.Dtos.WeaponDtos;
+﻿using Application.Dtos;
+using Application.Dtos.WeaponDtos;
 using Domain.Shared;
 using Microsoft.AspNetCore.JsonPatch;
 

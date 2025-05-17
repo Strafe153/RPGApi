@@ -1,5 +1,5 @@
-﻿using Domain.Dtos;
-using Domain.Dtos.SpellDtos;
+﻿using Application.Dtos;
+using Application.Dtos.SpellDtos;
 using Domain.Shared;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
