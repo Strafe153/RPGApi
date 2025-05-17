@@ -1,10 +1,7 @@
-﻿using Application.Mappers.Abstractions;
-using Application.Mappers.Implementations;
-using Application.Services.Abstractions;
+﻿using Application.Services.Abstractions;
 using Application.Services.Implementations;
 using Autofac;
 using DataAccess.Repositories;
-using Domain.Dtos.WeaponDtos;
 using Domain.Entities;
 using Domain.Repositories;
 
@@ -23,10 +20,5 @@ public class WeaponsModule : Module
             .RegisterType<WeaponsService>()
             .As<IWeaponsService>()
             .InstancePerLifetimeScope();
-
-        builder
-            .RegisterType<WeaponMapper>()
-            .As<IMapper<Weapon, WeaponReadDto, WeaponCreateDto, WeaponUpdateDto>>()
-            .SingleInstance();
     }
 }

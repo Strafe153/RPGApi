@@ -1,6 +1,6 @@
-﻿using Domain.Dtos;
-using Domain.Dtos.PlayerDtos;
-using Domain.Dtos.TokensDtos;
+﻿using Application.Dtos;
+using Application.Dtos.PlayerDtos;
+using Application.Dtos.TokenDtos;
 using Domain.Shared;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;

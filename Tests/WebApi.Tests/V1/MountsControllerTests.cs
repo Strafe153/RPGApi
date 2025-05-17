@@ -1,6 +1,5 @@
-﻿using Domain.Dtos;
-using Domain.Dtos.MountDtos;
-using Domain.Dtos.WeaponDtos;
+﻿using Application.Dtos;
+using Application.Dtos.MountDtos;
 using Domain.Shared;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;

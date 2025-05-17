@@ -1,5 +1,5 @@
-﻿using Domain.Dtos;
-using Domain.Dtos.CharacterDtos;
+﻿using Application.Dtos;
+using Application.Dtos.CharactersDtos;
 using Domain.Shared;
 using Microsoft.AspNetCore.JsonPatch;
 

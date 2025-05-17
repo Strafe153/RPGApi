@@ -1,10 +1,7 @@
-﻿using Application.Mappers.Abstractions;
-using Application.Mappers.Implementations;
-using Application.Services.Abstractions;
+﻿using Application.Services.Abstractions;
 using Application.Services.Implementations;
 using Autofac;
 using DataAccess.Repositories;
-using Domain.Dtos.SpellDtos;
 using Domain.Entities;
 using Domain.Repositories;
 
@@ -23,10 +20,5 @@ public class SpellsModule : Module
             .RegisterType<SpellsService>()
             .As<ISpellsService>()
             .InstancePerLifetimeScope();
-
-        builder
-            .RegisterType<SpellMapper>()
-            .As<IMapper<Spell, SpellReadDto, SpellCreateDto, SpellUpdateDto>>()
-            .SingleInstance();
     }
 }

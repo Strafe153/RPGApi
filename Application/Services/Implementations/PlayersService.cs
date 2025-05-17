@@ -1,8 +1,8 @@
-﻿using Application.Mappers.Abstractions;
+﻿using Application.Dtos;
+using Application.Dtos.PlayerDtos;
+using Application.Dtos.TokenDtos;
+using Application.Mappings;
 using Application.Services.Abstractions;
-using Domain.Dtos;
-using Domain.Dtos.PlayerDtos;
-using Domain.Dtos.TokensDtos;
 using Domain.Entities;
 using Domain.Exceptions;
 using Domain.Helpers;
@@ -15,172 +15,177 @@ namespace Application.Services.Implementations;
 
 public class PlayersService : IPlayersService
 {
-	private readonly IPlayersRepository _repository;
-	private readonly IAccessHelper _accessHelper;
-	private readonly ITokenHelper _tokenHelper;
-	private readonly IMapper<Player, PlayerReadDto, PlayerAuthorizeDto, PlayerUpdateDto> _mapper;
-	private readonly ILogger<PlayersService> _logger;
+    private readonly IPlayersRepository _repository;
+    private readonly IAccessHelper _accessHelper;
+    private readonly ITokenHelper _tokenHelper;
+    private readonly ILogger<PlayersService> _logger;
 
-	public PlayersService(
-		IPlayersRepository repository,
-		IAccessHelper accessHelper,
-		ITokenHelper tokenHelper,
-		IMapper<Player, PlayerReadDto, PlayerAuthorizeDto, PlayerUpdateDto> mapper,
-		ILogger<PlayersService> logger)
-	{
-		_repository = repository;
-		_tokenHelper = tokenHelper;
-		_mapper = mapper;
-		_accessHelper = accessHelper;
-		_logger = logger;
-	}
+    public PlayersService(
+        IPlayersRepository repository,
+        IAccessHelper accessHelper,
+        ITokenHelper tokenHelper,
+        ILogger<PlayersService> logger)
+    {
+        _repository = repository;
+        _tokenHelper = tokenHelper;
+        _accessHelper = accessHelper;
+        _logger = logger;
+    }
 
-	public async Task<PlayerReadDto> AddAsync(PlayerAuthorizeDto createDto)
-	{
-		try
-		{
-			var player = _mapper.Map(createDto);
+    public async Task<PlayerReadDto> AddAsync(PlayerAuthorizeDto createDto)
+    {
+        try
+        {
+            var player = createDto.ToPlayer();
 
-			(player.PasswordHash, player.PasswordSalt) = PasswordHelper.GeneratePasswordHashAndSalt(createDto.Password);
-			player.Id = await _repository.AddAsync(player);
+            (player.PasswordHash, player.PasswordSalt) = PasswordHelper.GeneratePasswordHashAndSalt(createDto.Password);
+            player.Id = await _repository.AddAsync(player);
 
-			_logger.LogInformation("Succesfully registered a player with name: {Name}", player.Name);
+            _logger.LogInformation("Succesfully registered a player with name: {Name}", player.Name);
 
-			return _mapper.Map(player);
-		}
-		catch (NpgsqlException)
-		{
-			_logger.LogWarning("Failed to create a player. Name '{Name}' is already taken.", createDto.Name);
-			throw new NameNotUniqueException($"A player with name '{createDto.Name}' already exists");
-		}
-	}
+            var readDto = player.ToReadDto();
 
-	public async Task DeleteAsync(int id, CancellationToken token)
-	{
-		var player = await GetByIdOrThrowAsync(id, token);
-		_accessHelper.VerifyAccessRights(player);
+            return readDto;
+        }
+        catch (NpgsqlException)
+        {
+            _logger.LogWarning("Failed to create a player. Name '{Name}' is already taken.", createDto.Name);
+            throw new NameNotUniqueException($"A player with name '{createDto.Name}' already exists");
+        }
+    }
 
-		await _repository.DeleteAsync(id);
+    public async Task DeleteAsync(int id, CancellationToken token)
+    {
+        var player = await GetByIdOrThrowAsync(id, token);
+        _accessHelper.VerifyAccessRights(player);
 
-		_logger.LogInformation("Succesfully deleted a player with id {Id}", id);
-	}
+        await _repository.DeleteAsync(id);
 
-	public async Task<PageDto<PlayerReadDto>> GetAllAsync(PageParameters pageParameters, CancellationToken token)
-	{
-		var players = await _repository.GetAllAsync(pageParameters, token);
-		_logger.LogInformation("Successfully retrieved all players");
+        _logger.LogInformation("Succesfully deleted a player with id {Id}", id);
+    }
 
-		return _mapper.Map(players);
-	}
+    public async Task<PageDto<PlayerReadDto>> GetAllAsync(PageParameters pageParameters, CancellationToken token)
+    {
+        var pagedList = await _repository.GetAllAsync(pageParameters, token);
+        _logger.LogInformation("Successfully retrieved all players");
 
-	public async Task<PlayerReadDto> GetByIdAsync(int id, CancellationToken token)
-	{
-		var player = await GetByIdOrThrowAsync(id, token);
-		_logger.LogInformation("Successfully retrieved a player with id {Id}", id);
+        var pageDto = pagedList.ToPageDto();
 
-		return _mapper.Map(player);
-	}
+        return pageDto;
+    }
 
-	public async Task UpdateAsync(int id, PlayerUpdateDto updateDto, CancellationToken token)
-	{
-		try
-		{
-			var player = await GetByIdOrThrowAsync(id, token);
-			_accessHelper.VerifyAccessRights(player);
+    public async Task<PlayerReadDto> GetByIdAsync(int id, CancellationToken token)
+    {
+        var player = await GetByIdOrThrowAsync(id, token);
+        _logger.LogInformation("Successfully retrieved a player with id {Id}", id);
 
-			_mapper.Map(updateDto, player);
-			await _repository.UpdateAsync(player);
+        var readDto = player.ToReadDto();
 
-			_logger.LogInformation("Successfully updated a player with id {Id}", id);
-		}
-		catch (NpgsqlException)
-		{
-			_logger.LogWarning("Failed to update player with {Id}. Name '{Name}' is already taken.", id, updateDto.Name);
-			throw new NameNotUniqueException($"A player with name '{updateDto.Name}' already exists");
-		}
-	}
+        return readDto;
+    }
 
-	public async Task<TokensReadDto> LoginAsync(PlayerAuthorizeDto authorizeDto, CancellationToken token)
-	{
-		var player = await GetByNameAsync(authorizeDto.Name, token);
-		PasswordHelper.VerifyPasswordHash(authorizeDto.Password, player);
+    public async Task UpdateAsync(int id, PlayerUpdateDto updateDto, CancellationToken token)
+    {
+        try
+        {
+            var player = await GetByIdOrThrowAsync(id, token);
+            _accessHelper.VerifyAccessRights(player);
 
-		var accessToken = _tokenHelper.GenerateAccessToken(player);
-		var refreshToken = _tokenHelper.GenerateRefreshToken();
+            updateDto.Update(player);
+            await _repository.UpdateAsync(player);
 
-		_tokenHelper.SetRefreshToken(player, refreshToken);
-		await _repository.UpdateAsync(player);
+            _logger.LogInformation("Successfully updated a player with id {Id}", id);
+        }
+        catch (NpgsqlException)
+        {
+            _logger.LogWarning("Failed to update player with {Id}. Name '{Name}' is already taken.", id, updateDto.Name);
+            throw new NameNotUniqueException($"A player with name '{updateDto.Name}' already exists");
+        }
+    }
 
-		return new(accessToken, refreshToken);
-	}
+    public async Task<TokensReadDto> LoginAsync(PlayerAuthorizeDto authorizeDto, CancellationToken token)
+    {
+        var player = await GetByNameAsync(authorizeDto.Name, token);
+        PasswordHelper.VerifyPasswordHash(authorizeDto.Password, player);
 
-	public async Task<TokensReadDto> ChangePasswordAsync(int id, PlayerChangePasswordDto passwordDto, CancellationToken token)
-	{
-		var player = await GetByIdOrThrowAsync(id, token);
-		_accessHelper.VerifyAccessRights(player);
+        var accessToken = _tokenHelper.GenerateAccessToken(player);
+        var refreshToken = _tokenHelper.GenerateRefreshToken();
 
-		(player.PasswordHash, player.PasswordSalt) = PasswordHelper.GeneratePasswordHashAndSalt(passwordDto.Password);
+        _tokenHelper.SetRefreshToken(player, refreshToken);
+        await _repository.UpdateAsync(player);
 
-		var accessToken = _tokenHelper.GenerateAccessToken(player);
-		var refreshToken = _tokenHelper.GenerateRefreshToken();
+        return new(accessToken, refreshToken);
+    }
 
-		_tokenHelper.SetRefreshToken(player, refreshToken);
-		await _repository.UpdateAsync(player);
+    public async Task<TokensReadDto> ChangePasswordAsync(int id, PlayerChangePasswordDto passwordDto, CancellationToken token)
+    {
+        var player = await GetByIdOrThrowAsync(id, token);
+        _accessHelper.VerifyAccessRights(player);
 
-		return new(accessToken, refreshToken);
-	}
+        (player.PasswordHash, player.PasswordSalt) = PasswordHelper.GeneratePasswordHashAndSalt(passwordDto.Password);
 
-	public async Task<PlayerReadDto> ChangeRoleAsync(int id, PlayerChangeRoleDto roleDto, CancellationToken token)
-	{
-		var player = await GetByIdOrThrowAsync(id, token);
-		player.Role = roleDto.Role;
+        var accessToken = _tokenHelper.GenerateAccessToken(player);
+        var refreshToken = _tokenHelper.GenerateRefreshToken();
 
-		await _repository.UpdateAsync(player);
+        _tokenHelper.SetRefreshToken(player, refreshToken);
+        await _repository.UpdateAsync(player);
 
-		return _mapper.Map(player);
-	}
+        return new(accessToken, refreshToken);
+    }
 
-	public async Task<TokensReadDto> RefreshTokensAsync(int id, TokensRefreshDto refreshDto, CancellationToken token)
-	{
-		var player = await GetByIdOrThrowAsync(id, token);
-		_accessHelper.VerifyAccessRights(player);
+    public async Task<PlayerReadDto> ChangeRoleAsync(int id, PlayerChangeRoleDto roleDto, CancellationToken token)
+    {
+        var player = await GetByIdOrThrowAsync(id, token);
+        player.Role = roleDto.Role;
 
-		_tokenHelper.ValidateRefreshToken(player, refreshDto.RefreshToken);
+        await _repository.UpdateAsync(player);
 
-		var accessToken = _tokenHelper.GenerateAccessToken(player);
-		var refreshToken = _tokenHelper.GenerateRefreshToken();
+        var readDto = player.ToReadDto();
 
-		_tokenHelper.SetRefreshToken(player, refreshToken);
-		await _repository.UpdateAsync(player);
+        return readDto;
+    }
 
-		return new(accessToken, refreshToken);
-	}
+    public async Task<TokensReadDto> RefreshTokensAsync(int id, TokensRefreshDto refreshDto, CancellationToken token)
+    {
+        var player = await GetByIdOrThrowAsync(id, token);
+        _accessHelper.VerifyAccessRights(player);
 
-	private async Task<Player> GetByNameAsync(string name, CancellationToken token)
-	{
-		var player = await _repository.GetByNameAsync(name, token);
+        _tokenHelper.ValidateRefreshToken(player, refreshDto.RefreshToken);
 
-		if (player is null)
-		{
-			_logger.LogWarning("Failed to retrieve a player with name '{Name}'", name);
-			throw new NullReferenceException($"Player with name '{name}' not found");
-		}
+        var accessToken = _tokenHelper.GenerateAccessToken(player);
+        var refreshToken = _tokenHelper.GenerateRefreshToken();
 
-		_logger.LogInformation("Successfully retrieved a player with name '{Name}'", name);
+        _tokenHelper.SetRefreshToken(player, refreshToken);
+        await _repository.UpdateAsync(player);
 
-		return player;
-	}
+        return new(accessToken, refreshToken);
+    }
 
-	private async Task<Player> GetByIdOrThrowAsync(int id, CancellationToken token)
-	{
-		var player = await _repository.GetByIdAsync(id, token);
+    private async Task<Player> GetByNameAsync(string name, CancellationToken token)
+    {
+        var player = await _repository.GetByNameAsync(name, token);
 
-		if (player is null)
-		{
-			_logger.LogWarning("Failed to retrieve a player with id {Id}", id);
-			throw new NullReferenceException($"Player with id {id} not found");
-		}
+        if (player is null)
+        {
+            _logger.LogWarning("Failed to retrieve a player with name '{Name}'", name);
+            throw new NullReferenceException($"Player with name '{name}' not found");
+        }
 
-		return player;
-	}
+        _logger.LogInformation("Successfully retrieved a player with name '{Name}'", name);
+
+        return player;
+    }
+
+    private async Task<Player> GetByIdOrThrowAsync(int id, CancellationToken token)
+    {
+        var player = await _repository.GetByIdAsync(id, token);
+
+        if (player is null)
+        {
+            _logger.LogWarning("Failed to retrieve a player with id {Id}", id);
+            throw new NullReferenceException($"Player with id {id} not found");
+        }
+
+        return player;
+    }
 }

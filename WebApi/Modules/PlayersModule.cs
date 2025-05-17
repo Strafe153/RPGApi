@@ -1,12 +1,8 @@
 ﻿using Application.Helpers;
-using Application.Mappers.Abstractions;
-using Application.Mappers.Implementations;
 using Application.Services.Abstractions;
 using Application.Services.Implementations;
 using Autofac;
 using DataAccess.Repositories;
-using Domain.Dtos.PlayerDtos;
-using Domain.Entities;
 using Domain.Helpers;
 using Domain.Repositories;
 
@@ -34,11 +30,6 @@ public class PlayersModule : Module
         builder
             .RegisterType<AccessHelper>()
             .As<IAccessHelper>()
-            .SingleInstance();
-
-        builder
-            .RegisterType<PlayerMapper>()
-            .As<IMapper<Player, PlayerReadDto, PlayerAuthorizeDto, PlayerUpdateDto>>()
             .SingleInstance();
     }
 }

@@ -1,10 +1,7 @@
-﻿using Application.Mappers.Abstractions;
-using Application.Mappers.Implementations;
-using Application.Services.Abstractions;
+﻿using Application.Services.Abstractions;
 using Application.Services.Implementations;
 using Autofac;
 using DataAccess.Repositories;
-using Domain.Dtos.MountDtos;
 using Domain.Entities;
 using Domain.Repositories;
 
@@ -23,10 +20,5 @@ public class MountsModule : Module
             .RegisterType<MountsService>()
             .As<IMountsService>()
             .InstancePerLifetimeScope();
-
-        builder
-            .RegisterType<MountMapper>()
-            .As<IMapper<Mount, MountReadDto, MountCreateDto, MountUpdateDto>>()
-            .SingleInstance();
     }
 }
