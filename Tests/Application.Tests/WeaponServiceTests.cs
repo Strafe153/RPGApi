@@ -1,8 +1,10 @@
-﻿using Application.Tests.Fixtures;
+﻿using Application.Dtos.WeaponDtos;
+using Application.Tests.Fixtures;
+using Domain.Entities;
+using Domain.Enums;
 using Domain.Shared;
-using FluentAssertions;
-using NSubstitute;
-using NSubstitute.ReturnsExtensions;
+using Microsoft.AspNetCore.JsonPatch;
+using Moq;
 using NUnit.Framework;
 
 namespace Application.Tests;
@@ -17,177 +19,309 @@ public class WeaponServiceTests
 
 	[Test]
 	public async Task GetAllAsync_Should_ReturnPageDtoOfWeaponReadDto_WhenDataIsValid()
-	{
+    {
 		// Arrange
-		_fixture.WeaponsRepository
-			.GetAllAsync(Arg.Any<PageParameters>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.PagedList);
+		List<Weapon> weapons = [
+    		new()
+            {
+                Id = 1,
+                Name = "Iron Bow",
+                Type = WeaponType.Bow,
+                Damage = 21
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Rebel Knife",
+                Type = WeaponType.Dagger,
+                Damage = 87
+            },
+        ];
 
-		// Act
-		var result = await _fixture.WeaponsService.GetAllAsync(_fixture.PageParameters, _fixture.CancellationToken);
+        PagedList<Weapon> pagedList = new(weapons, weapons.Count, 1, 2);
+
+        PageParameters pageParameters = new()
+        {
+            PageNumber = 1,
+            PageSize = 2
+        };
+
+        _fixture.Repository
+            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pagedList);
+
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.GetAllAsync(pageParameters, new CancellationToken());
 
 		// Assert
-		result.Should().NotBeNull();
-		result.Entities.Should().NotBeEmpty();
+		Assert.AreEqual(21, result.Entities.First().Damage);
+		Assert.AreEqual("Rebel Knife", result.Entities.Last().Name);
 	}
 
 	[Test]
 	public async Task GetByIdAsync_Should_ReturnWeaponReadDto_WhenWeaponExists()
-	{
-		// Arrange
-		_fixture.WeaponsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Weapon);
+    {
+        // Arrange
+        var id = 1;
 
-		// Act
-		var result = await _fixture.WeaponsService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
+        Weapon weapon = new()
+        {
+            Id = id,
+            Name = "Rebel Knife",
+            Type = WeaponType.Dagger,
+            Damage = 87
+        };
 
-		// Assert
-		result.Should().NotBeNull();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(weapon);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        var result = await sut.GetByIdAsync(1, new CancellationToken());
+
+        // Assert
+        Assert.AreEqual(WeaponType.Dagger, result.Type);
 	}
 
 	[Test]
-	public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
+	public void GetByIdAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
 	{
-		// Arrange
-		_fixture.WeaponsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+	    // Arrange
+        var id = 1;
 
-		// Act
-		var result = () => _fixture.WeaponsService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
+        Weapon weapon = new()
+        {
+            Id = id,
+            Name = "Rebel Knife",
+            Type = WeaponType.Dagger,
+            Damage = 87
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
-	}
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(weapon);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task<Dtos.WeaponDtos.WeaponReadDto> result() => sut.GetByIdAsync(2, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
+    }
 
 	[Test]
-	public void AddAsync_Should_ReturnWeaponReadDto_WhenDtoIsValid()
-	{
-		// Act
-		var result = _fixture.WeaponsService.AddAsync(_fixture.WeaponCreateDto);
+	public async Task AddAsync_Should_ReturnWeaponReadDto_WhenDtoIsValid()
+    {
+        // Act
+        WeaponCreateDto createDto = new("Rebel Knife", WeaponType.Dagger, 87);
 
-		// Assert
-		result.Should().NotBeNull();
+        var sut = _fixture.CreateSut();
+        var result = await sut.AddAsync(createDto);
+
+        // Assert
+        Assert.AreEqual("Rebel Knife", createDto.Name);
 	}
 
 	[Test]
 	public void UpdateAsync_Should_ReturnTask_WhenWeaponExists()
-	{
-		// Arrange
-		_fixture.WeaponsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Weapon);
+    {
+        // Arrange
+        var id = 1;
 
-		// Act
-		var result = _fixture.WeaponsService.UpdateAsync(_fixture.Id, _fixture.WeaponUpdateDto, _fixture.CancellationToken);
+        Weapon weapon = new()
+        {
+            Id = id,
+            Name = "Rebel Knife",
+            Type = WeaponType.Dagger,
+            Damage = 87
+        };
 
-		// Assert
-		result.Should().NotBeNull();
-	}
+        WeaponUpdateDto updateDto = new("Rebel Knife", WeaponType.Dagger, 87);
+
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(weapon);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.UpdateAsync(1, updateDto, new CancellationToken());
+
+        // Assert
+        Assert.DoesNotThrowAsync(result);
+    }
 
 	[Test]
-	public async Task UpdateAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
+	public void UpdateAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
 	{
-		// Arrange
-		_fixture.WeaponsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+	    // Arrange
+        var id = 1;
 
-		// Act
-		var result = () => _fixture.WeaponsService.UpdateAsync(
-			_fixture.Id,
-			_fixture.WeaponUpdateDto,
-			_fixture.CancellationToken);
+        Weapon weapon = new()
+        {
+            Id = id,
+            Name = "Rebel Knife",
+            Type = WeaponType.Dagger,
+            Damage = 87
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        WeaponUpdateDto updateDto = new("Rebel Knife", WeaponType.Dagger, 87);
+
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(weapon);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.UpdateAsync(2, updateDto, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
 	public void DeleteAsync_Should_ReturnTask_WhenWeaponExists()
-	{
-		// Arrange
-		_fixture.WeaponsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Weapon);
+    {
+        // Arrange
+        var id = 1;
 
-		// Act
-		var result = _fixture.WeaponsService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+        Weapon weapon = new()
+        {
+            Id = id,
+            Name = "Rebel Knife",
+            Type = WeaponType.Dagger,
+            Damage = 87
+        };
 
-		// Assert
-		result.Should().NotBeNull();
-	}
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(weapon);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.DeleteAsync(1, new CancellationToken());
+
+        // Assert
+        Assert.DoesNotThrowAsync(result);
+    }
 
 	[Test]
-	public async Task DeleteAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
+	public void DeleteAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
 	{
-		// Arrange
-		_fixture.WeaponsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+	    // Arrange
+        var id = 1;
 
-		// Act
-		var result = () => _fixture.WeaponsService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+        Weapon weapon = new()
+        {
+            Id = id,
+            Name = "Rebel Knife",
+            Type = WeaponType.Dagger,
+            Damage = 87
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(weapon);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.DeleteAsync(2, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
 	public async Task PatchAsync_Should_ReturnTrue_WhenWeaponExistsAndModelIsValid()
-	{
+    {
 		// Arrange
-		_fixture.WeaponsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Weapon);
+		var id = 1;
 
-		// Act
-		var result = await _fixture.WeaponsService.PatchAsync(
-			_fixture.Id,
-			_fixture.PatchDocument,
-			_ => true,
-			_fixture.CancellationToken);
+        Weapon weapon = new()
+        {
+            Id = id,
+            Name = "Rebel Knife",
+            Type = WeaponType.Dagger,
+            Damage = 87
+        };
 
-		// Assert
-		result.Should().BeTrue();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(weapon);
+
+        // Act
+        var sut = _fixture.CreateSut();
+
+        var result = await sut.PatchAsync(
+            1,
+            new JsonPatchDocument<WeaponUpdateDto>(),
+            _ => true,
+            new CancellationToken());
+
+        // Assert
+        Assert.IsTrue(result);
 	}
 
 	[Test]
 	public async Task PatchAsync_Should_ReturnFalse_WhenWeaponExistsAndModelIsNotValid()
 	{
-		// Arrange
-		_fixture.WeaponsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Weapon);
+    	// Arrange
+    	var id = 1;
 
-		// Act
-		var result = await _fixture.WeaponsService.PatchAsync(
-			_fixture.Id,
-			_fixture.PatchDocument,
-			_ => false,
-			_fixture.CancellationToken);
+        Weapon weapon = new()
+        {
+            Id = id,
+            Name = "Rebel Knife",
+            Type = WeaponType.Dagger,
+            Damage = 87
+        };
 
-		// Assert
-		result.Should().BeFalse();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(weapon);
+
+        // Act
+        var sut = _fixture.CreateSut();
+
+        var result = await sut.PatchAsync(
+            1,
+            new JsonPatchDocument<WeaponUpdateDto>(),
+            _ => false,
+            new CancellationToken());
+
+        // Assert
+        Assert.IsFalse(result);
 	}
 
 	[Test]
-	public async Task PatchAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
+	public void PatchAsync_Should_ThrowNullReferenceException_WhenWeaponDoesNotExist()
 	{
-		// Arrange
-		_fixture.WeaponsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+    	// Arrange
+    	var id = 1;
 
-		// Act
-		var result = () => _fixture.WeaponsService.PatchAsync(
-			_fixture.Id,
-			_fixture.PatchDocument,
-			_ => false,
-			_fixture.CancellationToken);
+        Weapon weapon = new()
+        {
+            Id = id,
+            Name = "Rebel Knife",
+            Type = WeaponType.Dagger,
+            Damage = 87
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(weapon);
+
+        // Act
+        var sut = _fixture.CreateSut();
+
+        Task<bool> result() => sut.PatchAsync(
+            2,
+            new JsonPatchDocument<WeaponUpdateDto>(),
+            _ => true,
+            new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 }

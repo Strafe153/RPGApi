@@ -1,12 +1,13 @@
-﻿using Application.Tests.Fixtures;
+﻿using Application.Dtos.PlayerDtos;
+using Application.Dtos.TokenDtos;
+using Application.Tests.Fixtures;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Exceptions;
+using Domain.Helpers;
 using Domain.Shared;
-using FluentAssertions;
+using Moq;
 using Npgsql;
-using NSubstitute;
-using NSubstitute.ExceptionExtensions;
-using NSubstitute.ReturnsExtensions;
 using NUnit.Framework;
 
 namespace Application.Tests;
@@ -21,401 +22,685 @@ public class PlayerServiceTests
 
 	[Test]
 	public async Task GetAllAsync_Should_ReturnPageDtoOfPlayerReadDto_WhenDataIsValid()
-	{
-		// Arrange
-		_fixture.PlayersRepository
-			.GetAllAsync(Arg.Any<PageParameters>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.PagedList);
+    {
+        // Arrange
+		List<Player> players = [
+            new()
+            {
+                Id = 1,
+                Name = "Ren",
+                Role = PlayerRole.Player
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Courtney",
+                Role = PlayerRole.Player
+            },
+        ];
 
-		// Act
-		var result = await _fixture.PlayersService.GetAllAsync(_fixture.PageParameters, _fixture.CancellationToken);
+        PagedList<Player> pagedList = new(players, players.Count, 1, 2);
+
+        PageParameters pageParameters = new()
+        {
+            PageNumber = 1,
+            PageSize = 2
+        };
+
+        _fixture.PlayersRepository
+            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pagedList);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+		var result = await sut.GetAllAsync(pageParameters, new CancellationToken());
 
 		// Assert
-		result.Should().NotBeNull();
-		result.Entities.Should().NotBeEmpty();
+		Assert.AreEqual("Ren", result.Entities.First().Name);
+		Assert.AreEqual(2, result.Entities.Last().Id);
 	}
 
 	[Test]
 	public async Task GetByIdAsync_Should_ReturnPlayerReadDto_WhenPlayerExists()
-	{
-		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+    {
+        // Arrange
+        var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		// Act
-		var result = await _fixture.PlayersService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Assert
-		result.Should().NotBeNull();
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        var result = await sut.GetByIdAsync(1, new CancellationToken());
+
+        // Assert
+        Assert.AreEqual("Ren", result.Name);
 	}
 
 	[Test]
-	public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
+	public void GetByIdAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
 	{
-		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+	    // Arrange
+        var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		// Act
-		var result = () => _fixture.PlayersService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task<PlayerReadDto> result() => sut.GetByIdAsync(2, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
+    }
+
+	[Test]
+	public async Task AddAsync_Should_ReturnPlayerReadDto_WhenNameIsUnique()
+    {
+        // Arrange
+        var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
+
+        PlayerAuthorizeDto authorizeDto = new("Ren", "1234Qwer");
+
+        _fixture.PlayersRepository
+            .Setup(r => r.AddAsync(It.IsAny<Player>()))
+            .ReturnsAsync(id);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        var result = await sut.AddAsync(authorizeDto);
+
+        // Assert
+        Assert.AreEqual(1, result.Id);
 	}
 
 	[Test]
-	public void AddAsync_Should_ReturnPlayerReadDto_WhenNameIsUnique()
-	{
-		// Arrange
-		_fixture.PlayersRepository
-			.AddAsync(_fixture.Player)
-			.Returns(_fixture.Id);
+	public void AddAsync_Should_ThrowNameNotUniqueException_WhenNameIsNotUnique()
+    {
+        // Arrange
+        var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		// Act
-		var result = _fixture.PlayersService.AddAsync(_fixture.PlayerAuthorizeDto);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Assert
-		result.Should().NotBeNull();
-	}
+        PlayerAuthorizeDto authorizeDto = new("Ren", "1234Qwer");
 
-	[Test]
-	public async Task AddAsync_Should_ThrowNameNotUniqueException_WhenNameIsNotUnique()
-	{
-		// Arrange
-		_fixture.PlayersRepository
-			.AddAsync(Arg.Any<Player>())
-			.ThrowsAsync<NpgsqlException>();
+        _fixture.PlayersRepository
+            .Setup(r => r.AddAsync(It.IsAny<Player>()))
+            .Throws<NpgsqlException>();
 
-		// Act
-		var result = () => _fixture.PlayersService.AddAsync(_fixture.PlayerAuthorizeDto);
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task<PlayerReadDto> result() => sut.AddAsync(authorizeDto);
 
-		// Assert
-		await result.Should().ThrowAsync<NameNotUniqueException>();
-	}
+        // Assert
+        Assert.ThrowsAsync<NameNotUniqueException>(result);
+    }
 
 	[Test]
 	public async Task LoginAsync_Should_ReturnTokensReadDto_WhenPlayerExists()
-	{
-		// Arrange
+    {
+        // Arrange
+        var name = "Ren";
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+
+        Player player = new()
+        {
+            Id = 1,
+            Name = name,
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
+
+        PlayerAuthorizeDto authorizeDto = new(name, "1234Qwer");
+
 		_fixture.PlayersRepository
-			.GetByNameAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+			.Setup(r => r.GetByNameAsync(name, It.IsAny<CancellationToken>()))
+			.ReturnsAsync(player);
 
-		_fixture.TokenHelper
-			.GenerateAccessToken(Arg.Any<Player>())
-			.Returns(_fixture.AccessToken);
+        // Act
+        var sut = _fixture.CreeateSut();
+        var result = await sut.LoginAsync(authorizeDto, new CancellationToken());
 
-		_fixture.TokenHelper
-			.GenerateRefreshToken()
-			.Returns(_fixture.RefreshToken);
-
-		// Act
-		var result = await _fixture.PlayersService.LoginAsync(_fixture.PlayerAuthorizeDto, _fixture.CancellationToken);
-
-		// Assert
-		result.AccessToken.Length.Should().BeGreaterThan(0);
-		result.RefreshToken.Length.Should().BeGreaterThan(0);
+        // Assert
+        Assert.IsTrue(result.AccessToken.Length > 0);
+        Assert.IsTrue(result.RefreshToken.Length > 0);
 	}
 
 	[Test]
-	public async Task LoginAsync_Should_ThrowNullReferenceException_WhenPlayerExists()
+	public void LoginAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
 	{
-		// Arrange
-		_fixture.PlayersRepository
-			.GetByNameAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+        // Arrange
+        var name = "Ren";
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		// Act
-		var result = () => _fixture.PlayersService.LoginAsync(_fixture.PlayerAuthorizeDto, _fixture.CancellationToken);
+        Player player = new()
+        {
+            Id = 1,
+            Name = name,
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
-	}
+        PlayerAuthorizeDto authorizeDto = new("Courtney", "53cr3t!");
+
+    	_fixture.PlayersRepository
+    		.Setup(r => r.GetByNameAsync(name, It.IsAny<CancellationToken>()))
+    		.ReturnsAsync(player);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task<TokensReadDto> result() => sut.LoginAsync(authorizeDto, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
+    }
 
 	[Test]
 	public void UpdateAsync_Should_ReturnTask_WhenPlayerExistsAndNameIsUnique()
-	{
+    {
 		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+		var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		// Act
-		var result = _fixture.PlayersService.UpdateAsync(_fixture.Id, _fixture.PlayerUpdateDto, _fixture.CancellationToken);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Assert
-		result.Should().NotBeNull();
-	}
+        PlayerUpdateDto updateDto = new("Ryuji");
+
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task result() => sut.UpdateAsync(1, updateDto, new CancellationToken());
+
+        // Assert
+        Assert.DoesNotThrowAsync(result);
+    }
 
 	[Test]
-	public async Task UpdateAsync_Should_ThrowNameNotUniqueException_WhenPlayerExistsAndNameIsNotUnique()
-	{
+	public void UpdateAsync_Should_ThrowNameNotUniqueException_WhenPlayerExistsAndNameIsNotUnique()
+    {
 		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+		var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		_fixture.PlayersRepository
-			.UpdateAsync(_fixture.Player)
-			.ThrowsAsync<NpgsqlException>();
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Act
-		var result = () => _fixture.PlayersService.UpdateAsync(_fixture.Id, _fixture.PlayerUpdateDto, _fixture.CancellationToken);
+        PlayerUpdateDto updateDto = new("Ryuji");
 
-		// Assert
-		await result.Should().ThrowAsync<NameNotUniqueException>();
-	}
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        _fixture.PlayersRepository
+            .Setup(r => r.UpdateAsync(It.IsAny<Player>()))
+            .Throws<NpgsqlException>();
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task result() => sut.UpdateAsync(id, updateDto, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NameNotUniqueException>(result);
+    }
 
 	[Test]
-	public async Task UpdateAsync_Should_ThrowNullReferenceException_WhenPlayerExistsAndNameIsUnique()
-	{
+	public void UpdateAsync_Should_ThrowNullReferenceException_WhenPlayerExistsAndNameIsUnique()
+    {
 		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+		var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		// Act
-		var result = () => _fixture.PlayersService.UpdateAsync(
-			_fixture.Id,
-			_fixture.PlayerUpdateDto,
-			_fixture.CancellationToken);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
-	}
+        PlayerUpdateDto updateDto = new("Ryuji");
+
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task result() => sut.UpdateAsync(2, updateDto, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
+    }
 
 	[Test]
-	public async Task UpdateAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
-	{
+	public void UpdateAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
+    {
 		// Arrange
+		var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
+
+        PlayerUpdateDto updateDto = new("Ryuji");
+
 		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+			.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+			.ReturnsAsync(player);
 
-		_fixture.ConfigureAccessRights(false);
+        _fixture.ConfigureAccessHelper(false);
 
-		// Act
-		var result = () => _fixture.PlayersService.UpdateAsync(
-			_fixture.Id,
-			_fixture.PlayerUpdateDto,
-			_fixture.CancellationToken);
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task result() => sut.UpdateAsync(1, updateDto, new CancellationToken());
 
-		// Assert
-		await result.Should().ThrowAsync<NotEnoughRightsException>();
+        // Assert
+        Assert.ThrowsAsync<NotEnoughRightsException>(result);
 	}
 
 	[Test]
 	public void DeleteAsync_Should_ReturnTask_WhenPlayerExists()
-	{
+    {
 		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+		var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		// Act
-		var result = _fixture.PlayersService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Assert
-		result.Should().NotBeNull();
-	}
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task result() => sut.DeleteAsync(1, new CancellationToken());
+
+        // Assert
+        Assert.DoesNotThrowAsync(result);
+    }
 
 	[Test]
-	public async Task DeleteAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
+	public void DeleteAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
 	{
 		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+		var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		// Act
-		var result = () => _fixture.PlayersService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(2, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+		Task result() => sut.DeleteAsync(1, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
 	public async Task DeleteAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
 	{
-		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+    	// Arrange
+    	var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		_fixture.ConfigureAccessRights(false);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Act
-		var result = () => _fixture.PlayersService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
 
-		// Assert
-		await result.Should().ThrowAsync<NotEnoughRightsException>();
+        _fixture.ConfigureAccessHelper(false);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task result() => sut.DeleteAsync(1, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NotEnoughRightsException>(result);
 	}
 
 	[Test]
 	public async Task ChangePasswordAsync_Should_ReturnTokensReadDto_WhenPlayerExists()
-	{
+    {
 		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+		var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		_fixture.TokenHelper
-			.GenerateAccessToken(Arg.Any<Player>())
-			.Returns(_fixture.AccessToken);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		_fixture.TokenHelper
-			.GenerateRefreshToken()
-			.Returns(_fixture.RefreshToken);
+        PlayerChangePasswordDto dto = new("N3w#P4s$");
+
+        _fixture.PlayersRepository
+			.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+			.ReturnsAsync(player);
 
 		// Act
-		var result = await _fixture.PlayersService.ChangePasswordAsync(
-			_fixture.Id,
-			_fixture.PlayerChangePasswordDto,
-			_fixture.CancellationToken);
+        var sut = _fixture.CreeateSut();
+        var result = await sut.ChangePasswordAsync(1, dto, new CancellationToken());
 
-		// Assert
-		result.AccessToken.Length.Should().BeGreaterThan(0);
-		result.RefreshToken.Length.Should().BeGreaterThan(0);
+        // Assert
+        Assert.IsTrue(result.AccessToken.Length > 0);
+        Assert.IsTrue(result.RefreshToken.Length > 0);
 	}
 
 	[Test]
-	public async Task ChangePasswordAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
+	public void ChangePasswordAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
 	{
-		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+    	// Arrange
+    	var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
+
+        PlayerChangePasswordDto dto = new("N3w#P4s$");
+
+        _fixture.PlayersRepository
+    		.Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+    		.ReturnsAsync(player);
 
 		// Act
-		var result = () => _fixture.PlayersService.ChangePasswordAsync(
-			_fixture.Id,
-			_fixture.PlayerChangePasswordDto,
-			_fixture.CancellationToken);
+        var sut = _fixture.CreeateSut();
+        Task result() => sut.ChangePasswordAsync(2, dto, new CancellationToken());
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
-	public async Task ChangePasswordAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
+	public void ChangePasswordAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
 	{
-		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+    	// Arrange
+    	var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		_fixture.ConfigureAccessRights(false);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
+
+        PlayerChangePasswordDto dto = new("N3w#P4s$");
+
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        _fixture.ConfigureAccessHelper(false);
 
 		// Act
-		var result = () => _fixture.PlayersService.ChangePasswordAsync(
-			_fixture.Id,
-			_fixture.PlayerChangePasswordDto,
-			_fixture.CancellationToken);
+        var sut = _fixture.CreeateSut();
+        Task result() => sut.ChangePasswordAsync(1, dto, new CancellationToken());
 
-		// Assert
-		await result.Should().ThrowAsync<NotEnoughRightsException>();
+        // Assert
+        Assert.ThrowsAsync<NotEnoughRightsException>(result);
 	}
 
 	[Test]
 	public async Task ChangeRoleAsync_Should_ReturnPlayerReadDto_WhenPlayerExists()
-	{
+    {
 		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+		var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		// Act
-		var result = await _fixture.PlayersService.ChangeRoleAsync(
-			_fixture.Id,
-			_fixture.PlayerChangeRoleDto,
-			_fixture.CancellationToken);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Assert
-		result.Should().NotBeNull();
+        PlayerChangeRoleDto changeRoleDto = new(PlayerRole.Admin);
+
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+		var result = await sut.ChangeRoleAsync(1, changeRoleDto, new CancellationToken());
+
+        // Assert
+        Assert.AreEqual(PlayerRole.Admin, result.Role);
 	}
 
 	[Test]
-	public async Task ChangeRoleAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
+	public void ChangeRoleAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
 	{
-		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+    	// Arrange
+    	var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
 
-		// Act
-		var result = () => _fixture.PlayersService.ChangeRoleAsync(
-			_fixture.Id,
-			_fixture.PlayerChangeRoleDto,
-			_fixture.CancellationToken);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        PlayerChangeRoleDto changeRoleDto = new(PlayerRole.Admin);
+
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task result() => sut.ChangeRoleAsync(2, changeRoleDto, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
 	public async Task RefreshTokensAsync_Should_ReturnTokensReadDto_WhenPlayerExists()
 	{
 		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+		var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var refreshToken = _fixture.TokenHelper.GenerateRefreshToken();
 
-		_fixture.TokenHelper
-			.GenerateAccessToken(Arg.Any<Player>())
-			.Returns(_fixture.AccessToken);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt,
+            RefreshToken = refreshToken,
+            RefreshTokenExpiryDate = DateTime.UtcNow.AddMonths(1)
+        };
 
-		_fixture.TokenHelper
-			.GenerateRefreshToken()
-			.Returns(_fixture.RefreshToken);
+        TokensRefreshDto tokensDto = new(refreshToken);
 
-		// Act
-		var result = await _fixture.PlayersService.RefreshTokensAsync(
-			_fixture.Id,
-			_fixture.TokensRefreshDto,
-			_fixture.CancellationToken);
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+		var result = await sut.RefreshTokensAsync(1, tokensDto, new CancellationToken());
 
 		// Assert
-		result.AccessToken.Length.Should().BeGreaterThan(0);
-		result.RefreshToken.Length.Should().BeGreaterThan(0);
+		Assert.IsTrue(result.AccessToken.Length > 0);
+        Assert.IsTrue(result.RefreshToken.Length > 0);
 	}
 
 	[Test]
-	public async Task RefreshTokensAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
+	public void RefreshTokensAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
 	{
-		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+    	// Arrange
+    	var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var refreshToken = _fixture.TokenHelper.GenerateRefreshToken();
 
-		// Act
-		var result = () => _fixture.PlayersService.RefreshTokensAsync(
-			_fixture.Id,
-			_fixture.TokensRefreshDto,
-			_fixture.CancellationToken);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt,
+            RefreshToken = refreshToken,
+            RefreshTokenExpiryDate = DateTime.UtcNow.AddMonths(1)
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        TokensRefreshDto tokensDto = new(refreshToken);
+
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task result() => sut.RefreshTokensAsync(2, tokensDto, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
-	public async Task RefreshTokensAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
+	public void RefreshTokensAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
 	{
-		// Arrange
-		_fixture.PlayersRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Player);
+	    // Arrange
+    	var id = 1;
+        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var refreshToken = _fixture.TokenHelper.GenerateRefreshToken();
 
-		_fixture.ConfigureAccessRights(false);
+        Player player = new()
+        {
+            Id = id,
+            Name = "Ren",
+            Role = PlayerRole.Player,
+            PasswordHash = hash,
+            PasswordSalt = salt,
+            RefreshToken = refreshToken,
+            RefreshTokenExpiryDate = DateTime.UtcNow.AddMonths(1)
+        };
 
-		// Act
-		var result = () => _fixture.PlayersService.RefreshTokensAsync(
-			_fixture.Id,
-			_fixture.TokensRefreshDto,
-			_fixture.CancellationToken);
+        TokensRefreshDto tokensDto = new(refreshToken);
 
-		// Assert
-		await result.Should().ThrowAsync<NotEnoughRightsException>();
+        _fixture.PlayersRepository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(player);
+
+        _fixture.ConfigureAccessHelper(false);
+
+        // Act
+        var sut = _fixture.CreeateSut();
+        Task result() => sut.RefreshTokensAsync(1, tokensDto, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NotEnoughRightsException>(result);
 	}
 }

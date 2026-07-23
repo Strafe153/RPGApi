@@ -16,16 +16,11 @@
 * `AspNetCore.HealthChecks.Redis` for Redis health checks
 * `AspNetCore.HealthChecks.UI.Client` for detailed health checks information
 * `Autofac.Extensions.DependencyInjection` for Autofac
-* `AutoFixture` for test fixtures
-* `AutoFixture.AutoNSubstitute` for NSubstitute support with AutoFixture
-* `Bogus` for fake data generation
 * `Dapper` for object-relational mapping
 * `dbup-postgresql` for PostgreSQL database migrations
-* `FluentAssertions` for assertions
 * `Microsoft.AspNetCore.Authentication.JwtBearer` for JWT authentication
 * `Microsoft.AspNetCore.Http` for default HTTP feature implementations
 * `Microsoft.AspNetCore.Http.Abstractions` for object model for HTTP requests and responses
-* `Microsoft.AspNetCore.Mvc.NewtonsoftJson` for MVC features that use Newtonsoft.Json
 * `Microsoft.Extensions.Caching.Abstractions` for caching abstractions
 * `Microsoft.Extensions.Configuration` for key-value based configuration
 * `Microsoft.Extensions.Configuration.Abstractions` for configuration abstractions
@@ -35,12 +30,11 @@
 * `Microsoft.Extensions.Logging.Abstractions` for logging abstractions
 * `Microsoft.IdentityModel.Tokens` for security tokens
 * `Microsoft.NET.Test.Sdk` for .NET SDK for testing
-* `Newtonsoft.Json` for JSON serialization
+* `Moq` for mocking
 * `NLog` for logging
 * `NLog.Web.AspNetCore` for ASP.NET Core logging
 * `Npgsql` for PostgreSQL
 * `Npgsql.EntityFrameworkCore.PostgreSQL` for PostgreSQL exception
-* `NSubstitute` for mocking
 * `NUnit` for unit-tests
 * `NUnit3TestAdapter` for adapting tests in Visual Studio
 * `Swashbuckle.AspNetCore` for Swagger support

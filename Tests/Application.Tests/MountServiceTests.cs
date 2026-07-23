@@ -1,9 +1,10 @@
-﻿using Application.Tests.Fixtures;
+﻿using Application.Dtos.MountDtos;
+using Application.Tests.Fixtures;
 using Domain.Entities;
+using Domain.Enums;
 using Domain.Shared;
-using FluentAssertions;
-using NSubstitute;
-using NSubstitute.ReturnsExtensions;
+using Microsoft.AspNetCore.JsonPatch;
+using Moq;
 using NUnit.Framework;
 
 namespace Application.Tests;
@@ -18,174 +19,320 @@ public class MountServiceTests
 
 	[Test]
 	public async Task GetAllAsync_Should_ReturnPageDtoOfMountReadDto_WhenDataIsValid()
-	{
-		// Arrange
-		_fixture.MountsRepository
-			.GetAllAsync(Arg.Any<PageParameters>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.PagedList);
+    {
+        // Arrange
+        List<Mount> mounts = [
+            new()
+            {
+                Id = 1,
+                Name = "Max Elephant",
+                Type = MountType.Elephant,
+                Speed = 5
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Bigby",
+                Type = MountType.Wolf,
+                Speed = 69
+            },
+        ];
 
-		// Act
-		var result = await _fixture.MountsService.GetAllAsync(_fixture.PageParameters, _fixture.CancellationToken);
+        PagedList<Mount> pagedList = new(mounts, mounts.Count, 1, 2);
+
+        PageParameters pageParameters = new()
+        {
+            PageNumber = 1,
+            PageSize = 2
+        };
+
+        _fixture.Repository
+            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pagedList);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        var result = await sut.GetAllAsync(pageParameters, new CancellationToken());
 
 		// Assert
-		result.Should().NotBeNull();
-		result.Entities.Should().NotBeEmpty();
+		Assert.AreEqual(5, result.Entities.First().Speed);
+		Assert.AreEqual("Bigby", result.Entities.Last().Name);
 	}
 
 	[Test]
 	public async Task GetByIdAsync_Should_ReturnMountReadDto_WhenMountsExists()
+    {
+        // Arrange
+        var id = 1;
+
+        Mount mount = new()
+        {
+            Id = id,
+            Name = "Bigby",
+            Type = MountType.Wolf,
+            Speed = 69
+        };
+
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mount);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        var result = await sut.GetByIdAsync(id, new CancellationToken());
+
+        // Assert
+        Assert.AreEqual(MountType.Wolf, result.Type);
+    }
+
+	[Test]
+	public void GetByIdAsync_Should_ThrowNullReferenceException_WhenMountDoesNotExist()
 	{
-		// Arrange
-		_fixture.MountsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Mount);
+	    // Arrange
+        var id = 1;
 
-		// Act
-		var result = await _fixture.MountsService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
+        Mount mount = new()
+        {
+            Id = id,
+            Name = "Bigby",
+            Type = MountType.Wolf,
+            Speed = 69
+        };
 
-		// Assert
-		result.Should().NotBeNull();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mount);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task<MountReadDto> result() => sut.GetByIdAsync(2, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
-	public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenMountDoesNotExist()
-	{
-		// Arrange
-		_fixture.MountsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+	public async Task AddAsync_Should_ReturnMountReadDto_WhenDtoIsValid()
+    {
+        // Arrange
+        MountCreateDto createDto = new(
+            "Bigby",
+            MountType.Wolf,
+            69);
 
-		// Act
-		var result = () => _fixture.MountsService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
+        // Act
+        var sut = _fixture.CreateSut();
+        var result = await sut.AddAsync(createDto);
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
-	}
-
-	[Test]
-	public void AddAsync_Should_ReturnMountReadDto_WhenDtoIsValid()
-	{
-		// Act
-		var result = _fixture.MountsService.AddAsync(_fixture.MountCreateDto);
-
-		// Assert
-		result.Should().NotBeNull();
+        // Assert
+        Assert.AreEqual(createDto.Name, result.Name);
+        Assert.AreEqual(createDto.Speed, result.Speed);
 	}
 
 	[Test]
 	public void UpdateAsync_Should_ReturnTask_WhenMountExists()
-	{
-		// Arrange
-		_fixture.MountsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Mount);
+    {
+        // Arrange
+        var id = 1;
 
-		// Act
-		var result = _fixture.MountsService.UpdateAsync(_fixture.Id, _fixture.MountUpdateDto, _fixture.CancellationToken);
+        Mount mount = new()
+        {
+            Id = id,
+            Name = "Bigby",
+            Type = MountType.Wolf,
+            Speed = 69
+        };
 
-		// Assert
-		result.Should().NotBeNull();
-	}
+        MountUpdateDto updateDto = new(
+            "Bigby",
+            MountType.Wolf,
+            69);
+
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mount);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.UpdateAsync(1, updateDto, new CancellationToken());
+
+        // Assert
+        Assert.DoesNotThrowAsync(result);
+    }
 
 	[Test]
-	public async Task UpdateAsync_Should_ThrowNullReferenceExcpetion_WhenMountDoesNotExist()
+	public void UpdateAsync_Should_ThrowNullReferenceExcpetion_WhenMountDoesNotExist()
 	{
-		// Arrange
-		_fixture.MountsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+	    // Arrange
+        var id = 1;
 
-		// Act
-		var result = () => _fixture.MountsService.UpdateAsync(_fixture.Id, _fixture.MountUpdateDto, _fixture.CancellationToken);
+        Mount mount = new()
+        {
+            Id = id,
+            Name = "Bigby",
+            Type = MountType.Wolf,
+            Speed = 69
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        MountUpdateDto updateDto = new(
+            "Bigby",
+            MountType.Wolf,
+            69);
+
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mount);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.UpdateAsync(2, updateDto, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
 	public void DeleteAsync_Should_ReturnTask_WhenMountExists()
-	{
+    {
 		// Arrange
-		_fixture.MountsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Mount);
+		var id = 1;
 
-		// Act
-		var result = _fixture.MountsService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+        Mount mount = new()
+        {
+            Id = id,
+            Name = "Bigby",
+            Type = MountType.Wolf,
+            Speed = 69
+        };
 
-		// Assert
-		result.Should().NotBeNull();
-	}
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mount);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.DeleteAsync(1, new CancellationToken());
+
+        // Assert
+        Assert.DoesNotThrowAsync(result);
+    }
 
 	[Test]
-	public async Task DeleteAsync_Should_ThrowNullReferenceException_WhenMountDoesNotExist()
+	public void DeleteAsync_Should_ThrowNullReferenceException_WhenMountDoesNotExist()
 	{
-		// Arrange
-		_fixture.MountsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+    	// Arrange
+    	var id = 1;
 
-		// Act
-		var result = () => _fixture.MountsService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+        Mount mount = new()
+        {
+            Id = id,
+            Name = "Bigby",
+            Type = MountType.Wolf,
+            Speed = 69
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mount);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.DeleteAsync(2, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
 	public async Task PatchAsync_Should_ReturnTrue_WhenMountExistsAndModelIsValid()
-	{
-		// Arrange
-		_fixture.MountsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Mount);
+    {
+        // Arrange
+        var id = 1;
 
-		// Act
-		var result = await _fixture.MountsService.PatchAsync(
-			_fixture.Id,
-			_fixture.PatchDocument,
+        Mount mount = new()
+        {
+            Id = id,
+            Name = "Bigby",
+            Type = MountType.Wolf,
+            Speed = 69
+        };
+
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mount);
+
+        // Act
+        var sut = _fixture.CreateSut();
+
+		var result = await sut.PatchAsync(
+			1,
+			new JsonPatchDocument<MountUpdateDto>(),
 			_ => true,
-			_fixture.CancellationToken);
+			new CancellationToken());
 
-		// Assert
-		result.Should().BeTrue();
+        // Assert
+        Assert.IsTrue(result);
 	}
 
 	[Test]
 	public async Task PatchAsync_Should_ReturnFalse_WhenMountExistsAndModelIsNotValid()
 	{
-		// Arrange
-		_fixture.MountsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Mount);
+	    // Arrange
+        var id = 1;
 
-		// Act
-		var result = await _fixture.MountsService.PatchAsync(
-			_fixture.Id,
-			_fixture.PatchDocument,
-			_ => false,
-			_fixture.CancellationToken);
+        Mount mount = new()
+        {
+            Id = id,
+            Name = "Bigby",
+            Type = MountType.Wolf,
+            Speed = 69
+        };
 
-		// Assert
-		result.Should().BeFalse();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mount);
+
+        // Act
+        var sut = _fixture.CreateSut();
+
+        var result = await sut.PatchAsync(
+            1,
+            new JsonPatchDocument<MountUpdateDto>(),
+            _ => false,
+            new CancellationToken());
+
+        // Assert
+        Assert.IsFalse(result);
 	}
 
 	[Test]
-	public async Task PatchAsync_Should_ThrowNullReferenceException_WhenMountDoesNotExist()
+	public void PatchAsync_Should_ThrowNullReferenceException_WhenMountDoesNotExist()
 	{
-		// Arrange
-		_fixture.MountsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+	    // Arrange
+        var id = 1;
 
-		// Act
-		var result = () => _fixture.MountsService.PatchAsync(
-			_fixture.Id,
-			_fixture.PatchDocument,
-			_ => false,
-			_fixture.CancellationToken);
+        Mount mount = new()
+        {
+            Id = id,
+            Name = "Bigby",
+            Type = MountType.Wolf,
+            Speed = 69
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(mount);
+
+        // Act
+        var sut = _fixture.CreateSut();
+
+        Task<bool> result() => sut.PatchAsync(
+            2,
+            new JsonPatchDocument<MountUpdateDto>(),
+            _ => true,
+            new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 }

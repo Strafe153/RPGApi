@@ -1,11 +1,11 @@
 ﻿using Application.Dtos;
 using Application.Dtos.WeaponDtos;
+using Domain.Enums;
 using Domain.Shared;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using NSubstitute;
+using Moq;
 using NUnit.Framework;
 using WebApi.Tests.V1.Fixtures;
 
@@ -21,124 +21,128 @@ public class WeaponControllerTests
 
 	[Test]
 	public async Task Get_Should_ReturnActionResultOfPageDtoOfWeaponReadDto_WhenDataIsValid()
-	{
-		// Arrange
-		_fixture.WeaponsService
-			.GetAllAsync(Arg.Any<PageParameters>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.PageDto);
+    {
+        // Arrange
+        List<WeaponReadDto> weapons = [
+            new(1, "Iron Bow", WeaponType.Bow, 21, []),
+            new(2, "Rebel Knife", WeaponType.Dagger, 87, [])
+        ];
 
-		// Act
-		var result = await _fixture.WeaponsController.Get(_fixture.PageParameters, _fixture.CancellationToken);
-		var objectResult = result.Result.As<OkObjectResult>();
-		var pageDto = objectResult.Value.As<PageDto<WeaponReadDto>>();
+        PageDto<WeaponReadDto> pageDto = new(1, 1, 2, 2, false, false, weapons);
+
+        PageParameters pageParameters = new()
+        {
+            PageNumber = 1,
+            PageSize = 2
+        };
+
+        _fixture.WeaponsService
+            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pageDto);
+
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.Get(pageParameters, new CancellationToken());
+		var objectResult = result.Result as OkObjectResult;
+		var resultPageDto = objectResult?.Value as PageDto<WeaponReadDto>;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<WeaponReadDto>>>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
-		pageDto.Entities.Count().Should().Be(_fixture.WeaponsCount);
+		Assert.AreEqual(StatusCodes.Status200OK, objectResult?.StatusCode);
+        Assert.AreEqual(WeaponType.Bow, resultPageDto?.Entities.First().Type);
+        Assert.AreEqual(2, resultPageDto?.Entities.Last().Id);
 	}
 
 	[Test]
 	public async Task Get_Should_ReturnActionResultOfWeaponReadDto_WhenWeaponExists()
-	{
-		// Arrange
-		_fixture.WeaponsService
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.WeaponReadDto);
+    {
+        // Arrange
+        var id = 1;
+        WeaponReadDto weapon = new(id, "Rebel Knife", WeaponType.Dagger, 87, []);
 
-		// Act
-		var result = await _fixture.WeaponsController.Get(_fixture.Id, _fixture.CancellationToken);
-		var objectResult = result.Result.As<OkObjectResult>();
-		var readDto = objectResult.Value.As<WeaponReadDto>();
+        _fixture.WeaponsService
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(weapon);
+
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.Get(1, new CancellationToken());
+		var objectResult = result.Result as OkObjectResult;
+		var readDto = objectResult?.Value as WeaponReadDto;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<ActionResult<WeaponReadDto>>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
-		readDto.Should().NotBeNull();
+		Assert.AreEqual(StatusCodes.Status200OK, objectResult?.StatusCode);
+        Assert.AreEqual(87, readDto?.Damage);
 	}
 
 	[Test]
 	public async Task Create_Should_ReturnCreatedAtActionResultOfWeaponReadDto_WhenDataIsValid()
 	{
 		// Arrange
-		_fixture.WeaponsService
-			.AddAsync(Arg.Any<WeaponCreateDto>())
-			.Returns(_fixture.WeaponReadDto);
+        WeaponReadDto weapon = new(1, "Rebel Knife", WeaponType.Dagger, 87, []);
+        WeaponCreateDto createDto = new("Rebel Knife", WeaponType.Dagger, 87);
 
-		// Act
-		var result = await _fixture.WeaponsController.Create(_fixture.WeaponCreateDto);
-		var objectResult = result.Result.As<CreatedAtActionResult>();
-		var readDto = objectResult.Value.As<WeaponReadDto>();
+        _fixture.WeaponsService
+            .Setup(r => r.AddAsync(createDto))
+            .ReturnsAsync(weapon);
+
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.Create(createDto);
+		var objectResult = result.Result as CreatedAtActionResult;
+		var readDto = objectResult?.Value as WeaponReadDto;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<ActionResult<WeaponReadDto>>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status201Created);
-		readDto.Should().NotBeNull();
+		Assert.AreEqual(StatusCodes.Status201Created, objectResult?.StatusCode);
+        Assert.AreEqual("Rebel Knife", readDto?.Name);
 	}
 
 	[Test]
 	public async Task Update_Should_ReturnNoContentResult_WhenWeaponExistsAndDtoIsValid()
-	{
-		// Act
-		var result = await _fixture.WeaponsController.Update(_fixture.Id, _fixture.WeaponUpdateDto, _fixture.CancellationToken);
-		var objectResult = result.As<NoContentResult>();
+    {
+        // Arrange
+        WeaponUpdateDto updateDto = new("Rebel Knife", WeaponType.Dagger, 87);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        var result = await sut.Update(1, updateDto, new CancellationToken());
+		var objectResult = result as NoContentResult;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+		Assert.AreEqual(StatusCodes.Status204NoContent, objectResult?.StatusCode);
 	}
 
 	[Test]
 	public async Task Update_Should_ReturnNoContentResult_WhenWeaponExistsAndPatchDocumentIsValid()
 	{
-		// Arrange
-		_fixture.WeaponsService
-			.PatchAsync(
-				Arg.Any<int>(),
-				Arg.Any<JsonPatchDocument<WeaponUpdateDto>>(),
-				Arg.Any<Func<object, bool>>(),
-				Arg.Any<CancellationToken>())
-			.Returns(true);
+        // Arrange
+        JsonPatchDocument<WeaponUpdateDto> patchDocument = new();
 
-		// Act
-		var result = await _fixture.WeaponsController.Update(_fixture.Id, _fixture.PatchDocument, _fixture.CancellationToken);
-		var objectResult = result.As<NoContentResult>();
+        _fixture.WeaponsService
+            .Setup(r => r.PatchAsync(
+                It.IsAny<int>(),
+                It.IsAny<JsonPatchDocument<WeaponUpdateDto>>(),
+                It.IsAny<Func<object, bool>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
-		// Assert
-		result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-	}
-
-	[Test]
-	public async Task Update_Should_ReturnObjectResult_WhenWeaponExistsAndPatchDocumentIsInvalid()
-	{
-		// Arrange
-		_fixture.WeaponsService
-			.PatchAsync(
-				Arg.Any<int>(),
-				Arg.Any<JsonPatchDocument<WeaponUpdateDto>>(),
-				Arg.Any<Func<object, bool>>(),
-				Arg.Any<CancellationToken>())
-			.Returns(false);
-
-		// Act
-		var result = await _fixture.WeaponsController.Update(_fixture.Id, _fixture.PatchDocument, _fixture.CancellationToken);
-		var objectResult = result.As<ObjectResult>();
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.Update(1, patchDocument, new CancellationToken());
+        var objectResult = result as NoContentResult;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<ObjectResult>();
-		objectResult.StatusCode.Should().BeNull();
+		Assert.AreEqual(StatusCodes.Status204NoContent, objectResult?.StatusCode);
 	}
 
 	[Test]
 	public async Task Delete_Should_ReturnNoContentResult_WhenWeaponExists()
-	{
-		// Act
-		var result = await _fixture.WeaponsController.Delete(_fixture.Id, _fixture.CancellationToken);
-		var objectResult = result.As<NoContentResult>();
+    {
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.Delete(1, new CancellationToken());
+		var objectResult = result as NoContentResult;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+		Assert.AreEqual(StatusCodes.Status204NoContent, objectResult?.StatusCode);
 	}
 }

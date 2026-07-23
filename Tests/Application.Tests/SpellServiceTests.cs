@@ -1,8 +1,10 @@
-﻿using Application.Tests.Fixtures;
+﻿using Application.Dtos.SpellDtos;
+using Application.Tests.Fixtures;
+using Domain.Entities;
+using Domain.Enums;
 using Domain.Shared;
-using FluentAssertions;
-using NSubstitute;
-using NSubstitute.ReturnsExtensions;
+using Microsoft.AspNetCore.JsonPatch;
+using Moq;
 using NUnit.Framework;
 
 namespace Application.Tests;
@@ -17,177 +19,310 @@ public class SpellServiceTests
 
 	[Test]
 	public async Task GetAllAsync_Should_ReturnPageDtoOfSpellReadDto_WhenDataIsValid()
-	{
+    {
 		// Arrange
-		_fixture.SpellsRepository
-			.GetAllAsync(Arg.Any<PageParameters>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.PagedList);
+		List<Spell> spells = [
+    		new()
+            {
+                Id = 1,
+                Name = "Splash",
+                Type = SpellType.Water,
+                Damage = 8
+            },
+            new()
+            {
+                Id = 2,
+                Name = "Lightning",
+                Type = SpellType.Thunder,
+                Damage = 44
+            },
+        ];
 
-		// Act
-		var result = await _fixture.SpellsService.GetAllAsync(_fixture.PageParameters, _fixture.CancellationToken);
+        PagedList<Spell> pagedList = new(spells, spells.Count, 1, 2);
+
+        PageParameters pageParameters = new()
+        {
+            PageNumber = 1,
+            PageSize = 2
+        };
+
+        _fixture.Repository
+            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pagedList);
+
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.GetAllAsync(pageParameters, new CancellationToken());
 
 		// Assert
-		result.Should().NotBeNull();
-		result.Entities.Should().NotBeEmpty();
+		Assert.AreEqual("Splash", result.Entities.First().Name);
+		Assert.AreEqual(44, result.Entities.Last().Damage);
 	}
 
 	[Test]
 	public async Task GetByIdAsync_Should_ReturnSpellReadDto_WhenSpellExists()
-	{
-		// Arrange
-		_fixture.SpellsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Spell);
+    {
+        // Arrange
+        var id = 1;
 
-		// Act
-		var result = await _fixture.SpellsService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
+        Spell spell = new()
+        {
+            Id = id,
+            Name = "Splash",
+            Type = SpellType.Water,
+            Damage = 8
+        };
 
-		// Assert
-		result.Should().NotBeNull();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(spell);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        var result = await sut.GetByIdAsync(1, new CancellationToken());
+
+        // Assert
+        Assert.AreEqual(SpellType.Water, result.Type);
+        Assert.AreEqual("Splash", result.Name);
 	}
 
 	[Test]
-	public async Task GetByIdAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
+	public void GetByIdAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
 	{
-		// Arrange
-		_fixture.SpellsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+	    // Arrange
+        var id = 1;
 
-		// Act
-		var result = () => _fixture.SpellsService.GetByIdAsync(_fixture.Id, _fixture.CancellationToken);
+        Spell spell = new()
+        {
+            Id = id,
+            Name = "Splash",
+            Type = SpellType.Water,
+            Damage = 8
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(spell);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task<SpellReadDto> result() => sut.GetByIdAsync(2, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
-	public void AddAsync_Should_ReturnSpellReadDto_WhenDtoIsValid()
-	{
-		// Act
-		var result = _fixture.SpellsService.AddAsync(_fixture.SpellCreateDto);
+	public async Task AddAsync_Should_ReturnSpellReadDto_WhenDtoIsValid()
+    {
+        // Act
+        SpellCreateDto createDto = new("Splash", SpellType.Water, 8);
 
-		// Assert
-		result.Should().NotBeNull();
+        var sut = _fixture.CreateSut();
+        var result = await sut.AddAsync(createDto);
+
+        // Assert
+        Assert.AreEqual(createDto.Name, result.Name);
 	}
 
 	[Test]
 	public void UpdateAsync_Should_ReturnTask_WhenSpellExists()
-	{
-		// Arrange
-		_fixture.SpellsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Spell);
+    {
+        // Arrange
+        var id = 1;
 
-		// Act
-		var result = _fixture.SpellsService.UpdateAsync(_fixture.Id, _fixture.SpellUpdateDto, _fixture.CancellationToken);
+        Spell spell = new()
+        {
+            Id = id,
+            Name = "Splash",
+            Type = SpellType.Water,
+            Damage = 8
+        };
 
-		// Assert
-		result.Should().NotBeNull();
+        SpellUpdateDto updateDto = new("Splash", SpellType.Water, 8);
+
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(spell);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.UpdateAsync(1, updateDto, new CancellationToken());
+
+        // Assert
+        Assert.DoesNotThrowAsync(result);
 	}
 
 	[Test]
-	public async Task UpdateAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
+	public void UpdateAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
 	{
-		// Arrange
-		_fixture.SpellsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+	    // Arrange
+        var id = 1;
 
-		// Act
-		var result = () => _fixture.SpellsService.UpdateAsync(
-			_fixture.Id,
-			_fixture.SpellUpdateDto,
-			_fixture.CancellationToken);
+        Spell spell = new()
+        {
+            Id = id,
+            Name = "Splash",
+            Type = SpellType.Water,
+            Damage = 8
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        SpellUpdateDto updateDto = new("Splash", SpellType.Water, 8);
+
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(spell);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.UpdateAsync(2, updateDto, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
 	public void DeleteAsync_Should_ReturnTask_WhenSpellExists()
-	{
+    {
 		// Arrange
-		_fixture.SpellsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Spell);
+        var id = 1;
 
-		// Act
-		var result = _fixture.SpellsService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+        Spell spell = new()
+        {
+            Id = id,
+            Name = "Splash",
+            Type = SpellType.Water,
+            Damage = 8
+        };
 
-		// Assert
-		result.Should().NotBeNull();
-	}
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(spell);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.DeleteAsync(1, new CancellationToken());
+
+        // Assert
+        Assert.DoesNotThrowAsync(result);
+    }
 
 	[Test]
-	public async Task DeleteAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
+	public void DeleteAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
 	{
-		// Arrange
-		_fixture.SpellsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+	    // Arrange
+        var id = 1;
 
-		// Act
-		var result = () => _fixture.SpellsService.DeleteAsync(_fixture.Id, _fixture.CancellationToken);
+        Spell spell = new()
+        {
+            Id = id,
+            Name = "Splash",
+            Type = SpellType.Water,
+            Damage = 8
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(spell);
+
+        // Act
+        var sut = _fixture.CreateSut();
+        Task result() => sut.DeleteAsync(2, new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 
 	[Test]
 	public async Task PatchAsync_Should_ReturnTrue_WhenSpellExistsAndModelIsValid()
-	{
+    {
 		// Arrange
-		_fixture.SpellsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Spell);
+		var id = 1;
 
-		// Act
-		var result = await _fixture.SpellsService.PatchAsync(
-			_fixture.Id,
-			_fixture.PatchDocument,
-			_ => true,
-			_fixture.CancellationToken);
+        Spell spell = new()
+        {
+            Id = id,
+            Name = "Splash",
+            Type = SpellType.Water,
+            Damage = 8
+        };
 
-		// Assert
-		result.Should().BeTrue();
-	}
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(spell);
+
+        // Act
+        var sut = _fixture.CreateSut();
+
+        var result = await sut.PatchAsync(
+            1,
+            new JsonPatchDocument<SpellUpdateDto>(),
+            _ => true,
+            new CancellationToken());
+
+        // Assert
+        Assert.IsTrue(result);
+    }
 
 	[Test]
 	public async Task PatchAsync_Should_ReturnFalse_WhenSpellExistsAndModelIsNotValid()
 	{
-		// Arrange
-		_fixture.SpellsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.Spell);
+    	// Arrange
+    	var id = 1;
 
-		// Act
-		var result = await _fixture.SpellsService.PatchAsync(
-			_fixture.Id,
-			_fixture.PatchDocument,
-			_ => false,
-			_fixture.CancellationToken);
+        Spell spell = new()
+        {
+            Id = id,
+            Name = "Splash",
+            Type = SpellType.Water,
+            Damage = 8
+        };
 
-		// Assert
-		result.Should().BeFalse();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(spell);
+
+        // Act
+        var sut = _fixture.CreateSut();
+
+        var result = await sut.PatchAsync(
+            1,
+            new JsonPatchDocument<SpellUpdateDto>(),
+            _ => false,
+            new CancellationToken());
+
+        // Assert
+        Assert.IsFalse(result);
 	}
 
 	[Test]
-	public async Task PatchAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
+	public void PatchAsync_Should_ThrowNullReferenceException_WhenSpellDoesNotExist()
 	{
-		// Arrange
-		_fixture.SpellsRepository
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.ReturnsNull();
+    	// Arrange
+    	var id = 1;
 
-		// Act
-		var result = () => _fixture.SpellsService.PatchAsync(
-			_fixture.Id,
-			_fixture.PatchDocument,
-			_ => false,
-			_fixture.CancellationToken);
+        Spell spell = new()
+        {
+            Id = id,
+            Name = "Splash",
+            Type = SpellType.Water,
+            Damage = 8
+        };
 
-		// Assert
-		await result.Should().ThrowAsync<NullReferenceException>();
+        _fixture.Repository
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(spell);
+
+        // Act
+        var sut = _fixture.CreateSut();
+
+        Task<bool> result() => sut.PatchAsync(
+            2,
+            new JsonPatchDocument<SpellUpdateDto>(),
+            _ => true,
+            new CancellationToken());
+
+        // Assert
+        Assert.ThrowsAsync<NullReferenceException>(result);
 	}
 }

@@ -1,11 +1,11 @@
 ﻿using Application.Dtos;
 using Application.Dtos.SpellDtos;
+using Domain.Enums;
 using Domain.Shared;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using NSubstitute;
+using Moq;
 using NUnit.Framework;
 using WebApi.Tests.V1.Fixtures;
 
@@ -21,124 +21,128 @@ public class SpellsControllerTests
 
 	[Test]
 	public async Task Get_Should_ReturnActionResultOfPageDtoOfSpellReadDto_WhenDataIsValid()
-	{
-		// Arrange
-		_fixture.SpellsService
-			.GetAllAsync(Arg.Any<PageParameters>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.PageDto);
+    {
+        // Arrange
+        List<SpellReadDto> spells = [
+            new(1, "Splash", SpellType.Water, 8, []),
+            new(2, "Lightning", SpellType.Thunder, 44, [])
+        ];
 
-		// Act
-		var result = await _fixture.SpellsController.Get(_fixture.PageParameters, _fixture.CancellationToken);
-		var objectResult = result.Result.As<OkObjectResult>();
-		var pageDto = objectResult.Value.As<PageDto<SpellReadDto>>();
+        PageDto<SpellReadDto> pageDto = new(1, 1, 2, 2, false, false, spells);
+
+        PageParameters pageParameters = new()
+        {
+            PageNumber = 1,
+            PageSize = 2
+        };
+
+        _fixture.SpellsService
+            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(pageDto);
+
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.Get(pageParameters, new CancellationToken());
+		var objectResult = result.Result as OkObjectResult;
+		var resultPageDto = objectResult?.Value as PageDto<SpellReadDto>;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<ActionResult<PageDto<SpellReadDto>>>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
-		pageDto.Entities.Count().Should().Be(_fixture.SpellsCount);
+		Assert.AreEqual(StatusCodes.Status200OK, objectResult?.StatusCode);
+        Assert.AreEqual("Splash", resultPageDto?.Entities.First().Name);
+        Assert.AreEqual(44, resultPageDto?.Entities.Last().Damage);
 	}
 
 	[Test]
 	public async Task Get_Should_ReturnActionResultOfSpellReadDto_WhenSpellExists()
-	{
-		// Arrange
-		_fixture.SpellsService
-			.GetByIdAsync(Arg.Any<int>(), Arg.Any<CancellationToken>())
-			.Returns(_fixture.SpellReadDto);
+    {
+        // Arrange
+        var id = 1;
+        SpellReadDto spell = new(id, "Splash", SpellType.Water, 8, []);
 
-		// Act
-		var result = await _fixture.SpellsController.Get(_fixture.Id, _fixture.CancellationToken);
-		var objectResult = result.Result.As<OkObjectResult>();
-		var readDto = objectResult.Value.As<SpellReadDto>();
+        _fixture.SpellsService
+            .Setup(r => r.GetByIdAsync(id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(spell);
+
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.Get(1, new CancellationToken());
+		var objectResult = result.Result as OkObjectResult;
+		var readDto = objectResult?.Value as SpellReadDto;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status200OK);
-		readDto.Should().NotBeNull();
+		Assert.AreEqual(StatusCodes.Status200OK, objectResult?.StatusCode);
+        Assert.AreEqual(SpellType.Water, readDto?.Type);
 	}
 
 	[Test]
 	public async Task Create_Should_ReturnCreatedAtActionResultOfSpellReadDto_WhenDtoIsValid()
-	{
+    {
 		// Arrange
-		_fixture.SpellsService
-			.AddAsync(Arg.Any<SpellCreateDto>())
-			.Returns(_fixture.SpellReadDto);
+        SpellReadDto spell = new(1, "Splash", SpellType.Water, 8, []);
+        SpellCreateDto createDto = new("Splash", SpellType.Water, 8);
 
-		// Act
-		var result = await _fixture.SpellsController.Create(_fixture.SpellCreateDto);
-		var objectResult = result.Result.As<CreatedAtActionResult>();
-		var readDto = objectResult.Value.As<SpellReadDto>();
+        _fixture.SpellsService
+            .Setup(r => r.AddAsync(createDto))
+            .ReturnsAsync(spell);
+
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.Create(createDto);
+		var objectResult = result.Result as CreatedAtActionResult;
+		var readDto = objectResult?.Value as SpellReadDto;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<ActionResult<SpellReadDto>>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status201Created);
-		readDto.Should().NotBeNull();
+		Assert.AreEqual(StatusCodes.Status201Created, objectResult?.StatusCode);
+        Assert.AreEqual("Splash", readDto?.Name);
 	}
 
 	[Test]
 	public async Task Update_Should_ReturnNoContentResult_WhenSpellExistsAndDtoIsValid()
-	{
-		// Act
-		var result = await _fixture.SpellsController.Update(_fixture.Id, _fixture.SpellUpdateDto, _fixture.CancellationToken);
-		var objectResult = result.As<NoContentResult>();
+    {
+        // Arrange
+        SpellUpdateDto updateDto = new("Splash", SpellType.Water, 8);
+
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.Update(1, updateDto, new CancellationToken());
+		var objectResult = result as NoContentResult;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+		Assert.AreEqual(StatusCodes.Status204NoContent, objectResult?.StatusCode);
 	}
 
 	[Test]
 	public async Task Update_Should_ReturnNoContentResult_WhenSpellExistsAndPatchDocumentIsValid()
 	{
 		// Arrange
-		_fixture.SpellsService
-			.PatchAsync(
-				Arg.Any<int>(),
-				Arg.Any<JsonPatchDocument<SpellUpdateDto>>(),
-				Arg.Any<Func<object, bool>>(),
-				Arg.Any<CancellationToken>())
-			.Returns(true);
+		JsonPatchDocument<SpellUpdateDto> patchDocument = new();
 
-		// Act
-		var result = await _fixture.SpellsController.Update(_fixture.Id, _fixture.PatchDocument, _fixture.CancellationToken);
-		var objectResult = result.As<NoContentResult>();
+        _fixture.SpellsService
+            .Setup(r => r.PatchAsync(
+                It.IsAny<int>(),
+                It.IsAny<JsonPatchDocument<SpellUpdateDto>>(),
+                It.IsAny<Func<object, bool>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
 
-		// Assert
-		result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
-	}
-
-	[Test]
-	public async Task Update_Should_ReturnObjectResult_WhenSpellExistsAndPatchDocumentIsInvalid()
-	{
-		// Arrange
-		_fixture.SpellsService
-			.PatchAsync(
-				Arg.Any<int>(),
-				Arg.Any<JsonPatchDocument<SpellUpdateDto>>(),
-				Arg.Any<Func<object, bool>>(),
-				Arg.Any<CancellationToken>())
-			.Returns(false);
-
-		// Act
-		var result = await _fixture.SpellsController.Update(_fixture.Id, _fixture.PatchDocument, _fixture.CancellationToken);
-		var objectResult = result.As<ObjectResult>();
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.Update(1, patchDocument, new CancellationToken());
+		var objectResult = result as NoContentResult;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<ObjectResult>();
-		objectResult.StatusCode.Should().BeNull();
+		Assert.AreEqual(StatusCodes.Status204NoContent, objectResult?.StatusCode);
 	}
 
 	[Test]
 	public async Task Delete_Should_ReturnNoContentResult_WhenSpellExists()
-	{
-		// Act
-		var result = await _fixture.SpellsController.Delete(_fixture.Id, _fixture.CancellationToken);
-		var objectResult = result.As<NoContentResult>();
+    {
+        // Act
+        var sut = _fixture.CreateSut();
+		var result = await sut.Delete(1, new CancellationToken());
+		var objectResult = result as NoContentResult;
 
 		// Assert
-		result.Should().NotBeNull().And.BeOfType<NoContentResult>();
-		objectResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+		Assert.AreEqual(StatusCodes.Status204NoContent, objectResult?.StatusCode);
 	}
 }

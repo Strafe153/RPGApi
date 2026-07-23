@@ -1,31 +1,31 @@
 services:
-  web_api:
-    build:
-      context: .
-      dockerfile: ./WebApi/Dockerfile
-    container_name: web_api
-    ports:
-      - 8080:80
-      - 8081:443
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ASPNETCORE_HTTPS_PORT=8081
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=kestrel_password
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/RPGApi.pfx
-      - ConnectionStrings__DatabaseConnection=Host=postgres;Database=rpg_api;Username=postgres;Password=postgres_password
-      - ConnectionStrings__RedisConnection=redis:6379
-    volumes:
-      - ~/.aspnet/https:/https:ro
-    networks:
-      - rpg_api
-    depends_on:
-      - postgres
-      - redis
+  # web_api:
+  #   build:
+  #     context: .
+  #     dockerfile: ./WebApi/Dockerfile
+  #   container_name: web_api
+  #   ports:
+  #     - 8080:80
+  #     - 8081:443
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Development
+  #     - ASPNETCORE_URLS=https://+:443;http://+:80
+  #     - ASPNETCORE_HTTPS_PORT=8081
+  #     - ASPNETCORE_Kestrel__Certificates__Default__Password=kestrel_password
+  #     - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/RPGApi.pfx
+  #     - ConnectionStrings__DatabaseConnection=Host=postgres;Database=rpg_api;Username=postgres;Password=postgres_password
+  #     - ConnectionStrings__RedisConnection=redis:6379
+  #   volumes:
+  #     - ~/.aspnet/https:/https:ro
+  #   networks:
+  #     - rpg_api
+  #   depends_on:
+  #     - postgres
+  #     - redis
 
-  postgres:
+  postgres3:
     image: postgres:16.4
-    container_name: postgres
+    container_name: postgres3
     environment:
       POSTGRES_DB: rpg_api
       POSTGRES_USER: postgres
@@ -33,7 +33,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data3:/var/lib/postgresql/data
     networks:
       - rpg_api
 
@@ -48,7 +48,7 @@ services:
       - rpg_api
 
 volumes:
-  postgres_data:
+  postgres_data3:
   redis_data:
 
 networks:
