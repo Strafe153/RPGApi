@@ -1,18 +1,24 @@
-using Autofac.Extensions.DependencyInjection;
 using DataAccess.Database;
 using Domain.Constants;
 using WebApi.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.ConfigureAutofac();
 builder.ConfigureLoggers();
 
 builder.Services.ConfigureHealthChecks(builder.Configuration);
 builder.Services.ConfigureRateLimiting(builder.Configuration);
 
+builder.Services.AddRepositories();
+builder.Services.AddServices();
+builder.Services.AddHelpers();
+
 builder.Services.ConfigureApiVersioning();
 builder.Services.ConfigureControllers();
+
+builder.Services.ConfigureDatabase(builder.Configuration);
+builder.Services.ConfigureRedis(builder.Configuration);
+
 builder.Services.ConfigureAuthentication(builder.Configuration);
 
 builder.Services.ConfigureSwagger();
@@ -37,6 +43,6 @@ app.MapControllers();
 
 DatabaseInitializer.Initialize(
     app.Configuration.GetConnectionString(ConnectionStringConstants.DatabaseConnection)!,
-    app.Services.GetAutofacRoot());
+    app.Services);
 
 app.Run();

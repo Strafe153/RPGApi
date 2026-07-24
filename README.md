@@ -15,7 +15,6 @@
 * `AspNetCore.HealthChecks.NpgSql` for PostgreSQL health check
 * `AspNetCore.HealthChecks.Redis` for Redis health checks
 * `AspNetCore.HealthChecks.UI.Client` for detailed health checks information
-* `Autofac.Extensions.DependencyInjection` for Autofac
 * `Dapper` for object-relational mapping
 * `dbup-postgresql` for PostgreSQL database migrations
 * `Microsoft.AspNetCore.Authentication.JwtBearer` for JWT authentication

@@ -1,18 +1,17 @@
-﻿using Autofac;
-using DataAccess.Extensions;
+﻿using DataAccess.Extensions;
 using DbUp;
 
 namespace DataAccess.Database;
 
 public static class DatabaseInitializer
 {
-    public static void Initialize(string connectionString, ILifetimeScope lifetimeScope)
+    public static void Initialize(string connectionString, IServiceProvider serviceProvider)
     {
         EnsureDatabase.For.PostgresqlDatabase(connectionString);
 
         var upgrader = DeployChanges.To
             .PostgresqlDatabase(connectionString)
-            .WithScriptsAndCodeWithInjectionEmbeddedInAssembly(typeof(DatabaseInitializer).Assembly, lifetimeScope)
+            .WithScriptsAndCodeWithInjectionEmbeddedInAssembly(typeof(DatabaseInitializer).Assembly, serviceProvider)
             .WithTransaction()
             .LogToConsole()
             .Build();
