@@ -1,7 +1,7 @@
 ﻿using Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace DataAccess.Extensions;
+namespace Application.Extensions;
 
 public static class IRepositoryExtensions
 {

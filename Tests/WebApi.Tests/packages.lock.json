@@ -843,7 +843,6 @@
       "application": {
         "type": "Project",
         "dependencies": {
-          "DataAccess": "[1.0.0, )",
           "Domain": "[1.0.0, )",
           "Microsoft.AspNetCore.Http.Abstractions": "[2.2.0, )",
           "Microsoft.AspNetCore.JsonPatch": "[6.0.8, )",
@@ -859,8 +858,8 @@
       "dataaccess": {
         "type": "Project",
         "dependencies": {
+          "Application": "[1.0.0, )",
           "Dapper": "[2.0.123, )",
-          "Domain": "[1.0.0, )",
           "Microsoft.Extensions.Identity.Core": "[6.0.9, )",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "[6.0.7, )",
           "dbup-postgresql": "[5.0.40, )"

@@ -1,8 +1,8 @@
 ﻿using Application.Dtos;
 using Application.Dtos.CharactersDtos;
+using Application.Extensions;
 using Application.Mappings;
 using Application.Services.Abstractions;
-using DataAccess.Extensions;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Helpers;

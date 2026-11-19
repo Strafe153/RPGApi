@@ -15,10 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="Database\Scripts\*.sql" />
   </ItemGroup>
 
@@ -31,6 +27,10 @@
     <None Remove="Database\Scripts\007_CreateCharacterSpellsTable.sql" />
     <None Remove="Database\Scripts\008_CreateMountsTable.sql" />
     <None Remove="Database\Scripts\009_CreateCharacterMountsTable.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
   </ItemGroup>
 
 </Project>
