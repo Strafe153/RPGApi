@@ -15,7 +15,7 @@ public static class IRepositoryExtensions
 
 		if (item is null)
 		{
-			logger.LogWarning("Failed to retrieve a weapon with id {Id}", id);
+			logger.LogWarning("Failed to retrieve an entity with id {Id}", id);
 			throw new NullReferenceException($"{typeof(T).Name} with id {id} not found");
 		}
 
