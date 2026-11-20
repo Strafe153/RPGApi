@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Application.Enums;
 using Domain.Enums;
 
 namespace Application.Dtos;

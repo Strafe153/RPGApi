@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.SpellDtos;
+using Application.Shared;
 using Application.Tests.Fixtures;
 using Domain.Entities;
 using Domain.Enums;
@@ -38,7 +39,7 @@ public class SpellServiceTests
             },
         ];
 
-        PagedList<Spell> pagedList = new(spells, spells.Count, 1, 2);
+        GetAllResult<Spell> pagedList = new(spells.Count, spells);
 
         PageParameters pageParameters = new()
         {
@@ -47,16 +48,16 @@ public class SpellServiceTests
         };
 
         _fixture.Repository
-            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(pagedList);
 
         // Act
         var sut = _fixture.CreateSut();
-		var result = await sut.GetAllAsync(pageParameters, new CancellationToken());
+		var result = await sut.GetAllAsync(pageParameters);
 
 		// Assert
-		Assert.AreEqual("Splash", result.Entities.First().Name);
-		Assert.AreEqual(44, result.Entities.Last().Damage);
+		Assert.AreEqual("Splash", result.Items.First().Name);
+		Assert.AreEqual(44, result.Items.Last().Damage);
 	}
 
 	[Test]

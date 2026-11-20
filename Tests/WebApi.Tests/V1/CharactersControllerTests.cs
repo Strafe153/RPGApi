@@ -1,7 +1,8 @@
 ﻿using Application.Dtos;
 using Application.Dtos.CharactersDtos;
+using Application.Enums;
+using Application.Shared;
 using Domain.Enums;
-using Domain.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +45,13 @@ public class CharactersControllerTests
                 [])
         ];
 
-        PageDto<CharacterReadDto> pageDto = new(1, 1, 2, 2, false, false, characters);
+        PageDto<CharacterReadDto> pageDto = new()
+        {
+            PageSize = 2,
+            CurrentPage = 1,
+            TotalItems = 2,
+            Items = characters,
+        };
 
         PageParameters pageParameters = new()
         {
@@ -53,19 +60,19 @@ public class CharactersControllerTests
         };
 
         _fixture.CharactersService
-            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>()))
             .ReturnsAsync(pageDto);
 
         // Act
         var sut = _fixture.CreateSut();
-		var result = await sut.Get(pageParameters, new CancellationToken());
+		var result = await sut.Get(pageParameters);
 		var objectResult = result.Result as OkObjectResult;
 		var resultPageDto = objectResult?.Value as PageDto<CharacterReadDto>;
 
 		// Assert
         Assert.AreEqual(StatusCodes.Status200OK, objectResult?.StatusCode);
-        Assert.AreEqual("Ren", resultPageDto?.Entities.First().Name);
-        Assert.AreEqual(2, resultPageDto?.Entities.Last().Id);
+        Assert.AreEqual("Ren", resultPageDto?.Items.First().Name);
+        Assert.AreEqual(2, resultPageDto?.Items.Last().Id);
 	}
 
 	[Test]

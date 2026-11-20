@@ -4,7 +4,7 @@
     "net8.0": {
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
-        "requested": "[17.3.0, )",
+        "requested": "[17.3.0, 17.3.0]",
         "resolved": "17.3.0",
         "contentHash": "ch4JCT7AZdBzvCAKD36t6fDsl7NEzzunwW7MwXUG2uFPoWcMd8B8KYg5fiwxnpdXJHodJk6yIBdSwMpN3Ikt9w==",
         "dependencies": {
@@ -14,7 +14,7 @@
       },
       "Moq": {
         "type": "Direct",
-        "requested": "[4.20.72, )",
+        "requested": "[4.20.72, 4.20.72]",
         "resolved": "4.20.72",
         "contentHash": "EA55cjyNn8eTNWrgrdZJH5QLFp2L43oxl1tlkoYUKIE9pRwL784OWiTXeCV5ApS+AMYEAlt7Fo03A2XfouvHmQ==",
         "dependencies": {
@@ -23,7 +23,7 @@
       },
       "NUnit": {
         "type": "Direct",
-        "requested": "[3.13.3, )",
+        "requested": "[3.13.3, 3.13.3]",
         "resolved": "3.13.3",
         "contentHash": "KNPDpls6EfHwC3+nnA67fh5wpxeLb3VLFAfLxrug6JMYDLHH6InaQIWR7Sc3y75d/9IKzMksH/gi08W7XWbmnQ==",
         "dependencies": {
@@ -32,7 +32,7 @@
       },
       "NUnit3TestAdapter": {
         "type": "Direct",
-        "requested": "[4.2.1, )",
+        "requested": "[4.2.1, 4.2.1]",
         "resolved": "4.2.1",
         "contentHash": "kgH8VKsrcZZgNGQXRpVCrM7TnNz9li3b/snH+YmnXUNqsaWa1Xw9EQWHpbzq4Li2FbTjTE/E5N5HdLNXzZ8BpQ=="
       },
@@ -143,19 +143,6 @@
         "contentHash": "ktmldryRkyAMRQpluCZaltRvlcOrlE9SQDmnMOh+XTbck6Vi296UjvwdJb4ULU6PgvZh5j00KAp7uhjpcWQopA==",
         "dependencies": {
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "6.10.0"
-        }
-      },
-      "Microsoft.AspNetCore.Cryptography.Internal": {
-        "type": "Transitive",
-        "resolved": "6.0.9",
-        "contentHash": "jjJsBS0bQ3VDCMpushHzd6rEjFh2PTaaz4LtYytdtcUl8istcRaSnSKcsKKromoPKNNg2B2ag8ZHwYr4WmT0/Q=="
-      },
-      "Microsoft.AspNetCore.Cryptography.KeyDerivation": {
-        "type": "Transitive",
-        "resolved": "6.0.9",
-        "contentHash": "qzx7/4FCszofYYQlyWCdHnGf4l/3pTQrRhGD0ok+WNTSv3hIEUPYzK5p3TJ36gokiiXEDvUnJTULH3e5I4PpbA==",
-        "dependencies": {
-          "Microsoft.AspNetCore.Cryptography.Internal": "6.0.9"
         }
       },
       "Microsoft.AspNetCore.Http.Abstractions": {
@@ -281,8 +268,8 @@
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "cjWrLkJXK0rs4zofsK4bSdg+jhDLTaxrkXu4gS6Y7MAlCvRyNNgwY/lJi5RDlQOnSZweHqoyvgvbdvQsRIW+hg=="
+        "resolved": "6.0.0",
+        "contentHash": "xlzi2IYREJH3/m6+lUrQlujzX8wDitm4QGnUu6kUXTQAWPuZY8i+ticFJbzfqaetLA6KR/rO6Ew/HuYD+bxifg=="
       },
       "Microsoft.Extensions.Diagnostics.HealthChecks": {
         "type": "Transitive",
@@ -316,16 +303,6 @@
           "Microsoft.Extensions.Configuration.Abstractions": "6.0.0",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
           "Microsoft.Extensions.FileProviders.Abstractions": "6.0.0"
-        }
-      },
-      "Microsoft.Extensions.Identity.Core": {
-        "type": "Transitive",
-        "resolved": "6.0.9",
-        "contentHash": "CKZti4oI1j+Rtb0iRmlCD3SY/DH7TIFTa9qdGre0dXiAI7hC7yZm+JnZ6oA7iy8Iy/dcB35e1Y7EpZPMDlK5Sg==",
-        "dependencies": {
-          "Microsoft.AspNetCore.Cryptography.KeyDerivation": "6.0.9",
-          "Microsoft.Extensions.Logging": "6.0.0",
-          "Microsoft.Extensions.Options": "6.0.0"
         }
       },
       "Microsoft.Extensions.Logging": {
@@ -844,49 +821,57 @@
         "type": "Project",
         "dependencies": {
           "Domain": "[1.0.0, )",
-          "Microsoft.AspNetCore.Http.Abstractions": "[2.2.0, )",
-          "Microsoft.AspNetCore.JsonPatch": "[6.0.8, )",
-          "Microsoft.Extensions.Configuration.Abstractions": "[6.0.0, )",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "[8.0.0, )",
-          "Microsoft.Extensions.Logging.Abstractions": "[6.0.0, )",
-          "Microsoft.Extensions.Options": "[6.0.0, )",
-          "Microsoft.IdentityModel.Tokens": "[7.5.1, )",
-          "Npgsql": "[6.0.7, )",
-          "System.IdentityModel.Tokens.Jwt": "[7.5.1, )"
+          "Microsoft.AspNetCore.JsonPatch": "[6.0.8, 6.0.8]",
+          "Microsoft.Extensions.Logging.Abstractions": "[6.0.0, 6.0.0]",
+          "Security": "[1.0.0, )"
         }
       },
       "dataaccess": {
         "type": "Project",
         "dependencies": {
-          "Application": "[1.0.0, )",
-          "Dapper": "[2.0.123, )",
-          "Microsoft.Extensions.Identity.Core": "[6.0.9, )",
-          "Npgsql.EntityFrameworkCore.PostgreSQL": "[6.0.7, )",
-          "dbup-postgresql": "[5.0.40, )"
+          "Dapper": "[2.0.123, 2.0.123]",
+          "Domain": "[1.0.0, )",
+          "Npgsql.EntityFrameworkCore.PostgreSQL": "[6.0.7, 6.0.7]",
+          "Security": "[1.0.0, )",
+          "dbup-postgresql": "[5.0.40, 5.0.40]"
         }
       },
       "domain": {
+        "type": "Project"
+      },
+      "infrastructure": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.Extensions.Caching.Abstractions": "[8.0.0, )",
-          "Microsoft.Extensions.Options": "[6.0.0, )"
+          "Application": "[1.0.0, )",
+          "Microsoft.AspNetCore.Http.Abstractions": "[2.2.0, 2.2.0]",
+          "Microsoft.Extensions.Caching.Abstractions": "[8.0.0, 8.0.0]"
+        }
+      },
+      "security": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.Options": "[6.0.0, 6.0.0]",
+          "System.IdentityModel.Tokens.Jwt": "[7.5.1, 7.5.1]"
         }
       },
       "webapi": {
         "type": "Project",
         "dependencies": {
           "Application": "[1.0.0, )",
-          "Asp.Versioning.Mvc.ApiExplorer": "[7.1.0, )",
-          "AspNetCore.HealthChecks.NpgSql": "[6.0.2, )",
-          "AspNetCore.HealthChecks.Redis": "[6.0.4, )",
-          "AspNetCore.HealthChecks.UI.Client": "[6.0.5, )",
+          "Asp.Versioning.Mvc.ApiExplorer": "[7.1.0, 7.1.0]",
+          "AspNetCore.HealthChecks.NpgSql": "[6.0.2, 6.0.2]",
+          "AspNetCore.HealthChecks.Redis": "[6.0.4, 6.0.4]",
+          "AspNetCore.HealthChecks.UI.Client": "[6.0.5, 6.0.5]",
           "DataAccess": "[1.0.0, )",
           "Domain": "[1.0.0, )",
-          "Microsoft.AspNetCore.Authentication.JwtBearer": "[6.0.8, )",
-          "Microsoft.Extensions.Caching.StackExchangeRedis": "[6.0.9, )",
-          "NLog": "[5.0.3, )",
-          "NLog.Web.AspNetCore": "[5.1.2, )",
-          "Swashbuckle.AspNetCore": "[6.4.0, )"
+          "Infrastructure": "[1.0.0, )",
+          "Microsoft.AspNetCore.Authentication.JwtBearer": "[6.0.8, 6.0.8]",
+          "Microsoft.Extensions.Caching.StackExchangeRedis": "[6.0.9, 6.0.9]",
+          "Microsoft.Extensions.Logging.Abstractions": "[6.0.1, 6.0.1]",
+          "NLog": "[5.0.3, 5.0.3]",
+          "NLog.Web.AspNetCore": "[5.1.2, 5.1.2]",
+          "Security": "[1.0.0, )",
+          "Swashbuckle.AspNetCore": "[6.4.0, 6.4.0]"
         }
       }
     }

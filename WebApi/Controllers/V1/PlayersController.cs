@@ -2,14 +2,13 @@
 using Application.Dtos.PlayerDtos;
 using Application.Dtos.TokenDtos;
 using Application.Services.Abstractions;
+using Application.Shared;
 using Asp.Versioning;
-using Domain.Constants;
 using Domain.Enums;
-using Domain.Shared;
-using Domain.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using WebApi.Constants;
 using WebApi.Filters;
 
 namespace WebApi.Controllers.V1;
@@ -19,22 +18,13 @@ namespace WebApi.Controllers.V1;
 [Authorize]
 [ApiVersion(ApiVersioningConstants.V1)]
 [EnableRateLimiting(RateLimitingConstants.TokenBucket)]
-public class PlayersController : ControllerBase
+public class PlayersController(IPlayersService playersService) : ControllerBase
 {
-    private readonly IPlayersService _playersService;
-
-    public PlayersController(IPlayersService playersService)
-    {
-        _playersService = playersService;
-    }
-
     [HttpGet]
     [CacheFilter]
-    public async Task<ActionResult<PageDto<PlayerReadDto>>> Get(
-        [FromQuery] PageParameters pageParameters,
-        CancellationToken token)
+    public async Task<ActionResult<PageDto<PlayerReadDto>>> Get([FromQuery] PageParameters pageParameters)
     {
-        var players = await _playersService.GetAllAsync(pageParameters, token);
+        var players = await playersService.GetAllAsync(pageParameters);
         return Ok(players);
     }
 
@@ -42,7 +32,7 @@ public class PlayersController : ControllerBase
     [CacheFilter]
     public async Task<ActionResult<PlayerReadDto>> Get([FromRoute] int id, CancellationToken token)
     {
-        var player = await _playersService.GetByIdAsync(id, token);
+        var player = await playersService.GetByIdAsync(id, token);
         return Ok(player);
     }
 
@@ -50,7 +40,7 @@ public class PlayersController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<PlayerReadDto>> Register([FromBody] PlayerAuthorizeDto authorizeDto)
     {
-        var readDto = await _playersService.AddAsync(authorizeDto);
+        var readDto = await playersService.AddAsync(authorizeDto);
         return CreatedAtAction(nameof(Get), new { readDto.Id }, readDto);
     }
 
@@ -58,21 +48,21 @@ public class PlayersController : ControllerBase
     [AllowAnonymous]
     public async Task<ActionResult<TokensReadDto>> Login([FromBody] PlayerAuthorizeDto authorizeDto, CancellationToken token)
     {
-        var tokensDto = await _playersService.LoginAsync(authorizeDto, token);
+        var tokensDto = await playersService.LoginAsync(authorizeDto, token);
         return Ok(tokensDto);
     }
 
     [HttpPut("{id:int:min(1)}")]
     public async Task<ActionResult> Update([FromRoute] int id, [FromBody] PlayerUpdateDto updateDto, CancellationToken token)
     {
-        await _playersService.UpdateAsync(id, updateDto, token);
+        await playersService.UpdateAsync(id, updateDto, token);
         return NoContent();
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<ActionResult> Delete([FromRoute] int id, CancellationToken token)
     {
-        await _playersService.DeleteAsync(id, token);
+        await playersService.DeleteAsync(id, token);
         return NoContent();
     }
 
@@ -82,7 +72,7 @@ public class PlayersController : ControllerBase
         [FromBody] PlayerChangePasswordDto changePasswordDto,
         CancellationToken token)
     {
-        var tokens = await _playersService.ChangePasswordAsync(id, changePasswordDto, token);
+        var tokens = await playersService.ChangePasswordAsync(id, changePasswordDto, token);
         return Ok(tokens);
     }
 
@@ -93,7 +83,7 @@ public class PlayersController : ControllerBase
         [FromBody] PlayerChangeRoleDto changeRoleDto,
         CancellationToken token)
     {
-        var player = await _playersService.ChangeRoleAsync(id, changeRoleDto, token);
+        var player = await playersService.ChangeRoleAsync(id, changeRoleDto, token);
         return Ok(player);
     }
 
@@ -103,7 +93,7 @@ public class PlayersController : ControllerBase
         [FromBody] TokensRefreshDto refreshDto,
         CancellationToken token)
     {
-        var tokens = await _playersService.RefreshTokensAsync(id, refreshDto, token);
+        var tokens = await playersService.RefreshTokensAsync(id, refreshDto, token);
         return Ok(tokens);
     }
 }

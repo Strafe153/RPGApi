@@ -1,13 +1,13 @@
 ﻿using Application.Dtos;
 using Application.Dtos.SpellDtos;
-using Domain.Shared;
+using Application.Shared;
 using Microsoft.AspNetCore.JsonPatch;
 
 namespace Application.Services.Abstractions;
 
 public interface ISpellsService
 {
-    Task<PageDto<SpellReadDto>> GetAllAsync(PageParameters pageParameters, CancellationToken token);
+    Task<PageDto<SpellReadDto>> GetAllAsync(PageParameters pageParameters);
 	Task<SpellReadDto> GetByIdAsync(int id, CancellationToken token);
 	Task<SpellReadDto> AddAsync(SpellCreateDto createDto);
 	Task UpdateAsync(int id, SpellUpdateDto updateDto, CancellationToken token);

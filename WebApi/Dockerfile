@@ -6,6 +6,8 @@ COPY ../*.sln ./
 COPY ../WebApi/*.csproj ./WebApi/
 COPY ../Domain/*.csproj ./Domain/
 COPY ../DataAccess/*.csproj ./DataAccess/
+COPY ../Infrastructure/*.csproj ./Infrastructure/
+COPY ../Security/*.csproj ./Security/
 COPY ../Application/*.csproj ./Application/
 COPY ../Tests/Application.Tests/*.csproj ./Tests/Application.Tests/
 COPY ../Tests/WebApi.Tests/*.csproj ./Tests/WebApi.Tests/
@@ -15,6 +17,8 @@ RUN dotnet restore
 COPY ../WebApi/. ./WebApi/
 COPY ../Domain/. ./Domain/
 COPY ../DataAccess/. ./DataAccess/
+COPY ../Infrastructure/. ./Infrastructure/
+COPY ../Security/. ./Security/
 COPY ../Application/. ./Application/
 COPY ../Tests/Application.Tests/. ./Tests/Application.Tests/
 COPY ../Tests/WebApi.Tests/. ./Tests/WebApi.Tests/

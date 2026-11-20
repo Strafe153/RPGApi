@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using DataAccess.Database;
 using Domain.Entities;
-using Domain.Extensions;
 using Domain.Repositories;
 using Domain.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -48,15 +47,18 @@ public class WeaponsRepository : IItemRepository<Weapon>
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
-	public async Task<PagedList<Weapon>> GetAllAsync(PageParameters pageParameters, CancellationToken token)
+	public async Task<GetAllResult<Weapon>> GetAllAsync(int pageNumber, int pageSize)
 	{
 		var queryParams = new
 		{
-			pageParameters.PageNumber,
-			pageParameters.PageSize
+			pageNumber,
+			pageSize,
 		};
 
 		var query = @"
+			SELECT COUNT(1)
+			FROM Weapons;
+
             SELECT w.*,
                    cw.*,
                    c.*
@@ -65,24 +67,29 @@ public class WeaponsRepository : IItemRepository<Weapon>
             LEFT JOIN Characters AS c ON cw.""CharacterId"" = c.""Id""
             ORDER BY w.""Id"" ASC
             OFFSET @PageSize * (@PageNumber - 1)
-            LIMIT @PageSize";
+            LIMIT @PageSize;";
 
 		using var connection = _connectionProvider.CreateConnection();
-		var queryResult = await connection.QueryAsync<Weapon, CharacterWeapon, Character, Weapon>(
-			new CommandDefinition(query, queryParams, cancellationToken: token),
-			(weapon, characterWeapon, character) =>
-			{
-				if (characterWeapon is not null)
+		using var reader = await connection.QueryMultipleAsync(query, queryParams);
+
+		var count = await reader.ReadFirstAsync<int>();
+
+		var items = reader
+			.Read<Weapon, CharacterWeapon, Character, Weapon>(
+				(weapon, characterWeapon, character) =>
 				{
-					characterWeapon.Character = character;
-					weapon.CharacterWeapons.Add(characterWeapon);
-				}
+					if (characterWeapon is not null)
+					{
+						characterWeapon.Character = character;
+						weapon.CharacterWeapons.Add(characterWeapon);
+					}
 
-				return weapon;
-			},
-			splitOn: "Id, CharacterId, Id");
+					return weapon;
+				},
+				splitOn: "Id, CharacterId, Id")
+			.ToList();
 
-		return queryResult.ToPagedList(pageParameters);
+		return new(count, items);
 	}
 
 	public async Task<Weapon?> GetByIdAsync(int id, CancellationToken token)

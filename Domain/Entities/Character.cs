@@ -13,7 +13,24 @@ public class Character
 	public Player Player { get; set; } = default!;
 
 
-	public ICollection<CharacterWeapon> CharacterWeapons { get; set; } = new List<CharacterWeapon>();
-	public ICollection<CharacterSpell> CharacterSpells { get; set; } = new List<CharacterSpell>();
-	public ICollection<CharacterMount> CharacterMounts { get; set; } = new List<CharacterMount>();
+	public ICollection<CharacterWeapon> CharacterWeapons { get; set; } = [];
+	public ICollection<CharacterSpell> CharacterSpells { get; set; } = [];
+	public ICollection<CharacterMount> CharacterMounts { get; set; } = [];
+
+	public void CalculateHealth(int damage)
+    {
+        if (Health - damage > 100)
+        {
+            Health = 100;
+			return;
+        }
+
+        if (Health < damage)
+        {
+            Health = 0;
+			return;
+        }
+
+		Health -= damage;
+    }
 }

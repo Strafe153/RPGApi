@@ -1,4 +1,5 @@
 ﻿using Application.Dtos.MountDtos;
+using Application.Shared;
 using Application.Tests.Fixtures;
 using Domain.Entities;
 using Domain.Enums;
@@ -38,7 +39,7 @@ public class MountServiceTests
             },
         ];
 
-        PagedList<Mount> pagedList = new(mounts, mounts.Count, 1, 2);
+        GetAllResult<Mount> pagedList = new(mounts.Count, mounts);
 
         PageParameters pageParameters = new()
         {
@@ -47,16 +48,16 @@ public class MountServiceTests
         };
 
         _fixture.Repository
-            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(pagedList);
 
         // Act
         var sut = _fixture.CreateSut();
-        var result = await sut.GetAllAsync(pageParameters, new CancellationToken());
+        var result = await sut.GetAllAsync(pageParameters);
 
 		// Assert
-		Assert.AreEqual(5, result.Entities.First().Speed);
-		Assert.AreEqual("Bigby", result.Entities.Last().Name);
+		Assert.AreEqual(5, result.Items.First().Speed);
+		Assert.AreEqual("Bigby", result.Items.Last().Name);
 	}
 
 	[Test]

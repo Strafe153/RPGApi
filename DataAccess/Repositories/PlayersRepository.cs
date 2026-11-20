@@ -2,7 +2,6 @@
 using DataAccess.Database;
 using Domain.Entities;
 using Domain.Enums;
-using Domain.Extensions;
 using Domain.Repositories;
 using Domain.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -50,45 +49,58 @@ public class PlayersRepository : IPlayersRepository
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
-	public async Task<PagedList<Player>> GetAllAsync(PageParameters pageParameters, CancellationToken token)
+	public async Task<GetAllResult<Player>> GetAllAsync(int pageNumber, int pageSize)
 	{
 		var queryParams = new
 		{
-			pageParameters.PageNumber,
-			pageParameters.PageSize
+			pageNumber,
+			pageSize
 		};
 
 		var query = @"
+			SELECT COUNT(1)
+			FROM Players;
+
             SELECT p.*,
                    c.*
             FROM Players AS p
             LEFT JOIN Characters AS c on p.""Id"" = c.""PlayerId""
             ORDER BY p.""Id"" ASC
             OFFSET @PageSize * (@PageNumber - 1)
-            LIMIT @PageSize";
+            LIMIT @PageSize;";
 
 		using var connection = _connectionProvider.CreateConnection();
-		var queryResult = await connection.QueryAsync<Player, Character, Player>(
-			new CommandDefinition(query, queryParams, cancellationToken: token),
-			(player, character) =>
-			{
-				player.Characters.Add(character);
-				return player;
-			},
-			splitOn: "Id");
+		using var reader = await connection.QueryMultipleAsync(query, queryParams);
 
-		var pagedList = queryResult
-			.GroupBy(p => p.Id)
-			.Select(g =>
-			{
-				var player = g.First();
-				player.Characters = g.Select(p => p.Characters.First()).ToList();
+		var count = await reader.ReadFirstAsync<int>();
 
-				return player;
-			})
-			.ToPagedList(pageParameters);
+		var items = reader
+			.Read<Player, Character, Player>(
+				(p, c) =>
+				{
+					if (c is not null)
+					{
+						p.Characters.Add(c);
+					}
 
-		return pagedList;
+					return p;
+				},
+				splitOn: "Id")
+			.ToList();
+
+		return new(count, items);
+	}
+
+	public Task<int> GetCountAsync(int pageNumber, int pageSize, CancellationToken token)
+	{
+		var query = @"
+            SELECT COUNT(1)
+            FROM Players";
+
+		using var connection = _connectionProvider.CreateConnection();
+		var countTask = connection.ExecuteScalarAsync<int>(new(query, cancellationToken: token));
+
+		return countTask;
 	}
 
 	public async Task<Player?> GetByIdAsync(int id, CancellationToken token)

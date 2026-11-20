@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using DataAccess.Database;
 using Domain.Entities;
-using Domain.Extensions;
 using Domain.Repositories;
 using Domain.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -48,15 +47,18 @@ public class MountsRepository : IItemRepository<Mount>
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
-	public async Task<PagedList<Mount>> GetAllAsync(PageParameters pageParameters, CancellationToken token)
+	public async Task<GetAllResult<Mount>> GetAllAsync(int pageNumber, int pageSize)
 	{
 		var queryParams = new
 		{
-			pageParameters.PageNumber,
-			pageParameters.PageSize
+			pageNumber,
+			pageSize,
 		};
 
 		var query = @"
+			SELECT COUNT(1)
+			FROM Mounts;
+
             SELECT m.*,
                    cm.*,
                    c.*
@@ -65,24 +67,29 @@ public class MountsRepository : IItemRepository<Mount>
             LEFT JOIN Characters AS c ON cm.""CharacterId"" = c.""Id""
             ORDER BY m.""Id"" ASC
             OFFSET @PageSize * (@PageNumber - 1)
-            LIMIT @PageSize";
+            LIMIT @PageSize;";
 
 		using var connection = _connectionProvider.CreateConnection();
-		var queryResult = await connection.QueryAsync<Mount, CharacterMount, Character, Mount>(
-			new CommandDefinition(query, queryParams, cancellationToken: token),
-			(mount, characterMount, character) =>
-			{
-				if (characterMount is not null)
+		using var reader = await connection.QueryMultipleAsync(query, queryParams);
+
+		var count = await reader.ReadFirstAsync();
+
+		var items = reader
+			.Read<Mount, CharacterMount, Character, Mount>(
+				(mount, characterMount, character) =>
 				{
-					characterMount.Character = character;
-					mount.CharacterMounts.Add(characterMount);
-				}
+					if (characterMount is not null)
+					{
+						characterMount.Character = character;
+						mount.CharacterMounts.Add(characterMount);
+					}
 
-				return mount;
-			},
-			splitOn: "Id, CharacterId, Id");
+					return mount;
+				},
+				splitOn: "Id, CharacterId, Id")
+			.ToList();
 
-		return queryResult.ToPagedList(pageParameters);
+		return new(count, items);
 	}
 
 	public async Task<Mount?> GetByIdAsync(int id, CancellationToken token)

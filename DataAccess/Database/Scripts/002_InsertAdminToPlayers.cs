@@ -1,9 +1,9 @@
 ﻿using DataAccess.Extensions;
+using DataAccess.Shared;
 using DbUp.Engine;
 using Domain.Enums;
-using Domain.Helpers;
-using Domain.Shared;
 using Microsoft.Extensions.Options;
+using Security;
 using System.Data;
 
 namespace DataAccess.Database.Scripts;
@@ -24,7 +24,7 @@ public class _002_InsertAdminToPlayers : IScript
         const string PasswordHashParam = "passwordHash";
         const string PasswordSaltParam = "passwordSalt";
 
-        var (passwordHash, passwordSalt) = PasswordHelper.GeneratePasswordHashAndSalt(_adminOptions.Password);
+        var (passwordHash, passwordSalt) = PasswordHasher.GenerateHashWithSalt(_adminOptions.Password);
 
         var dbCommand = dbCommandFactory();
 

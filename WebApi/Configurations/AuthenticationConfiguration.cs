@@ -1,6 +1,7 @@
 ﻿using Domain.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Security;
 using System.Text;
 
 namespace WebApi.Configurations;

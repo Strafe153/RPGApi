@@ -1,6 +1,8 @@
 ﻿using System.Security.Claims;
-using Application.Helpers;
+using Application.Exceptions;
+using Application.Interfaces;
 using Application.Services.Implementations;
+using Application.Tests.Mocks;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Repositories;
@@ -19,9 +21,9 @@ public class CharacterServiceFixture
     public Mock<IItemRepository<Mount>> MountsRepository { get; } = new();
     public Mock<ILogger<CharactersService>> Logger { get; } = new();
 
-    public AccessHelper AccessHelper { get; private set; }
+    public IAccessChecker AccessChecker { get; private set; }
 
-    public CharacterServiceFixture() => AccessHelper = CreateAccessHelper();
+    public CharacterServiceFixture() => AccessChecker = CreateAccessChecker();
 
     public CharactersService CreeateSut() => new(
         CharactersRepository.Object,
@@ -29,11 +31,11 @@ public class CharacterServiceFixture
         WeaponsRepository.Object,
         SpellsRepository.Object,
         MountsRepository.Object,
-        AccessHelper,
+        AccessChecker,
         Logger.Object);
 
     public void ConfigureAccessHelper(bool useSufficientClaims = true) =>
-        AccessHelper = CreateAccessHelper(useSufficientClaims);
+        AccessChecker = CreateAccessChecker(useSufficientClaims);
 
     private static IEnumerable<Claim> InsufficientClaims =>
     [
@@ -47,7 +49,7 @@ public class CharacterServiceFixture
         new (ClaimTypes.Role, nameof(PlayerRole.Player))
     ];
 
-    private static AccessHelper CreateAccessHelper(bool useSufficientClaims = true)
+    private static IAccessChecker CreateAccessChecker(bool useSufficientClaims = true)
     {
         Mock<HttpContext> httpContext = new();
         Mock<IHttpContextAccessor> httpContextAccessor = new();
@@ -62,6 +64,6 @@ public class CharacterServiceFixture
             .Setup(a => a.HttpContext)
             .Returns(httpContext.Object);
 
-        return new(httpContextAccessor.Object);
+        return new MockAccessChecker(httpContextAccessor.Object);
     }
 }

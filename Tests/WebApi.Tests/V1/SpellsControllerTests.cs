@@ -1,7 +1,7 @@
 ﻿using Application.Dtos;
 using Application.Dtos.SpellDtos;
+using Application.Shared;
 using Domain.Enums;
-using Domain.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +28,13 @@ public class SpellsControllerTests
             new(2, "Lightning", SpellType.Thunder, 44, [])
         ];
 
-        PageDto<SpellReadDto> pageDto = new(1, 1, 2, 2, false, false, spells);
+        PageDto<SpellReadDto> pageDto = new()
+        {
+            CurrentPage = 1,
+            PageSize = 2,
+            TotalItems = 2,
+            Items = spells,
+        };
 
         PageParameters pageParameters = new()
         {
@@ -37,19 +43,19 @@ public class SpellsControllerTests
         };
 
         _fixture.SpellsService
-            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>()))
             .ReturnsAsync(pageDto);
 
         // Act
         var sut = _fixture.CreateSut();
-		var result = await sut.Get(pageParameters, new CancellationToken());
+		var result = await sut.Get(pageParameters);
 		var objectResult = result.Result as OkObjectResult;
 		var resultPageDto = objectResult?.Value as PageDto<SpellReadDto>;
 
 		// Assert
 		Assert.AreEqual(StatusCodes.Status200OK, objectResult?.StatusCode);
-        Assert.AreEqual("Splash", resultPageDto?.Entities.First().Name);
-        Assert.AreEqual(44, resultPageDto?.Entities.Last().Damage);
+        Assert.AreEqual("Splash", resultPageDto?.Items.First().Name);
+        Assert.AreEqual(44, resultPageDto?.Items.Last().Damage);
 	}
 
 	[Test]

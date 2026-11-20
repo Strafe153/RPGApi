@@ -1,13 +1,13 @@
 ﻿using Application.Dtos;
 using Application.Dtos.CharactersDtos;
-using Domain.Shared;
+using Application.Shared;
 using Microsoft.AspNetCore.JsonPatch;
 
 namespace Application.Services.Abstractions;
 
 public interface ICharactersService
 {
-	Task<PageDto<CharacterReadDto>> GetAllAsync(PageParameters pageParameters, CancellationToken token);
+	Task<PageDto<CharacterReadDto>> GetAllAsync(PageParameters pageParameters);
 	Task<CharacterReadDto> GetByIdAsync(int id, CancellationToken token);
 	Task<CharacterReadDto> AddAsync(CharacterCreateDto createDto, CancellationToken token);
 	Task UpdateAsync(int id, CharacterUpdateDto updateDto, CancellationToken token);

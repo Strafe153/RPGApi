@@ -1,13 +1,13 @@
 ﻿using Application.Dtos;
 using Application.Dtos.PlayerDtos;
 using Application.Dtos.TokenDtos;
-using Domain.Shared;
+using Application.Shared;
 
 namespace Application.Services.Abstractions;
 
 public interface IPlayersService
 {
-	Task<PageDto<PlayerReadDto>> GetAllAsync(PageParameters pageParameters, CancellationToken token);
+	Task<PageDto<PlayerReadDto>> GetAllAsync(PageParameters pageParameters);
 	Task<PlayerReadDto> GetByIdAsync(int id, CancellationToken token);
 	Task<PlayerReadDto> AddAsync(PlayerAuthorizeDto createDto);
 	Task UpdateAsync(int id, PlayerUpdateDto updateDto, CancellationToken token);

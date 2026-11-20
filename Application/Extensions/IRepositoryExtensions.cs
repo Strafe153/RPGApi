@@ -15,8 +15,10 @@ public static class IRepositoryExtensions
 
 		if (item is null)
 		{
-			logger.LogWarning("Failed to retrieve an entity with id {Id}", id);
-			throw new NullReferenceException($"{typeof(T).Name} with id {id} not found");
+			var entityType = typeof(T).Name;
+			logger.LogWarning("Failed to retrieve an {entityType} with id {Id}", entityType, id);
+			
+			throw new NullReferenceException($"{entityType} with id {id} not found");
 		}
 
 		return item;

@@ -1,35 +1,39 @@
 ﻿using System.Security.Claims;
-using Application.Helpers;
+using Application.Interfaces;
 using Application.Services.Implementations;
+using Application.Tests.Mocks;
 using Domain.Enums;
-using Domain.Helpers;
 using Domain.Repositories;
-using Domain.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using Security;
+using Security.Implementations;
 
 namespace Application.Tests.Fixtures;
 
 public class PlayerServiceFixture
 {
+    private static readonly IOptions<JwtOptions> _jwtOptions = CreateJwtOptions();
+
     public Mock<IPlayersRepository> PlayersRepository { get; } = new();
     public Mock<ILogger<PlayersService>> Logger { get; } = new();
 
-    public AccessHelper AccessHelper { get; private set; }
-    public TokenHelper TokenHelper { get; } = CreateTokenHelper();
+    public IAccessChecker AccessChecker { get; private set; }
+    public TokenGenerator TokenGenerator { get; } = new(_jwtOptions);
 
-    public PlayerServiceFixture() => AccessHelper = CreateAccessHelper();
+    public PlayerServiceFixture() => AccessChecker = CreateAccessChecker();
 
     public PlayersService CreeateSut() => new(
         PlayersRepository.Object,
-        AccessHelper,
-        TokenHelper,
+        AccessChecker,
+        TokenGenerator,
+        _jwtOptions,
         Logger.Object);
 
     public void ConfigureAccessHelper(bool useSufficientClaims = true) =>
-        AccessHelper = CreateAccessHelper(useSufficientClaims);
+        AccessChecker = CreateAccessChecker(useSufficientClaims);
 
     private static IEnumerable<Claim> InsufficientClaims =>
     [
@@ -43,7 +47,7 @@ public class PlayerServiceFixture
         new (ClaimTypes.Role, nameof(PlayerRole.Player))
     ];
 
-    private static AccessHelper CreateAccessHelper(bool useSufficientClaims = true)
+    private static IAccessChecker CreateAccessChecker(bool useSufficientClaims = true)
     {
         Mock<HttpContext> httpContext = new();
         Mock<IHttpContextAccessor> httpContextAccessor = new();
@@ -58,10 +62,10 @@ public class PlayerServiceFixture
             .Setup(a => a.HttpContext)
             .Returns(httpContext.Object);
 
-        return new(httpContextAccessor.Object);
+        return new MockAccessChecker(httpContextAccessor.Object);
     }
 
-    private static TokenHelper CreateTokenHelper()
+    private static IOptions<JwtOptions> CreateJwtOptions()
     {
         JwtOptions jwtOptions = new()
         {
@@ -73,8 +77,7 @@ public class PlayerServiceFixture
         };
 
         var options = Options.Create(jwtOptions);
-        Mock<ILogger<TokenHelper>> logger = new();
 
-        return new TokenHelper(options, logger.Object);
+        return options;
     }
 }

@@ -1,6 +1,6 @@
-﻿using Domain.Constants;
-using Microsoft.AspNetCore.RateLimiting;
+﻿using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using WebApi.Constants;
 
 namespace WebApi.Configurations;
 
@@ -28,7 +28,10 @@ public static class RateLimitingConfiguration
 
             options.OnRejected = (context, cancellationToken) =>
             {
-                context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", cancellationToken);
+                context.HttpContext.Response.WriteAsync(
+                    "Too many requests. Please try again later.",
+                    cancellationToken);
+                    
                 return new ValueTask();
             };
         });

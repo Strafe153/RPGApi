@@ -1,13 +1,13 @@
 ﻿using Application.Dtos;
 using Application.Dtos.MountDtos;
-using Domain.Shared;
+using Application.Shared;
 using Microsoft.AspNetCore.JsonPatch;
 
 namespace Application.Services.Abstractions;
 
 public interface IMountsService
 {
-	Task<PageDto<MountReadDto>> GetAllAsync(PageParameters pageParameters, CancellationToken token);
+	Task<PageDto<MountReadDto>> GetAllAsync(PageParameters pageParameters);
 	Task<MountReadDto> GetByIdAsync(int id, CancellationToken token);
 	Task<MountReadDto> AddAsync(MountCreateDto createDto);
 	Task UpdateAsync(int id, MountUpdateDto updateDto, CancellationToken token);

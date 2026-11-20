@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using DataAccess.Database;
 using Domain.Entities;
-using Domain.Extensions;
 using Domain.Repositories;
 using Domain.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -48,15 +47,18 @@ public class SpellsRepository : IItemRepository<Spell>
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
-	public async Task<PagedList<Spell>> GetAllAsync(PageParameters pageParameters, CancellationToken token)
+	public async Task<GetAllResult<Spell>> GetAllAsync(int pageNumber, int pageSize)
 	{
 		var queryParams = new
 		{
-			pageParameters.PageNumber,
-			pageParameters.PageSize
+			pageNumber,
+			pageSize
 		};
 
 		var query = @"
+			SELECT COUNT(1)
+			FROM Spells;
+
             SELECT s.*,
                    cs.*,
                    c.*
@@ -65,24 +67,29 @@ public class SpellsRepository : IItemRepository<Spell>
             LEFT JOIN Characters AS c ON cs.""CharacterId"" = c.""Id""
             ORDER BY s.""Id"" ASC
             OFFSET @PageSize * (@PageNumber - 1)
-            LIMIT @PageSize";
+            LIMIT @PageSize;";
 
 		using var connection = _connectionProvider.CreateConnection();
-		var queryResult = await connection.QueryAsync<Spell, CharacterSpell, Character, Spell>(
-			new CommandDefinition(query, queryParams, cancellationToken: token),
-			(spell, characterSpell, character) =>
-			{
-				if (characterSpell is not null)
+		using var reader = await connection.QueryMultipleAsync(query, queryParams);
+
+		var count = await reader.ReadFirstAsync<int>();
+
+		var items = reader
+			.Read<Spell, CharacterSpell, Character, Spell>(
+				(spell, characterSpell, character) =>
 				{
-					characterSpell.Character = character;
-					spell.CharacterSpells.Add(characterSpell);
-				}
+					if (characterSpell is not null)
+					{
+						characterSpell.Character = character;
+						spell.CharacterSpells.Add(characterSpell);
+					}
 
-				return spell;
-			},
-			splitOn: "Id, CharacterId, Id");
+					return spell;
+				},
+				splitOn: "Id, CharacterId, Id")
+			.ToList();
 
-		return queryResult.ToPagedList(pageParameters);
+		return new(count, items);
 	}
 
 	public async Task<Spell?> GetByIdAsync(int id, CancellationToken token)

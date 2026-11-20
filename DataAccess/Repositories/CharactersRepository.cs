@@ -1,7 +1,6 @@
 ﻿using Dapper;
 using DataAccess.Database;
 using Domain.Entities;
-using Domain.Extensions;
 using Domain.Repositories;
 using Domain.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -48,32 +47,38 @@ public class CharactersRepository : IRepository<Character>
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
-	public async Task<PagedList<Character>> GetAllAsync(PageParameters pageParamters, CancellationToken token)
+	public async Task<GetAllResult<Character>> GetAllAsync(int pageNumber, int pageSize)
 	{
-		var charactersQuery = @"
-            SELECT *
+		var query = @"
+			SELECT COUNT(1)
+			FROM Characters;
+
+			SELECT *
             FROM Characters
-            ORDER BY ""Id"" ASC";
-		var characterWeaponsQuery = @"
-            SELECT *
+            ORDER BY ""Id"" ASC;
+
+			SELECT *
             FROM CharacterWeapons AS cw
-            LEFT JOIN Weapons AS w on cw.""WeaponId"" = w.""Id""";
-		var characterSpellsQuery = @"
-            SELECT *
+            LEFT JOIN Weapons AS w on cw.""WeaponId"" = w.""Id"";
+
+			SELECT *
             FROM CharacterSpells AS cs
-            LEFT JOIN Spells AS s on cs.""SpellId"" = s.""Id""";
-		var characterMountsQuery = @"
-            SELECT *
+            LEFT JOIN Spells AS s on cs.""SpellId"" = s.""Id"";
+
+			SELECT *
             FROM CharacterMounts AS cm
-            LEFT JOIN Mounts AS m on cm.""MountId"" = m.""Id""";
+            LEFT JOIN Mounts AS m on cm.""MountId"" = m.""Id"";";
 
 		using var connection = _connectionProvider.CreateConnection();
-		var characters = await connection.QueryAsync<Character>(new CommandDefinition(charactersQuery, cancellationToken: token));
-		var characterWeapons = await GetCharacterWeaponsAsync(characterWeaponsQuery, token: token);
-		var characterSpells = await GetCharacterSpellsAsync(characterSpellsQuery, token: token);
-		var characterMounts = await GetCharacterMountsAsync(characterMountsQuery, token: token);
+		using var reader = await connection.QueryMultipleAsync(query);
 
-		var pagedList = characters
+		var count = await reader.ReadFirstAsync<int>();
+		var characters = reader.Read<Character>();
+		var characterWeapons = GetCharacterWeapons(reader);
+		var characterSpells = GetCharacterSpells(reader);
+		var characterMounts = GetCharacterMounts(reader);
+			
+		var items = characters
 			.GroupBy(c => c.Id)
 			.Select(g =>
 			{
@@ -85,46 +90,49 @@ public class CharactersRepository : IRepository<Character>
 
 				return c;
 			})
-			.ToPagedList(pageParamters);
+			.ToList();
 
-		return pagedList;
+		return new(count, items);
 	}
 
 	public async Task<Character?> GetByIdAsync(int id, CancellationToken token)
 	{
 		var queryParams = new { Id = id };
-		var charactersQuery = @"
-            SELECT *
+
+		var query = @"
+			SELECT *
             FROM Characters AS c
             LEFT JOIN Players AS p on c.""PlayerId"" = p.""Id""
-            WHERE c.""Id"" = @Id";
-		var characterWeaponsQuery = @"
-            SELECT *
+            WHERE c.""Id"" = @Id;
+
+			SELECT *
             FROM CharacterWeapons AS cw
             LEFT JOIN Weapons AS w on cw.""WeaponId"" = w.""Id""
-            WHERE cw.""CharacterId"" = @Id";
-		var characterSpellsQuery = @"
-            SELECT *
+            WHERE cw.""CharacterId"" = @Id;
+
+			SELECT *
             FROM CharacterSpells AS cs
             LEFT JOIN Spells AS s on cs.""SpellId"" = s.""Id""
-            WHERE cs.""CharacterId"" = @Id";
-		var characterMountsQuery = @"
-            SELECT *
+            WHERE cs.""CharacterId"" = @Id;
+
+			SELECT *
             FROM CharacterMounts AS cm
             LEFT JOIN Mounts AS m on cm.""MountId"" = m.""Id""
-            WHERE cm.""CharacterId"" = @Id";
+            WHERE cm.""CharacterId"" = @Id;";
 
 		using var connection = _connectionProvider.CreateConnection();
-		var characters = await connection.QueryAsync<Character, Player, Character>(
-			new CommandDefinition(charactersQuery, queryParams, cancellationToken: token),
+		using var reader = await connection.QueryMultipleAsync(query, queryParams);
+
+		var characters = reader.Read<Character, Player, Character>(
 			(character, player) =>
 			{
 				character.Player = player;
 				return character;
 			});
-		var characterWeapons = await GetCharacterWeaponsAsync(characterWeaponsQuery, queryParams, token);
-		var characterSpells = await GetCharacterSpellsAsync(characterSpellsQuery, queryParams, token);
-		var characterMounts = await GetCharacterMountsAsync(characterMountsQuery, queryParams, token);
+
+		var characterWeapons = GetCharacterWeapons(reader);
+		var characterSpells = GetCharacterSpells(reader);
+		var characterMounts = GetCharacterMounts(reader);
 
 		var character = characters
 			.GroupBy(c => c.Id)
@@ -164,59 +172,44 @@ public class CharactersRepository : IRepository<Character>
 		await connection.ExecuteAsync(query, queryParams);
 	}
 
-	private async Task<IEnumerable<CharacterWeapon>> GetCharacterWeaponsAsync(
-		string query,
-		object? queryParams = default,
-		CancellationToken token = default)
+	private static List<CharacterWeapon> GetCharacterWeapons(SqlMapper.GridReader reader)
 	{
-		using var connection = _connectionProvider.CreateConnection();
-		var characterWeapons = await connection.QueryAsync<CharacterWeapon, Weapon, CharacterWeapon>(
-			queryParams is not null
-				? new CommandDefinition(query, queryParams, cancellationToken: token)
-				: new CommandDefinition(query, cancellationToken: token),
-			(characterWeapon, weapon) =>
-			{
-				characterWeapon.Weapon = weapon;
-				return characterWeapon;
-			});
+		var characterWeapons = reader
+			.Read<CharacterWeapon, Weapon, CharacterWeapon>(
+				(characterWeapon, weapon) =>
+				{
+					characterWeapon.Weapon = weapon;
+					return characterWeapon;
+				})
+			.ToList();
 
 		return characterWeapons;
 	}
 
-	private async Task<IEnumerable<CharacterSpell>> GetCharacterSpellsAsync(
-		string query,
-		object? queryParams = default,
-		CancellationToken token = default)
+	private static List<CharacterSpell> GetCharacterSpells(SqlMapper.GridReader reader)
 	{
-		using var connection = _connectionProvider.CreateConnection();
-		var characterSpels = await connection.QueryAsync<CharacterSpell, Spell, CharacterSpell>(
-			queryParams is not null
-				? new CommandDefinition(query, queryParams, cancellationToken: token)
-				: new CommandDefinition(query, cancellationToken: token),
-			(characterSpell, spell) =>
-			{
-				characterSpell.Spell = spell;
-				return characterSpell;
-			});
+		var characterSpells = reader
+			.Read<CharacterSpell, Spell, CharacterSpell>(
+				(characterSpell, spell) =>
+				{
+					characterSpell.Spell = spell;
+					return characterSpell;
+				})
+			.ToList();
 
-		return characterSpels;
+		return characterSpells;
 	}
 
-	private async Task<IEnumerable<CharacterMount>> GetCharacterMountsAsync(
-		string query,
-		object? queryParams = default,
-		CancellationToken token = default)
+	private static List<CharacterMount> GetCharacterMounts(SqlMapper.GridReader reader)
 	{
-		using var connection = _connectionProvider.CreateConnection();
-		var characterMounts = await connection.QueryAsync<CharacterMount, Mount, CharacterMount>(
-			queryParams is not null
-				? new CommandDefinition(query, queryParams, cancellationToken: token)
-				: new CommandDefinition(query, cancellationToken: token),
-			(characterMount, mount) =>
-			{
-				characterMount.Mount = mount;
-				return characterMount;
-			});
+		var characterMounts = reader
+			.Read<CharacterMount, Mount, CharacterMount>(
+				(characterMount, mount) =>
+				{
+					characterMount.Mount = mount;
+					return characterMount;
+				})
+			.ToList();
 
 		return characterMounts;
 	}

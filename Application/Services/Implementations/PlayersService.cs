@@ -1,34 +1,40 @@
-﻿using Application.Dtos;
+﻿using System.Data.Common;
+using Application.Dtos;
 using Application.Dtos.PlayerDtos;
 using Application.Dtos.TokenDtos;
+using Application.Exceptions;
+using Application.Interfaces;
 using Application.Mappings;
 using Application.Services.Abstractions;
+using Application.Shared;
 using Domain.Entities;
-using Domain.Exceptions;
-using Domain.Helpers;
 using Domain.Repositories;
-using Domain.Shared;
 using Microsoft.Extensions.Logging;
-using Npgsql;
+using Microsoft.Extensions.Options;
+using Security;
+using Security.Interfaces;
 
 namespace Application.Services.Implementations;
 
 public class PlayersService : IPlayersService
 {
     private readonly IPlayersRepository _repository;
-    private readonly IAccessHelper _accessHelper;
-    private readonly ITokenHelper _tokenHelper;
+    private readonly IAccessChecker _accesChecker;
+    private readonly ITokenGenerator _tokenGenerator;
+    private readonly JwtOptions _jwtOptions;
     private readonly ILogger<PlayersService> _logger;
 
     public PlayersService(
         IPlayersRepository repository,
-        IAccessHelper accessHelper,
-        ITokenHelper tokenHelper,
+        IAccessChecker accesChecker,
+        ITokenGenerator tokenGenerator,
+        IOptions<JwtOptions> jwtOptions,
         ILogger<PlayersService> logger)
     {
         _repository = repository;
-        _tokenHelper = tokenHelper;
-        _accessHelper = accessHelper;
+        _accesChecker = accesChecker;
+        _tokenGenerator = tokenGenerator;
+        _jwtOptions = jwtOptions.Value;
         _logger = logger;
     }
 
@@ -38,7 +44,7 @@ public class PlayersService : IPlayersService
         {
             var player = createDto.ToPlayer();
 
-            (player.PasswordHash, player.PasswordSalt) = PasswordHelper.GeneratePasswordHashAndSalt(createDto.Password);
+            (player.PasswordHash, player.PasswordSalt) = PasswordHasher.GenerateHashWithSalt(createDto.Password);
             player.Id = await _repository.AddAsync(player);
 
             _logger.LogInformation("Succesfully registered a player with name: {Name}", player.Name);
@@ -47,7 +53,7 @@ public class PlayersService : IPlayersService
 
             return readDto;
         }
-        catch (NpgsqlException)
+        catch (DbException)
         {
             _logger.LogWarning("Failed to create a player. Name '{Name}' is already taken.", createDto.Name);
             throw new NameNotUniqueException($"A player with name '{createDto.Name}' already exists");
@@ -57,19 +63,19 @@ public class PlayersService : IPlayersService
     public async Task DeleteAsync(int id, CancellationToken token)
     {
         var player = await GetByIdOrThrowAsync(id, token);
-        _accessHelper.VerifyAccessRights(player);
+        _accesChecker.VerifyAccessRights(player);
 
         await _repository.DeleteAsync(id);
 
         _logger.LogInformation("Succesfully deleted a player with id {Id}", id);
     }
 
-    public async Task<PageDto<PlayerReadDto>> GetAllAsync(PageParameters pageParameters, CancellationToken token)
+    public async Task<PageDto<PlayerReadDto>> GetAllAsync(PageParameters pageParameters)
     {
-        var pagedList = await _repository.GetAllAsync(pageParameters, token);
-        _logger.LogInformation("Successfully retrieved all players");
+        var result = await _repository.GetAllAsync(pageParameters.PageNumber, pageParameters.PageSize);
+        var pageDto = result.ToPageDto(pageParameters);
 
-        var pageDto = pagedList.ToPageDto();
+        _logger.LogInformation("Successfully retrieved all players");
 
         return pageDto;
     }
@@ -89,14 +95,14 @@ public class PlayersService : IPlayersService
         try
         {
             var player = await GetByIdOrThrowAsync(id, token);
-            _accessHelper.VerifyAccessRights(player);
+            _accesChecker.VerifyAccessRights(player);
 
             updateDto.Update(player);
             await _repository.UpdateAsync(player);
 
             _logger.LogInformation("Successfully updated a player with id {Id}", id);
         }
-        catch (NpgsqlException)
+        catch (DbException)
         {
             _logger.LogWarning("Failed to update player with {Id}. Name '{Name}' is already taken.", id, updateDto.Name);
             throw new NameNotUniqueException($"A player with name '{updateDto.Name}' already exists");
@@ -106,12 +112,12 @@ public class PlayersService : IPlayersService
     public async Task<TokensReadDto> LoginAsync(PlayerAuthorizeDto authorizeDto, CancellationToken token)
     {
         var player = await GetByNameAsync(authorizeDto.Name, token);
-        PasswordHelper.VerifyPasswordHash(authorizeDto.Password, player);
+        PasswordHasher.Verify(authorizeDto.Password, player.PasswordSalt, player.PasswordHash);
 
-        var accessToken = _tokenHelper.GenerateAccessToken(player);
-        var refreshToken = _tokenHelper.GenerateRefreshToken();
+        var accessToken = _tokenGenerator.GenerateAccessToken(player.GetClaims());
+        var refreshToken = _tokenGenerator.GenerateRefreshToken();
 
-        _tokenHelper.SetRefreshToken(player, refreshToken);
+        SetRefreshToken(player, refreshToken);
         await _repository.UpdateAsync(player);
 
         return new(accessToken, refreshToken);
@@ -120,14 +126,14 @@ public class PlayersService : IPlayersService
     public async Task<TokensReadDto> ChangePasswordAsync(int id, PlayerChangePasswordDto passwordDto, CancellationToken token)
     {
         var player = await GetByIdOrThrowAsync(id, token);
-        _accessHelper.VerifyAccessRights(player);
+        _accesChecker.VerifyAccessRights(player);
 
-        (player.PasswordHash, player.PasswordSalt) = PasswordHelper.GeneratePasswordHashAndSalt(passwordDto.Password);
+        (player.PasswordHash, player.PasswordSalt) = PasswordHasher.GenerateHashWithSalt(passwordDto.Password);
 
-        var accessToken = _tokenHelper.GenerateAccessToken(player);
-        var refreshToken = _tokenHelper.GenerateRefreshToken();
+        var accessToken = _tokenGenerator.GenerateAccessToken(player.GetClaims());
+        var refreshToken = _tokenGenerator.GenerateRefreshToken();
 
-        _tokenHelper.SetRefreshToken(player, refreshToken);
+        SetRefreshToken(player, refreshToken);
         await _repository.UpdateAsync(player);
 
         return new(accessToken, refreshToken);
@@ -148,15 +154,26 @@ public class PlayersService : IPlayersService
     public async Task<TokensReadDto> RefreshTokensAsync(int id, TokensRefreshDto refreshDto, CancellationToken token)
     {
         var player = await GetByIdOrThrowAsync(id, token);
-        _accessHelper.VerifyAccessRights(player);
+        _accesChecker.VerifyAccessRights(player);
 
-        _tokenHelper.ValidateRefreshToken(player, refreshDto.RefreshToken);
+        var validationResult = player.ValidateRefreshToken(refreshDto.RefreshToken);
 
-        var accessToken = _tokenHelper.GenerateAccessToken(player);
-        var refreshToken = _tokenHelper.GenerateRefreshToken();
+        if (!validationResult)
+        {
+			_logger.LogWarning(
+                "Player '{Name}' failed to validate a refresh token due to providing an incorrect or expired token",
+                player.Name);
 
-        _tokenHelper.SetRefreshToken(player, refreshToken);
+            throw new InvalidTokenException("Token is invalid or expired");
+        }
+
+        var accessToken = _tokenGenerator.GenerateAccessToken(player.GetClaims());
+        var refreshToken = _tokenGenerator.GenerateRefreshToken();
+
+        SetRefreshToken(player, refreshToken);
         await _repository.UpdateAsync(player);
+
+        _logger.LogInformation("Player '{Name}' successfully refreshed the tokens", player.Name);
 
         return new(accessToken, refreshToken);
     }
@@ -188,4 +205,7 @@ public class PlayersService : IPlayersService
 
         return player;
     }
+
+    private void SetRefreshToken(Player player, string token) =>
+        player.SetRefreshToken(token, _jwtOptions.RefreshExpirationPeriod);
 }

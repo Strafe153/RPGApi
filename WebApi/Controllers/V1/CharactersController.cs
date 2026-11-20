@@ -1,14 +1,13 @@
 ﻿using Application.Dtos;
 using Application.Dtos.CharactersDtos;
 using Application.Services.Abstractions;
+using Application.Shared;
 using Asp.Versioning;
-using Domain.Constants;
-using Domain.Shared;
-using Domain.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using WebApi.Constants;
 using WebApi.Filters;
 
 namespace WebApi.Controllers.V1;
@@ -18,22 +17,13 @@ namespace WebApi.Controllers.V1;
 [Authorize]
 [ApiVersion(ApiVersioningConstants.V1)]
 [EnableRateLimiting(RateLimitingConstants.TokenBucket)]
-public class CharactersController : ControllerBase
+public class CharactersController(ICharactersService charactersService) : ControllerBase
 {
-    private readonly ICharactersService _charactersService;
-
-    public CharactersController(ICharactersService charactersService)
-    {
-        _charactersService = charactersService;
-    }
-
     [HttpGet]
     [CacheFilter]
-    public async Task<ActionResult<PageDto<CharacterReadDto>>> Get(
-        [FromQuery] PageParameters pageParams,
-        CancellationToken token)
+    public async Task<ActionResult<PageDto<CharacterReadDto>>> Get([FromQuery] PageParameters pageParams)
     {
-        var characters = await _charactersService.GetAllAsync(pageParams, token);
+        var characters = await charactersService.GetAllAsync(pageParams);
         return Ok(characters);
     }
 
@@ -41,7 +31,7 @@ public class CharactersController : ControllerBase
     [CacheFilter]
     public async Task<ActionResult<CharacterReadDto>> Get([FromRoute] int id, CancellationToken token)
     {
-        var mount = await _charactersService.GetByIdAsync(id, token);
+        var mount = await charactersService.GetByIdAsync(id, token);
         return Ok(mount);
     }
 
@@ -50,7 +40,7 @@ public class CharactersController : ControllerBase
         [FromBody] CharacterCreateDto createDto,
         CancellationToken token)
     {
-        var readDto = await _charactersService.AddAsync(createDto, token);
+        var readDto = await charactersService.AddAsync(createDto, token);
         return CreatedAtAction(nameof(Get), new { id = readDto.Id }, readDto);
     }
 
@@ -60,7 +50,7 @@ public class CharactersController : ControllerBase
         [FromBody] CharacterUpdateDto updateDto,
         CancellationToken token)
     {
-        await _charactersService.UpdateAsync(id, updateDto, token);
+        await charactersService.UpdateAsync(id, updateDto, token);
         return NoContent();
     }
 
@@ -70,28 +60,28 @@ public class CharactersController : ControllerBase
         [FromBody] JsonPatchDocument<CharacterUpdateDto> patchDocument,
         CancellationToken token)
     {
-        var patchResult = await _charactersService.PatchAsync(id, patchDocument, TryValidateModel, token);
+        var patchResult = await charactersService.PatchAsync(id, patchDocument, TryValidateModel, token);
         return patchResult ? NoContent() : ValidationProblem(ModelState);
     }
 
     [HttpDelete("{id:int:min(1)}")]
     public async Task<ActionResult> Delete([FromRoute] int id, CancellationToken token)
     {
-        await _charactersService.DeleteAsync(id, token);
+        await charactersService.DeleteAsync(id, token);
         return NoContent();
     }
 
     [HttpPut("item")]
     public async Task<ActionResult> ManageItem([FromBody] ManageItemDto itemDto, CancellationToken token)
     {
-        await _charactersService.ManageItemAsync(itemDto, token);
+        await charactersService.ManageItemAsync(itemDto, token);
         return NoContent();
     }
 
     [HttpPut("hit")]
     public async Task<ActionResult> Hit([FromBody] HitDto hitDto, CancellationToken token)
     {
-        await _charactersService.HitAsync(hitDto, token);
+        await charactersService.HitAsync(hitDto, token);
         return NoContent();
     }
 }

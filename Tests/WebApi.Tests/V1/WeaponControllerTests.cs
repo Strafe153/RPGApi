@@ -1,7 +1,7 @@
 ﻿using Application.Dtos;
 using Application.Dtos.WeaponDtos;
+using Application.Shared;
 using Domain.Enums;
-using Domain.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +28,13 @@ public class WeaponControllerTests
             new(2, "Rebel Knife", WeaponType.Dagger, 87, [])
         ];
 
-        PageDto<WeaponReadDto> pageDto = new(1, 1, 2, 2, false, false, weapons);
+        PageDto<WeaponReadDto> pageDto = new()
+        {
+            CurrentPage = 1,
+            TotalItems = 2,
+            PageSize = 2,
+            Items = weapons,
+        };
 
         PageParameters pageParameters = new()
         {
@@ -37,19 +43,19 @@ public class WeaponControllerTests
         };
 
         _fixture.WeaponsService
-            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>()))
             .ReturnsAsync(pageDto);
 
         // Act
         var sut = _fixture.CreateSut();
-		var result = await sut.Get(pageParameters, new CancellationToken());
+		var result = await sut.Get(pageParameters);
 		var objectResult = result.Result as OkObjectResult;
 		var resultPageDto = objectResult?.Value as PageDto<WeaponReadDto>;
 
 		// Assert
 		Assert.AreEqual(StatusCodes.Status200OK, objectResult?.StatusCode);
-        Assert.AreEqual(WeaponType.Bow, resultPageDto?.Entities.First().Type);
-        Assert.AreEqual(2, resultPageDto?.Entities.Last().Id);
+        Assert.AreEqual(WeaponType.Bow, resultPageDto?.Items.First().Type);
+        Assert.AreEqual(2, resultPageDto?.Items.Last().Id);
 	}
 
 	[Test]

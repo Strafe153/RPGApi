@@ -3,33 +3,24 @@ using Application.Dtos.SpellDtos;
 using Application.Extensions;
 using Application.Mappings;
 using Application.Services.Abstractions;
+using Application.Shared;
 using Domain.Entities;
 using Domain.Repositories;
-using Domain.Shared;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services.Implementations;
 
-public class SpellsService : ISpellsService
+public class SpellsService(
+    IItemRepository<Spell> spellsRepository,
+    ILogger<SpellsService> logger) : ISpellsService
 {
-    private readonly IItemRepository<Spell> _spellsRepository;
-    private readonly ILogger<SpellsService> _logger;
-
-    public SpellsService(
-        IItemRepository<Spell> spellsRepository,
-        ILogger<SpellsService> logger)
-    {
-        _spellsRepository = spellsRepository;
-        _logger = logger;
-    }
-
     public async Task<SpellReadDto> AddAsync(SpellCreateDto createDto)
     {
         var spell = createDto.ToSpell();
-        spell.Id = await _spellsRepository.AddAsync(spell);
+        spell.Id = await spellsRepository.AddAsync(spell);
 
-        _logger.LogInformation("Succesfully created a spell");
+        logger.LogInformation("Succesfully created a spell");
 
         var readDto = spell.ToReadDto();
 
@@ -38,26 +29,26 @@ public class SpellsService : ISpellsService
 
     public async Task DeleteAsync(int id, CancellationToken token)
     {
-        await _spellsRepository.GetByIdOrThrowAsync(id, _logger, token);
-        await _spellsRepository.DeleteAsync(id);
+        await spellsRepository.GetByIdOrThrowAsync(id, logger, token);
+        await spellsRepository.DeleteAsync(id);
 
-        _logger.LogInformation("Succesfully deleted a spell with id {Id}", id);
+        logger.LogInformation("Succesfully deleted a spell with id {Id}", id);
     }
 
-    public async Task<PageDto<SpellReadDto>> GetAllAsync(PageParameters pageParameters, CancellationToken token)
+    public async Task<PageDto<SpellReadDto>> GetAllAsync(PageParameters pageParameters)
     {
-        var pagedList = await _spellsRepository.GetAllAsync(pageParameters, token);
-        _logger.LogInformation("Successfully retrieved all spells");
+        var result = await spellsRepository.GetAllAsync(pageParameters.PageNumber, pageParameters.PageSize);
+        var pageDto = result.ToPageDto(pageParameters);
 
-        var pageDto = pagedList.ToPageDto();
+        logger.LogInformation("Successfully retrieved all spells");
 
         return pageDto;
     }
 
     public async Task<SpellReadDto> GetByIdAsync(int id, CancellationToken token)
     {
-        var spell = await _spellsRepository.GetByIdOrThrowAsync(id, _logger, token);
-        _logger.LogInformation("Successfully retrieved a spell with id {Id}", id);
+        var spell = await spellsRepository.GetByIdOrThrowAsync(id, logger, token);
+        logger.LogInformation("Successfully retrieved a spell with id {Id}", id);
 
         var readDto = spell.ToReadDto();
 
@@ -70,7 +61,7 @@ public class SpellsService : ISpellsService
         Func<object, bool> tryValidateModelDelegate,
         CancellationToken token)
     {
-        var spell = await _spellsRepository.GetByIdOrThrowAsync(id, _logger, token);
+        var spell = await spellsRepository.GetByIdOrThrowAsync(id, logger, token);
         var updateDto = spell.ToUpdateDto();
 
         patchDocument.ApplyTo(updateDto);
@@ -81,17 +72,17 @@ public class SpellsService : ISpellsService
         }
 
         updateDto.Update(spell);
-        await _spellsRepository.UpdateAsync(spell);
+        await spellsRepository.UpdateAsync(spell);
 
         return true;
     }
 
     public async Task UpdateAsync(int id, SpellUpdateDto updateDto, CancellationToken token)
     {
-        var spell = await _spellsRepository.GetByIdOrThrowAsync(id, _logger, token);
+        var spell = await spellsRepository.GetByIdOrThrowAsync(id, logger, token);
         updateDto.Update(spell);
 
-        await _spellsRepository.UpdateAsync(spell);
-        _logger.LogInformation("Successfully updated a spell with id {Id}", id);
+        await spellsRepository.UpdateAsync(spell);
+        logger.LogInformation("Successfully updated a spell with id {Id}", id);
     }
 }

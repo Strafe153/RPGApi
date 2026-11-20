@@ -1,14 +1,16 @@
 ﻿using Application.Dtos;
 using Application.Dtos.CharactersDtos;
+using Application.Enums;
+using Application.Exceptions;
+using Application.Shared;
 using Application.Tests.Fixtures;
 using Domain.Entities;
 using Domain.Enums;
-using Domain.Exceptions;
-using Domain.Helpers;
 using Domain.Shared;
 using Microsoft.AspNetCore.JsonPatch;
 using Moq;
 using NUnit.Framework;
+using Security;
 
 namespace Application.Tests;
 
@@ -43,7 +45,7 @@ public class CharacterServiceTests
             },
         ];
 
-        PagedList<Character> pagedList = new(characters, characters.Count, 1, 2);
+        GetAllResult<Character> pagedList = new(characters.Count, characters);
 
         PageParameters pageParameters = new()
         {
@@ -52,16 +54,16 @@ public class CharacterServiceTests
         };
 
         _fixture.CharactersRepository
-            .Setup(x => x.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(pagedList);
 
         // Act
         var sut = _fixture.CreeateSut();
-        var result = await sut.GetAllAsync(pageParameters, new CancellationToken());
+        var result = await sut.GetAllAsync(pageParameters);
 
         // Assert
-        Assert.AreEqual(CharacterRace.Human, result.Entities.First().Race);
-        Assert.AreEqual("Eltolinde", result.Entities.Last().Name);
+        Assert.AreEqual(CharacterRace.Human, result.Items.First().Race);
+        Assert.AreEqual("Eltolinde", result.Items.Last().Name);
 	}
 
 	[Test]
@@ -122,7 +124,7 @@ public class CharacterServiceTests
 	public async Task AddAsync_Should_ReturnCharacterReadDto_WhenPlayerExists()
     {
         // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -152,7 +154,7 @@ public class CharacterServiceTests
 	public void AddAsync_Should_ThrowNullReferenceException_WhenPlayerDoesNotExist()
 	{
 	    // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -182,7 +184,7 @@ public class CharacterServiceTests
     {
         // Arrange
         var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -213,7 +215,7 @@ public class CharacterServiceTests
 	public void UpdateAsync_Should_ReturnTask_WhenCharacterExists()
     {
         // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -254,7 +256,7 @@ public class CharacterServiceTests
 	public void UpdateAsync_Should_ThrowNullReferenceExceition_WhenCharacterDoesNotExist()
 	{
 	    // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -295,7 +297,7 @@ public class CharacterServiceTests
 	public void UpdateAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
 	{
 	// Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -338,7 +340,7 @@ public class CharacterServiceTests
 	public void DeleteAsync_Should_ReturnTask_WhenCharacterExists()
     {
         // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -377,7 +379,7 @@ public class CharacterServiceTests
 	public void DeleteAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist()
 	{
 	    // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -416,7 +418,7 @@ public class CharacterServiceTests
 	public void DeleteAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights()
 	{
 	    // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -457,7 +459,7 @@ public class CharacterServiceTests
 	public async Task PatchAsync_Should_ReturnTrue_WhenCharacterExistsAndModelIsValid()
     {
 		// Arrange
-		var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+		var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -501,7 +503,7 @@ public class CharacterServiceTests
 	public async Task PatchAsync_Should_ReturnFalse_WhenCharacterExistsAndModelIsNotValid()
 	{
     	// Arrange
-    	var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+    	var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -545,7 +547,7 @@ public class CharacterServiceTests
 	public void PatchAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist()
 	{
     	// Arrange
-    	var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+    	var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -590,7 +592,7 @@ public class CharacterServiceTests
 	public void ManageItemAsync_Should_ReturnTask_WhenCharacterAndItemExist(ManageItemDto itemDto)
     {
         // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -664,7 +666,7 @@ public class CharacterServiceTests
 	public void ManageItemAsync_Should_ReturnTask_WhenCharacterExistAndItemDoesNotExist(ManageItemDto itemDto)
 	{
 	    // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -738,7 +740,7 @@ public class CharacterServiceTests
 	public void ManageItemAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist(ManageItemDto itemDto)
 	{
 	    // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -777,7 +779,7 @@ public class CharacterServiceTests
 		ManageItemDto itemDto)
 	{
 	    // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -821,7 +823,7 @@ public class CharacterServiceTests
 		int resultingHealth)
     {
 		// Arrange
-		var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+		var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -883,7 +885,7 @@ public class CharacterServiceTests
 	public void HitAsync_Should_ThrowNullReferenceException_WhenCharacterDoesNotExist(HitDto hitDto)
     {
         // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -921,7 +923,7 @@ public class CharacterServiceTests
 	public void HitAsync_Should_ThrowNullReferenceException_WhenCharacterExistsAndItemDoesNotExist(HitDto hitDto)
     {
 		// Arrange
-		var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+		var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -983,7 +985,7 @@ public class CharacterServiceTests
 	public void HitAsync_Should_ThrowNotEnoughRightsException_WhenPlayerDoesNotHaveSufficientRights(HitDto hitDto)
 	{
 	// Arrange
-	var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+	var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {

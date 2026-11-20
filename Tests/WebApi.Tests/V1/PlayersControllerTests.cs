@@ -1,14 +1,14 @@
 ﻿using Application.Dtos;
 using Application.Dtos.PlayerDtos;
 using Application.Dtos.TokenDtos;
+using Application.Shared;
 using Domain.Entities;
 using Domain.Enums;
-using Domain.Helpers;
-using Domain.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
+using Security;
 using WebApi.Tests.V1.Fixtures;
 
 namespace WebApi.Tests.V1;
@@ -30,7 +30,13 @@ public class PlayersControllerTests
             new(2, "Courtney", PlayerRole.Player, [])
         ];
 
-        PageDto<PlayerReadDto> pageDto = new(1, 2, 2, 2, false, false, players);
+        PageDto<PlayerReadDto> pageDto = new()
+        {
+            CurrentPage = 1,
+            TotalItems = 2,
+            PageSize = 2,
+            Items = players,
+        };
 
         PageParameters pageParameters = new()
         {
@@ -39,19 +45,19 @@ public class PlayersControllerTests
         };
 
         _fixture.PlayersService
-            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>()))
             .ReturnsAsync(pageDto);
 
         // Act
         var sut = _fixture.CreateSut();
-		var result = await sut.Get(pageParameters, new CancellationToken());
+		var result = await sut.Get(pageParameters);
 		var objectResult = result.Result as OkObjectResult;
 		var resultPageDto = objectResult?.Value as PageDto<PlayerReadDto>;
 
 		// Assert
 		Assert.AreEqual(StatusCodes.Status200OK, objectResult?.StatusCode);
-        Assert.AreEqual(PlayerRole.Player, resultPageDto?.Entities.First().Role);
-        Assert.AreEqual("Courtney", resultPageDto?.Entities.Last().Name);
+        Assert.AreEqual(PlayerRole.Player, resultPageDto?.Items.First().Role);
+        Assert.AreEqual("Courtney", resultPageDto?.Items.Last().Name);
 	}
 
 	[Test]
@@ -102,8 +108,8 @@ public class PlayersControllerTests
 	public async Task Login_Should_ReturnActionResultOfTokensReadDto_WhenPlayerAuthorizeDtoIsValid()
     {
         // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
-        var newRefreshToken = _fixture.TokenHelper.GenerateRefreshToken();
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
+        var newRefreshToken = _fixture.TokenGenerator.GenerateRefreshToken();
 
         Player player = new()
         {
@@ -116,8 +122,8 @@ public class PlayersControllerTests
             RefreshTokenExpiryDate = DateTime.UtcNow.AddMonths(1)
         };
 
-        var accessToken = _fixture.TokenHelper.GenerateAccessToken(player);
-        var refreshToken = _fixture.TokenHelper.GenerateRefreshToken();
+        var accessToken = _fixture.TokenGenerator.GenerateAccessToken(player.GetClaims());
+        var refreshToken = _fixture.TokenGenerator.GenerateRefreshToken();
 
 		TokensReadDto tokensDto = new(accessToken, refreshToken);
         PlayerAuthorizeDto authorizeDto = new("Ren", "1234Qwer");
@@ -169,8 +175,8 @@ public class PlayersControllerTests
 	public async Task ChangePassword_Should_ReturnActionResultOfTokensReadDto_WhenPlayerExistsAndDtoIsValid()
     {
         // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
-        var newRefreshToken = _fixture.TokenHelper.GenerateRefreshToken();
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
+        var newRefreshToken = _fixture.TokenGenerator.GenerateRefreshToken();
 
         Player player = new()
         {
@@ -183,8 +189,8 @@ public class PlayersControllerTests
             RefreshTokenExpiryDate = DateTime.UtcNow.AddMonths(1)
         };
 
-        var accessToken = _fixture.TokenHelper.GenerateAccessToken(player);
-        var refreshToken = _fixture.TokenHelper.GenerateRefreshToken();
+        var accessToken = _fixture.TokenGenerator.GenerateAccessToken(player.GetClaims());
+        var refreshToken = _fixture.TokenGenerator.GenerateRefreshToken();
 
         TokensReadDto tokensDto = new(accessToken, refreshToken);
         PlayerChangePasswordDto changePasswordDto = new("53cr3t!");
@@ -240,8 +246,8 @@ public class PlayersControllerTests
 	public async Task RefreshTokens_Should_ReturnActionResultOfTokensReadDto_WhenPlayerExistsAndTokensRefreshDtoIsValid()
     {
         // Arrange
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
-        var newRefreshToken = _fixture.TokenHelper.GenerateRefreshToken();
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
+        var newRefreshToken = _fixture.TokenGenerator.GenerateRefreshToken();
 
         Player player = new()
         {
@@ -254,8 +260,8 @@ public class PlayersControllerTests
             RefreshTokenExpiryDate = DateTime.UtcNow.AddMonths(1)
         };
 
-        var accessToken = _fixture.TokenHelper.GenerateAccessToken(player);
-        var refreshToken = _fixture.TokenHelper.GenerateRefreshToken();
+        var accessToken = _fixture.TokenGenerator.GenerateAccessToken(player.GetClaims());
+        var refreshToken = _fixture.TokenGenerator.GenerateRefreshToken();
 
         TokensReadDto tokensDto = new(accessToken, refreshToken);
         TokensRefreshDto refreshTokensDto = new(refreshToken);

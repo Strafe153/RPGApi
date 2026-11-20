@@ -47,7 +47,7 @@ public static class SwaggerConfiguration
                             Id = BearerScheme
                         }
                     },
-                    Array.Empty<string>()
+                    []
                 }
             });
         });
@@ -63,7 +63,9 @@ public static class SwaggerConfiguration
 
             foreach (var description in provider.ApiVersionDescriptions)
             {
-                options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                options.SwaggerEndpoint(
+                    $"/swagger/{description.GroupName}/swagger.json",
+                    description.GroupName.ToUpperInvariant());
             }
         });
     }

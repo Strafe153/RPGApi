@@ -1,10 +1,11 @@
-﻿using Domain.Exceptions;
-using Domain.Shared;
+﻿using Application.Exceptions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System.Net;
 using System.Net.Mime;
+using Security.Exceptions;
+using WebApi.Constants;
 
 namespace WebApi.Filters;
 

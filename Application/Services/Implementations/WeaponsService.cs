@@ -3,33 +3,24 @@ using Application.Dtos.WeaponDtos;
 using Application.Extensions;
 using Application.Mappings;
 using Application.Services.Abstractions;
+using Application.Shared;
 using Domain.Entities;
 using Domain.Repositories;
-using Domain.Shared;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.Extensions.Logging;
 
 namespace Application.Services.Implementations;
 
-public class WeaponsService : IWeaponsService
+public class WeaponsService(
+    IItemRepository<Weapon> repository,
+    ILogger<WeaponsService> logger) : IWeaponsService
 {
-    private readonly IItemRepository<Weapon> _repository;
-    private readonly ILogger<WeaponsService> _logger;
-
-    public WeaponsService(
-        IItemRepository<Weapon> repository,
-        ILogger<WeaponsService> logger)
-    {
-        _repository = repository;
-        _logger = logger;
-    }
-
     public async Task<WeaponReadDto> AddAsync(WeaponCreateDto createDto)
     {
         var weapon = createDto.ToWeapon();
-        weapon.Id = await _repository.AddAsync(weapon);
+        weapon.Id = await repository.AddAsync(weapon);
 
-        _logger.LogInformation("Succesfully created a weapon");
+        logger.LogInformation("Succesfully created a weapon");
 
         var readDto = weapon.ToReadDto();
 
@@ -38,26 +29,26 @@ public class WeaponsService : IWeaponsService
 
     public async Task DeleteAsync(int id, CancellationToken token)
     {
-        await _repository.GetByIdOrThrowAsync(id, _logger, token);
-        await _repository.DeleteAsync(id);
+        await repository.GetByIdOrThrowAsync(id, logger, token);
+        await repository.DeleteAsync(id);
 
-        _logger.LogInformation("Succesfully deleted a weapon with id {Id}", id);
+        logger.LogInformation("Succesfully deleted a weapon with id {Id}", id);
     }
 
-    public async Task<PageDto<WeaponReadDto>> GetAllAsync(PageParameters pageParameters, CancellationToken token)
+    public async Task<PageDto<WeaponReadDto>> GetAllAsync(PageParameters pageParameters)
     {
-        var pagedList = await _repository.GetAllAsync(pageParameters, token);
-        _logger.LogInformation("Successfully retrieved all weapons");
+        var result = await repository.GetAllAsync(pageParameters.PageNumber, pageParameters.PageSize);
+        var pageDto = result.ToPageDto(pageParameters);
 
-        var pageDto = pagedList.ToPageDto();
+        logger.LogInformation("Successfully retrieved all weapons");
 
         return pageDto;
     }
 
     public async Task<WeaponReadDto> GetByIdAsync(int id, CancellationToken token)
     {
-        var weapon = await _repository.GetByIdOrThrowAsync(id, _logger, token);
-        _logger.LogInformation("Successfully retrieved a weapon with id {Id}", id);
+        var weapon = await repository.GetByIdOrThrowAsync(id, logger, token);
+        logger.LogInformation("Successfully retrieved a weapon with id {Id}", id);
 
         var readDto = weapon.ToReadDto();
 
@@ -70,7 +61,7 @@ public class WeaponsService : IWeaponsService
         Func<object, bool> tryValidateModelDelegate,
         CancellationToken token)
     {
-        var weapon = await _repository.GetByIdOrThrowAsync(id, _logger, token);
+        var weapon = await repository.GetByIdOrThrowAsync(id, logger, token);
         var updateDto = weapon.ToUpdateDto();
 
         patchDocument.ApplyTo(updateDto);
@@ -81,17 +72,17 @@ public class WeaponsService : IWeaponsService
         }
 
         updateDto.Update(weapon);
-        await _repository.UpdateAsync(weapon);
+        await repository.UpdateAsync(weapon);
 
         return true;
     }
 
     public async Task UpdateAsync(int id, WeaponUpdateDto updateDto, CancellationToken token)
     {
-        var weapon = await _repository.GetByIdOrThrowAsync(id, _logger, token);
+        var weapon = await repository.GetByIdOrThrowAsync(id, logger, token);
         updateDto.Update(weapon);
 
-        await _repository.UpdateAsync(weapon);
-        _logger.LogInformation("Successfully updated a weapon with id {Id}", id);
+        await repository.UpdateAsync(weapon);
+        logger.LogInformation("Successfully updated a weapon with id {Id}", id);
     }
 }

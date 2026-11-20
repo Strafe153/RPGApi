@@ -1,7 +1,7 @@
 ﻿using Application.Dtos;
 using Application.Dtos.MountDtos;
+using Application.Shared;
 using Domain.Enums;
-using Domain.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +28,13 @@ public class MountsControllerTests
             new(2, "Bigby Wolf", MountType.Wolf, 69, [])
         ];
 
-        PageDto<MountReadDto> pageDto = new(1, 1, 2, 2, false, false, mounts);
+        PageDto<MountReadDto> pageDto = new()
+        {
+            CurrentPage = 1,
+            TotalItems = 2,
+            PageSize = 2,
+            Items = mounts,
+        };
 
         PageParameters pageParameters = new()
         {
@@ -37,19 +43,19 @@ public class MountsControllerTests
         };
 
         _fixture.MountsService
-            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>()))
             .ReturnsAsync(pageDto);
 
         // Act
         var sut = _fixture.CreateSut();
-		var result = await sut.Get(pageParameters, new CancellationToken());
+		var result = await sut.Get(pageParameters);
 		var objectResult = result.Result as OkObjectResult;
 		var resultPageDto = objectResult?.Value as PageDto<MountReadDto>;
 
 		// Assert
 		Assert.AreEqual(StatusCodes.Status200OK, objectResult?.StatusCode);
-        Assert.AreEqual(1, resultPageDto?.Entities.First().Id);
-        Assert.AreEqual("Bigby Wolf", resultPageDto?.Entities.Last().Name);
+        Assert.AreEqual(1, resultPageDto?.Items.First().Id);
+        Assert.AreEqual("Bigby Wolf", resultPageDto?.Items.Last().Name);
 	}
 
 	[Test]

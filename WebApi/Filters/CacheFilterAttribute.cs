@@ -1,26 +1,17 @@
-﻿using Application.Services.Abstractions;
-using Domain.Helpers;
+﻿using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.Extensions.Caching.Distributed;
 using System.Net.Mime;
 using System.Text;
 
 namespace WebApi.Filters;
 
 [AttributeUsage(AttributeTargets.Method)]
-public class CacheFilterAttribute : Attribute, IAsyncResourceFilter
+public class CacheFilterAttribute(int absoluteExpirationRelativeToNow = 3) : Attribute, IAsyncResourceFilter
 {
-	private readonly int _absoluteExpirationRelativeToNow;
-
-	public CacheFilterAttribute(int absoluteExpirationRelativeToNow = 3)
-	{
-		_absoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow;
-	}
-
 	public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
 	{
-		var cacheHelper = context.HttpContext.RequestServices.GetRequiredService<ICacheHelper>();
+		var cacheHelper = context.HttpContext.RequestServices.GetRequiredService<ICacheManager>();
 
 		if (cacheHelper is null)
 		{
@@ -33,7 +24,7 @@ public class CacheFilterAttribute : Attribute, IAsyncResourceFilter
 
 		if (!string.IsNullOrEmpty(cachedResponse))
 		{
-			var contentResult = new ContentResult
+			ContentResult contentResult = new()
 			{
 				Content = cachedResponse,
 				ContentType = MediaTypeNames.Application.Json,
@@ -49,16 +40,14 @@ public class CacheFilterAttribute : Attribute, IAsyncResourceFilter
 		if (executedContext.Result is OkObjectResult okObjectResult
 			&& okObjectResult.Value is not null)
 		{
-			await cacheHelper.SetAsync(key, okObjectResult.Value, new DistributedCacheEntryOptions
-			{
-				AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(_absoluteExpirationRelativeToNow)
-			});
+			var expiration = TimeSpan.FromSeconds(absoluteExpirationRelativeToNow);
+			await cacheHelper.SetAsync(key, okObjectResult.Value, expiration);
 		}
 	}
 
 	private static string GenerateCacheKey(HttpRequest request)
 	{
-		var cacheKeyBuilder = new StringBuilder(request.Path);
+		StringBuilder cacheKeyBuilder = new(request.Path);
 
 		foreach (var (key, value) in request.Query.OrderBy(kv => kv.Key))
 		{

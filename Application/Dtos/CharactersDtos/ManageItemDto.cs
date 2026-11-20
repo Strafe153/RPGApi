@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Domain.Enums;
+using Application.Enums;
 
 namespace Application.Dtos.CharactersDtos;
 

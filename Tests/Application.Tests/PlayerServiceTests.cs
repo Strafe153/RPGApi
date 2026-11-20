@@ -1,14 +1,15 @@
-﻿using Application.Dtos.PlayerDtos;
+﻿using System.Data.Common;
+using Application.Dtos.PlayerDtos;
 using Application.Dtos.TokenDtos;
+using Application.Exceptions;
+using Application.Shared;
 using Application.Tests.Fixtures;
 using Domain.Entities;
 using Domain.Enums;
-using Domain.Exceptions;
-using Domain.Helpers;
 using Domain.Shared;
 using Moq;
-using Npgsql;
 using NUnit.Framework;
+using Security;
 
 namespace Application.Tests;
 
@@ -39,7 +40,7 @@ public class PlayerServiceTests
             },
         ];
 
-        PagedList<Player> pagedList = new(players, players.Count, 1, 2);
+        GetAllResult<Player> pagedList = new(players.Count, players);
 
         PageParameters pageParameters = new()
         {
@@ -48,16 +49,16 @@ public class PlayerServiceTests
         };
 
         _fixture.PlayersRepository
-            .Setup(r => r.GetAllAsync(It.IsAny<PageParameters>(), It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetAllAsync(It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(pagedList);
 
         // Act
         var sut = _fixture.CreeateSut();
-		var result = await sut.GetAllAsync(pageParameters, new CancellationToken());
+		var result = await sut.GetAllAsync(pageParameters);
 
 		// Assert
-		Assert.AreEqual("Ren", result.Entities.First().Name);
-		Assert.AreEqual(2, result.Entities.Last().Id);
+		Assert.AreEqual("Ren", result.Items.First().Name);
+		Assert.AreEqual(2, result.Items.Last().Id);
 	}
 
 	[Test]
@@ -65,7 +66,7 @@ public class PlayerServiceTests
     {
         // Arrange
         var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -93,7 +94,7 @@ public class PlayerServiceTests
 	{
 	    // Arrange
         var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -121,7 +122,7 @@ public class PlayerServiceTests
     {
         // Arrange
         var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -151,7 +152,7 @@ public class PlayerServiceTests
     {
         // Arrange
         var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -166,7 +167,7 @@ public class PlayerServiceTests
 
         _fixture.PlayersRepository
             .Setup(r => r.AddAsync(It.IsAny<Player>()))
-            .Throws<NpgsqlException>();
+            .Throws<TestDbException>();
 
         // Act
         var sut = _fixture.CreeateSut();
@@ -174,6 +175,7 @@ public class PlayerServiceTests
 
         // Assert
         Assert.ThrowsAsync<NameNotUniqueException>(result);
+
     }
 
 	[Test]
@@ -181,7 +183,7 @@ public class PlayerServiceTests
     {
         // Arrange
         var name = "Ren";
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -212,7 +214,7 @@ public class PlayerServiceTests
 	{
         // Arrange
         var name = "Ren";
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -242,7 +244,7 @@ public class PlayerServiceTests
     {
 		// Arrange
 		var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -272,7 +274,7 @@ public class PlayerServiceTests
     {
 		// Arrange
 		var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -291,7 +293,7 @@ public class PlayerServiceTests
 
         _fixture.PlayersRepository
             .Setup(r => r.UpdateAsync(It.IsAny<Player>()))
-            .Throws<NpgsqlException>();
+            .Throws<TestDbException>();
 
         // Act
         var sut = _fixture.CreeateSut();
@@ -306,7 +308,7 @@ public class PlayerServiceTests
     {
 		// Arrange
 		var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -336,7 +338,7 @@ public class PlayerServiceTests
     {
 		// Arrange
 		var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -368,7 +370,7 @@ public class PlayerServiceTests
     {
 		// Arrange
 		var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -396,7 +398,7 @@ public class PlayerServiceTests
 	{
 		// Arrange
 		var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -424,7 +426,7 @@ public class PlayerServiceTests
 	{
     	// Arrange
     	var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -454,7 +456,7 @@ public class PlayerServiceTests
     {
 		// Arrange
 		var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -485,7 +487,7 @@ public class PlayerServiceTests
 	{
     	// Arrange
     	var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -515,7 +517,7 @@ public class PlayerServiceTests
 	{
     	// Arrange
     	var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -547,7 +549,7 @@ public class PlayerServiceTests
     {
 		// Arrange
 		var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -577,7 +579,7 @@ public class PlayerServiceTests
 	{
     	// Arrange
     	var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
 
         Player player = new()
         {
@@ -607,8 +609,8 @@ public class PlayerServiceTests
 	{
 		// Arrange
 		var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
-        var refreshToken = _fixture.TokenHelper.GenerateRefreshToken();
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
+        var refreshToken = _fixture.TokenGenerator.GenerateRefreshToken();
 
         Player player = new()
         {
@@ -641,8 +643,8 @@ public class PlayerServiceTests
 	{
     	// Arrange
     	var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
-        var refreshToken = _fixture.TokenHelper.GenerateRefreshToken();
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
+        var refreshToken = _fixture.TokenGenerator.GenerateRefreshToken();
 
         Player player = new()
         {
@@ -674,8 +676,8 @@ public class PlayerServiceTests
 	{
 	    // Arrange
     	var id = 1;
-        var (hash, salt) = PasswordHelper.GeneratePasswordHashAndSalt("1234Qwer");
-        var refreshToken = _fixture.TokenHelper.GenerateRefreshToken();
+        var (hash, salt) = PasswordHasher.GenerateHashWithSalt("1234Qwer");
+        var refreshToken = _fixture.TokenGenerator.GenerateRefreshToken();
 
         Player player = new()
         {
@@ -704,3 +706,4 @@ public class PlayerServiceTests
         Assert.ThrowsAsync<NotEnoughRightsException>(result);
 	}
 }
+class TestDbException : DbException {}
