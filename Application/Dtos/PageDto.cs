@@ -11,12 +11,3 @@ public record PageDto<T>
     public bool HasPrevious => CurrentPage > 1;
     public bool HasNext => CurrentPage < TotalPages;
 }
-
-// public record PageDto<T>(
-//     int CurrentPage,
-//     int TotalPages,
-//     int PageSize,
-//     int TotalItems,
-//     bool HasPrevious,
-//     bool HasNext,
-//     IEnumerable<T> Entities);
